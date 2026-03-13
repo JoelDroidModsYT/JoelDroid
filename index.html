@@ -5,15 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JoelDroid Mods YT | Premium Platform</title>
     
-    <!-- Pre-conexión -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://unpkg.com">
-    
-    <!-- Tailwind CSS -->
+    <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -22,568 +16,536 @@
             --bg-color: #020408;
             --card-bg: rgba(13, 17, 23, 0.95);
             --text-main: #ffffff;
-            --text-title: #ffffff;
-            --text-muted: #94a3b8;
-            --border-color: rgba(59, 130, 246, 0.3);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --border-color: rgba(59, 130, 246, 0.5); 
             --nav-bg: rgba(2, 4, 8, 0.98);
             --overlay-bg: #020408;
-            --neon-glow: 0.5;
             --brand-color: #3b82f6;
-            --neon-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-            --premium-gradient: linear-gradient(to bottom right, #1d4ed8, #1e3a8a);
-            --detail-name-color: #ffffff;
-            --detail-name-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
-            --warning-bg: rgba(245, 158, 11, 0.1);
-            --warning-text: #f59e0b;
-            --toast-bg: #10b981;
-            --toast-text: #ffffff;
+            --btn-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
+            --neon-border: 0 0 10px rgba(59, 130, 246, 0.4), inset 0 0 5px rgba(59, 130, 246, 0.2);
+            --search-bg: rgba(255, 255, 255, 0.05);
         }
 
         .light-mode {
             --bg-color: #f0f4f8;
             --card-bg: #ffffff;
             --text-main: #0f172a;
-            --text-title: #1d4ed8;
-            --text-muted: #475569;
-            --border-color: rgba(37, 99, 235, 0.2);
+            --text-secondary: rgba(15, 23, 42, 0.7);
+            --border-color: rgba(37, 99, 235, 0.4);
             --nav-bg: rgba(255, 255, 255, 0.98);
             --overlay-bg: #f8fafc;
-            --neon-glow: 0.3;
-            --brand-color: #2563eb;
-            --neon-shadow: 0 0 12px rgba(37, 99, 235, 0.2);
-            --premium-gradient: linear-gradient(to bottom right, #2563eb, #1e40af);
-            --detail-name-color: #1e3a8a; 
-            --detail-name-shadow: none;
-            --warning-bg: rgba(217, 119, 6, 0.08);
-            --warning-text: #b45309;
-            --toast-bg: #059669;
-            --toast-text: #ffffff;
+            --neon-border: 0 0 10px rgba(37, 99, 235, 0.2);
+            --search-bg: rgba(0, 0, 0, 0.05);
         }
 
         body { 
             font-family: 'Inter', sans-serif; 
-            transition: background-color 0.4s ease, color 0.4s ease; 
-            overflow-x: hidden;
             background-color: var(--bg-color);
             color: var(--text-main);
-            min-height: 100vh;
+            transition: all 0.4s ease;
+            overflow-x: hidden;
         }
 
-        .neon-background, .neon-background-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .neon-shape {
-            position: absolute;
-            opacity: 0;
-            animation: floatNeon 20s infinite linear;
-            pointer-events: none;
-        }
-
-        .neon-shape.square { border: 2.5px solid; border-radius: 8px; }
-        .neon-shape.circle { border: 2.5px solid; border-radius: 50%; }
-        .neon-shape.hexagon {
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            border: 2.5px solid;
-            background: transparent;
-        }
-
-        @keyframes floatNeon {
-            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
-            10% { opacity: var(--neon-glow); }
-            90% { opacity: var(--neon-glow); }
-            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
-        }
-
-        #main-nav { 
-            background-color: var(--nav-bg); 
-            border-bottom: 2px solid var(--border-color); 
-            box-shadow: var(--neon-shadow);
-        }
-        
-        .brand-text {
-            color: var(--brand-color);
-            text-shadow: var(--neon-shadow);
-        }
-        
-        .game-card { 
-            background-color: var(--card-bg); 
-            border: 2px solid var(--border-color); 
-            box-shadow: var(--neon-shadow);
-            backdrop-filter: blur(20px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-
-        .btn-download-premium {
-            background: var(--premium-gradient);
-            color: white;
+        #site-title-ui { 
+            background: linear-gradient(135deg, #60a5fa, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: 900;
-            text-transform: uppercase;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 20px -5px rgba(29, 78, 216, 0.5);
         }
 
-        .mod-badge { 
+        .game-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            box-shadow: var(--neon-border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .game-card:active { transform: scale(0.98); }
+
+        .mod-badge-neon { 
             background: #ef4444; 
             color: white; 
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); 
-            font-size: 9px;
+            font-size: 6px; 
             font-weight: 900;
-            padding: 4px 10px;
-            border-radius: 8px;
-            z-index: 30;
-            border: 1.5px solid rgba(255,255,255,0.3);
-            line-height: 1;
-            white-space: nowrap;
-            position: absolute;
-            bottom: -8px;
+            padding: 2px 6px; 
+            border-radius: 4px;
+            position: absolute; 
+            bottom: -3px; 
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%); 
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+            z-index: 10;
         }
-        
+
         .update-badge { 
             background: #10b981; 
             color: white; 
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.7); 
-            font-size: 8px;
-            font-weight: 900;
-            padding: 3px 8px;
-            border-radius: 6px;
-            z-index: 20;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.9); 
+            font-size: 6px; font-weight: 900;
+            padding: 1.5px 5px; border-radius: 3px;
+            position: absolute; top: -3px; right: -3px;
+            z-index: 10;
             border: 1px solid rgba(255,255,255,0.2);
-            line-height: 1;
-            position: absolute;
-            top: -4px;
-            right: -4px;
         }
 
-        .neon-search {
-            background-color: var(--card-bg);
-            border: 2px solid var(--border-color);
-            box-shadow: var(--neon-shadow);
+        .btn-download-main {
+            background: var(--btn-gradient);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .download-anim { animation: downloadBounce 1.2s infinite; }
+        @keyframes downloadBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+        .alert-pulse { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+
+        .icon-container { width: 72px; height: 72px; flex-shrink: 0; position: relative; }
+        .icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; border: 1px solid rgba(255,255,255,0.05); }
+
+        .ios-icon-large { width: 90px; height: 90px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); object-fit: cover; }
+
+        .mod-tag {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
+        }
+
+        .desc-premium-box {
+            background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), transparent);
+            border-left: 3px solid #3b82f6;
+            padding: 16px;
+            border-radius: 0 16px 16px 0;
+            position: relative;
+        }
+
+        /* BANNER */
+        .premium-banner {
+            position: relative;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1d4ed8 100%);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.3), 0 10px 25px rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1.8rem 1rem; 
+            border-radius: 35px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 120px; 
+        }
+
+        .banner-shield-bg {
+            position: absolute; right: -15px; bottom: -15px; width: 100px; height: 100px;
+            opacity: 0.18; color: white; transform: rotate(-10deg); pointer-events: none;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
+        }
+
+        .banner-world-bg {
+            position: absolute; left: -20px; top: -5px; width: 120px; height: 120px;
+            opacity: 0.12; color: white; transform: rotate(5deg); pointer-events: none;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+
+        .banner-glow {
+            position: absolute; top: 50%; left: 50%; width: 150%; height: 150%;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
+            transform: translate(-50%, -50%); pointer-events: none;
+        }
+
+        /* BUSQUEDA Y FILTROS */
+        .search-container {
+            background: var(--search-bg);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
+            padding: 2px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             transition: all 0.3s ease;
         }
         
-        .neon-search:focus-within {
+        .search-container:focus-within {
             border-color: var(--brand-color);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
         }
 
-        .neon-filter-btn {
-            background-color: var(--card-bg);
-            border: 2px solid var(--border-color);
-            box-shadow: var(--neon-shadow);
-            color: var(--text-muted);
-            font-size: 9px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 15px;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .neon-filter-btn.active {
-            border-color: var(--brand-color);
-            color: var(--brand-color);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        #detail-overlay { 
-            background-color: var(--overlay-bg); 
-            color: var(--text-main); 
-        }
-
-        #detail-name {
-            color: var(--detail-name-color);
-            transition: color 0.4s ease;
-            text-shadow: var(--detail-name-shadow);
-        }
-
-        .box-premium { 
-            background-color: var(--card-bg); 
-            border: 2px solid var(--border-color);
-            box-shadow: var(--neon-shadow);
-        }
-
-        .warning-box {
-            background-color: var(--warning-bg);
-            border-left: 4px solid var(--warning-text);
-            color: var(--warning-text);
-            font-size: 10px;
-            line-height: 1.4;
-            font-weight: 600;
-            border-radius: 12px;
-        }
-
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--toast-bg);
-            color: var(--toast-text);
-            padding: 12px 24px;
-            border-radius: 20px;
-            font-weight: 800;
+        .search-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
             font-size: 12px;
+            font-weight: 600;
+            width: 100%;
+            padding: 8px 0;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 800;
             text-transform: uppercase;
-            z-index: 200;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--search-bg);
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+        }
+
+        .filter-chip.active {
+            background: var(--brand-color);
+            color: white;
+            box-shadow: none; 
+            transform: scale(1.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        #toast.show { transform: translateX(-50%) translateY(0); }
 
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Sticky Header for Detail View */
-        .sticky-detail-header {
-            position: sticky;
-            top: 0;
-            z-index: 110;
-            background: var(--overlay-bg);
-            border-bottom: 2px solid var(--border-color);
-            box-shadow: var(--neon-shadow);
-            padding: 0.75rem 1.5rem;
-        }
+        .admin-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 12px; border-radius: 12px; width: 100%; color: inherit; }
+        html { scroll-behavior: smooth; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="flex flex-col">
+<body>
 
-    <div class="neon-background" id="neon-bg-main"></div>
-    <div id="toast">Enlace copiado</div>
-
-    <!-- NAVBAR PRINCIPAL -->
-    <nav id="main-nav" class="sticky top-0 z-50 py-4 px-6">
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 py-4 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div onclick="window.location.hash = ''" class="flex items-center gap-3 cursor-pointer active:scale-95 transition-transform">
-                <div class="w-11 h-11 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center overflow-hidden">
                     <i data-lucide="zap" class="w-6 h-6 text-white fill-current"></i>
                 </div>
                 <div>
-                    <h1 class="brand-text text-base font-black tracking-tighter uppercase leading-none">JOELDROID</h1>
-                    <span class="text-[8px] font-bold text-blue-500 tracking-[0.4em] uppercase opacity-80">MODS YT</span>
+                    <h1 id="site-title-ui" class="text-xl uppercase leading-none">JOELDROID</h1>
+                    <span class="text-[8px] font-bold tracking-[0.4em] uppercase opacity-80 block">MODS YT</span>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="window.toggleTheme()" class="w-11 h-11 rounded-2xl bg-gray-500/10 flex items-center justify-center text-blue-500 border-2 border-blue-500/30">
-                    <i id="theme-icon" data-lucide="sun" class="w-5 h-5"></i>
-                </button>
-            </div>
+            <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
+                <i id="theme-icon" data-lucide="sun"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- VISTA INICIAL -->
-    <main id="home-view" class="max-w-md mx-auto px-5 py-8 flex-grow w-full z-10">
-        <div id="home-banner" class="mb-6 p-8 rounded-[40px] bg-gradient-to-br from-blue-700 to-blue-900 text-white shadow-2xl relative overflow-hidden border-2 border-blue-400/30">
+    <!-- HOME VIEW -->
+    <main id="home-view" class="max-w-md mx-auto px-5 py-6 space-y-6">
+        <div id="site-announcement" class="hidden p-4 rounded-2xl flex items-center gap-3 bg-red-500 text-white">
+            <i data-lucide="megaphone" class="w-4 h-4"></i>
+            <p id="ann-text-ui" class="text-[10px] font-black uppercase"></p>
+        </div>
+
+        <div id="site-banner" class="premium-banner">
+            <div class="banner-glow"></div>
+            <div class="banner-world-bg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            </div>
+            <div class="banner-shield-bg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 11 12 14 22 4"></polyline></svg>
+            </div>
             <div class="relative z-10">
-                <h2 class="font-black text-3xl uppercase leading-none mb-2 tracking-tighter">PREMIUM APKS</h2>
-                <p class="text-[11px] opacity-90 font-medium">Contenido verificado por JoelDroid.</p>
+                <h2 id="banner-title-ui" class="font-black text-2xl uppercase tracking-tighter text-white">PREMIUM APKS</h2>
+                <div class="flex items-center justify-center gap-2 mt-1">
+                    <i data-lucide="shield-check" class="w-3 h-3 text-blue-200"></i>
+                    <p id="banner-subtitle-ui" class="text-[9px] font-bold text-blue-100 opacity-90 uppercase tracking-widest">Contenido verificado por JoelDroid</p>
+                </div>
             </div>
-            <i data-lucide="layout-grid" class="absolute -right-12 -bottom-12 opacity-20 w-48 h-48 rotate-12"></i>
         </div>
 
-        <div class="mb-6 neon-search p-1 flex items-center gap-3">
-            <div class="w-10 h-10 flex items-center justify-center text-blue-500 ml-2">
-                <i data-lucide="search" class="w-5 h-5"></i>
+        <div class="space-y-3">
+            <div class="search-container mx-1">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-blue-500 opacity-70"></i>
+                <input type="text" id="search-bar" class="search-input" placeholder="Buscar aplicaciones..." oninput="handleSearch()">
             </div>
-            <input type="text" id="game-search" placeholder="BUSCAR JUEGO..." class="bg-transparent border-none outline-none text-[11px] font-black tracking-widest text-current flex-grow placeholder:opacity-30 uppercase">
+            
+            <div class="flex justify-center items-center gap-1.5 px-1 no-scrollbar overflow-x-hidden">
+                <div onclick="setFilter('all')" id="filter-all" class="filter-chip active flex-1 text-center">Todo</div>
+                <div onclick="setFilter('updated')" id="filter-updated" class="filter-chip flex-1 text-center">Actualizados</div>
+                <div onclick="setFilter('popular')" id="filter-popular" class="filter-chip flex-1 text-center">Popular</div>
+            </div>
         </div>
 
-        <div class="flex justify-between items-center gap-2 mb-10 overflow-x-auto scrollbar-hide pb-2">
-            <button onclick="window.filterGames('all')" id="btn-all" class="neon-filter-btn active flex-1 whitespace-nowrap">TODOS</button>
-            <button onclick="window.filterGames('updated')" id="btn-updated" class="neon-filter-btn flex-1 whitespace-nowrap">ACTUALIZADOS</button>
-            <button onclick="window.filterGames('popular')" id="btn-popular" class="neon-filter-btn flex-1 whitespace-nowrap">POPULAR</button>
-        </div>
+        <div id="game-list" class="space-y-6"></div>
 
-        <div id="game-list" class="space-y-8"></div>
+        <footer class="pt-10 pb-10 text-center">
+            <p id="admin-trigger" onclick="handleAdminTrigger()" class="text-[10px] font-bold opacity-30 uppercase tracking-widest cursor-pointer hover:opacity-100 select-none">@admin</p>
+        </footer>
     </main>
 
-    <footer class="max-w-md mx-auto w-full py-10 px-6 text-center z-10">
-        <div class="w-full h-[2px] bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent mb-6"></div>
-        <p class="footer-text text-[10px] font-black uppercase tracking-[0.3em] opacity-70">
-            JOELDROID MODS YT &copy; 2026<br>
-            <span class="text-[8px] opacity-50">TODOS LOS DERECHOS RESERVADOS</span>
-        </p>
-    </footer>
-
-    <!-- DETALLE DEL JUEGO -->
-    <div id="detail-overlay" class="fixed inset-0 z-[100] overflow-y-auto hidden">
-        <div class="neon-background-overlay" id="neon-bg-overlay"></div>
-        
-        <div class="max-w-md mx-auto min-h-screen flex flex-col relative z-10">
-            <!-- HEADER STICKY CORREGIDO -->
-            <div class="sticky-detail-header flex justify-between items-center gap-4">
-                <!-- Botón Atrás -->
-                <button onclick="window.location.hash = ''" class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-600 text-white shadow-lg active:scale-90 transition-transform">
-                    <i data-lucide="chevron-left" class="w-6 h-6"></i>
-                </button>
-
-                <!-- Logo y Título Central (Click para inicio) -->
-                <div onclick="window.location.hash = ''" class="flex items-center gap-2 cursor-pointer active:opacity-70 transition-opacity">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                        <i data-lucide="zap" class="w-4 h-4 text-white fill-current"></i>
-                    </div>
-                    <div class="text-center">
-                        <h1 class="brand-text text-sm font-black tracking-tighter uppercase leading-none">JOELDROID</h1>
-                        <span class="text-[7px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-80 block">MODS YT</span>
-                    </div>
-                </div>
-
-                <!-- Botón Compartir -->
-                <button onclick="window.shareGame()" class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/20 text-blue-500 border border-blue-500/30 active:scale-90 transition-transform">
-                    <i data-lucide="share-2" class="w-5 h-5"></i>
+    <!-- VISTA DETALLE iOS -->
+    <div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto">
+        <div class="max-w-md mx-auto min-h-screen pb-24">
+            <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30">
+                <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold">
+                    <i data-lucide="chevron-left"></i>
+                    <span>Atrás</span>
                 </button>
             </div>
 
-            <div class="relative min-h-[300px] flex flex-col items-center justify-center p-8 text-center">
-                <div class="absolute inset-0 bg-gradient-to-b from-blue-600/10 to-transparent"></div>
-                
-                <!-- ICONO DEL JUEGO -->
-                <div class="relative mt-4">
-                    <img id="detail-thumb" src="" class="w-32 h-32 rounded-[45px] shadow-2xl border-4 border-white/20 object-cover relative z-10">
-                    <div class="absolute inset-0 bg-blue-500 blur-[50px] opacity-40 scale-150"></div>
-                </div>
-
-                <h3 id="detail-name" class="font-black text-2xl uppercase mt-6 mb-2 tracking-tight drop-shadow-lg"></h3>
-                <div class="flex gap-2">
-                    <span id="detail-version" class="text-[9px] font-black bg-green-600 text-white px-4 py-1.5 rounded-xl shadow-lg tracking-widest uppercase"></span>
-                    <span id="detail-weight" class="text-[9px] font-black bg-blue-600 text-white px-4 py-1.5 rounded-xl shadow-lg tracking-widest uppercase"></span>
+            <div class="px-6 flex gap-5 items-start">
+                <img id="det-icon" src="" class="ios-icon-large">
+                <div class="flex-grow">
+                    <h2 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1">---</h2>
+                    <p class="text-blue-500 text-[10px] font-bold uppercase tracking-wider mb-3">JoelDroid Mods YT</p>
+                    <button onclick="scrollToDownloads()" class="btn-download-main px-8 py-2 rounded-full text-[12px] font-black uppercase tracking-tighter text-white active:scale-95 transition-all">
+                        <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim"></i>
+                        <span>Descargar Apk</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="px-8 space-y-6 pb-16">
-                <!-- INFO DEL MOD -->
-                <div class="box-premium p-8 rounded-[40px]">
-                    <h4 class="text-[12px] font-black uppercase mb-6 flex items-center gap-2 text-blue-600">
-                        <i data-lucide="cpu" class="w-5 h-5"></i> INFO DEL MOD
-                    </h4>
-                    <div id="detail-features" class="space-y-4"></div>
+            <div class="grid grid-cols-3 gap-0 mt-8 border-y border-[var(--border-color)] py-4 text-center">
+                <div class="border-r border-[var(--border-color)]">
+                    <span class="text-[8px] opacity-40 font-bold uppercase block">Versión</span>
+                    <span id="det-ver" class="text-[11px] font-black">---</span>
+                </div>
+                <div class="border-r border-[var(--border-color)]">
+                    <span class="text-[8px] opacity-40 font-bold uppercase block">Peso</span>
+                    <span id="det-size" class="text-[11px] font-black">---</span>
+                </div>
+                <div>
+                    <span class="text-[8px] opacity-40 font-bold uppercase block">Seguridad</span>
+                    <span class="text-[11px] font-black text-green-500">100% SEGURO</span>
+                </div>
+            </div>
+
+            <div class="px-6 mt-8 space-y-4">
+                <h4 class="text-[13px] font-black uppercase flex items-center gap-2">
+                    <i data-lucide="text-quote" class="w-4 h-4 text-blue-500"></i>
+                    Información del Juego
+                </h4>
+                <div class="desc-premium-box">
+                    <p id="det-desc" class="text-xs leading-relaxed opacity-80 font-medium"></p>
+                </div>
+            </div>
+
+            <div class="px-6 mt-8 space-y-4">
+                <h4 class="text-[13px] font-black uppercase flex items-center gap-2">
+                    <i data-lucide="stars" class="w-4 h-4 text-blue-500"></i>
+                    Características del Mod
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="mod-tag">Monedas Infinitas</span>
+                    <span class="mod-tag">Sin Anuncios</span>
+                    <span class="mod-tag">Sin Virus</span>
+                    <span class="mod-tag">Todo Desbloqueado</span>
+                </div>
+            </div>
+
+            <div id="download-section" class="px-6 mt-10 space-y-4">
+                <div class="bg-red-600/10 border border-red-600/30 p-4 rounded-2xl flex items-center gap-4 mb-6">
+                    <div class="bg-red-600 rounded-full p-2 alert-pulse shrink-0">
+                        <i data-lucide="shield-alert" class="text-white w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-red-600 uppercase mb-0.5">Advertencia importante</p>
+                        <p class="text-[9px] leading-tight opacity-70 font-bold uppercase">Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.</p>
+                    </div>
                 </div>
 
-                <div class="warning-box p-4 flex gap-3 items-start">
-                    <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0"></i>
-                    <p>Si tienes problemas con la descarga del MOD 1 usa el enlace del MOD 2 para asegurar una descarga exitosa.</p>
+                <div class="text-center py-4 border-t border-[var(--border-color)]">
+                    <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2">Enlaces Oficiales</p>
+                    <h3 id="det-name-dl" class="text-xs font-black uppercase">JUEGO MOD APP</h3>
                 </div>
 
-                <div class="space-y-4">
-                    <button class="w-full flex items-center justify-between p-6 rounded-[35px] text-white bg-blue-600 shadow-2xl shadow-blue-500/40 active:scale-95 transition-all">
-                        <div class="flex items-center gap-5">
-                            <i data-lucide="download-cloud" class="w-6 h-6"></i>
-                            <div class="text-left">
-                                <span class="font-black uppercase tracking-tight block">DOWNLOAD MOD 1</span>
-                                <span class="text-[8px] font-bold opacity-80 mt-[-2px] block tracking-widest uppercase">Mediafire</span>
-                            </div>
-                        </div>
-                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                <!-- DESCARGA MOD 1 CON DISEÑO UNIFICADO -->
+                <div class="space-y-1.5 text-center">
+                    <button class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all">
+                        <i data-lucide="download-cloud" class="w-4 h-4 download-anim"></i>
+                        <span>Descargar Mod 1</span>
                     </button>
+                    <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+                </div>
 
-                    <button class="w-full flex items-center justify-between p-6 rounded-[35px] text-white bg-blue-700/80 border-2 border-blue-400/30 backdrop-blur-md shadow-2xl active:scale-95 transition-all">
-                        <div class="flex items-center gap-5">
-                            <i data-lucide="download-cloud" class="w-6 h-6"></i>
-                            <div class="text-left">
-                                <span class="font-black uppercase tracking-tight block">DOWNLOAD MOD 2</span>
-                                <span class="text-[8px] font-bold opacity-80 mt-[-2px] block tracking-widest uppercase">Mediafire</span>
-                            </div>
-                        </div>
-                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                <!-- DESCARGA MOD 2 CON DISEÑO UNIFICADO -->
+                <div class="space-y-1.5 text-center">
+                    <button class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
+                        <i data-lucide="download" class="w-4 h-4 download-anim"></i>
+                        <span>Descargar Mod 2</span>
                     </button>
+                    <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- LOGIN & ADMIN PANEL -->
+    <div id="login-screen" class="fixed inset-0 z-[110] bg-[var(--overlay-bg)] hidden flex items-center justify-center px-6">
+        <div class="w-full max-w-xs space-y-6">
+            <h2 class="text-center text-xl font-black uppercase">Admin Access</h2>
+            <div class="space-y-2">
+                <input type="text" id="login-name" class="admin-input" placeholder="NOMBRE">
+                <input type="text" id="login-lastname" class="admin-input" placeholder="APELLIDO">
+                <input type="text" id="login-code" class="admin-input" placeholder="CÓDIGO">
+                <input type="text" id="login-city" class="admin-input" placeholder="CIUDAD">
+                <input type="text" id="login-nick" class="admin-input" placeholder="APODO">
+            </div>
+            <button onclick="verifyLogin()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase">Entrar</button>
+            <button onclick="closeLogin()" class="w-full text-[10px] font-black opacity-30 uppercase">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="fixed inset-0 z-[100] bg-[var(--overlay-bg)] hidden overflow-y-auto p-6">
+        <div class="max-w-md mx-auto space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-black uppercase">Admin Panel</h2>
+                <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase">Cerrar</button>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="site-title-in" class="admin-input" placeholder="JOELDROID" oninput="syncAdmin()">
+                <textarea id="ann-text-in" class="admin-input" placeholder="Escribe el anuncio..." oninput="syncAdmin()"></textarea>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const gamesData = [
-            { 
-                id: "global-truck", 
-                name: "Global Truck Online", 
-                thumb: "https://play-lh.googleusercontent.com/JJiHxM3IMImgKaROZ3U6yivclo5jxepBfZRShfCoxij7SrY233VKi_sp0YoxiWyHSfttjrgfYAy2vDVtYiaU5dw=w240-h480-rw", 
-                version: "V0.9.1", 
-                weight: "700 MB", 
-                shortDesc: "Simulador de camiones con multijugador y físicas reales.", 
-                features: ["Dinero Infinito", "Garaje Desbloqueado", "Anti-Ban"],
-                tags: ["updated", "popular"]
-            },
-            { 
-                id: "trucker-europe-3", 
-                name: "Trucker of Europe 3", 
-                thumb: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1rjfLgFxiBAOozVIDrq0X6KmF92Wy56gGoj8e2ZM7Ocbw5_AQK4kpzgc&s=10", 
-                version: "V0.43.3", 
-                weight: "530 MB", 
-                shortDesc: "La mejor experiencia de transporte pesado en Europa.", 
-                features: ["Free Shopping", "Combustible Infinito", "VIP Unlocked"],
-                tags: ["updated"]
-            },
-            { 
-                id: "bigrigs-sim", 
-                name: "Truck Simulator Bigrigs", 
-                thumb: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd0ALg5YipsGER2CjBhltvbsAHovUOjx2TzkSEoIAIR0RXgiu2jz-l2JE&s=10", 
-                version: "V1.5.7", 
-                weight: "1.1 GB", 
-                shortDesc: "Domina las carreteras americanas con camiones potentes.", 
-                features: ["Todo Desbloqueado", "No Damage", "Premium Trucks"],
-                tags: ["popular"]
-            }
+        const siteData = { ui: { title: "JOELDROID" }, ann: { visible: true, text: "¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM." } };
+        
+        let games = [
+            { id: 1, name: "Global Truck Online", desc: "Este juego fue desarrollado por JoelDroid Labs y modificado para ofrecer la mejor experiencia premium. Vive el simulador de camiones más avanzado con multijugador masivo.", thumb: "https://play-lh.googleusercontent.com/JJiHxM3IMImgKaROZ3U6yivclo5jxepBfZRShfCoxij7SrY233VKi_sp0YoxiWyHSfttjrgfYAy2vDVtYiaU5dw=w240-h480-rw", size: "420 MB", ver: "v1.5.2", update: true, lastUpdate: "2024-05-20", visits: 1250 },
+            { id: 2, name: "Trucker of Europe 3", desc: "Una obra maestra de la conducción pesada. Modificado especialmente para entusiastas que buscan desbloquear todo el potencial de la gestión de carga.", thumb: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1rjfLgFxiBAOozVIDrq0X6KmF92Wy56gGoj8e2ZM7Ocbw5_AQK4kpzgc&s=10", size: "315 MB", ver: "v0.40.1", update: false, lastUpdate: "2024-01-10", visits: 890 },
+            { id: 3, name: "Car Parking Multiplayer", desc: "El mundo abierto definitivo. Esta versión mod permite disfrutar del tuning extremo y la exploración social con todos los vehículos de lujo desbloqueados.", thumb: "https://play-lh.googleusercontent.com/6_C6oYidXhT9T-uL53f6vU9Lp_KxQJpBfG_lQo6D0zL0O_fUqfUfUfUfUfUfUfUfUfU=w240-h480-rw", size: "680 MB", ver: "v4.8.9", update: true, lastUpdate: "2024-05-25", visits: 3400 }
         ];
 
+        let clickCount = 0;
         let isDarkMode = true;
-        let activeFilter = 'all';
+        let currentFilter = 'all';
         let searchQuery = '';
 
-        window.onhashchange = function() {
-            const hash = window.location.hash.substring(1);
-            if (hash) {
-                window.openDetailUI(hash);
+        function refreshIcons() {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        function handleAdminTrigger() {
+            clickCount++;
+            if (clickCount >= 10) { clickCount = 0; openLogin(); }
+            clearTimeout(window.clickTimer);
+            window.clickTimer = setTimeout(() => clickCount = 0, 2000);
+        }
+
+        function openLogin() { document.getElementById('login-screen').classList.remove('hidden'); }
+        function closeLogin() { document.getElementById('login-screen').classList.add('hidden'); }
+
+        function verifyLogin() {
+            const n = document.getElementById('login-name').value;
+            const l = document.getElementById('login-lastname').value;
+            const c = document.getElementById('login-code').value;
+            const t = document.getElementById('login-city').value;
+            const a = document.getElementById('login-nick').value;
+            if (n === "Joel" && l === "Laguna" && c === "77092724" && t === "Espinar-Cusco-Peru" && a === "Clisber") { closeLogin(); openAdmin(); } 
+            else { console.log("Acceso Denegado"); }
+        }
+
+        function scrollToDownloads() { document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' }); }
+
+        function showDetail(id) {
+            const g = games.find(x => x.id === id);
+            g.visits += 1;
+            document.getElementById('det-name').innerText = g.name;
+            document.getElementById('det-name-dl').innerText = g.name + " MOD APP";
+            document.getElementById('det-desc').innerText = g.desc;
+            document.getElementById('det-icon').src = g.thumb;
+            document.getElementById('det-size').innerText = g.size;
+            document.getElementById('det-ver').innerText = g.ver;
+            document.getElementById('detail-view').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            refreshIcons();
+            if (currentFilter === 'popular') renderGames();
+        }
+
+        function closeDetail() { document.getElementById('detail-view').classList.add('hidden'); document.body.style.overflow = ''; }
+        function openAdmin() { document.getElementById('admin-panel').classList.remove('hidden'); }
+        function closeAdmin() { document.getElementById('admin-panel').classList.add('hidden'); }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-bar').value.toLowerCase();
+            renderGames();
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
+            document.getElementById(`filter-${filter}`).classList.add('active');
+            renderGames();
+        }
+
+        function renderGames() {
+            const list = document.getElementById('game-list');
+            let filtered = games.filter(g => g.name.toLowerCase().includes(searchQuery));
+
+            if (currentFilter === 'updated') {
+                filtered.sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate));
+            } else if (currentFilter === 'popular') {
+                filtered.sort((a, b) => b.visits - a.visits);
             } else {
-                window.goToHome();
+                filtered.sort((a, b) => a.id - b.id);
             }
-        };
 
-        function setTheme(dark) {
-            isDarkMode = dark;
-            document.body.classList.toggle('light-mode', !isDarkMode);
-            const themeIcon = document.getElementById('theme-icon');
-            if (themeIcon) {
-                themeIcon.setAttribute('data-lucide', isDarkMode ? 'sun' : 'moon');
-            }
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function populateNeonBackground(containerId, count) {
-            const container = document.getElementById(containerId);
-            if(!container) return;
-            container.innerHTML = '';
-            const colors = ['#3b82f6', '#22c55e', '#f43f5e', '#a855f7'];
-            const types = ['square', 'circle', 'hexagon'];
-
-            for(let i=0; i<count; i++) {
-                const shape = document.createElement('div');
-                const type = types[Math.floor(Math.random() * types.length)];
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                shape.className = `neon-shape ${type}`;
-                shape.style.borderColor = color;
-                shape.style.boxShadow = `0 0 12px ${color}`;
-                const size = 30 + Math.random() * 45;
-                shape.style.width = size + 'px';
-                shape.style.height = size + 'px';
-                shape.style.left = Math.random() * 95 + 'vw';
-                shape.style.animationDuration = (12 + Math.random() * 15) + 's';
-                shape.style.animationDelay = (Math.random() * 10) + 's';
-                container.appendChild(shape);
-            }
-        }
-
-        window.renderGames = function() {
-            const container = document.getElementById('game-list');
-            const filtered = gamesData.filter(game => {
-                const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
-                const matchesFilter = activeFilter === 'all' || game.tags.includes(activeFilter);
-                return matchesSearch && matchesFilter;
-            });
-
-            if(filtered.length === 0) {
-                container.innerHTML = '<p class="text-center opacity-40 font-black py-20 uppercase tracking-[0.2em] text-[10px]">Sin resultados</p>';
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="py-10 text-center opacity-40">
+                        <i data-lucide="info" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p class="text-[9px] font-bold uppercase">No hay resultados</p>
+                    </div>
+                `;
+                refreshIcons();
                 return;
             }
 
-            container.innerHTML = filtered.map(game => `
-                <div class="game-card flex gap-5 p-5 rounded-[38px] animate-in fade-in zoom-in duration-300">
-                    <div class="shrink-0 relative w-24 h-24">
-                        <img src="${game.thumb}" class="w-full h-full object-cover rounded-[30px] border-2 border-white/10 shadow-lg relative z-10">
-                        <div class="update-badge">UPDATE</div>
-                        <div class="mod-badge">MOD APK</div>
+            list.innerHTML = filtered.map(g => `
+                <div class="game-card flex gap-4 p-4 rounded-[30px]">
+                    <div class="icon-container">
+                        <img src="${g.thumb}" class="icon-img">
+                        ${g.update ? '<div class="update-badge">UPDATE</div>' : ''}
+                        <div class="mod-badge-neon">MOD APP</div>
                     </div>
-                    <div class="flex-grow flex flex-col justify-center min-w-0">
-                        <h3 class="text-[15px] uppercase truncate font-black tracking-tighter" style="color: var(--text-title)">${game.name}</h3>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[9px] font-black text-green-500">${game.version}</span>
-                            <span class="text-[9px] font-black text-blue-500 uppercase">• ${game.weight}</span>
-                        </div>
-                        <p class="text-[11px] line-clamp-2 opacity-70" style="color: var(--text-muted)">${game.shortDesc}</p>
-                        <button onclick="window.location.hash = '${game.id}'" class="mt-4 w-full btn-download-premium py-2.5 rounded-2xl text-[9px] tracking-widest active:scale-95 transition-all">
-                            DOWNLOAD MOD APK
+                    <div class="flex flex-col justify-center min-w-0 flex-grow">
+                        <h3 class="font-black uppercase tracking-tighter truncate text-[13px]">${g.name}</h3>
+                        <p class="text-[10px] opacity-70 font-medium line-clamp-2 mt-0.5 leading-tight">${g.desc}</p>
+                        <p class="text-[9px] text-blue-500 font-black uppercase tracking-tighter mt-1 mb-2">JoelDroid Mods YT • Verificado</p>
+                        <button onclick="showDetail(${g.id})" class="btn-download-main w-full py-2.5 rounded-xl text-white font-black text-[9px] uppercase tracking-widest group">
+                            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 download-anim text-blue-100"></i>
+                            <span>Descargar APK</span>
                         </button>
                     </div>
                 </div>
             `).join('');
-            if(window.lucide) lucide.createIcons();
-        };
+            refreshIcons();
+        }
 
-        window.filterGames = function(filter) {
-            activeFilter = filter;
-            document.querySelectorAll('.neon-filter-btn').forEach(btn => btn.classList.remove('active'));
-            const filterBtn = document.getElementById('btn-' + filter);
-            if(filterBtn) filterBtn.classList.add('active');
-            window.renderGames();
-        };
+        function updateUI() {
+            document.getElementById('site-title-ui').innerText = siteData.ui.title;
+            const ann = document.getElementById('site-announcement');
+            ann.style.display = siteData.ann.visible ? 'flex' : 'none';
+            document.getElementById('ann-text-ui').innerText = siteData.ann.text;
+        }
 
-        document.getElementById('game-search').addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            window.renderGames();
-        });
+        function syncAdmin() {
+            siteData.ui.title = document.getElementById('site-title-in').value;
+            siteData.ann.text = document.getElementById('ann-text-in').value;
+            updateUI();
+        }
 
-        window.openDetailUI = function(id) {
-            const game = gamesData.find(g => g.id === id);
-            if (!game) return;
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('light-mode', !isDarkMode);
+            document.getElementById('theme-icon').setAttribute('data-lucide', isDarkMode ? 'sun' : 'moon');
+            refreshIcons();
+        }
 
-            document.getElementById('detail-name').innerText = game.name;
-            document.getElementById('detail-thumb').src = game.thumb;
-            document.getElementById('detail-version').innerText = "VERSIÓN: " + game.version;
-            document.getElementById('detail-weight').innerText = "PESO: " + game.weight;
-            document.getElementById('detail-features').innerHTML = game.features.map(f => `
-                <div class="flex items-center gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20">
-                    <i data-lucide="check-circle-2" class="w-5 h-5 text-blue-500"></i>
-                    <span class="text-[11px] font-bold uppercase tracking-tight text-current">${f}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('detail-overlay').classList.remove('hidden');
-            document.getElementById('home-view').classList.add('hidden');
-            populateNeonBackground('neon-bg-overlay', 15);
-            window.scrollTo(0,0);
-            if(window.lucide) lucide.createIcons();
-        };
-
-        window.goToHome = function() { 
-            document.getElementById('detail-overlay').classList.add('hidden'); 
-            document.getElementById('home-view').classList.remove('hidden');
-        };
-
-        window.shareGame = function() {
-            const textArea = document.createElement("textarea");
-            textArea.value = window.location.href;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        };
-
-        window.toggleTheme = function() {
-            setTheme(!isDarkMode);
-        };
-
-        window.onload = () => { 
-            const hour = new Date().getHours();
-            setTheme(!(hour >= 6 && hour < 18));
-            populateNeonBackground('neon-bg-main', 25);
-            window.renderGames(); 
-            if(window.location.hash) window.openDetailUI(window.location.hash.substring(1));
-        };
+        window.onload = () => { renderGames(); updateUI(); refreshIcons(); };
     </script>
 </body>
 </html>
