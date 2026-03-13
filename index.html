@@ -42,7 +42,7 @@
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-color);
             color: var(--text-main);
-            transition: all 0.4s ease;
+            transition: background-color 0.4s ease, color 0.4s ease;
             overflow-x: hidden;
         }
 
@@ -63,8 +63,6 @@
         .game-card:active { transform: scale(0.98); }
 
         .mod-badge-neon { 
-            background: #ef4444; 
-            color: white; 
             font-size: 6px; 
             font-weight: 900;
             padding: 2px 6px; 
@@ -74,21 +72,20 @@
             left: 50%;
             transform: translateX(-50%); 
             white-space: nowrap;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
             z-index: 10;
         }
 
         .update-badge { 
-            background: #10b981; 
-            color: white; 
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.9); 
             font-size: 6px; font-weight: 900;
             padding: 1.5px 5px; border-radius: 3px;
             position: absolute; top: -3px; right: -3px;
             z-index: 10;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .btn-download-main {
@@ -104,8 +101,8 @@
         .download-anim { animation: downloadBounce 1.2s infinite; }
         @keyframes downloadBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 
-        .alert-pulse { animation: pulse-red 1.5s infinite; }
-        @keyframes pulse-red { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .alert-anim { animation: alertPulse 2s infinite ease-in-out; }
+        @keyframes alertPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
 
         .icon-container { width: 72px; height: 72px; flex-shrink: 0; position: relative; }
         .icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; border: 1px solid rgba(255,255,255,0.05); }
@@ -119,15 +116,13 @@
             padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
         }
 
-        .desc-premium-box {
-            background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), transparent);
-            border-left: 3px solid #3b82f6;
-            padding: 16px;
-            border-radius: 0 16px 16px 0;
-            position: relative;
+        .neon-verify-text {
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-shadow: 0 0 4px rgba(var(--neon-rgb, 59, 130, 246), 0.4);
+            transition: all 0.3s ease;
         }
 
-        /* BANNER */
         .premium-banner {
             position: relative;
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1d4ed8 100%);
@@ -144,25 +139,6 @@
             min-height: 120px; 
         }
 
-        .banner-shield-bg {
-            position: absolute; right: -15px; bottom: -15px; width: 100px; height: 100px;
-            opacity: 0.18; color: white; transform: rotate(-10deg); pointer-events: none;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
-        }
-
-        .banner-world-bg {
-            position: absolute; left: -20px; top: -5px; width: 120px; height: 120px;
-            opacity: 0.12; color: white; transform: rotate(5deg); pointer-events: none;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
-        }
-
-        .banner-glow {
-            position: absolute; top: 50%; left: 50%; width: 150%; height: 150%;
-            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
-            transform: translate(-50%, -50%); pointer-events: none;
-        }
-
-        /* BUSQUEDA Y FILTROS */
         .search-container {
             background: var(--search-bg);
             border: 1px solid var(--border-color);
@@ -171,12 +147,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .search-container:focus-within {
-            border-color: var(--brand-color);
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
         }
 
         .search-input {
@@ -196,33 +166,97 @@
             font-size: 9px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: var(--search-bg);
             color: var(--text-secondary);
-            border: 1px solid transparent;
         }
 
         .filter-chip.active {
             background: var(--brand-color);
             color: white;
-            box-shadow: none; 
-            transform: scale(1.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .admin-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 12px; border-radius: 12px; width: 100%; color: inherit; }
-        html { scroll-behavior: smooth; }
+        .admin-input { 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--border-color); 
+            padding: 10px 14px; 
+            border-radius: 12px; 
+            width: 100%; 
+            color: inherit;
+            font-size: 13px;
+        }
+        
+        .admin-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            margin-left: 4px;
+            opacity: 0.6;
+        }
+
+        .admin-section {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 24px;
+            margin-bottom: 20px;
+        }
+
+        .desc-premium-box {
+            background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), transparent);
+            border-left: 3px solid #3b82f6;
+            padding: 16px;
+            border-radius: 0 16px 16px 0;
+            position: relative;
+        }
+
+        .announcement-box-detail {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 14px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Botón de tema flotante */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 40;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--brand-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+        }
+
+        /* Custom Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
 
+    <!-- TEMA TOGGLE FLOTANTE -->
+    <button class="theme-toggle" onclick="toggleLocalTheme()">
+        <i data-lucide="sun" id="theme-icon-sun" class="w-5 h-5 hidden"></i>
+        <i data-lucide="moon" id="theme-icon-moon" class="w-5 h-5"></i>
+    </button>
+
     <!-- NAVBAR -->
     <nav class="sticky top-0 z-50 py-4 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]">
-        <div class="max-w-md mx-auto flex justify-between items-center">
+        <div class="max-w-md mx-auto flex justify-center items-center">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center overflow-hidden">
                     <i data-lucide="zap" class="w-6 h-6 text-white fill-current"></i>
@@ -232,28 +266,19 @@
                     <span class="text-[8px] font-bold tracking-[0.4em] uppercase opacity-80 block">MODS YT</span>
                 </div>
             </div>
-            <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
-                <i id="theme-icon" data-lucide="sun"></i>
-            </button>
         </div>
     </nav>
 
     <!-- HOME VIEW -->
     <main id="home-view" class="max-w-md mx-auto px-5 py-6 space-y-6">
-        <div id="site-announcement" class="hidden p-4 rounded-2xl flex items-center gap-3 bg-red-500 text-white">
-            <i data-lucide="megaphone" class="w-4 h-4"></i>
+        <!-- ANUNCIO PRINCIPAL DINÁMICO -->
+        <div id="site-announcement" class="hidden p-4 rounded-2xl flex items-center gap-3 text-white transition-colors duration-300">
+            <i data-lucide="megaphone" class="w-4 h-4 alert-anim"></i>
             <p id="ann-text-ui" class="text-[10px] font-black uppercase"></p>
         </div>
 
         <div id="site-banner" class="premium-banner">
-            <div class="banner-glow"></div>
-            <div class="banner-world-bg">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            </div>
-            <div class="banner-shield-bg">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 11 12 14 22 4"></polyline></svg>
-            </div>
-            <div class="relative z-10">
+            <div class="relative z-10 text-center">
                 <h2 id="banner-title-ui" class="font-black text-2xl uppercase tracking-tighter text-white">PREMIUM APKS</h2>
                 <div class="flex items-center justify-center gap-2 mt-1">
                     <i data-lucide="shield-check" class="w-3 h-3 text-blue-200"></i>
@@ -268,21 +293,23 @@
                 <input type="text" id="search-bar" class="search-input" placeholder="Buscar aplicaciones..." oninput="handleSearch()">
             </div>
             
-            <div class="flex justify-center items-center gap-1.5 px-1 no-scrollbar overflow-x-hidden">
-                <div onclick="setFilter('all')" id="filter-all" class="filter-chip active flex-1 text-center">Todo</div>
-                <div onclick="setFilter('updated')" id="filter-updated" class="filter-chip flex-1 text-center">Actualizados</div>
-                <div onclick="setFilter('popular')" id="filter-popular" class="filter-chip flex-1 text-center">Popular</div>
+            <div class="flex justify-center items-center gap-1.5 px-1 overflow-x-auto no-scrollbar">
+                <div onclick="setFilter('all')" id="filter-all" class="filter-chip active flex-1 text-center whitespace-nowrap">Todo</div>
+                <div onclick="setFilter('updated')" id="filter-updated" class="filter-chip flex-1 text-center whitespace-nowrap">Actualizados</div>
+                <div onclick="setFilter('popular')" id="filter-popular" class="filter-chip flex-1 text-center whitespace-nowrap">Popular</div>
             </div>
         </div>
 
         <div id="game-list" class="space-y-6"></div>
 
-        <footer class="pt-10 pb-10 text-center">
+        <footer class="pt-10 pb-10 text-center space-y-2">
+            <!-- COPYRIGHT PERSONALIZABLE -->
+            <p id="copyright-ui" class="text-[9px] font-bold uppercase tracking-wider transition-colors duration-300">© 2024 JoelDroid Mods YT. Todos los derechos reservados.</p>
             <p id="admin-trigger" onclick="handleAdminTrigger()" class="text-[10px] font-bold opacity-30 uppercase tracking-widest cursor-pointer hover:opacity-100 select-none">@admin</p>
         </footer>
     </main>
 
-    <!-- VISTA DETALLE iOS -->
+    <!-- VISTA DETALLE -->
     <div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto">
         <div class="max-w-md mx-auto min-h-screen pb-24">
             <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30">
@@ -296,15 +323,15 @@
                 <img id="det-icon" src="" class="ios-icon-large">
                 <div class="flex-grow">
                     <h2 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1">---</h2>
-                    <p class="text-blue-500 text-[10px] font-bold uppercase tracking-wider mb-3">JoelDroid Mods YT</p>
-                    <button onclick="scrollToDownloads()" class="btn-download-main px-8 py-2 rounded-full text-[12px] font-black uppercase tracking-tighter text-white active:scale-95 transition-all">
+                    <p id="det-verify-label" class="neon-verify-text text-[10px] uppercase tracking-wider mb-3">JoelDroid Mods YT • Verificado</p>
+                    <button onclick="scrollToDownloads()" id="det-btn-top" class="btn-download-main px-8 py-2 rounded-full text-[12px] font-black uppercase tracking-tighter text-white active:scale-95 transition-all">
                         <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim"></i>
-                        <span>Descargar Apk</span>
+                        <span id="det-btn-top-text">Descargar Apk</span>
                     </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-0 mt-8 border-y border-[var(--border-color)] py-4 text-center">
+            <div class="grid grid-cols-3 mt-8 border-y border-[var(--border-color)] py-4 text-center">
                 <div class="border-r border-[var(--border-color)]">
                     <span class="text-[8px] opacity-40 font-bold uppercase block">Versión</span>
                     <span id="det-ver" class="text-[11px] font-black">---</span>
@@ -329,220 +356,588 @@
                 </div>
             </div>
 
-            <div class="px-6 mt-8 space-y-4">
+            <div id="det-mod-features-section" class="px-6 mt-8 space-y-4">
                 <h4 class="text-[13px] font-black uppercase flex items-center gap-2">
                     <i data-lucide="stars" class="w-4 h-4 text-blue-500"></i>
                     Características del Mod
                 </h4>
-                <div class="flex flex-wrap gap-2">
-                    <span class="mod-tag">Monedas Infinitas</span>
-                    <span class="mod-tag">Sin Anuncios</span>
-                    <span class="mod-tag">Sin Virus</span>
-                    <span class="mod-tag">Todo Desbloqueado</span>
+                <div id="det-mod-tags" class="flex flex-wrap gap-2"></div>
+                
+                <div id="det-ann-box" class="announcement-box-detail mt-4 hidden">
+                    <div class="w-10 h-10 flex-shrink-0 bg-red-500/20 rounded-xl flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 alert-anim"></i>
+                    </div>
+                    <p id="det-ann-text" class="text-[10px] font-bold uppercase leading-snug text-red-400"></p>
                 </div>
             </div>
 
             <div id="download-section" class="px-6 mt-10 space-y-4">
-                <div class="bg-red-600/10 border border-red-600/30 p-4 rounded-2xl flex items-center gap-4 mb-6">
-                    <div class="bg-red-600 rounded-full p-2 alert-pulse shrink-0">
-                        <i data-lucide="shield-alert" class="text-white w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black text-red-600 uppercase mb-0.5">Advertencia importante</p>
-                        <p class="text-[9px] leading-tight opacity-70 font-bold uppercase">Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.</p>
-                    </div>
-                </div>
-
                 <div class="text-center py-4 border-t border-[var(--border-color)]">
                     <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2">Enlaces Oficiales</p>
                     <h3 id="det-name-dl" class="text-xs font-black uppercase">JUEGO MOD APP</h3>
                 </div>
 
-                <!-- DESCARGA MOD 1 CON DISEÑO UNIFICADO -->
-                <div class="space-y-1.5 text-center">
-                    <button class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all">
+                <div id="dl-mod1-container" class="space-y-1.5 text-center">
+                    <a id="dl-mod1-btn" href="#" target="_blank" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all">
                         <i data-lucide="download-cloud" class="w-4 h-4 download-anim"></i>
-                        <span>Descargar Mod 1</span>
-                    </button>
-                    <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+                        <span id="dl-mod1-text">Descargar Mod 1</span>
+                    </a>
                 </div>
 
-                <!-- DESCARGA MOD 2 CON DISEÑO UNIFICADO -->
-                <div class="space-y-1.5 text-center">
-                    <button class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all">
+                <div id="dl-mod2-container" class="space-y-1.5 text-center">
+                    <a id="dl-mod2-btn" href="#" target="_blank" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all">
                         <i data-lucide="download" class="w-4 h-4 download-anim"></i>
-                        <span>Descargar Mod 2</span>
-                    </button>
-                    <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+                        <span id="dl-mod2-text">Descargar Mod 2</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- LOGIN & ADMIN PANEL -->
+    <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 z-[110] bg-[var(--overlay-bg)] hidden flex items-center justify-center px-6">
         <div class="w-full max-w-xs space-y-6">
             <h2 class="text-center text-xl font-black uppercase">Admin Access</h2>
             <div class="space-y-2">
-                <input type="text" id="login-name" class="admin-input" placeholder="NOMBRE">
-                <input type="text" id="login-lastname" class="admin-input" placeholder="APELLIDO">
-                <input type="text" id="login-code" class="admin-input" placeholder="CÓDIGO">
-                <input type="text" id="login-city" class="admin-input" placeholder="CIUDAD">
-                <input type="text" id="login-nick" class="admin-input" placeholder="APODO">
+                <input type="password" id="login-code" class="admin-input" placeholder="CÓDIGO DE ACCESO">
             </div>
             <button onclick="verifyLogin()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase">Entrar</button>
             <button onclick="closeLogin()" class="w-full text-[10px] font-black opacity-30 uppercase">Cancelar</button>
         </div>
     </div>
 
+    <!-- PANEL DE ADMINISTRACIÓN -->
     <div id="admin-panel" class="fixed inset-0 z-[100] bg-[var(--overlay-bg)] hidden overflow-y-auto p-6">
-        <div class="max-w-md mx-auto space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-black uppercase">Admin Panel</h2>
-                <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase">Cerrar</button>
+        <div class="max-w-md mx-auto pb-24">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black uppercase tracking-tighter">Panel de Control</h2>
+                <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase">Salir</button>
             </div>
-            <div class="space-y-4">
-                <input type="text" id="site-title-in" class="admin-input" placeholder="JOELDROID" oninput="syncAdmin()">
-                <textarea id="ann-text-in" class="admin-input" placeholder="Escribe el anuncio..." oninput="syncAdmin()"></textarea>
+
+            <!-- MODO VISUAL -->
+            <div class="admin-section">
+                <h3 class="text-xs font-black uppercase text-blue-500 mb-4">Interfaz de Usuario</h3>
+                <div>
+                    <label class="admin-label">Modo Visual Maestro</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="mode-dark-btn" onclick="setSiteMode('dark')" class="py-3 rounded-xl text-[10px] font-black uppercase border-2 border-blue-600 bg-blue-600/10 text-blue-500">
+                            Modo Oscuro
+                        </button>
+                        <button id="mode-light-btn" onclick="setSiteMode('light')" class="py-3 rounded-xl text-[10px] font-black uppercase border-2 border-transparent bg-white/5 opacity-50">
+                            Modo Claro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERSONALIZACIÓN DE ANUNCIO PRINCIPAL -->
+            <div class="admin-section">
+                <h3 class="text-xs font-black uppercase text-blue-500 mb-4">Anuncio Principal del Sitio</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-2">
+                        <span class="text-[10px] font-bold uppercase opacity-60">Mostrar Anuncio</span>
+                        <input type="checkbox" id="ann-visible-in" onchange="saveGlobalSettings()" class="w-5 h-5 accent-blue-600">
+                    </div>
+                    <div>
+                        <label class="admin-label">Texto del Anuncio</label>
+                        <textarea id="ann-text-in" class="admin-input h-20" oninput="saveGlobalSettings()"></textarea>
+                    </div>
+                    <div>
+                        <label class="admin-label">Color de Fondo del Anuncio</label>
+                        <select id="ann-bg-in" class="admin-input bg-gray-900" onchange="saveGlobalSettings()">
+                            <option value="bg-red-500">Rojo Intenso</option>
+                            <option value="bg-blue-600">Azul Eléctrico</option>
+                            <option value="bg-emerald-500">Verde Esmeralda</option>
+                            <option value="bg-orange-500">Naranja Vibrante</option>
+                            <option value="bg-purple-600">Púrpura Neón</option>
+                            <option value="bg-zinc-800">Gris Oscuro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERSONALIZACIÓN DEL COPYRIGHT -->
+            <div class="admin-section">
+                <h3 class="text-xs font-black uppercase text-blue-500 mb-4">Pie de Página (Copyright)</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="admin-label">Texto de Copyright</label>
+                        <input type="text" id="copy-text-in" class="admin-input" oninput="saveGlobalSettings()">
+                    </div>
+                    <div>
+                        <label class="admin-label">Color de Texto Copyright</label>
+                        <select id="copy-color-in" class="admin-input bg-gray-900" onchange="saveGlobalSettings()">
+                            <option value="rgba(255,255,255,0.4)">Blanco Tenue (Por defecto)</option>
+                            <option value="#3b82f6">Azul JoelDroid</option>
+                            <option value="#ffffff">Blanco Puro</option>
+                            <option value="#10b981">Verde Lima</option>
+                            <option value="#ef4444">Rojo Alerta</option>
+                            <option value="#fbbf24">Dorado</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TÍTULO DEL SITIO -->
+            <div class="admin-section">
+                <h3 class="text-xs font-black uppercase text-blue-500 mb-4">Configuración General</h3>
+                <div>
+                    <label class="admin-label">Título del Sitio (Nav)</label>
+                    <input type="text" id="site-title-in" class="admin-input" oninput="saveGlobalSettings()">
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-black uppercase text-blue-500">Gestión de Juegos</h3>
+                    <button onclick="openGameEditor()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase">Agregar Nuevo</button>
+                </div>
+                <div id="admin-game-list" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDITOR DE JUEGO (MODAL) -->
+    <div id="game-editor-modal" class="fixed inset-0 z-[120] bg-[var(--overlay-bg)] hidden overflow-y-auto p-6">
+        <div class="max-w-md mx-auto">
+            <h2 id="editor-title" class="text-xl font-black uppercase mb-6 text-center">Editor de Juego</h2>
+            
+            <div class="space-y-6">
+                <div class="space-y-4">
+                    <input type="hidden" id="edit-id">
+                    <div>
+                        <label class="admin-label">Título del Juego</label>
+                        <input type="text" id="edit-name" class="admin-input">
+                    </div>
+                    
+                    <div>
+                        <label class="admin-label">URL Ícono</label>
+                        <input type="text" id="edit-thumb-url" class="admin-input">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="admin-label">Versión</label>
+                            <input type="text" id="edit-ver" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Peso</label>
+                            <input type="text" id="edit-size" class="admin-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="admin-label">Descripción Menú</label>
+                        <input type="text" id="edit-short-desc" class="admin-input" placeholder="Descripción breve">
+                    </div>
+
+                    <div>
+                        <label class="admin-label">Información Detallada</label>
+                        <textarea id="edit-desc" class="admin-input h-32"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="admin-label">Comunicado Interno (Alerta)</label>
+                        <textarea id="edit-internal-ann" class="admin-input h-20" placeholder="Ej: Nueva actualización disponible..."></textarea>
+                    </div>
+
+                    <div>
+                        <label class="admin-label">Información de Mod (Tags separados por comas)</label>
+                        <textarea id="edit-mod-info" class="admin-input h-20" placeholder="Ej: Dinero Infinito, Desbloqueado"></textarea>
+                    </div>
+
+                    <div class="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+                        <h4 class="text-[9px] font-black uppercase text-blue-400">Personalizar Botones</h4>
+                        <div>
+                            <label class="admin-label">Botón del Menú (Card)</label>
+                            <input type="text" id="edit-btn-text" class="admin-input" placeholder="Descargar APK">
+                        </div>
+                        <div>
+                            <label class="admin-label">Botón de la Información (Interno)</label>
+                            <input type="text" id="edit-btn-internal-text" class="admin-input" placeholder="Descargar APK">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="admin-label">Texto Botón Mod 1</label>
+                                <input type="text" id="edit-btn-mod1-text" class="admin-input" placeholder="Descargar Mod 1">
+                            </div>
+                            <div>
+                                <label class="admin-label">Texto Botón Mod 2</label>
+                                <input type="text" id="edit-btn-mod2-text" class="admin-input" placeholder="Descargar Mod 2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+                        <h4 class="text-[9px] font-black uppercase">Verificado</h4>
+                        <div>
+                            <label class="admin-label">Texto Verificado</label>
+                            <input type="text" id="edit-verif-text" class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-label">Color Neón</label>
+                            <select id="edit-verif-color" class="admin-input bg-gray-900">
+                                <option value="#3b82f6">Azul Eléctrico</option>
+                                <option value="#10b981">Verde Esmeralda</option>
+                                <option value="#ef4444">Rojo Carmesí</option>
+                                <option value="#f97316">Naranja Brillante</option>
+                                <option value="#fbbf24">Oro Suave</option>
+                                <option value="#8b5cf6">Púrpura Neón</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-blue-600/5 rounded-2xl border border-blue-600/10 space-y-4">
+                    <h4 class="text-[10px] font-black uppercase text-blue-500">Enlaces</h4>
+                    <div class="space-y-3">
+                        <input type="text" id="edit-dl1" class="admin-input" placeholder="URL Enlace 1">
+                        <div class="flex items-center justify-between"><span class="text-[9px] opacity-50 font-bold">MOSTRAR ENLACE 1</span><input type="checkbox" id="edit-dl1-vis" checked></div>
+                    </div>
+                    <div class="space-y-3">
+                        <input type="text" id="edit-dl2" class="admin-input" placeholder="URL Enlace 2">
+                        <div class="flex items-center justify-between"><span class="text-[9px] opacity-50 font-bold">MOSTRAR ENLACE 2</span><input type="checkbox" id="edit-dl2-vis" checked></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+                        <h4 class="text-[9px] font-black uppercase">UPDATE TAG</h4>
+                        <input type="text" id="edit-up-text" class="admin-input" placeholder="TEXT">
+                        <select id="edit-up-color" class="admin-input bg-gray-900">
+                            <option value="#10b981">Verde</option>
+                            <option value="#3b82f6">Azul</option>
+                            <option value="#ef4444">Rojo</option>
+                        </select>
+                        <div class="flex items-center justify-between"><span class="text-[8px] opacity-40 font-bold">VISIBLE</span><input type="checkbox" id="edit-up-vis"></div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-3">
+                        <h4 class="text-[9px] font-black uppercase">MOD APK TAG</h4>
+                        <input type="text" id="edit-mod-text" class="admin-input" placeholder="TEXT">
+                        <select id="edit-mod-color" class="admin-input bg-gray-900">
+                            <option value="#ef4444">Rojo</option>
+                            <option value="#10b981">Verde</option>
+                            <option value="#3b82f6">Azul</option>
+                        </select>
+                        <div class="flex items-center justify-between"><span class="text-[8px] opacity-40 font-bold">VISIBLE</span><input type="checkbox" id="edit-mod-vis"></div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pb-20">
+                    <button onclick="closeGameEditor()" class="flex-1 py-4 bg-gray-500/20 rounded-2xl font-black uppercase text-xs">Cerrar</button>
+                    <button id="btn-save-game" onclick="saveGame()" class="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs">Guardar</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const siteData = { ui: { title: "JOELDROID" }, ann: { visible: true, text: "¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM." } };
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '59, 130, 246';
+        };
+
+        const siteData = { 
+            ui: { title: "JOELDROID", theme: "dark" }, 
+            ann: { visible: true, text: "¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.", bg: "bg-red-500" },
+            footer: { text: "© 2024 JoelDroid Mods YT. Todos los derechos reservados.", color: "rgba(255,255,255,0.4)" }
+        };
         
         let games = [
-            { id: 1, name: "Global Truck Online", desc: "Este juego fue desarrollado por JoelDroid Labs y modificado para ofrecer la mejor experiencia premium. Vive el simulador de camiones más avanzado con multijugador masivo.", thumb: "https://play-lh.googleusercontent.com/JJiHxM3IMImgKaROZ3U6yivclo5jxepBfZRShfCoxij7SrY233VKi_sp0YoxiWyHSfttjrgfYAy2vDVtYiaU5dw=w240-h480-rw", size: "420 MB", ver: "v1.5.2", update: true, lastUpdate: "2024-05-20", visits: 1250 },
-            { id: 2, name: "Trucker of Europe 3", desc: "Una obra maestra de la conducción pesada. Modificado especialmente para entusiastas que buscan desbloquear todo el potencial de la gestión de carga.", thumb: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1rjfLgFxiBAOozVIDrq0X6KmF92Wy56gGoj8e2ZM7Ocbw5_AQK4kpzgc&s=10", size: "315 MB", ver: "v0.40.1", update: false, lastUpdate: "2024-01-10", visits: 890 },
-            { id: 3, name: "Car Parking Multiplayer", desc: "El mundo abierto definitivo. Esta versión mod permite disfrutar del tuning extremo y la exploración social con todos los vehículos de lujo desbloqueados.", thumb: "https://play-lh.googleusercontent.com/6_C6oYidXhT9T-uL53f6vU9Lp_KxQJpBfG_lQo6D0zL0O_fUqfUfUfUfUfUfUfUfUfU=w240-h480-rw", size: "680 MB", ver: "v4.8.9", update: true, lastUpdate: "2024-05-25", visits: 3400 }
+            { 
+                id: 1, 
+                name: "Global Truck Online", 
+                desc: "Este juego fue desarrollado por JoelDroid Labs y modificado para ofrecer la mejor experiencia premium. Vive el simulador de camiones más avanzado con multijugador masivo.", 
+                shortDesc: "Simulador de camiones avanzado con multijugador masivo.",
+                thumb: "https://play-lh.googleusercontent.com/JJiHxM3IMImgKaROZ3U6yivclo5jxepBfZRShfCoxij7SrY233VKi_sp0YoxiWyHSfttjrgfYAy2vDVtYiaU5dw=w240-h480-rw", 
+                size: "420 MB", ver: "v1.5.2", 
+                dl1: "https://www.mediafire.com", dl1Vis: true,
+                dl2: "", dl2Vis: false,
+                tagUp: { text: "UPDATE", color: "#10b981", vis: true },
+                tagMod: { text: "MOD APK", color: "#ef4444", vis: true },
+                modFeatures: ["Dinero Infinito", "Sin Anuncios", "Desbloqueado"],
+                internalAnn: "NOTA: ASEGÚRATE DE DESINSTALAR LA VERSIÓN ORIGINAL ANTES DE INSTALAR ESTE MOD.",
+                verifyText: "JoelDroid Mods YT • Verificado",
+                verifyColor: "#3b82f6",
+                btnText: "Descargar APK",
+                btnInternalText: "Descargar APK",
+                btnMod1: "Descargar Mod 1",
+                btnMod2: "Descargar Mod 2",
+                public: true, visits: 1250, lastUpdate: "2024-05-20"
+            }
         ];
 
         let clickCount = 0;
-        let isDarkMode = true;
-        let currentFilter = 'all';
         let searchQuery = '';
+        let currentLocalTheme = 'dark';
 
-        function refreshIcons() {
-            if (window.lucide) {
-                window.lucide.createIcons();
+        function refreshIcons() { if (window.lucide) window.lucide.createIcons(); }
+
+        // Función que el usuario usa por separado
+        function toggleLocalTheme() {
+            currentLocalTheme = currentLocalTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentLocalTheme);
+        }
+
+        // Función que el ADMIN usa para controlar a todos
+        function setSiteMode(mode) {
+            siteData.ui.theme = mode;
+            currentLocalTheme = mode; // Sincroniza el local con el maestro
+            applyTheme(mode);
+            
+            // Actualizar botones del panel
+            const darkBtn = document.getElementById('mode-dark-btn');
+            const lightBtn = document.getElementById('mode-light-btn');
+            
+            if (mode === 'dark') {
+                darkBtn.className = "py-3 rounded-xl text-[10px] font-black uppercase border-2 border-blue-600 bg-blue-600/10 text-blue-500";
+                lightBtn.className = "py-3 rounded-xl text-[10px] font-black uppercase border-2 border-transparent bg-white/5 opacity-50";
+            } else {
+                lightBtn.className = "py-3 rounded-xl text-[10px] font-black uppercase border-2 border-blue-600 bg-blue-600/10 text-blue-500";
+                darkBtn.className = "py-3 rounded-xl text-[10px] font-black uppercase border-2 border-transparent bg-white/5 opacity-50";
             }
+        }
+
+        // Aplica el cambio visual
+        function applyTheme(mode) {
+            document.body.classList.toggle('light-mode', mode === 'light');
+            document.getElementById('theme-icon-sun').classList.toggle('hidden', mode === 'dark');
+            document.getElementById('theme-icon-moon').classList.toggle('hidden', mode === 'light');
         }
 
         function handleAdminTrigger() {
             clickCount++;
-            if (clickCount >= 10) { clickCount = 0; openLogin(); }
+            if (clickCount >= 8) { clickCount = 0; openLogin(); }
             clearTimeout(window.clickTimer);
             window.clickTimer = setTimeout(() => clickCount = 0, 2000);
         }
 
         function openLogin() { document.getElementById('login-screen').classList.remove('hidden'); }
         function closeLogin() { document.getElementById('login-screen').classList.add('hidden'); }
-
         function verifyLogin() {
-            const n = document.getElementById('login-name').value;
-            const l = document.getElementById('login-lastname').value;
-            const c = document.getElementById('login-code').value;
-            const t = document.getElementById('login-city').value;
-            const a = document.getElementById('login-nick').value;
-            if (n === "Joel" && l === "Laguna" && c === "77092724" && t === "Espinar-Cusco-Peru" && a === "Clisber") { closeLogin(); openAdmin(); } 
-            else { console.log("Acceso Denegado"); }
+            if (document.getElementById('login-code').value === "77092724") { closeLogin(); openAdmin(); }
         }
 
-        function scrollToDownloads() { document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' }); }
-
-        function showDetail(id) {
-            const g = games.find(x => x.id === id);
-            g.visits += 1;
-            document.getElementById('det-name').innerText = g.name;
-            document.getElementById('det-name-dl').innerText = g.name + " MOD APP";
-            document.getElementById('det-desc').innerText = g.desc;
-            document.getElementById('det-icon').src = g.thumb;
-            document.getElementById('det-size').innerText = g.size;
-            document.getElementById('det-ver').innerText = g.ver;
-            document.getElementById('detail-view').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            refreshIcons();
-            if (currentFilter === 'popular') renderGames();
+        function openAdmin() {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('site-title-in').value = siteData.ui.title;
+            document.getElementById('ann-text-in').value = siteData.ann.text;
+            document.getElementById('ann-visible-in').checked = siteData.ann.visible;
+            document.getElementById('ann-bg-in').value = siteData.ann.bg;
+            document.getElementById('copy-text-in').value = siteData.footer.text;
+            document.getElementById('copy-color-in').value = siteData.footer.color;
+            setSiteMode(siteData.ui.theme);
+            renderAdminGames();
         }
 
-        function closeDetail() { document.getElementById('detail-view').classList.add('hidden'); document.body.style.overflow = ''; }
-        function openAdmin() { document.getElementById('admin-panel').classList.remove('hidden'); }
         function closeAdmin() { document.getElementById('admin-panel').classList.add('hidden'); }
 
-        function handleSearch() {
-            searchQuery = document.getElementById('search-bar').value.toLowerCase();
-            renderGames();
+        function saveGlobalSettings() {
+            siteData.ui.title = document.getElementById('site-title-in').value;
+            siteData.ann.text = document.getElementById('ann-text-in').value;
+            siteData.ann.visible = document.getElementById('ann-visible-in').checked;
+            siteData.ann.bg = document.getElementById('ann-bg-in').value;
+            siteData.footer.text = document.getElementById('copy-text-in').value;
+            siteData.footer.color = document.getElementById('copy-color-in').value;
+            updateUI();
         }
 
-        function setFilter(filter) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
-            document.getElementById(`filter-${filter}`).classList.add('active');
-            renderGames();
-        }
-
-        function renderGames() {
-            const list = document.getElementById('game-list');
-            let filtered = games.filter(g => g.name.toLowerCase().includes(searchQuery));
-
-            if (currentFilter === 'updated') {
-                filtered.sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate));
-            } else if (currentFilter === 'popular') {
-                filtered.sort((a, b) => b.visits - a.visits);
-            } else {
-                filtered.sort((a, b) => a.id - b.id);
-            }
-
-            if (filtered.length === 0) {
-                list.innerHTML = `
-                    <div class="py-10 text-center opacity-40">
-                        <i data-lucide="info" class="w-8 h-8 mx-auto mb-2"></i>
-                        <p class="text-[9px] font-bold uppercase">No hay resultados</p>
-                    </div>
-                `;
-                refreshIcons();
-                return;
-            }
-
-            list.innerHTML = filtered.map(g => `
-                <div class="game-card flex gap-4 p-4 rounded-[30px]">
-                    <div class="icon-container">
-                        <img src="${g.thumb}" class="icon-img">
-                        ${g.update ? '<div class="update-badge">UPDATE</div>' : ''}
-                        <div class="mod-badge-neon">MOD APP</div>
-                    </div>
-                    <div class="flex flex-col justify-center min-w-0 flex-grow">
-                        <h3 class="font-black uppercase tracking-tighter truncate text-[13px]">${g.name}</h3>
-                        <p class="text-[10px] opacity-70 font-medium line-clamp-2 mt-0.5 leading-tight">${g.desc}</p>
-                        <p class="text-[9px] text-blue-500 font-black uppercase tracking-tighter mt-1 mb-2">JoelDroid Mods YT • Verificado</p>
-                        <button onclick="showDetail(${g.id})" class="btn-download-main w-full py-2.5 rounded-xl text-white font-black text-[9px] uppercase tracking-widest group">
-                            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 download-anim text-blue-100"></i>
-                            <span>Descargar APK</span>
-                        </button>
+        function renderAdminGames() {
+            const list = document.getElementById('admin-game-list');
+            list.innerHTML = games.map(g => `
+                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
+                    <img src="${g.thumb}" class="w-10 h-10 rounded-lg object-cover">
+                    <p class="flex-grow text-[11px] font-black uppercase truncate">${g.name}</p>
+                    <div class="flex gap-2">
+                        <button onclick="openGameEditor(${g.id})" class="p-2 bg-blue-600/20 text-blue-500 rounded-lg"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
                     </div>
                 </div>
             `).join('');
             refreshIcons();
         }
 
+        function openGameEditor(id = null) {
+            document.getElementById('game-editor-modal').classList.remove('hidden');
+            if (id) {
+                const g = games.find(x => x.id === id);
+                document.getElementById('edit-id').value = g.id;
+                document.getElementById('edit-name').value = g.name;
+                document.getElementById('edit-thumb-url').value = g.thumb;
+                document.getElementById('edit-ver').value = g.ver;
+                document.getElementById('edit-size').value = g.size;
+                document.getElementById('edit-short-desc').value = g.shortDesc || "";
+                document.getElementById('edit-desc').value = g.desc;
+                document.getElementById('edit-internal-ann').value = g.internalAnn || "";
+                document.getElementById('edit-mod-info').value = g.modFeatures ? g.modFeatures.join(', ') : "";
+                document.getElementById('edit-dl1').value = g.dl1;
+                document.getElementById('edit-dl1-vis').checked = g.dl1Vis;
+                document.getElementById('edit-dl2').value = g.dl2;
+                document.getElementById('edit-dl2-vis').checked = g.dl2Vis;
+                document.getElementById('edit-up-text').value = g.tagUp.text;
+                document.getElementById('edit-up-color').value = g.tagUp.color;
+                document.getElementById('edit-up-vis').checked = g.tagUp.vis;
+                document.getElementById('edit-mod-text').value = g.tagMod.text;
+                document.getElementById('edit-mod-color').value = g.tagMod.color;
+                document.getElementById('edit-mod-vis').checked = g.tagMod.vis;
+                document.getElementById('edit-btn-text').value = g.btnText;
+                document.getElementById('edit-btn-internal-text').value = g.btnInternalText || "Descargar APK";
+                document.getElementById('edit-btn-mod1-text').value = g.btnMod1;
+                document.getElementById('edit-btn-mod2-text').value = g.btnMod2;
+                document.getElementById('edit-verif-text').value = g.verifyText;
+                document.getElementById('edit-verif-color').value = g.verifyColor;
+            } else {
+                document.getElementById('edit-id').value = "";
+                document.getElementById('edit-name').value = "";
+                document.getElementById('edit-thumb-url').value = "";
+                document.getElementById('edit-ver').value = "";
+                document.getElementById('edit-size').value = "";
+                document.getElementById('edit-short-desc').value = "";
+                document.getElementById('edit-desc').value = "";
+                document.getElementById('edit-internal-ann').value = "";
+                document.getElementById('edit-mod-info').value = "";
+                document.getElementById('edit-dl1').value = "";
+                document.getElementById('edit-dl2').value = "";
+                document.getElementById('edit-btn-text').value = "Descargar APK";
+                document.getElementById('edit-btn-internal-text').value = "Descargar APK";
+                document.getElementById('edit-btn-mod1-text').value = "Descargar Mod 1";
+                document.getElementById('edit-btn-mod2-text').value = "Descargar Mod 2";
+                document.getElementById('edit-verif-text').value = "JoelDroid Mods YT • Verificado";
+            }
+        }
+
+        function closeGameEditor() { document.getElementById('game-editor-modal').classList.add('hidden'); }
+
+        function saveGame() {
+            const id = document.getElementById('edit-id').value;
+            const features = document.getElementById('edit-mod-info').value.split(',').map(s => s.trim()).filter(s => s !== "");
+            
+            const gameObj = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('edit-name').value,
+                thumb: document.getElementById('edit-thumb-url').value,
+                ver: document.getElementById('edit-ver').value,
+                size: document.getElementById('edit-size').value,
+                shortDesc: document.getElementById('edit-short-desc').value,
+                desc: document.getElementById('edit-desc').value,
+                internalAnn: document.getElementById('edit-internal-ann').value,
+                modFeatures: features,
+                dl1: document.getElementById('edit-dl1').value,
+                dl1Vis: document.getElementById('edit-dl1-vis').checked,
+                dl2: document.getElementById('edit-dl2').value,
+                dl2Vis: document.getElementById('edit-dl2-vis').checked,
+                tagUp: { text: document.getElementById('edit-up-text').value, color: document.getElementById('edit-up-color').value, vis: document.getElementById('edit-up-vis').checked },
+                tagMod: { text: document.getElementById('edit-mod-text').value, color: document.getElementById('edit-mod-color').value, vis: document.getElementById('edit-mod-vis').checked },
+                btnText: document.getElementById('edit-btn-text').value,
+                btnInternalText: document.getElementById('edit-btn-internal-text').value,
+                btnMod1: document.getElementById('edit-btn-mod1-text').value,
+                btnMod2: document.getElementById('edit-btn-mod2-text').value,
+                verifyText: document.getElementById('edit-verif-text').value,
+                verifyColor: document.getElementById('edit-verif-color').value,
+                public: true, visits: 0, lastUpdate: new Date().toISOString()
+            };
+
+            if (id) games[games.findIndex(x => x.id == id)] = gameObj;
+            else games.unshift(gameObj);
+
+            closeGameEditor();
+            renderGames();
+            renderAdminGames();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-bar').value.toLowerCase();
+            renderGames();
+        }
+
+        function setFilter(type) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            document.getElementById('filter-' + type).classList.add('active');
+            renderGames();
+        }
+
+        function renderGames() {
+            const list = document.getElementById('game-list');
+            let filtered = games.filter(g => g.name.toLowerCase().includes(searchQuery));
+            list.innerHTML = filtered.map(g => `
+                <div class="game-card flex gap-4 p-4 rounded-[30px]">
+                    <div class="icon-container">
+                        <img src="${g.thumb}" class="icon-img" onerror="this.src='https://via.placeholder.com/150?text=APK'">
+                        ${g.tagUp.vis ? `<div class="update-badge" style="background:${g.tagUp.color}">${g.tagUp.text}</div>` : ''}
+                        ${g.tagMod.vis ? `<div class="mod-badge-neon" style="background:${g.tagMod.color}">${g.tagMod.text}</div>` : ''}
+                    </div>
+                    <div class="flex flex-col justify-center min-w-0 flex-grow">
+                        <h3 class="font-black uppercase truncate text-[13px]">${g.name}</h3>
+                        <p class="text-[9px] opacity-70 font-medium line-clamp-2 leading-tight my-1">${g.shortDesc || "Ver más detalles..."}</p>
+                        <p class="text-[8px] neon-verify-text uppercase mt-0.5 mb-2" style="color:${g.verifyColor}; --neon-rgb: ${hexToRgb(g.verifyColor)}">${g.verifyText}</p>
+                        <button onclick="showDetail(${g.id})" class="btn-download-main w-full py-2.5 rounded-xl text-white font-black text-[9px] uppercase tracking-widest">
+                            <i data-lucide="arrow-down-circle" class="w-3.5 h-3.5 download-anim"></i>
+                            <span>${g.btnText}</span>
+                        </button>
+                    </div>
+                </div>`).join('');
+            refreshIcons();
+        }
+
+        function showDetail(id) {
+            const g = games.find(x => x.id === id);
+            document.getElementById('det-name').innerText = g.name;
+            document.getElementById('det-name-dl').innerText = g.name;
+            document.getElementById('det-icon').src = g.thumb;
+            document.getElementById('det-desc').innerText = g.desc;
+            document.getElementById('det-ver').innerText = g.ver;
+            document.getElementById('det-size').innerText = g.size;
+            document.getElementById('det-btn-top-text').innerText = g.btnInternalText || "Descargar APK";
+            
+            const vLab = document.getElementById('det-verify-label');
+            vLab.innerText = g.verifyText;
+            vLab.style.color = g.verifyColor;
+            vLab.style.setProperty('--neon-rgb', hexToRgb(g.verifyColor));
+
+            const featList = document.getElementById('det-mod-tags');
+            featList.innerHTML = g.modFeatures.map(f => `<span class="mod-tag">${f}</span>`).join('');
+
+            const annBox = document.getElementById('det-ann-box');
+            if (g.internalAnn && g.internalAnn.trim() !== "") {
+                annBox.classList.remove('hidden');
+                document.getElementById('det-ann-text').innerText = g.internalAnn;
+            } else {
+                annBox.classList.add('hidden');
+            }
+
+            const d1c = document.getElementById('dl-mod1-container');
+            if (g.dl1Vis && g.dl1) { 
+                d1c.classList.remove('hidden'); 
+                document.getElementById('dl-mod1-btn').href = g.dl1;
+                document.getElementById('dl-mod1-text').innerText = g.btnMod1;
+            } else d1c.classList.add('hidden');
+
+            const d2c = document.getElementById('dl-mod2-container');
+            if (g.dl2Vis && g.dl2) { 
+                d2c.classList.remove('hidden'); 
+                document.getElementById('dl-mod2-btn').href = g.dl2;
+                document.getElementById('dl-mod2-text').innerText = g.btnMod2;
+            } else d2c.classList.add('hidden');
+
+            document.getElementById('detail-view').classList.remove('hidden');
+            refreshIcons();
+        }
+
+        function closeDetail() { document.getElementById('detail-view').classList.add('hidden'); }
+        function scrollToDownloads() { document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' }); }
+        
         function updateUI() {
             document.getElementById('site-title-ui').innerText = siteData.ui.title;
+            
             const ann = document.getElementById('site-announcement');
+            ann.className = `p-4 rounded-2xl flex items-center gap-3 text-white transition-colors duration-300 ${siteData.ann.bg}`;
             ann.style.display = siteData.ann.visible ? 'flex' : 'none';
             document.getElementById('ann-text-ui').innerText = siteData.ann.text;
-        }
 
-        function syncAdmin() {
-            siteData.ui.title = document.getElementById('site-title-in').value;
-            siteData.ann.text = document.getElementById('ann-text-in').value;
-            updateUI();
-        }
-
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('light-mode', !isDarkMode);
-            document.getElementById('theme-icon').setAttribute('data-lucide', isDarkMode ? 'sun' : 'moon');
-            refreshIcons();
+            const footerCopy = document.getElementById('copyright-ui');
+            footerCopy.innerText = siteData.footer.text;
+            footerCopy.style.color = siteData.footer.color;
+            
+            setSiteMode(siteData.ui.theme);
         }
 
         window.onload = () => { renderGames(); updateUI(); refreshIcons(); };
