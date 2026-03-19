@@ -11,6 +11,70 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
+
+<!-- ══ FIREBASE SDK v9 compat ════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   ✏️  PASO 1 DE 2 — PEGA AQUÍ TUS CREDENCIALES DE FIREBASE
+   ──────────────────────────────────────────────────────────────────────
+   Dónde obtenerlas:
+   1) Ve a https://console.firebase.google.com
+   2) Tu proyecto → ⚙️ Configuración → General → "Tus apps"
+   3) Si no tienes app web, haz clic en </> para crear una
+   4) Copia y pega los valores de "firebaseConfig" aquí abajo
+   ══════════════════════════════════════════════════════════════════════ */
+var FIREBASE_CONFIG = {
+  apiKey:            "PEGA_TU_apiKey_AQUI",
+  authDomain:        "PEGA_TU_authDomain_AQUI",
+  projectId:         "PEGA_TU_projectId_AQUI",
+  storageBucket:     "PEGA_TU_storageBucket_AQUI",
+  messagingSenderId: "PEGA_TU_messagingSenderId_AQUI",
+  appId:             "PEGA_TU_appId_AQUI"
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   ✏️  PASO 2 DE 2 — DATOS DE TU CUENTA DE ADMINISTRADOR
+   ──────────────────────────────────────────────────────────────────────
+   1) En Firebase Console → Authentication → Users → "Agregar usuario"
+   2) Crea una cuenta con tu email y contraseña
+   3) Copia el "UID" que aparece en la tabla de usuarios
+   4) Pega ese UID en ADMIN_UID y tu email en ADMIN_EMAIL
+   ══════════════════════════════════════════════════════════════════════ */
+var ADMIN_UID   = "PEGA_TU_UID_DE_FIREBASE_AUTH_AQUI";
+var ADMIN_EMAIL = "tu_email@gmail.com";
+
+/* ══════════════════════════════════════════════════════════════════════
+   📋  REGLAS DE FIRESTORE (cópialas en Firebase Console → Firestore → Reglas)
+   ──────────────────────────────────────────────────────────────────────
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /mods/{modId} {
+         allow read: if true;
+         allow write: if request.auth != null
+                      && request.auth.uid == "PEGA_TU_UID_AQUI";
+       }
+       match /siteConfig/{docId} {
+         allow read: if true;
+         allow write: if request.auth != null
+                      && request.auth.uid == "PEGA_TU_UID_AQUI";
+       }
+       match /ratings/{docId} {
+         allow read: if true;
+         allow write: if request.auth != null;
+       }
+       match /comments/{docId} {
+         allow read: if true;
+         allow write: if request.auth != null;
+       }
+     }
+   }
+   ══════════════════════════════════════════════════════════════════════ */
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
@@ -913,6 +977,24 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <button onclick="saveGHConfig()" class="w-full py-3 bg-green-600 text-white rounded-xl font-black uppercase text-xs mt-3 hover:bg-green-500 transition-all">🔗 Conectar y Sincronizar</button>
         <button onclick="testGHSync()" class="w-full py-3 bg-green-800 text-white rounded-xl font-black uppercase text-xs mt-1 hover:bg-green-700 transition-all">📡 Probar Conexión</button>
         <button onclick="disconnectGH()" class="w-full py-3 bg-gray-600 text-white rounded-xl font-black uppercase text-xs mt-1 opacity-60">Desconectar GitHub</button>
+      </div>
+
+      <!-- FIREBASE — base de datos global en tiempo real -->
+      <div class="space-y-2 p-4 border rounded-xl border-orange-500/40 bg-orange-500/5">
+        <h3 class="font-bold uppercase text-orange-400 flex items-center gap-2">🔥 Firebase — Base de Datos Global</h3>
+        <p class="text-[9px] text-orange-300/70 font-medium">Con Firebase los juegos se guardan en la nube y aparecen EN TIEMPO REAL en el celular de cualquier usuario sin recargar.<br><br>
+        <b>Configuración:</b><br>
+        1) Ve a <b>console.firebase.google.com</b><br>
+        2) Crea un proyecto → Firestore Database → Modo Producción<br>
+        3) En Configuración del proyecto copia tus credenciales<br>
+        4) Pega el <b>apiKey</b> y <b>projectId</b> en el archivo HTML donde dice <code>FIREBASE_CONFIG</code><br>
+        5) En Firestore → Reglas pega las reglas de seguridad del comentario en el código</p>
+        <div id="fb-status-bar" style="font-size:10px;font-weight:800;padding:8px 12px;border-radius:8px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);color:#fb923c;margin-top:4px">
+          ⏳ Verificando conexión Firebase...
+        </div>
+        <button onclick="fbAdminLogin()" class="w-full py-3 bg-orange-600 text-white rounded-xl font-black uppercase text-xs mt-2 hover:bg-orange-500 transition-all" id="fb-login-btn">🔑 Iniciar sesión como Admin</button>
+        <button onclick="fbAdminLogout()" class="w-full py-3 bg-gray-600 text-white rounded-xl font-black uppercase text-xs mt-1 opacity-70 hidden" id="fb-logout-btn">Cerrar sesión Firebase</button>
+        <p class="text-[8px] opacity-40 mt-1">Solo el administrador autenticado puede escribir datos en Firestore.</p>
       </div>
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Configuración de Identidad y Color</h3>
@@ -2461,11 +2543,14 @@ function _saveGHConfig(cfg){
   _ghCfg=cfg;
 }
 
-// Guardar en localStorage siempre (local inmediato)
-// Y si hay GitHub configurado, subir al Gist
+// Guardar en localStorage (inmediato) + GitHub Gist (sync) + Firebase (global)
 function saveSettings(){
   localStorage.setItem('siteState',JSON.stringify(siteState));
   _syncToGitHub();
+  // Guardar config de UI en Firestore si el admin está logueado
+  if(_fbReady && _fbUser && _fbUser.uid === ADMIN_UID){
+    _fbSaveSiteConfig();
+  }
 }
 
 function _syncToGitHub(){
@@ -2822,31 +2907,77 @@ function saveGame(){
 
 function processSaveGameData(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
-  var newGame=Object.assign({id:editId?parseInt(editId):Date.now()},data,{
+  var newGame=Object.assign({id:editId?String(editId):String(Date.now())},data,{
     update:data.updateBadgeVisible,
     lastUpdate:new Date().toISOString().split('T')[0],
-    visits:0,
+    visits:editId?(function(){var g=siteState.gamesList.find(function(x){return String(x.id)===String(editId);});return g?g.visits:0;})():0,
+    homeButtonVisible:true,
     updateBadgeBgColor:colorPalette[ukKey]?colorPalette[ukKey].hex:'#10b981',
     modBadgeBgColor:colorPalette[mkKey]?colorPalette[mkKey].hex:'#ef4444',
     downloadButtonColor1:'#3b82f6',
     downloadButtonColor2:'#3b82f6'
   });
+
+  // ── Si Firebase está listo y hay admin logueado → guardar en Firestore ──
+  if(_fbReady && _fbUser && _fbUser.uid === ADMIN_UID){
+    _fbSaveGame(newGame, editId ? String(editId) : null)
+      .then(function(){
+        // onSnapshot actualizará renderGames() automáticamente
+        renderGameEditorList();
+        closeGameEditor();
+        try{ _autoNotifyGameUpdate(!editId, data.name, data.ver||''); }catch(e){}
+      })
+      .catch(function(){
+        // Fallback: guardar solo local si Firebase falla
+        _saveGameLocal(editId, newGame);
+      });
+  } else {
+    // Sin Firebase → guardar solo local (comportamiento anterior)
+    _saveGameLocal(editId, newGame);
+    if(!_fbReady){
+      showToast('⚠️ Firebase no configurado — guardado solo local');
+    } else {
+      showToast('🔒 Inicia sesión como admin para guardar globalmente');
+    }
+  }
+}
+
+// Guardar juego solo en siteState local (fallback sin Firebase)
+function _saveGameLocal(editId, newGame){
   if(editId){
-    var idx=siteState.gamesList.findIndex(function(g){return g.id===parseInt(editId);});
-    if(idx!==-1)siteState.gamesList[idx]=Object.assign({},siteState.gamesList[idx],newGame);
+    var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
+    if(idx!==-1) siteState.gamesList[idx]=Object.assign({},siteState.gamesList[idx],newGame);
+    else siteState.gamesList.push(newGame);
   }else{
     siteState.gamesList.push(newGame);
   }
   saveSettings();renderGames();renderGameEditorList();closeGameEditor();
-  // Auto-notificar a usuarios cuando se agrega/actualiza un juego
-  try{ _autoNotifyGameUpdate(!editId, data.name, data.ver||''); }catch(e){}
+  try{ _autoNotifyGameUpdate(!editId, newGame.name, newGame.ver||''); }catch(e){}
 }
 
 function renderGameEditorList(){
   var list=document.getElementById('game-list-editor');if(!list)return;
-  list.innerHTML=siteState.gamesList.map(function(g){
-    return'<div class="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg"><span class="text-white text-sm notranslate">'+g.name+'</span><button onclick="openGameEditor('+g.id+')" class="text-blue-400 text-xs font-bold">Editar</button></div>';
-  }).join('');
+  var fbActive = _fbReady && _fbUser && _fbUser.uid === ADMIN_UID;
+  list.innerHTML=(siteState.gamesList.length?siteState.gamesList.map(function(g){
+    return'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:4px;gap:8px">'+
+      '<span style="font-size:11px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="notranslate">'+g.name+'</span>'+
+      '<button onclick="openGameEditor(\''+g.id+'\')" style="font-size:9px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">Editar</button>'+
+      '<button onclick="deleteGameGlobal(\''+g.id+'\')" style="font-size:9px;font-weight:900;color:#ef4444;background:rgba(239,68,68,.1);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">🗑️</button>'+
+    '</div>';
+  }).join(''):'<p style="font-size:10px;opacity:.4;text-align:center;padding:12px">Sin juegos. Agrega el primero.</p>')+
+  (fbActive?'<button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:10px;cursor:pointer;">🔥 Migrar juegos locales → Firebase</button>':'');
+}
+
+function deleteGameGlobal(gameId){
+  if(!confirm('¿Eliminar este juego?')) return;
+  if(_fbReady && _fbUser && _fbUser.uid === ADMIN_UID){
+    _fbDeleteGame(String(gameId)); // Firestore lo borra globalmente
+  } else {
+    // Sin Firebase → solo borrar local
+    siteState.gamesList = siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});
+    saveSettings(); renderGames(); renderGameEditorList();
+    showToast('🗑️ Juego eliminado localmente');
+  }
 }
 
 function checkDeepLink(){
@@ -4344,7 +4475,266 @@ function _initShareBtn(){
   }
 }
 
+// ════════════════════════════════════════════════════════════════
+// 🔥 MOTOR FIREBASE — Firestore + Auth en tiempo real
+// ════════════════════════════════════════════════════════════════
+//
+// REGLAS DE FIRESTORE (pega esto en Firebase Console → Firestore → Reglas):
+// ─────────────────────────────────────────────────────────────────
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     // Cualquier usuario puede LEER los mods
+//     match /mods/{modId} {
+//       allow read: if true;
+//       allow write: if request.auth != null && request.auth.uid == "TU_ADMIN_UID_AQUI";
+//     }
+//     // Configuración del sitio — solo admin
+//     match /siteConfig/{docId} {
+//       allow read: if true;
+//       allow write: if request.auth != null && request.auth.uid == "TU_ADMIN_UID_AQUI";
+//     }
+//     // Ratings y comentarios — cualquier usuario autenticado
+//     match /ratings/{docId} {
+//       allow read: if true;
+//       allow write: if request.auth != null;
+//     }
+//     match /comments/{docId} {
+//       allow read: if true;
+//       allow write: if request.auth != null;
+//     }
+//   }
+// }
+// ─────────────────────────────────────────────────────────────────
+
+var _db = null;          // Instancia Firestore
+var _fbAuth = null;      // Instancia Firebase Auth
+var _fbUser = null;      // Usuario admin actual
+var _fbReady = false;    // Firebase inicializado
+var _fbModsUnsub = null; // Unsubscribe del listener onSnapshot
+
+// ── Inicializar Firebase ──────────────────────────────────────
+function _initFirebase(){
+  // Si las credenciales no han sido configuradas, abortar silenciosamente
+  if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === 'TU_API_KEY_AQUI'){
+    _fbSetStatus('⚠️ Firebase no configurado. Edita FIREBASE_CONFIG en el HTML.','#f59e0b');
+    return false;
+  }
+  try{
+    if(!firebase.apps.length){
+      firebase.initializeApp(FIREBASE_CONFIG);
+    }
+    _db = firebase.firestore();
+    _fbAuth = firebase.auth();
+    _fbReady = true;
+
+    // Escuchar cambios de autenticación
+    _fbAuth.onAuthStateChanged(function(user){
+      _fbUser = user;
+      _fbUpdateAdminUI(user);
+      // Si hay usuario admin, arrancar listener en tiempo real
+      if(user && user.uid === ADMIN_UID){
+        _fbSetStatus('✅ Admin conectado: '+user.email,'#10b981');
+      } else if(user){
+        _fbSetStatus('⚠️ Conectado pero sin permisos de admin','#f59e0b');
+      } else {
+        _fbSetStatus('🔒 Sin sesión — solo lectura activa','#60a5fa');
+      }
+    });
+
+    // Escuchar colección 'mods' en tiempo real (onSnapshot)
+    _fbStartModsListener();
+    // Cargar configuración global del sitio
+    _fbLoadSiteConfig();
+
+    return true;
+  } catch(e){
+    _fbSetStatus('❌ Error Firebase: '+e.message,'#ef4444');
+    return false;
+  }
+}
+
+// ── Listener en tiempo real de mods (onSnapshot) ──────────────
+function _fbStartModsListener(){
+  if(!_db) return;
+  // Cancelar listener anterior si existe
+  if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub=null; }
+
+  _fbModsUnsub = _db.collection('mods')
+    .orderBy('order','asc')
+    .onSnapshot(function(snapshot){
+      if(snapshot.empty){
+        // Sin mods en Firebase → mantener los de siteState (fallback)
+        return;
+      }
+      // Mapear documentos Firestore → formato interno
+      var fbGames = snapshot.docs.map(function(doc){
+        var d = doc.data();
+        d.id = doc.id; // usar ID de Firestore como ID del juego
+        return d;
+      });
+      // Actualizar siteState con datos de Firebase
+      siteState.gamesList = fbGames;
+      // Re-renderizar tarjetas instantáneamente
+      renderGames();
+      updateBannerBasedOnFilter();
+    }, function(err){
+      console.warn('[Firebase] Error en listener mods:', err.message);
+    });
+}
+
+// ── Cargar configuración global del sitio desde Firestore ─────
+function _fbLoadSiteConfig(){
+  if(!_db) return;
+  _db.collection('siteConfig').doc('main')
+    .onSnapshot(function(doc){
+      if(!doc.exists) return;
+      var cfg = doc.data();
+      // Fusionar configuración remota con defaults locales
+      var merged = Object.assign({}, defaultSiteState, cfg, {
+        ui:            Object.assign({}, defaultSiteState.ui,            cfg.ui||{}),
+        announcement:  Object.assign({}, defaultSiteState.announcement,  cfg.announcement||{}),
+        banner:        Object.assign({}, defaultSiteState.banner,        cfg.banner||{}),
+        updatedBanner: Object.assign({}, defaultSiteState.updatedBanner, cfg.updatedBanner||{}),
+        popularBanner: Object.assign({}, defaultSiteState.popularBanner, cfg.popularBanner||{}),
+        copyright:     Object.assign({}, defaultSiteState.copyright,     cfg.copyright||{}),
+        verification:  Object.assign({}, defaultSiteState.verification,  cfg.verification||{}),
+        buttonSettings:Object.assign({}, defaultSiteState.buttonSettings,cfg.buttonSettings||{})
+      });
+      // NO sobreescribir gamesList — eso lo maneja _fbStartModsListener
+      merged.gamesList = siteState.gamesList;
+      siteState = merged;
+      // Aplicar cambios visuales
+      applyUIChanges();
+      applyTranslations(currentLang);
+      applyYoutubeVideo();
+      applyInstallVideo();
+    }, function(err){
+      console.warn('[Firebase] Error en config:', err.message);
+    });
+}
+
+// ── Guardar juego en Firestore ────────────────────────────────
+function _fbSaveGame(gameData, editId){
+  if(!_db){ showToast('⚠️ Firebase no conectado'); return Promise.reject('no db'); }
+  if(!_fbUser || _fbUser.uid !== ADMIN_UID){
+    showToast('🔒 Debes iniciar sesión como admin primero');
+    return Promise.reject('not admin');
+  }
+
+  // Asignar orden para que los mods aparezcan en el orden correcto
+  var order = editId
+    ? (siteState.gamesList.findIndex(function(g){return g.id===editId;}) || 0)
+    : siteState.gamesList.length;
+
+  var docData = Object.assign({}, gameData, {
+    order:     order,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAt: editId ? (gameData.createdAt || firebase.firestore.FieldValue.serverTimestamp())
+                      : firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  var ref = editId
+    ? _db.collection('mods').doc(String(editId))
+    : _db.collection('mods').doc();
+
+  return ref.set(docData, {merge: true})
+    .then(function(){
+      showToast('✅ Juego guardado en Firebase — visible globalmente');
+      // Guardar config del sitio también
+      _fbSaveSiteConfig();
+    })
+    .catch(function(e){
+      showToast('❌ Error al guardar: '+e.message);
+      throw e;
+    });
+}
+
+// ── Eliminar juego de Firestore ───────────────────────────────
+function _fbDeleteGame(gameId){
+  if(!_db || !_fbUser || _fbUser.uid !== ADMIN_UID){
+    showToast('🔒 Sin permisos de admin'); return;
+  }
+  return _db.collection('mods').doc(String(gameId)).delete()
+    .then(function(){ showToast('🗑️ Juego eliminado globalmente'); })
+    .catch(function(e){ showToast('❌ Error: '+e.message); });
+}
+
+// ── Guardar configuración del sitio en Firestore ──────────────
+function _fbSaveSiteConfig(){
+  if(!_db || !_fbUser || _fbUser.uid !== ADMIN_UID) return;
+  // Guardar todo siteState excepto gamesList (eso está en su propia colección)
+  var cfg = Object.assign({}, siteState);
+  delete cfg.gamesList;
+  cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  _db.collection('siteConfig').doc('main').set(cfg, {merge:true})
+    .catch(function(e){ console.warn('[Firebase] Error guardando config:', e.message); });
+}
+
+// ── Login admin con email/password ────────────────────────────
+function fbAdminLogin(){
+  if(!_fbReady){ showToast('⚠️ Firebase no está configurado'); return; }
+  var email = prompt('Email de administrador:', ADMIN_EMAIL||'');
+  if(!email) return;
+  var pass  = prompt('Contraseña Firebase:','');
+  if(!pass) return;
+  _fbAuth.signInWithEmailAndPassword(email, pass)
+    .then(function(cred){
+      if(cred.user.uid !== ADMIN_UID){
+        _fbSetStatus('⚠️ Este usuario no tiene permisos de admin.\nUID: '+cred.user.uid+'\n(Actualiza ADMIN_UID en el código si es tu cuenta)','#f59e0b');
+      } else {
+        showToast('🔥 Admin Firebase conectado');
+      }
+    })
+    .catch(function(e){ showToast('❌ Login fallido: '+e.message); });
+}
+
+function fbAdminLogout(){
+  if(_fbAuth) _fbAuth.signOut().then(function(){ showToast('Firebase: sesión cerrada'); });
+}
+
+// ── UI de estado Firebase ─────────────────────────────────────
+function _fbSetStatus(msg, color){
+  var el = document.getElementById('fb-status-bar');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = color||'#60a5fa';
+  el.style.background = 'rgba(0,0,0,.2)';
+  el.style.border = '1px solid '+( color||'#60a5fa')+'44';
+}
+
+function _fbUpdateAdminUI(user){
+  var loginBtn  = document.getElementById('fb-login-btn');
+  var logoutBtn = document.getElementById('fb-logout-btn');
+  if(loginBtn)  loginBtn.classList.toggle('hidden', !!user);
+  if(logoutBtn) logoutBtn.classList.toggle('hidden', !user);
+}
+
+// ── Migrar juegos locales a Firebase (una sola vez) ───────────
+function fbMigrateLocalGames(){
+  if(!_db || !_fbUser || _fbUser.uid !== ADMIN_UID){
+    showToast('🔒 Debes estar logueado como admin'); return;
+  }
+  var games = siteState.gamesList;
+  if(!games.length){ showToast('No hay juegos locales para migrar'); return; }
+  var batch = _db.batch();
+  games.forEach(function(g, i){
+    var ref = _db.collection('mods').doc(String(g.id));
+    var data = Object.assign({}, g, {
+      order: i,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(ref, data, {merge:true});
+  });
+  batch.commit()
+    .then(function(){ showToast('✅ '+games.length+' juegos migrados a Firebase'); })
+    .catch(function(e){ showToast('❌ Error en migración: '+e.message); });
+}
+
 function initializeApp(){
+  // 🔥 Inicializar Firebase primero (no bloquea el resto)
+  setTimeout(_initFirebase, 0);
   initLazyLoading();
   loadSettings();
   // Tema: preferencia guardada > hora local del dispositivo
