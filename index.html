@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://www.gstatic.com https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://apis.google.com https://*.firebaseapp.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.gstatic.com https://*.tailwindcss.com https://unpkg.com https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://*.google.com https://*.firebaseapp.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 <script>
@@ -3604,7 +3604,18 @@ function doRegister(){
   if(pass!==pass2){_showMsg('auth-err-reg','Las contraseñas no coinciden');return;}
   var r=_AUTH.register(username,email,pass);
   if(r.ok){
-    _showMsg('auth-ok-reg','¡Cuenta creada! Bienvenido, '+username+' ✓','ok');
+    // Guardar email en Firestore /usuarios
+    try{if(_db && typeof firebase!=='undefined'){
+    var _uemail=document.getElementById('auth-email-reg');
+    var _uname=document.getElementById('auth-user-reg');
+    if(_uemail&&_uname){
+      _db.collection('usuarios').doc(_uemail.value.replace(/[^a-z0-9]/gi,'_')).set({
+        username:_uname.value,email:_uemail.value,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+    }
+  }}catch(e){}
+  _showMsg('auth-ok-reg','¡Cuenta creada! Bienvenido, '+username+' ✓','ok');
     _updateFAB();
     _updateDetCommentUI();
     setTimeout(function(){closeAuthModal();showToast('🎮 ¡Cuenta creada! Bienvenido, '+username+'!');},900);
@@ -4767,38 +4778,33 @@ function _initFirebase(){
 // aparece/desaparece en tiempo real en TODOS los celulares del mundo
 function _fbListenMods(){
   if(!_db) return;
-  // Cancelar listener anterior si existe para evitar duplicados
   if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
 
-  console.log('[Firebase] Iniciando listener de mods...');
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
     .onSnapshot(function(snap){
-      console.log('[Firebase] onSnapshot mods:', snap.size, 'documentos');
       if(snap.empty){
-        console.log('[Firebase] Colección mods vacía');
-        renderGames(); // mostrar datos locales mientras
-        // Si soy el admin y hay juegos locales → subir automáticamente
+        // Firestore vacío — mostrar datos locales
+        renderGames();
+        // Solo el admin puede subir datos (visitantes no pueden)
         if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
-          console.log('[Firebase] Auto-migrando', siteState.gamesList.length, 'juegos a Firestore...');
           _autoMigrateToFirestore();
         }
         return;
       }
+      // ── Datos recibidos de Firestore — para TODOS los visitantes ──
       var games = snap.docs.map(function(doc){
         var d = doc.data();
         d.id = doc.id;
         delete d.updatedAt; delete d.createdAt;
         return d;
       });
-      console.log('[Firebase] Juegos recibidos:', games.map(function(g){return g.name;}));
       siteState.gamesList = games;
       renderGames();
       updateBannerBasedOnFilter();
       if(document.getElementById('game-list-editor')) renderGameEditorList();
     }, function(err){
-      console.error('[Firebase:mods] Error:', err.code, err.message);
-      // Reintentar en 3 segundos si hay error de red
+      console.error('[Firebase:mods]', err.code, err.message);
       if(err.code === 'unavailable' || err.code === 'failed-precondition'){
         setTimeout(_fbListenMods, 3000);
       }
