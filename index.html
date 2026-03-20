@@ -2782,11 +2782,18 @@ function _saveGHConfig(cfg){
 // Guardar en localStorage (inmediato) + GitHub Gist (sync) + Firebase (global)
 function saveSettings(){
   localStorage.setItem('siteState',JSON.stringify(siteState));
-  // Guardar en Firebase (global) + GitHub Gist (backup)
-  if(_isAdmin()){
-    _fbSaveSiteConfig(); // → _fbListenConfig lo distribuye a todos en tiempo real
+  // Guardar en Firebase — con reintento si Auth aún no respondió
+  if(_fbReady && _db){
+    if(_isAdmin()){
+      _fbSaveSiteConfig();
+    } else {
+      // Auth asíncrono puede tardar — reintentar en 1.5s
+      setTimeout(function(){
+        if(_isAdmin()) _fbSaveSiteConfig();
+      }, 1500);
+    }
   }
-  _syncToGitHub(); // backup opcional
+  _syncToGitHub();
 }
 
 function _syncToGitHub(){
@@ -4711,16 +4718,24 @@ function _initFirebase(){
       _fbListenConfig();
     });
 
-    // ── Escuchar autenticación (solo para el admin) ────────────
+    // ── Escuchar autenticación ────────────────────────────────
     _fbAuth.onAuthStateChanged(function(user){
       _fbUser = user;
       _updateAdminBtns(user);
       if(user && ADMIN_UID && user.uid === ADMIN_UID){
         _updateSyncUI(true, '✅ Admin activo: '+user.email);
+        // Al autenticarse: sincronizar estado local → Firebase
+        // (por si hubo cambios antes de que Auth respondiera)
+        setTimeout(function(){
+          if(_isAdmin()){
+            console.log('[Firebase] Admin autenticado — sincronizando estado...');
+            _fbSaveSiteConfig();
+          }
+        }, 500);
       } else if(user){
         _updateSyncUI(null, '⚠️ Sin permisos admin (UID: '+user.uid+')');
       } else {
-        _updateSyncUI(null, '🔒 Modo visitante — datos en tiempo real activos');
+        _updateSyncUI(null, '🔒 Modo visitante — tiempo real activo');
       }
     });
 
@@ -4814,6 +4829,7 @@ function _fbSaveGame(gameData, editId){
   var order = (editId && idx >= 0) ? idx : siteState.gamesList.length;
   var ref   = editId ? _db.collection('mods').doc(String(editId)) : _db.collection('mods').doc();
 
+  console.log('[Firebase] Guardando mod:', gameData.name, 'editId:', editId);
   return ref.set(Object.assign({}, gameData, {
     order:     order,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -4822,9 +4838,13 @@ function _fbSaveGame(gameData, editId){
                : firebase.firestore.FieldValue.serverTimestamp()
   }), {merge: true})
   .then(function(){
+    console.log('[Firebase] Mod guardado OK:', gameData.name);
     showToast('✅ Guardado — visible para todos al instante 🌍');
+    // Guardar config del sitio también (por si cambió algo)
+    _fbSaveSiteConfig();
   })
   .catch(function(e){
+    console.error('[Firebase] Error guardando mod:', e);
     showToast('❌ Error al guardar: '+e.message);
     throw e;
   });
@@ -4842,15 +4862,23 @@ function _fbDeleteGame(gameId){
 
 // Guardar configuración del sitio → _fbListenConfig la distribuye a todos
 function _fbSaveSiteConfig(){
-  if(!_db || !_isAdmin()) return;
+  if(!_db){ console.warn('[Firebase] _db no disponible'); return; }
+  if(!_isAdmin()){ console.warn('[Firebase] No es admin — uid:',_fbUser&&_fbUser.uid); return; }
   var cfg = Object.assign({}, siteState);
   delete cfg.gamesList;
   cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  console.log('[Firebase] Guardando siteConfig en Firestore...');
   _db.collection('siteConfig').doc('main').set(cfg, {merge: true})
     .then(function(){
-      _updateSyncUI(true, '✅ Configuración guardada — aplicada a todos los usuarios 🌍');
+      console.log('[Firebase] siteConfig guardado OK');
+      _updateSyncUI(true, '✅ Cambios guardados — visibles para todos 🌍');
+      // También guardar Gist como backup
+      _syncToGitHub();
     })
-    .catch(function(e){ _updateSyncUI(false, '❌ Error: '+e.message); });
+    .catch(function(e){
+      console.error('[Firebase] Error siteConfig:', e);
+      _updateSyncUI(false, '❌ Error al guardar: '+e.message);
+    });
 }
 
 // Migrar juegos locales a Firestore (una sola vez al activar Firebase)
@@ -4939,7 +4967,19 @@ function testJSONBin(){
 // ════════════════════════════════════════════════════════════════
 
 function _isAdmin(){
-  return _fbUser && ADMIN_UID && _fbUser.uid === ADMIN_UID;
+  // Verificación primaria: usuario Firebase activo
+  if(_fbUser && ADMIN_UID && _fbUser.uid === ADMIN_UID) return true;
+  // Verificación secundaria: sesión persistente guardada (Auth asíncrono puede tardar)
+  if(_fbReady && ADMIN_UID){
+    try{
+      var cached = localStorage.getItem('firebase:authUser:'+FIREBASE_CONFIG.apiKey+':[DEFAULT]');
+      if(cached){
+        var u = JSON.parse(cached);
+        if(u && u.uid === ADMIN_UID) return true;
+      }
+    }catch(e){}
+  }
+  return false;
 }
 
 // Auto-migrar datos locales a Firestore si está vacío
