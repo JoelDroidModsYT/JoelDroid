@@ -5,75 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 <script>
-/* Suprimir advertencia de Tailwind CDN en producción */
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
 
-<!-- ══ FIREBASE SDK v9 compat ════════════════════════════════════════ -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
-/* ══════════════════════════════════════════════════════════════════════
-   ✏️  PASO 1 DE 2 — PEGA AQUÍ TUS CREDENCIALES DE FIREBASE
-   ──────────────────────────────────────────────────────────────────────
-   Dónde obtenerlas:
-   1) Ve a https://console.firebase.google.com
-   2) Tu proyecto → ⚙️ Configuración → General → "Tus apps"
-   3) Si no tienes app web, haz clic en </> para crear una
-   4) Copia y pega los valores de "firebaseConfig" aquí abajo
-   ══════════════════════════════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════
+// 🔥 FIREBASE — JoelDroid Mods YT — CONFIGURADO Y LISTO
+// ══════════════════════════════════════════════════════════════════
+// Credenciales reales del proyecto joeldroid-mods
 var FIREBASE_CONFIG = {
-  apiKey:            "PEGA_TU_apiKey_AQUI",
-  authDomain:        "PEGA_TU_authDomain_AQUI",
-  projectId:         "PEGA_TU_projectId_AQUI",
-  storageBucket:     "PEGA_TU_storageBucket_AQUI",
-  messagingSenderId: "PEGA_TU_messagingSenderId_AQUI",
-  appId:             "PEGA_TU_appId_AQUI"
+  apiKey:            "AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M",
+  authDomain:        "joeldroid-mods.firebaseapp.com",
+  projectId:         "joeldroid-mods",
+  storageBucket:     "joeldroid-mods.firebasestorage.app",
+  messagingSenderId: "308221632883",
+  appId:             "1:308221632883:web:a50829da7b400d74f12506"
 };
 
-/* ══════════════════════════════════════════════════════════════════════
-   ✏️  PASO 2 DE 2 — DATOS DE TU CUENTA DE ADMINISTRADOR
-   ──────────────────────────────────────────────────────────────────────
-   1) En Firebase Console → Authentication → Users → "Agregar usuario"
-   2) Crea una cuenta con tu email y contraseña
-   3) Copia el "UID" que aparece en la tabla de usuarios
-   4) Pega ese UID en ADMIN_UID y tu email en ADMIN_EMAIL
-   ══════════════════════════════════════════════════════════════════════ */
-var ADMIN_UID   = "PEGA_TU_UID_DE_FIREBASE_AUTH_AQUI";
-var ADMIN_EMAIL = "tu_email@gmail.com";
+// ── TU UID DE ADMINISTRADOR ────────────────────────────────────
+// Obtén tu UID en: Firebase Console → Authentication → Users
+// Pega aquí el UID de la fila de tu cuenta de email admin.
+// Después de pegarlo, sube el archivo a GitHub y ejecuta
+// "Login Admin Firebase" en el Panel de Control del sitio.
+var ADMIN_UID   = "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
+var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 
-/* ══════════════════════════════════════════════════════════════════════
-   📋  REGLAS DE FIRESTORE (cópialas en Firebase Console → Firestore → Reglas)
-   ──────────────────────────────────────────────────────────────────────
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /mods/{modId} {
-         allow read: if true;
-         allow write: if request.auth != null
-                      && request.auth.uid == "PEGA_TU_UID_AQUI";
-       }
-       match /siteConfig/{docId} {
-         allow read: if true;
-         allow write: if request.auth != null
-                      && request.auth.uid == "PEGA_TU_UID_AQUI";
-       }
-       match /ratings/{docId} {
-         allow read: if true;
-         allow write: if request.auth != null;
-       }
-       match /comments/{docId} {
-         allow read: if true;
-         allow write: if request.auth != null;
-       }
-     }
-   }
-   ══════════════════════════════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════
+// 📋 REGLAS DE FIRESTORE — pega esto en Firebase Console → Firestore → Reglas
+// (Reemplaza TU_UID_AQUI con tu UID real antes de publicar)
+// ══════════════════════════════════════════════════════════════════
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /mods/{id} {
+//       allow read: if true;
+//       allow write: if request.auth != null && request.auth.uid == "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
+//     }
+//     match /siteConfig/{id} {
+//       allow read: if true;
+//       allow write: if request.auth != null && request.auth.uid == "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
+//     }
+//     match /ratings/{id}  { allow read, write: if request.auth != null; }
+//     match /comments/{id} { allow read, write: if request.auth != null; }
+//   }
+// }
+var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000 };
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -979,22 +959,41 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <button onclick="disconnectGH()" class="w-full py-3 bg-gray-600 text-white rounded-xl font-black uppercase text-xs mt-1 opacity-60">Desconectar GitHub</button>
       </div>
 
-      <!-- FIREBASE — base de datos global en tiempo real -->
+      <!-- SINCRONIZACIÓN GLOBAL — JSONBin + Firebase -->
       <div class="space-y-2 p-4 border rounded-xl border-orange-500/40 bg-orange-500/5">
-        <h3 class="font-bold uppercase text-orange-400 flex items-center gap-2">🔥 Firebase — Base de Datos Global</h3>
-        <p class="text-[9px] text-orange-300/70 font-medium">Con Firebase los juegos se guardan en la nube y aparecen EN TIEMPO REAL en el celular de cualquier usuario sin recargar.<br><br>
-        <b>Configuración:</b><br>
-        1) Ve a <b>console.firebase.google.com</b><br>
-        2) Crea un proyecto → Firestore Database → Modo Producción<br>
-        3) En Configuración del proyecto copia tus credenciales<br>
-        4) Pega el <b>apiKey</b> y <b>projectId</b> en el archivo HTML donde dice <code>FIREBASE_CONFIG</code><br>
-        5) En Firestore → Reglas pega las reglas de seguridad del comentario en el código</p>
-        <div id="fb-status-bar" style="font-size:10px;font-weight:800;padding:8px 12px;border-radius:8px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);color:#fb923c;margin-top:4px">
-          ⏳ Verificando conexión Firebase...
+        <h3 class="font-bold uppercase text-orange-400 flex items-center gap-2">🌐 Sincronización Global</h3>
+
+        <!-- Estado en tiempo real -->
+        <div id="fb-status-bar" style="font-size:10px;font-weight:800;padding:10px 12px;border-radius:10px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:#fb923c;line-height:1.5">
+          ⏳ Verificando conexión...
         </div>
-        <button onclick="fbAdminLogin()" class="w-full py-3 bg-orange-600 text-white rounded-xl font-black uppercase text-xs mt-2 hover:bg-orange-500 transition-all" id="fb-login-btn">🔑 Iniciar sesión como Admin</button>
-        <button onclick="fbAdminLogout()" class="w-full py-3 bg-gray-600 text-white rounded-xl font-black uppercase text-xs mt-1 opacity-70 hidden" id="fb-logout-btn">Cerrar sesión Firebase</button>
-        <p class="text-[8px] opacity-40 mt-1">Solo el administrador autenticado puede escribir datos en Firestore.</p>
+
+        <!-- JSONBin config -->
+        <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px;margin-top:8px">
+          <p style="font-size:10px;font-weight:900;color:#fbbf24;text-transform:uppercase;margin-bottom:6px">📦 JSONBin.io (Recomendado — Gratis)</p>
+          <p style="font-size:9px;opacity:.6;line-height:1.5;margin-bottom:8px">
+            1) Ve a <b>jsonbin.io</b> → Regístrate gratis<br>
+            2) Bins → Create Bin → pega <code>{}</code> → Save<br>
+            3) Copia el BIN ID y tu Master Key<br>
+            4) Pégalos en SYNC_CONFIG al inicio del HTML
+          </p>
+          <div id="jb-status" style="font-size:9px;font-weight:700;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.2);color:#94a3b8">
+            Verificando JSONBin...
+          </div>
+          <button onclick="testJSONBin()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3);border-radius:8px;cursor:pointer">📡 Probar Conexión JSONBin</button>
+          <button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:4px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:8px;cursor:pointer">☁️ Publicar todo al servidor ahora</button>
+        </div>
+
+        <!-- Firebase (opcional) -->
+        <details style="margin-top:8px">
+          <summary style="font-size:9px;font-weight:900;color:#f97316;cursor:pointer;padding:6px 0;text-transform:uppercase;letter-spacing:.05em">🔥 Firebase (Opcional — Tiempo real instantáneo)</summary>
+          <div style="padding:8px 0;font-size:9px;opacity:.6;line-height:1.5">
+            Si configuras Firebase, los cambios aparecen al instante (sin los 4s de JSONBin).<br>
+            Agrega tus credenciales en FIREBASE_CONFIG al inicio del HTML.
+          </div>
+          <button onclick="fbAdminLogin()" id="fb-login-btn" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:8px;cursor:pointer;margin-top:4px">🔑 Login Admin Firebase</button>
+          <button onclick="fbAdminLogout()" id="fb-logout-btn" class="hidden" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3);border-radius:8px;cursor:pointer;margin-top:4px">Cerrar sesión Firebase</button>
+        </details>
       </div>
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Configuración de Identidad y Color</h3>
@@ -1227,57 +1226,297 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   </div>
 </div>
 
-<!-- GAME EDITOR MODAL -->
-<div id="game-editor-modal" class="fixed inset-0 z-[120] bg-[var(--overlay-bg)] hidden flex items-center justify-center px-6">
-  <div class="w-full max-w-sm bg-[var(--settings-panel-bg)] p-6 rounded-xl space-y-4 shadow-xl overflow-y-auto max-h-[90vh]">
-    <h3 class="text-xl font-black uppercase text-white" id="editor-title">Agregar Nuevo Juego</h3>
-    <div class="space-y-2">
+<!-- GAME EDITOR MODAL — DISEÑO FUTURISTA -->
+<style>
+/* ── EDITOR FUTURISTA ─────────────────────────────── */
+#game-editor-modal{background:rgba(0,0,0,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.ged-panel{
+  width:100%;max-width:420px;max-height:92vh;overflow-y:auto;
+  background:linear-gradient(160deg,#0a0e1a 0%,#060912 100%);
+  border:1px solid rgba(0,212,255,.25);
+  border-radius:20px;
+  box-shadow:0 0 60px rgba(0,212,255,.12),0 0 120px rgba(139,92,246,.08),inset 0 1px 0 rgba(0,212,255,.1);
+  position:relative;overflow:hidden;
+}
+.ged-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#00d4ff,#8b5cf6,#00d4ff,transparent);
+  animation:scanLine 3s linear infinite;
+}
+@keyframes scanLine{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+.ged-panel::after{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.03),transparent);
+  animation:shimmer 4s ease-in-out infinite;pointer-events:none;
+}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.ged-scrollbar::-webkit-scrollbar{width:4px}
+.ged-scrollbar::-webkit-scrollbar-track{background:rgba(0,212,255,.05)}
+.ged-scrollbar::-webkit-scrollbar-thumb{background:rgba(0,212,255,.3);border-radius:2px}
+.ged-header{
+  padding:20px 20px 16px;position:sticky;top:0;z-index:10;
+  background:linear-gradient(180deg,#0a0e1a 80%,transparent);
+  border-bottom:1px solid rgba(0,212,255,.1);
+}
+.ged-title{
+  font-size:13px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;
+  background:linear-gradient(90deg,#00d4ff,#8b5cf6);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.ged-subtitle{font-size:9px;color:rgba(0,212,255,.5);font-weight:700;letter-spacing:.1em;margin-top:2px;text-transform:uppercase}
+.ged-body{padding:16px 20px 20px}
+.ged-section{
+  background:rgba(0,212,255,.04);
+  border:1px solid rgba(0,212,255,.1);
+  border-radius:12px;padding:14px;margin-bottom:12px;
+  transition:border-color .2s;
+}
+.ged-section:focus-within{border-color:rgba(0,212,255,.35);background:rgba(0,212,255,.06)}
+.ged-section-title{
+  font-size:8px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
+  color:#00d4ff;margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.ged-section-title::before{content:'';width:3px;height:10px;background:#00d4ff;border-radius:2px;box-shadow:0 0 6px #00d4ff}
+.ged-label{
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(180,200,255,.6);margin-bottom:4px;display:block;
+}
+.ged-input{
+  width:100%;background:rgba(0,0,0,.4);
+  border:1px solid rgba(0,212,255,.15);
+  border-radius:8px;padding:9px 12px;
+  color:#e2e8f0;font-size:11px;font-weight:600;font-family:inherit;
+  outline:none;transition:all .2s;
+}
+.ged-input:focus{border-color:rgba(0,212,255,.6);background:rgba(0,212,255,.06);box-shadow:0 0 12px rgba(0,212,255,.1)}
+.ged-input::placeholder{color:rgba(148,163,184,.35)}
+.ged-textarea{min-height:72px;resize:vertical}
+.ged-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ged-check-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:8px;
+  background:rgba(0,0,0,.3);border:1px solid rgba(0,212,255,.08);
+  cursor:pointer;transition:all .2s;margin-bottom:8px;
+}
+.ged-check-row:hover{border-color:rgba(0,212,255,.25);background:rgba(0,212,255,.05)}
+.ged-check-row input[type=checkbox]{
+  width:16px;height:16px;accent-color:#00d4ff;cursor:pointer;flex-shrink:0;
+}
+.ged-check-label{font-size:10px;font-weight:700;color:rgba(200,220,255,.7);letter-spacing:.05em;cursor:pointer}
+.ged-file-btn{
+  width:100%;padding:10px;border:1px dashed rgba(0,212,255,.25);
+  border-radius:8px;background:rgba(0,212,255,.03);
+  color:rgba(0,212,255,.6);font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+.ged-file-btn:hover{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.08)}
+.ged-actions{
+  display:grid;grid-template-columns:1fr auto;gap:10px;
+  padding:16px 20px;position:sticky;bottom:0;
+  background:linear-gradient(0deg,#060912 70%,transparent);
+  border-top:1px solid rgba(0,212,255,.08);
+}
+.ged-btn-save{
+  padding:13px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#00d4ff,#8b5cf6);
+  color:#000;font-size:10px;font-weight:900;letter-spacing:.15em;
+  text-transform:uppercase;cursor:pointer;
+  box-shadow:0 0 20px rgba(0,212,255,.35);
+  transition:all .2s;
+}
+.ged-btn-save:hover{box-shadow:0 0 30px rgba(0,212,255,.6);transform:translateY(-1px)}
+.ged-btn-save:active{transform:scale(.97)}
+.ged-btn-cancel{
+  width:44px;padding:13px;border-radius:12px;border:1px solid rgba(239,68,68,.3);
+  background:rgba(239,68,68,.1);cursor:pointer;
+  color:#f87171;font-size:16px;font-weight:900;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.ged-btn-cancel:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.6)}
+.ged-corner{position:absolute;width:12px;height:12px;border-color:rgba(0,212,255,.5);border-style:solid}
+.ged-corner-tl{top:8px;left:8px;border-width:1px 0 0 1px;border-top-left-radius:3px}
+.ged-corner-tr{top:8px;right:8px;border-width:1px 1px 0 0;border-top-right-radius:3px}
+.ged-corner-bl{bottom:8px;left:8px;border-width:0 0 1px 1px;border-bottom-left-radius:3px}
+.ged-corner-br{bottom:8px;right:8px;border-width:0 1px 1px 0;border-bottom-right-radius:3px}
+.ged-icon-preview{
+  width:64px;height:64px;border-radius:16px;object-fit:cover;
+  border:2px solid rgba(0,212,255,.3);background:rgba(0,0,0,.5);
+  display:none;margin-bottom:8px;
+}
+.ged-icon-preview.show{display:block}
+</style>
+
+<div id="game-editor-modal" class="fixed inset-0 z-[120] hidden items-center justify-center px-4" style="display:none">
+  <div class="ged-panel ged-scrollbar" style="max-height:92vh;overflow-y:auto;position:relative">
+    <!-- Corner decorations -->
+    <div class="ged-corner ged-corner-tl"></div>
+    <div class="ged-corner ged-corner-tr"></div>
+    <div class="ged-corner ged-corner-bl"></div>
+    <div class="ged-corner ged-corner-br"></div>
+
+    <!-- Header -->
+    <div class="ged-header">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="ged-title" id="editor-title">Agregar Nuevo Juego</div>
+          <div class="ged-subtitle">⚡ JoelDroid Panel de Control</div>
+        </div>
+        <button onclick="closeGameEditor()" style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0">×</button>
+      </div>
+    </div>
+
+    <div class="ged-body">
       <input type="hidden" id="editor-game-id">
-      <label class="block text-sm font-medium text-gray-300">Título del Juego</label>
-      <input type="text" id="editor-name" class="admin-input" placeholder="Título del Juego">
-      <label class="block text-sm font-medium text-gray-300">Nombre Secundario (Descarga)</label>
-      <input type="text" id="editor-download-name-secondary" class="admin-input" placeholder="ej: MOD APP">
-      <label class="block text-sm font-medium text-gray-300">Descripción</label>
-      <textarea id="editor-description" class="admin-input" placeholder="Descripción del MOD"></textarea>
-      <label class="block text-sm font-medium text-gray-300">Versión</label>
-      <input type="text" id="editor-version" class="admin-input" placeholder="v1.0.0">
-      <label class="block text-sm font-medium text-gray-300">Tamaño</label>
-      <input type="text" id="editor-size" class="admin-input" placeholder="400 MB">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mt-4">Características (separar por comas)</h4>
-      <textarea id="editor-features" class="admin-input" placeholder="Monedas Infinitas, Sin Anuncios"></textarea>
-      <h4 class="text-xs font-bold uppercase text-gray-400 mt-4">Advertencia</h4>
-      <div class="flex items-center space-x-2"><input type="checkbox" id="editor-warning-visible" class="h-4 w-4"><span class="text-sm">Mostrar Advertencia</span></div>
-      <textarea id="editor-warning-text" class="admin-input" placeholder="Mensaje de advertencia..."></textarea>
-      <h4 class="text-xs font-bold uppercase text-gray-400 mt-4">Etiquetas (Badges)</h4>
-      <div class="flex items-center space-x-2"><input type="checkbox" id="editor-update-badge-visible" class="h-4 w-4"><span class="text-sm">Mostrar Etiqueta "Update"</span></div>
-      <input type="text" id="editor-update-badge-text" class="admin-input" placeholder="ej: UPDATE">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color Etiqueta Update</h4>
-      <div id="update-badge-color-selector-ui" class="color-selector"></div>
-      <div class="flex items-center space-x-2 mt-2"><input type="checkbox" id="editor-mod-badge-visible" class="h-4 w-4"><span class="text-sm">Mostrar Etiqueta "MOD APP"</span></div>
-      <input type="text" id="editor-mod-badge-text" class="admin-input" placeholder="ej: MOD APP">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color Etiqueta Mod</h4>
-      <div id="mod-badge-color-selector-ui" class="color-selector"></div>
-      <h4 class="text-xs font-bold uppercase text-gray-400 mt-4">Botón 1 (Detalle)</h4>
-      <div class="flex items-center space-x-2"><input type="checkbox" id="editor-download-visible1" class="h-4 w-4"><span class="text-sm">Mostrar Botón 1</span></div>
-      <input type="text" id="editor-download-text1" class="admin-input" placeholder="Texto Botón 1">
-      <input type="url" id="editor-download-link1" class="admin-input" placeholder="URL Descarga 1">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mt-4">Botón 2 (Detalle)</h4>
-      <div class="flex items-center space-x-2"><input type="checkbox" id="editor-download-visible2" class="h-4 w-4"><span class="text-sm">Mostrar Botón 2</span></div>
-      <input type="text" id="editor-download-text2" class="admin-input" placeholder="Texto Botón 2">
-      <input type="url" id="editor-download-link2" class="admin-input" placeholder="URL Descarga 2">
-      <h4 class="text-xs font-bold uppercase text-gray-400 mt-4">Icono del Juego</h4>
-      <input type="url" id="editor-icon-url" class="admin-input" placeholder="https://ejemplo.com/icon.png">
-      <label class="block text-sm font-medium text-gray-300 mb-1">Subir Archivo Local</label>
-      <input type="file" id="editor-icon-file" class="admin-input" accept="image/*">
-      <label class="block text-sm font-medium text-gray-300 mt-4">Visibilidad en Sitio</label>
-      <input type="checkbox" id="editor-visible" checked> <span class="text-sm">Mostrar en sitio</span>
+
+      <!-- ── SECCIÓN: Info principal ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Información Principal</div>
+        <label class="ged-label">Título del Juego</label>
+        <input type="text" id="editor-name" class="ged-input" placeholder="Ej: Grand Theft Auto V MOD" style="margin-bottom:10px">
+        <label class="ged-label">Nombre de Descarga (Secundario)</label>
+        <input type="text" id="editor-download-name-secondary" class="ged-input" placeholder="Ej: GTA V MOD APP PREMIUM" style="margin-bottom:10px">
+        <label class="ged-label">Descripción</label>
+        <textarea id="editor-description" class="ged-input ged-textarea" placeholder="Describe las características y mejoras del mod..."></textarea>
+      </div>
+
+      <!-- ── SECCIÓN: Detalles técnicos ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Detalles Técnicos</div>
+        <div class="ged-row">
+          <div>
+            <label class="ged-label">Versión</label>
+            <input type="text" id="editor-version" class="ged-input" placeholder="v1.0.0">
+          </div>
+          <div>
+            <label class="ged-label">Tamaño</label>
+            <input type="text" id="editor-size" class="ged-input" placeholder="400 MB">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN: Características MOD ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Características del MOD</div>
+        <label class="ged-label">Separar con comas</label>
+        <textarea id="editor-features" class="ged-input ged-textarea" placeholder="Monedas Infinitas, Sin Anuncios, Todo Desbloqueado, Sin Virus"></textarea>
+      </div>
+
+      <!-- ── SECCIÓN: Icono ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Icono del Juego</div>
+        <img id="ged-icon-preview" class="ged-icon-preview" src="" alt="preview">
+        <label class="ged-label">URL de la imagen</label>
+        <input type="url" id="editor-icon-url" class="ged-input" placeholder="https://play-lh.googleusercontent.com/..." style="margin-bottom:10px"
+          oninput="(function(v){var p=document.getElementById('ged-icon-preview');if(v){p.src=v;p.className='ged-icon-preview show';}else{p.className='ged-icon-preview';}})(this.value)">
+        <label class="ged-label" style="margin-top:4px">— o sube desde tu dispositivo —</label>
+        <input type="file" id="editor-icon-file" accept="image/*" style="display:none" onchange="(function(f){if(f.files&&f.files[0]){var r=new FileReader();r.onload=function(e){var p=document.getElementById('ged-icon-preview');p.src=e.target.result;p.className='ged-icon-preview show';};r.readAsDataURL(f.files[0]);}})(this)">
+        <div class="ged-file-btn" onclick="document.getElementById('editor-icon-file').click()">
+          📂 Seleccionar imagen local
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN: Advertencia ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Advertencia al Usuario</div>
+        <label class="ged-check-row" for="editor-warning-visible">
+          <input type="checkbox" id="editor-warning-visible">
+          <span class="ged-check-label">Mostrar caja de advertencia en detalle</span>
+        </label>
+        <label class="ged-label">Mensaje de advertencia</label>
+        <textarea id="editor-warning-text" class="ged-input ged-textarea" placeholder="Ej: Desinstala la versión de Play Store antes de instalar este MOD..."></textarea>
+      </div>
+
+      <!-- ── SECCIÓN: Etiquetas (Badges) ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Etiquetas (Badges)</div>
+        <!-- Update Badge -->
+        <div style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:12px;margin-bottom:10px">
+          <label class="ged-check-row" for="editor-update-badge-visible" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-update-badge-visible">
+            <span class="ged-check-label" style="color:rgba(52,211,153,.8)">🟢 Mostrar badge UPDATE</span>
+          </label>
+          <label class="ged-label">Texto del badge Update</label>
+          <input type="text" id="editor-update-badge-text" class="ged-input" placeholder="UPDATE" style="margin-bottom:8px">
+          <div style="font-size:8px;font-weight:700;color:rgba(52,211,153,.6);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Color del badge Update</div>
+          <div id="update-badge-color-selector-ui" class="color-selector"></div>
+        </div>
+        <!-- Mod Badge -->
+        <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:12px">
+          <label class="ged-check-row" for="editor-mod-badge-visible" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-mod-badge-visible">
+            <span class="ged-check-label" style="color:rgba(252,165,165,.8)">🔴 Mostrar badge MOD</span>
+          </label>
+          <label class="ged-label">Texto del badge MOD</label>
+          <input type="text" id="editor-mod-badge-text" class="ged-input" placeholder="MOD APP" style="margin-bottom:8px">
+          <div style="font-size:8px;font-weight:700;color:rgba(252,165,165,.6);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Color del badge MOD</div>
+          <div id="mod-badge-color-selector-ui" class="color-selector"></div>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN: Botones de descarga ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Botones de Descarga</div>
+        <!-- Botón 1 -->
+        <div style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:10px;padding:12px;margin-bottom:10px">
+          <label class="ged-check-row" for="editor-download-visible1" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-download-visible1">
+            <span class="ged-check-label" style="color:rgba(147,197,253,.8)">🔵 Activar Botón Descarga 1</span>
+          </label>
+          <label class="ged-label">Texto del botón</label>
+          <input type="text" id="editor-download-text1" class="ged-input" placeholder="Descargar MOD v1" style="margin-bottom:8px">
+          <label class="ged-label">URL de descarga</label>
+          <input type="url" id="editor-download-link1" class="ged-input" placeholder="https://mediafire.com/..." style="margin-bottom:8px">
+          <label class="ged-label">Color del botón</label>
+          <div id="dl-btn-color-selector-1" class="color-selector" style="margin-top:4px"></div>
+        </div>
+        <!-- Botón 2 -->
+        <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.15);border-radius:10px;padding:12px">
+          <label class="ged-check-row" for="editor-download-visible2" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-download-visible2">
+            <span class="ged-check-label" style="color:rgba(196,181,253,.8)">🟣 Activar Botón Descarga 2</span>
+          </label>
+          <label class="ged-label">Texto del botón</label>
+          <input type="text" id="editor-download-text2" class="ged-input" placeholder="Descargar MOD v2" style="margin-bottom:8px">
+          <label class="ged-label">URL de descarga</label>
+          <input type="url" id="editor-download-link2" class="ged-input" placeholder="https://mediafire.com/..." style="margin-bottom:8px">
+          <label class="ged-label">Color del botón</label>
+          <div id="dl-btn-color-selector-2" class="color-selector" style="margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN: Visibilidad ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">Visibilidad en el Sitio</div>
+        <label class="ged-check-row" for="editor-visible">
+          <input type="checkbox" id="editor-visible" checked>
+          <span class="ged-check-label">👁 Mostrar este juego en el sitio público</span>
+        </label>
+        <div style="font-size:9px;color:rgba(0,212,255,.4);margin-top:4px;padding-left:4px">
+          Si está desactivado, el juego solo es visible para el admin
+        </div>
+      </div>
+
+    </div><!-- end ged-body -->
+
+    <!-- Acciones fijas abajo -->
+    <div class="ged-actions">
+      <button onclick="saveGame()" class="ged-btn-save">
+        <span style="display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar y Publicar Globalmente
+        </span>
+      </button>
+      <button onclick="closeGameEditor()" class="ged-btn-cancel" title="Cancelar">✕</button>
     </div>
-    <div class="flex justify-between gap-2 mt-4">
-      <button onclick="saveGame()" class="py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs flex-grow">Guardar Juego</button>
-      <button onclick="closeGameEditor()" class="py-3 bg-red-500 text-white rounded-xl font-black uppercase text-xs flex-grow">Cancelar</button>
-    </div>
+
   </div>
 </div>
+
+<!-- ══ FIREBASE SDK — carga async para no bloquear el render ══ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
 // ============================================================
@@ -1635,17 +1874,7 @@ function _refreshBgThemeUI(){
   if(noneBtn)noneBtn.classList.toggle('bgt-active',_bgActive==='none'||!_bgActive);
 }
 
-// Inicializar fondo — diferido hasta que el DOM exista
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',function(){
-    var saved=(typeof siteState!=='undefined'&&siteState.bgTheme)||'neon';
-    applyBgTheme(saved);
-  });
-}else{
-  // DOM ya listo (script cargado después del body)
-  var _savedBg=(typeof siteState!=='undefined'&&siteState.bgTheme)||'neon';
-  applyBgTheme(_savedBg);
-}
+// applyBgTheme se llama desde DOMContentLoaded después de loadSettings()
 
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE TRADUCCIÓN PROFESIONAL FINAL
@@ -2077,7 +2306,8 @@ var colorPalette={
   pink:{name:'Rosado',hex:'#ec4899',rgb:'236,72,153'},
   white:{name:'Blanco',hex:'#f3f4f6',rgb:'243,244,246'},
   black:{name:'Negro',hex:'#1f2937',rgb:'31,41,55'},
-  brown:{name:'Café',hex:'#a16207',rgb:'161,98,7'}
+  brown:{name:'Café',hex:'#a16207',rgb:'161,98,7'},
+  navyBlue:{name:'Azul Marino',hex:'#1e3a8a',rgb:'30,58,138'}
 };
 
 var initialGames=[
@@ -2546,11 +2776,11 @@ function _saveGHConfig(cfg){
 // Guardar en localStorage (inmediato) + GitHub Gist (sync) + Firebase (global)
 function saveSettings(){
   localStorage.setItem('siteState',JSON.stringify(siteState));
-  _syncToGitHub();
-  // Guardar config de UI en Firestore si el admin está logueado
-  if(_fbReady && _fbUser && _fbUser.uid === ADMIN_UID){
-    _fbSaveSiteConfig();
+  // Guardar en Firebase (global) + GitHub Gist (backup)
+  if(_isAdmin()){
+    _fbSaveSiteConfig(); // → _fbListenConfig lo distribuye a todos en tiempo real
   }
+  _syncToGitHub(); // backup opcional
 }
 
 function _syncToGitHub(){
@@ -2816,8 +3046,36 @@ function renderGameEditorColorSelectors(id,fn,sel){
     c.appendChild(btn);
   }
 }
+function setDl1Color(k){
+  document.querySelectorAll('#dl-btn-color-selector-1 .color-option').forEach(function(el){el.classList.remove('active');});
+  var el=document.getElementById('dl-btn-color-selector-1-option-'+k);
+  if(el)el.classList.add('active');
+  var ui=document.getElementById('dl-btn-color-selector-1');
+  if(ui)ui.dataset.selectedColor=k;
+}
+function setDl2Color(k){
+  document.querySelectorAll('#dl-btn-color-selector-2 .color-option').forEach(function(el){el.classList.remove('active');});
+  var el=document.getElementById('dl-btn-color-selector-2-option-'+k);
+  if(el)el.classList.add('active');
+  var ui=document.getElementById('dl-btn-color-selector-2');
+  if(ui)ui.dataset.selectedColor=k;
+}
 function setGameEditorUpdateBadgeColor(k){document.querySelectorAll('#update-badge-color-selector-ui .color-option').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('update-badge-option-'+k);if(el)el.classList.add('active');document.getElementById('update-badge-color-selector-ui').dataset.selectedColor=k;}
 function setGameEditorModBadgeColor(k){document.querySelectorAll('#mod-badge-color-selector-ui .color-option').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('mod-badge-option-'+k);if(el)el.classList.add('active');document.getElementById('mod-badge-color-selector-ui').dataset.selectedColor=k;}
+function setDlBtnColor1(k){document.querySelectorAll('#dl-btn-color-selector-1 .color-option').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('dl-btn1-option-'+k);if(el)el.classList.add('active');var c=document.getElementById('dl-btn-color-selector-1');if(c)c.dataset.selectedColor=k;}
+function setDlBtnColor2(k){document.querySelectorAll('#dl-btn-color-selector-2 .color-option').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('dl-btn2-option-'+k);if(el)el.classList.add('active');var c=document.getElementById('dl-btn-color-selector-2');if(c)c.dataset.selectedColor=k;}
+function renderDlBtnColorSelector(id,fn,sel,prefix){
+  var c=document.getElementById(id);if(!c)return;c.innerHTML='';
+  for(var key in colorPalette){
+    var btn=document.createElement('div');btn.className='color-option';
+    btn.id=prefix+'-option-'+key;
+    btn.style.backgroundColor=colorPalette[key].hex;
+    btn.title=colorPalette[key].name;
+    (function(k){btn.onclick=function(){fn(k);};})(key);
+    if(key===sel)btn.classList.add('active');
+    c.appendChild(btn);
+  }
+}
 
 function openGameEditor(gameId){
   gameId=gameId||null;
@@ -2834,8 +3092,12 @@ function openGameEditor(gameId){
   _esc('editor-download-visible2',true);
   renderGameEditorColorSelectors('update-badge-color-selector-ui',setGameEditorUpdateBadgeColor,'green');
   renderGameEditorColorSelectors('mod-badge-color-selector-ui',setGameEditorModBadgeColor,'red');
+  renderGameEditorColorSelectors('dl-btn-color-selector-1',setDl1Color,'blue');
+  renderGameEditorColorSelectors('dl-btn-color-selector-2',setDl2Color,'blue');
+  renderDlBtnColorSelector('dl-btn-color-selector-1',setDlBtnColor1,'blue','dl-btn1');
+  renderDlBtnColorSelector('dl-btn-color-selector-2',setDlBtnColor2,'blue','dl-btn2');
   if(gameId!==null){
-    var g=siteState.gamesList.find(function(x){return x.id===gameId;});if(!g)return;
+    var g=siteState.gamesList.find(function(x){return String(x.id)===String(gameId);});if(!g)return;
     // Helper seguro: evita TypeError si el modal no está listo
     var _es=function(id){return document.getElementById(id)||{value:'',innerText:'',checked:false,innerHTML:''};};
     _es('editor-title').innerText='Editar Juego: '+g.name;
@@ -2862,16 +3124,20 @@ function openGameEditor(gameId){
     _es('editor-mod-badge-text').value=g.modBadgeText||'MOD APP';
     renderGameEditorColorSelectors('update-badge-color-selector-ui',setGameEditorUpdateBadgeColor,g.updateBadgeBgColorKey||'green');
     renderGameEditorColorSelectors('mod-badge-color-selector-ui',setGameEditorModBadgeColor,g.modBadgeBgColorKey||'red');
+    renderGameEditorColorSelectors('dl-btn-color-selector-1',setDl1Color,g.downloadButtonColorKey1||'blue');
+    renderGameEditorColorSelectors('dl-btn-color-selector-2',setDl2Color,g.downloadButtonColorKey2||'blue');
+    renderDlBtnColorSelector('dl-btn-color-selector-1',setDlBtnColor1,g.downloadButtonColorKey1||'blue','dl-btn1');
+    renderDlBtnColorSelector('dl-btn-color-selector-2',setDlBtnColor2,g.downloadButtonColorKey2||'blue','dl-btn2');
   }else{
     var etitle=document.getElementById('editor-title');
     if(etitle)etitle.innerText='Agregar Nuevo Juego';
   }
-  modal.classList.remove('hidden');document.body.style.overflow='hidden';
+  modal.classList.remove('hidden');modal.style.display='flex';document.body.style.overflow='hidden';
 }
-function closeGameEditor(){document.getElementById('game-editor-modal').classList.add('hidden');document.body.style.overflow='';}
+function closeGameEditor(){var m=document.getElementById('game-editor-modal');if(m){m.classList.add('hidden');m.style.display='none';}document.body.style.overflow='';}
 
 function saveGame(){
-  var editId=document.getElementById('editor-game-id').value;
+  var editId=(document.getElementById('editor-game-id')||{value:''}).value||'';
   var fileInput=document.getElementById('editor-icon-file');
   var collectData=function(){return{
     name:document.getElementById('editor-name').value,
@@ -2895,6 +3161,8 @@ function saveGame(){
     modBadgeText:document.getElementById('editor-mod-badge-text').value,
     updateBadgeBgColorKey:document.getElementById('update-badge-color-selector-ui').dataset.selectedColor||'green',
     modBadgeBgColorKey:document.getElementById('mod-badge-color-selector-ui').dataset.selectedColor||'red',
+    downloadButtonColorKey1:(document.getElementById('dl-btn-color-selector-1')||{}).dataset&&document.getElementById('dl-btn-color-selector-1').dataset.selectedColor||'blue',
+    downloadButtonColorKey2:(document.getElementById('dl-btn-color-selector-2')||{}).dataset&&document.getElementById('dl-btn-color-selector-2').dataset.selectedColor||'blue',
   };};
   if(fileInput.files.length>0){
     var r=new FileReader();
@@ -2907,57 +3175,49 @@ function saveGame(){
 
 function processSaveGameData(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
-  var newGame=Object.assign({id:editId?String(editId):String(Date.now())},data,{
+  var gameId=editId?String(editId):String(Date.now());
+  var newGame=Object.assign({id:gameId},data,{
     update:data.updateBadgeVisible,
     lastUpdate:new Date().toISOString().split('T')[0],
     visits:editId?(function(){var g=siteState.gamesList.find(function(x){return String(x.id)===String(editId);});return g?g.visits:0;})():0,
     homeButtonVisible:true,
     updateBadgeBgColor:colorPalette[ukKey]?colorPalette[ukKey].hex:'#10b981',
     modBadgeBgColor:colorPalette[mkKey]?colorPalette[mkKey].hex:'#ef4444',
-    downloadButtonColor1:'#3b82f6',
-    downloadButtonColor2:'#3b82f6'
+    downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
+    downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
 
-  // ── Si Firebase está listo y hay admin logueado → guardar en Firestore ──
-  if(_fbReady && _fbUser && _fbUser.uid === ADMIN_UID){
-    _fbSaveGame(newGame, editId ? String(editId) : null)
+  if(_isAdmin()){
+    // Admin con Firebase → guardar globalmente (todos lo ven al instante)
+    _fbSaveGame(newGame, editId?String(editId):null)
       .then(function(){
-        // onSnapshot actualizará renderGames() automáticamente
         renderGameEditorList();
         closeGameEditor();
-        try{ _autoNotifyGameUpdate(!editId, data.name, data.ver||''); }catch(e){}
+        try{_autoNotifyGameUpdate(!editId,data.name,data.ver||'');}catch(e){}
       })
       .catch(function(){
-        // Fallback: guardar solo local si Firebase falla
-        _saveGameLocal(editId, newGame);
+        _saveGameLocal(editId, newGame); // fallback si Firebase falla
       });
   } else {
-    // Sin Firebase → guardar solo local (comportamiento anterior)
+    // Sin Firebase configurado → guardar local
     _saveGameLocal(editId, newGame);
-    if(!_fbReady){
-      showToast('⚠️ Firebase no configurado — guardado solo local');
-    } else {
-      showToast('🔒 Inicia sesión como admin para guardar globalmente');
-    }
+    showToast('💾 Guardado local. Configura Firebase para sincronizar globalmente.');
   }
 }
 
-// Guardar juego solo en siteState local (fallback sin Firebase)
-function _saveGameLocal(editId, newGame){
+// Fallback: guardar solo en localStorage
+function _saveGameLocal(editId,newGame){
   if(editId){
     var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
-    if(idx!==-1) siteState.gamesList[idx]=Object.assign({},siteState.gamesList[idx],newGame);
+    if(idx!==-1)siteState.gamesList[idx]=Object.assign({},siteState.gamesList[idx],newGame);
     else siteState.gamesList.push(newGame);
-  }else{
-    siteState.gamesList.push(newGame);
-  }
+  }else{siteState.gamesList.push(newGame);}
   saveSettings();renderGames();renderGameEditorList();closeGameEditor();
-  try{ _autoNotifyGameUpdate(!editId, newGame.name, newGame.ver||''); }catch(e){}
+  try{_autoNotifyGameUpdate(!editId,newGame.name,newGame.ver||'');}catch(e){}
 }
 
 function renderGameEditorList(){
   var list=document.getElementById('game-list-editor');if(!list)return;
-  var fbActive = _fbReady && _fbUser && _fbUser.uid === ADMIN_UID;
   list.innerHTML=(siteState.gamesList.length?siteState.gamesList.map(function(g){
     return'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:4px;gap:8px">'+
       '<span style="font-size:11px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="notranslate">'+g.name+'</span>'+
@@ -2965,20 +3225,22 @@ function renderGameEditorList(){
       '<button onclick="deleteGameGlobal(\''+g.id+'\')" style="font-size:9px;font-weight:900;color:#ef4444;background:rgba(239,68,68,.1);border:none;border-radius:6px;padding:4px 8px;cursor:pointer;">🗑️</button>'+
     '</div>';
   }).join(''):'<p style="font-size:10px;opacity:.4;text-align:center;padding:12px">Sin juegos. Agrega el primero.</p>')+
-  (fbActive?'<button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:10px;cursor:pointer;">🔥 Migrar juegos locales → Firebase</button>':'');
+  (_isAdmin()?'<button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:10px;cursor:pointer;">🌍 Publicar todos los juegos para todos</button>':'');
 }
 
 function deleteGameGlobal(gameId){
-  if(!confirm('¿Eliminar este juego?')) return;
-  if(_fbReady && _fbUser && _fbUser.uid === ADMIN_UID){
-    _fbDeleteGame(String(gameId)); // Firestore lo borra globalmente
+  if(!confirm('¿Eliminar este juego? Se eliminará para TODOS los usuarios.')) return;
+  if(_isAdmin()){
+    _fbDeleteGame(String(gameId)).then(function(){
+      renderGameEditorList();
+    });
   } else {
-    // Sin Firebase → solo borrar local
-    siteState.gamesList = siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});
-    saveSettings(); renderGames(); renderGameEditorList();
-    showToast('🗑️ Juego eliminado localmente');
+    siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});
+    saveSettings();renderGames();renderGameEditorList();
+    showToast('🗑️ Eliminado localmente');
   }
 }
+
 
 function checkDeepLink(){
   try{
@@ -4487,7 +4749,7 @@ function _initShareBtn(){
 //     // Cualquier usuario puede LEER los mods
 //     match /mods/{modId} {
 //       allow read: if true;
-//       allow write: if request.auth != null && request.auth.uid == "TU_ADMIN_UID_AQUI";
+//       allow write: if request.auth != null && request.auth.uid == "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
 //     }
 //     // Configuración del sitio — solo admin
 //     match /siteConfig/{docId} {
@@ -4507,267 +4769,385 @@ function _initShareBtn(){
 // }
 // ─────────────────────────────────────────────────────────────────
 
-var _db = null;          // Instancia Firestore
-var _fbAuth = null;      // Instancia Firebase Auth
-var _fbUser = null;      // Usuario admin actual
-var _fbReady = false;    // Firebase inicializado
-var _fbModsUnsub = null; // Unsubscribe del listener onSnapshot
+// ════════════════════════════════════════════════════════════════
+// 🔥 MOTOR FIREBASE — Sincronización global en tiempo real
+// Todos los visitantes ven los cambios del panel al instante.
+// El admin hace un cambio → Firestore → onSnapshot → todos los usuarios.
+// ════════════════════════════════════════════════════════════════
+
+var _db = null, _fbAuth = null, _fbUser = null;
+var _fbReady = false, _fbInitDone = false;
+var _fbModsUnsub = null, _fbCfgUnsub = null;
+var _syncPollTimer = null, _lastSyncHash = '';
 
 // ── Inicializar Firebase ──────────────────────────────────────
 function _initFirebase(){
-  // Si las credenciales no han sido configuradas, abortar silenciosamente
-  if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === 'TU_API_KEY_AQUI'){
-    _fbSetStatus('⚠️ Firebase no configurado. Edita FIREBASE_CONFIG en el HTML.','#f59e0b');
-    return false;
+  if(_fbInitDone) return;
+  if(typeof firebase==='undefined'){setTimeout(_initFirebase,300);return;}
+  _fbInitDone = true;
+
+  var key = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey;
+  if(!key || key.indexOf('PEGA_') === 0){
+    _updateSyncUI(false, '⚠️ Pega tus credenciales Firebase en el HTML para activar la sincronización global.');
+    return;
   }
+
   try{
-    if(!firebase.apps.length){
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    _db = firebase.firestore();
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    _db     = firebase.firestore();
     _fbAuth = firebase.auth();
+    // Sesión persistente: el admin no se desloguea al cerrar el navegador
+    _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady = true;
 
     // Escuchar cambios de autenticación
     _fbAuth.onAuthStateChanged(function(user){
       _fbUser = user;
-      _fbUpdateAdminUI(user);
-      // Si hay usuario admin, arrancar listener en tiempo real
-      if(user && user.uid === ADMIN_UID){
-        _fbSetStatus('✅ Admin conectado: '+user.email,'#10b981');
+      _updateAdminBtns(user);
+      if(user && ADMIN_UID && user.uid === ADMIN_UID){
+        _updateSyncUI(true, '✅ Admin activo: '+user.email+' — todos los cambios se guardan globalmente');
       } else if(user){
-        _fbSetStatus('⚠️ Conectado pero sin permisos de admin','#f59e0b');
+        _updateSyncUI(null, '⚠️ Cuenta sin permisos (UID: '+user.uid+')');
       } else {
-        _fbSetStatus('🔒 Sin sesión — solo lectura activa','#60a5fa');
+        _updateSyncUI(null, '🔒 Solo lectura — cambios del admin llegan en tiempo real');
       }
     });
 
-    // Escuchar colección 'mods' en tiempo real (onSnapshot)
-    _fbStartModsListener();
-    // Cargar configuración global del sitio
-    _fbLoadSiteConfig();
+    // ARRANCAR LISTENERS — se activan para TODOS los visitantes del mundo
+    _fbListenMods();
+    _fbListenConfig();
 
-    return true;
+    _updateSyncUI(null, '✅ Firebase conectado — escuchando cambios en tiempo real...');
   } catch(e){
-    _fbSetStatus('❌ Error Firebase: '+e.message,'#ef4444');
-    return false;
+    _updateSyncUI(false, '❌ Error Firebase: '+e.message+'. Verifica tus credenciales.');
+    console.error('[Firebase]', e);
   }
 }
 
-// ── Listener en tiempo real de mods (onSnapshot) ──────────────
-function _fbStartModsListener(){
+// ════════════════════════════════════════════════════════════════
+// LISTENERS EN TIEMPO REAL — se disparan en TODOS los dispositivos
+// cuando el admin hace cualquier cambio desde el panel
+// ════════════════════════════════════════════════════════════════
+
+// Escuchar mods — cuando admin agrega/edita/elimina un juego,
+// aparece/desaparece en tiempo real en TODOS los celulares del mundo
+function _fbListenMods(){
   if(!_db) return;
-  // Cancelar listener anterior si existe
-  if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub=null; }
+  if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
 
   _fbModsUnsub = _db.collection('mods')
-    .orderBy('order','asc')
-    .onSnapshot(function(snapshot){
-      if(snapshot.empty){
-        // Sin mods en Firebase → mantener los de siteState (fallback)
-        return;
-      }
-      // Mapear documentos Firestore → formato interno
-      var fbGames = snapshot.docs.map(function(doc){
+    .orderBy('order', 'asc')
+    .onSnapshot(function(snap){
+      if(snap.empty) return; // sin juegos en Firebase → conservar locales
+      var games = snap.docs.map(function(doc){
         var d = doc.data();
-        d.id = doc.id; // usar ID de Firestore como ID del juego
+        d.id = doc.id;
+        delete d.updatedAt; delete d.createdAt; // no serializables
         return d;
       });
-      // Actualizar siteState con datos de Firebase
-      siteState.gamesList = fbGames;
-      // Re-renderizar tarjetas instantáneamente
+      siteState.gamesList = games;
       renderGames();
       updateBannerBasedOnFilter();
+      // Refresh admin game list if panel is open
+      if(document.getElementById('game-list-editor'))renderGameEditorList();
     }, function(err){
-      console.warn('[Firebase] Error en listener mods:', err.message);
+      console.warn('[Firebase:mods]', err.code, err.message);
     });
 }
 
-// ── Cargar configuración global del sitio desde Firestore ─────
-function _fbLoadSiteConfig(){
+// Escuchar configuración del sitio — cuando admin cambia colores,
+// banners, anuncios, YouTube, etc., se aplica en tiempo real para todos
+function _fbListenConfig(){
   if(!_db) return;
-  _db.collection('siteConfig').doc('main')
+  if(_fbCfgUnsub){ _fbCfgUnsub(); _fbCfgUnsub = null; }
+
+  _fbCfgUnsub = _db.collection('siteConfig').doc('main')
     .onSnapshot(function(doc){
       if(!doc.exists) return;
       var cfg = doc.data();
-      // Fusionar configuración remota con defaults locales
-      var merged = Object.assign({}, defaultSiteState, cfg, {
-        ui:            Object.assign({}, defaultSiteState.ui,            cfg.ui||{}),
-        announcement:  Object.assign({}, defaultSiteState.announcement,  cfg.announcement||{}),
-        banner:        Object.assign({}, defaultSiteState.banner,        cfg.banner||{}),
-        updatedBanner: Object.assign({}, defaultSiteState.updatedBanner, cfg.updatedBanner||{}),
-        popularBanner: Object.assign({}, defaultSiteState.popularBanner, cfg.popularBanner||{}),
-        copyright:     Object.assign({}, defaultSiteState.copyright,     cfg.copyright||{}),
-        verification:  Object.assign({}, defaultSiteState.verification,  cfg.verification||{}),
-        buttonSettings:Object.assign({}, defaultSiteState.buttonSettings,cfg.buttonSettings||{})
-      });
-      // NO sobreescribir gamesList — eso lo maneja _fbStartModsListener
-      merged.gamesList = siteState.gamesList;
-      siteState = merged;
-      // Aplicar cambios visuales
-      applyUIChanges();
-      applyTranslations(currentLang);
-      applyYoutubeVideo();
-      applyInstallVideo();
+      delete cfg.updatedAt;
+      var prevGames = siteState.gamesList;
+      siteState = _mergeState(cfg);
+      siteState.gamesList = prevGames; // los juegos vienen de _fbListenMods
+      _applyAllUI();
     }, function(err){
-      console.warn('[Firebase] Error en config:', err.message);
+      console.warn('[Firebase:config]', err.code, err.message);
     });
 }
 
-// ── Guardar juego en Firestore ────────────────────────────────
+// ════════════════════════════════════════════════════════════════
+// ESCRITURA — Solo el admin puede escribir (lo garantizan las Reglas)
+// ════════════════════════════════════════════════════════════════
+
+// Guardar juego en Firestore → onSnapshot lo envía a todos al instante
 function _fbSaveGame(gameData, editId){
-  if(!_db){ showToast('⚠️ Firebase no conectado'); return Promise.reject('no db'); }
-  if(!_fbUser || _fbUser.uid !== ADMIN_UID){
-    showToast('🔒 Debes iniciar sesión como admin primero');
-    return Promise.reject('not admin');
+  if(!_db || !_isAdmin()){
+    showToast('🔒 Inicia sesión como admin para guardar globalmente');
+    return Promise.reject('not-admin');
   }
+  var idx   = siteState.gamesList.findIndex(function(g){ return String(g.id)===String(editId); });
+  var order = (editId && idx >= 0) ? idx : siteState.gamesList.length;
+  var ref   = editId ? _db.collection('mods').doc(String(editId)) : _db.collection('mods').doc();
 
-  // Asignar orden para que los mods aparezcan en el orden correcto
-  var order = editId
-    ? (siteState.gamesList.findIndex(function(g){return g.id===editId;}) || 0)
-    : siteState.gamesList.length;
-
-  var docData = Object.assign({}, gameData, {
+  return ref.set(Object.assign({}, gameData, {
     order:     order,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-    createdAt: editId ? (gameData.createdAt || firebase.firestore.FieldValue.serverTimestamp())
-                      : firebase.firestore.FieldValue.serverTimestamp()
+    createdAt: (editId && gameData.createdAt)
+               ? gameData.createdAt
+               : firebase.firestore.FieldValue.serverTimestamp()
+  }), {merge: true})
+  .then(function(){
+    showToast('✅ Guardado — visible para todos al instante 🌍');
+  })
+  .catch(function(e){
+    showToast('❌ Error al guardar: '+e.message);
+    throw e;
   });
-
-  var ref = editId
-    ? _db.collection('mods').doc(String(editId))
-    : _db.collection('mods').doc();
-
-  return ref.set(docData, {merge: true})
-    .then(function(){
-      showToast('✅ Juego guardado en Firebase — visible globalmente');
-      // Guardar config del sitio también
-      _fbSaveSiteConfig();
-    })
-    .catch(function(e){
-      showToast('❌ Error al guardar: '+e.message);
-      throw e;
-    });
 }
 
-// ── Eliminar juego de Firestore ───────────────────────────────
+// Eliminar juego → desaparece de todos los dispositivos al instante
 function _fbDeleteGame(gameId){
-  if(!_db || !_fbUser || _fbUser.uid !== ADMIN_UID){
-    showToast('🔒 Sin permisos de admin'); return;
+  if(!_db || !_isAdmin()){
+    showToast('🔒 Sin permisos de admin'); return Promise.reject('not-admin');
   }
   return _db.collection('mods').doc(String(gameId)).delete()
-    .then(function(){ showToast('🗑️ Juego eliminado globalmente'); })
-    .catch(function(e){ showToast('❌ Error: '+e.message); });
+    .then(function(){ showToast('🗑️ Eliminado para todos 🌍'); })
+    .catch(function(e){ showToast('❌ '+e.message); throw e; });
 }
 
-// ── Guardar configuración del sitio en Firestore ──────────────
+// Guardar configuración del sitio → _fbListenConfig la distribuye a todos
 function _fbSaveSiteConfig(){
-  if(!_db || !_fbUser || _fbUser.uid !== ADMIN_UID) return;
-  // Guardar todo siteState excepto gamesList (eso está en su propia colección)
+  if(!_db || !_isAdmin()) return;
   var cfg = Object.assign({}, siteState);
   delete cfg.gamesList;
   cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-  _db.collection('siteConfig').doc('main').set(cfg, {merge:true})
-    .catch(function(e){ console.warn('[Firebase] Error guardando config:', e.message); });
+  _db.collection('siteConfig').doc('main').set(cfg, {merge: true})
+    .then(function(){
+      _updateSyncUI(true, '✅ Configuración guardada — aplicada a todos los usuarios 🌍');
+    })
+    .catch(function(e){ _updateSyncUI(false, '❌ Error: '+e.message); });
 }
 
-// ── Login admin con email/password ────────────────────────────
+// Migrar juegos locales a Firestore (una sola vez al activar Firebase)
+function fbMigrateLocalGames(){
+  if(!_db || !_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
+  var games = siteState.gamesList;
+  if(!games.length){ showToast('Sin juegos para migrar'); return; }
+  var batch = _db.batch();
+  games.forEach(function(g, i){
+    batch.set(
+      _db.collection('mods').doc(String(g.id)),
+      Object.assign({}, g, {
+        order:     i,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }),
+      {merge: true}
+    );
+  });
+  batch.commit()
+    .then(function(){
+      showToast('✅ '+games.length+' juegos publicados — visibles para todos 🌍');
+      _fbSaveSiteConfig();
+    })
+    .catch(function(e){ showToast('❌ '+e.message); });
+}
+
+// ════════════════════════════════════════════════════════════════
+// LOGIN / LOGOUT ADMIN
+// ════════════════════════════════════════════════════════════════
+
 function fbAdminLogin(){
-  if(!_fbReady){ showToast('⚠️ Firebase no está configurado'); return; }
-  var email = prompt('Email de administrador:', ADMIN_EMAIL||'');
+  if(!_fbReady){ showToast('⚠️ Firebase no configurado aún'); return; }
+  var email = prompt('Tu email de administrador:', ADMIN_EMAIL||'');
   if(!email) return;
-  var pass  = prompt('Contraseña Firebase:','');
-  if(!pass) return;
-  _fbAuth.signInWithEmailAndPassword(email, pass)
+  var pass  = prompt('Tu contraseña de Firebase:', '');
+  if(!pass)  return;
+
+  _fbAuth.signInWithEmailAndPassword(email.trim(), pass)
     .then(function(cred){
-      if(cred.user.uid !== ADMIN_UID){
-        _fbSetStatus('⚠️ Este usuario no tiene permisos de admin.\nUID: '+cred.user.uid+'\n(Actualiza ADMIN_UID en el código si es tu cuenta)','#f59e0b');
+      if(!ADMIN_UID || cred.user.uid !== ADMIN_UID){
+        // Primera vez: mostrar UID para que lo peguen en el HTML
+        var msg = '✅ Login exitoso.\n\n'
+          + 'Tu UID es:\n' + cred.user.uid + '\n\n'
+          + 'Copia ese UID, cierra esta ventana y pégalo en\n'
+          + 'ADMIN_UID del HTML para activar los permisos de admin.\n'
+          + 'Luego vuelve a subir el archivo a GitHub.';
+        if(!ADMIN_UID || ADMIN_UID.indexOf('PEGA_') === 0){
+          alert(msg);
+          _fbAuth.signOut();
+        } else {
+          alert('⚠️ UID no coincide.\nEsperado: '+ADMIN_UID+'\nObtenido: '+cred.user.uid);
+          _fbAuth.signOut();
+        }
       } else {
-        showToast('🔥 Admin Firebase conectado');
+        showToast('🔥 Admin conectado — sesión guardada en este dispositivo');
+        _updateSyncUI(true, '✅ Admin activo: '+email+' — los cambios se guardan para todos');
       }
     })
-    .catch(function(e){ showToast('❌ Login fallido: '+e.message); });
+    .catch(function(e){ showToast('❌ Error: '+e.message); });
 }
 
 function fbAdminLogout(){
-  if(_fbAuth) _fbAuth.signOut().then(function(){ showToast('Firebase: sesión cerrada'); });
+  if(_fbAuth) _fbAuth.signOut().then(function(){ showToast('Sesión cerrada'); });
 }
 
-// ── UI de estado Firebase ─────────────────────────────────────
-function _fbSetStatus(msg, color){
+// Probar conexión desde el panel
+function testJSONBin(){
+  if(!_fbReady){
+    _updateSyncUI(false, '❌ Firebase no está configurado. Sigue los pasos del panel.');
+    return;
+  }
+  _db.collection('siteConfig').doc('connectionTest').set({test: true, ts: Date.now()})
+    .then(function(){
+      _updateSyncUI(true, '✅ Conexión Firebase OK — sincronización global activa 🌍');
+    })
+    .catch(function(e){
+      _updateSyncUI(false, '❌ Error de conexión: '+e.message);
+    });
+}
+
+// ════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════
+
+function _isAdmin(){
+  return _fbUser && ADMIN_UID && _fbUser.uid === ADMIN_UID;
+}
+
+function _applyAllUI(){
+  applyUIChanges(); renderGames(); applyTranslations(currentLang);
+  applyYoutubeVideo(); applyInstallVideo(); updateBannerBasedOnFilter();
+  setTimeout(function(){
+    applyBgTheme(siteState.bgTheme||'neon'); _clearScene(); _restoreScene();
+  }, 50);
+}
+
+function _mergeState(remote){
+  return Object.assign({}, defaultSiteState, remote, {
+    ui:            Object.assign({}, defaultSiteState.ui,            remote.ui||{}),
+    announcement:  Object.assign({}, defaultSiteState.announcement,  remote.announcement||{}),
+    banner:        Object.assign({}, defaultSiteState.banner,        remote.banner||{}),
+    updatedBanner: Object.assign({}, defaultSiteState.updatedBanner, remote.updatedBanner||{}),
+    popularBanner: Object.assign({}, defaultSiteState.popularBanner, remote.popularBanner||{}),
+    copyright:     Object.assign({}, defaultSiteState.copyright,     remote.copyright||{}),
+    verification:  Object.assign({}, defaultSiteState.verification,  remote.verification||{}),
+    buttonSettings:Object.assign({}, defaultSiteState.buttonSettings,remote.buttonSettings||{}),
+    bgTheme:           remote.bgTheme||'neon',
+    youtubeUrl:        remote.youtubeUrl||'',
+    installYoutubeUrl: remote.installYoutubeUrl||'',
+    youtubeVisible:    remote.youtubeVisible!==false,
+    installVisible:    remote.installVisible!==false,
+    showGeoShapes:     remote.showGeoShapes!==false,
+    activeScene:       remote.activeScene||'none',
+    gamesList:         siteState.gamesList || remote.gamesList || []
+  });
+}
+
+function _updateSyncUI(ok, msg){
   var el = document.getElementById('fb-status-bar');
   if(!el) return;
-  el.textContent = msg;
-  el.style.color = color||'#60a5fa';
-  el.style.background = 'rgba(0,0,0,.2)';
-  el.style.border = '1px solid '+( color||'#60a5fa')+'44';
-}
-
-function _fbUpdateAdminUI(user){
-  var loginBtn  = document.getElementById('fb-login-btn');
-  var logoutBtn = document.getElementById('fb-logout-btn');
-  if(loginBtn)  loginBtn.classList.toggle('hidden', !!user);
-  if(logoutBtn) logoutBtn.classList.toggle('hidden', !user);
-}
-
-// ── Migrar juegos locales a Firebase (una sola vez) ───────────
-function fbMigrateLocalGames(){
-  if(!_db || !_fbUser || _fbUser.uid !== ADMIN_UID){
-    showToast('🔒 Debes estar logueado como admin'); return;
+  el.textContent = msg || '';
+  if(ok === true){
+    el.style.color = '#10b981';
+    el.style.background = 'rgba(16,185,129,.1)';
+    el.style.borderColor = 'rgba(16,185,129,.3)';
+  } else if(ok === false){
+    el.style.color = '#ef4444';
+    el.style.background = 'rgba(239,68,68,.1)';
+    el.style.borderColor = 'rgba(239,68,68,.3)';
+  } else {
+    el.style.color = '#60a5fa';
+    el.style.background = 'rgba(96,165,250,.1)';
+    el.style.borderColor = 'rgba(96,165,250,.3)';
   }
-  var games = siteState.gamesList;
-  if(!games.length){ showToast('No hay juegos locales para migrar'); return; }
-  var batch = _db.batch();
-  games.forEach(function(g, i){
-    var ref = _db.collection('mods').doc(String(g.id));
-    var data = Object.assign({}, g, {
-      order: i,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    batch.set(ref, data, {merge:true});
-  });
-  batch.commit()
-    .then(function(){ showToast('✅ '+games.length+' juegos migrados a Firebase'); })
-    .catch(function(e){ showToast('❌ Error en migración: '+e.message); });
+  // También mostrar en el indicador de GitHub sync
+  var ghEl = document.getElementById('gh-sync-status');
+  if(ghEl){ ghEl.textContent = msg; ghEl.style.color = ok===true?'#10b981':ok===false?'#ef4444':'#60a5fa'; ghEl.style.display='block'; setTimeout(function(){if(ghEl)ghEl.style.display='none';},5000); }
 }
 
-function initializeApp(){
-  // 🔥 Inicializar Firebase primero (no bloquea el resto)
-  setTimeout(_initFirebase, 0);
+function _updateAdminBtns(user){
+  var lb = document.getElementById('fb-login-btn');
+  var lo = document.getElementById('fb-logout-btn');
+  if(lb) lb.classList.toggle('hidden', !!user);
+  if(lo) lo.classList.toggle('hidden', !user);
+}
+
+// Fallback: guardar juego solo local (cuando Firebase no está configurado)
+
+// Funciones de compatibilidad (usadas en el código existente)
+function _jbConfigured(){ return _fbReady; }
+function _showSyncStatus(m,c){ _updateSyncUI(c==='#10b981'?true:c==='#ef4444'?false:null, m); }
+function _startPolling(){ /* Firebase usa onSnapshot — no necesita polling */ }
+function _applyRemoteData(){ /* Firebase maneja esto con onSnapshot */ }
+function _syncSave(msg){
+  localStorage.setItem('siteState', JSON.stringify(siteState));
+  if(_isAdmin()) _fbSaveSiteConfig();
+  else _updateSyncUI(null, msg||'Guardado localmente');
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// ARRANQUE DE LA APP — Todo dentro de DOMContentLoaded
+// Elimina el error "Cannot set properties of null"
+// porque el DOM ya existe cuando se ejecuta el código
+// ══════════════════════════════════════════════════════════════════
+var _appInited = false;
+
+window.addEventListener('DOMContentLoaded', function() {
+  if(_appInited) return;
+  _appInited = true;
+
+  // ── Carga local inmediata (el usuario ve el sitio al instante)
   initLazyLoading();
   loadSettings();
-  // Tema: preferencia guardada > hora local del dispositivo
-  if(!loadThemePreference())autoThemeDetection();
-  // Idioma: preferencia manual > idioma del dispositivo/navegador
-  var manualLang=localStorage.getItem('selectedLang');
-  var autoLang=detectBrowserLanguage();
-  var savedLang=manualLang||autoLang;
-  currentLang=savedLang;
-  // Aplicar fondo — con delay mínimo para asegurar DOM listo
-  setTimeout(function(){
-    if(typeof applyBgTheme==='function')applyBgTheme(siteState.bgTheme||'neon');
-  },0);
+
+  // ── Tema y language
+  if(!loadThemePreference()) autoThemeDetection();
+  var savedLang = localStorage.getItem('selectedLang') || detectBrowserLanguage();
+  currentLang = savedLang;
+
+  // ── Renderizar interfaz con datos locales
   renderGames();
   applyUIChanges();
-  checkDeepLink();
-  // Null-safe: estos elementos pueden no existir en ciertas vistas
-  var cy=document.getElementById('current-year');
-  if(cy)cy.textContent=new Date().getFullYear();
-  var cyd=document.getElementById('current-year-det');
-  if(cyd)cyd.textContent=new Date().getFullYear();
   applyTranslations(savedLang);
+  checkDeepLink();
+
+  // ── Elementos seguros: ya existen porque DOMContentLoaded garantiza DOM listo
+  var cy = document.getElementById('current-year');
+  if(cy) cy.textContent = new Date().getFullYear();
+  var cyd = document.getElementById('current-year-det');
+  if(cyd) cyd.textContent = new Date().getFullYear();
+
+  // ── Fondo animado, escena, FABs
+  setTimeout(function(){ applyBgTheme(siteState.bgTheme||'neon'); }, 0);
   _updateFAB();
   _restoreScene();
-  setTimeout(_fillGHInputs,500);
-  // Inicializar botón compartir
+  setTimeout(_fillGHInputs, 500);
   _initShareBtn();
+
+  // ── 🔥 Firebase: arranca DESPUÉS del DOM
+  //    _fbListenMods y _fbListenConfig activarán onSnapshot
+  //    → cualquier cambio del admin aparece en tiempo real para TODOS
+  setTimeout(_initFirebase, 0);
+});
+
+// Fallback por si DOMContentLoaded ya disparó antes de que se registrara
+if(document.readyState === 'interactive' || document.readyState === 'complete'){
+  if(!_appInited){ _appInited=true; (function(){
+    initLazyLoading(); loadSettings();
+    if(!loadThemePreference()) autoThemeDetection();
+    var sl=localStorage.getItem('selectedLang')||detectBrowserLanguage();
+    currentLang=sl; renderGames(); applyUIChanges(); applyTranslations(sl); checkDeepLink();
+    var cy=document.getElementById('current-year'); if(cy)cy.textContent=new Date().getFullYear();
+    var cyd=document.getElementById('current-year-det'); if(cyd)cyd.textContent=new Date().getFullYear();
+    setTimeout(function(){applyBgTheme(siteState.bgTheme||'neon');},0);
+    _updateFAB(); _restoreScene(); setTimeout(_fillGHInputs,500); _initShareBtn();
+    setTimeout(_initFirebase,0);
+  })(); }
 }
-// Doble seguro: DOMContentLoaded (más rápido) + window.onload (fallback)
-var _appInited=false;
-function _safeInit(){if(!_appInited){_appInited=true;initializeApp();}}
-document.addEventListener('DOMContentLoaded',_safeInit);
-window.onload=_safeInit;
+
+window.onload=function(){if(typeof _appInited!=="undefined"&&_appInited)return;var e=new Event("DOMContentLoaded");document.dispatchEvent(e);};
 </script>
 <!-- ══ FAB USUARIO (abajo derecha) ══════════════════════════════ -->
 <button id="user-fab" onclick="openUserMenu()" title="Mi cuenta">
@@ -4983,5 +5363,16 @@ window.onload=_safeInit;
         <span class="ep-label">Mensaje extra (opcional)</span>
         <input id="ep-yt-extra" class="ep-input" placeholder="Ej: Nuevo MOD de GTA disponible!">
         <div id="ep-status-yt" class="ep-status"></div>
-        <button class="ep-btn red" onclick="epSendYT()" style="margin-top:12px">
-          <svg 
+                <button class="ep-btn red" onclick="epSendYT()" style="margin-top:12px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span>Enviar alerta de video</span>
+        </button>
+        <div id="ep-status-yt" class="ep-status"></div>
+      </div>
+    </div>
+  </div><!-- end ep-section yt -->
+
+</div><!-- end email-panel -->
+
+</body>
+</html>
