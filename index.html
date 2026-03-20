@@ -1523,9 +1523,12 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 </div>
 
 <!-- ══ FIREBASE SDK — carga async para no bloquear el render ══ -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
+
+
+<!-- Firebase SDK — síncrono, debe cargar antes del JS principal -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
 // ============================================================
@@ -3242,21 +3245,45 @@ function processSaveGameData(editId,data){
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
 
-  if(_isAdmin()){
-    // Admin con Firebase → guardar globalmente (todos lo ven al instante)
+  // Siempre intentar Firebase primero
+  if(_fbReady && _db){
+    if(!_isAdmin()){
+      // Firebase listo pero no autenticado — mostrar error claro
+      showToast('⚠️ Inicia sesión como admin para guardar globalmente');
+      console.warn('[Firebase] _fbReady=true pero _isAdmin()=false. _fbUser:', _fbUser&&_fbUser.uid, 'ADMIN_UID:', ADMIN_UID);
+      _saveGameLocal(editId, newGame);
+      return;
+    }
+    // Admin autenticado → guardar en Firestore
     _fbSaveGame(newGame, editId?String(editId):null)
       .then(function(){
         renderGameEditorList();
         closeGameEditor();
         try{_autoNotifyGameUpdate(!editId,data.name,data.ver||'');}catch(e){}
+        // Sincronizar con Gist automáticamente
+        try{_syncToGitHub();}catch(e){}
       })
-      .catch(function(){
-        _saveGameLocal(editId, newGame); // fallback si Firebase falla
+      .catch(function(err){
+        // Mostrar error REAL de Firebase en pantalla
+        var msg = err && err.message ? err.message : String(err);
+        showToast('❌ Error Firebase: '+msg);
+        console.error('[Firebase] Error guardando juego:', err);
+        _saveGameLocal(editId, newGame);
       });
   } else {
-    // Sin Firebase configurado → guardar local
-    _saveGameLocal(editId, newGame);
-    showToast('💾 Guardado local. Configura Firebase para sincronizar globalmente.');
+    // Firebase no inicializado todavía — reintentar en 2s
+    showToast('⏳ Conectando a Firebase...');
+    console.warn('[Firebase] _fbReady='+_fbReady+' _db='+!!_db+' — reintentando en 2s');
+    setTimeout(function(){
+      if(_fbReady && _db && _isAdmin()){
+        _fbSaveGame(newGame, editId?String(editId):null)
+          .then(function(){ renderGameEditorList(); closeGameEditor(); try{_syncToGitHub();}catch(e){} })
+          .catch(function(err){ showToast('❌ Error: '+(err.message||err)); _saveGameLocal(editId,newGame); });
+      } else {
+        showToast('❌ Sin conexión Firebase. Estado: ready='+_fbReady+' admin='+_isAdmin());
+        _saveGameLocal(editId, newGame);
+      }
+    }, 2000);
   }
 }
 
