@@ -999,6 +999,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
             Agrega tus credenciales en FIREBASE_CONFIG al inicio del HTML.
           </div>
           <button onclick="fbAdminLogin()" id="fb-login-btn" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:8px;cursor:pointer;margin-top:4px">🔑 Login Admin Firebase</button>
+        <button onclick="clearAdminSession()" style="width:100%;margin-top:6px;padding:8px 14px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:10px;font-size:9px;font-weight:900;letter-spacing:.08em;cursor:pointer;text-transform:uppercase">🧹 Limpiar Sesión / Modo Visitante</button>
           <button onclick="fbAdminLogout()" id="fb-logout-btn" class="hidden" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3);border-radius:8px;cursor:pointer;margin-top:4px">Cerrar sesión Firebase</button>
           <button onclick="fbMigrateLocalGames()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);border-radius:8px;cursor:pointer;margin-top:4px">🌍 Publicar todos los juegos ahora</button>
           <button onclick="fbDiagnostico()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);border-radius:8px;cursor:pointer;margin-top:4px">🔍 Diagnóstico Firebase</button>
@@ -4641,9 +4642,29 @@ function saveGHConfig(){
   var token=(document.getElementById('gh-token-in')||{}).value||'';
   var gistId=(document.getElementById('gh-gist-in')||{}).value||'';
   if(!token||!gistId){_showGHStatus('⚠️ Completa el token y el Gist ID','#f59e0b');return;}
-  _saveGHConfig({token:token,gistId:gistId});
-  _showGHStatus('🔗 Configuración guardada. Sincronizando...','#10b981');
-  _syncToGitHub();
+  if(token.length < 10){_showGHStatus('⚠️ Token muy corto — verifica que sea un token GitHub válido (ghp_...)','#ef4444');return;}
+  // Validar token contra GitHub antes de guardar
+  _showGHStatus('⏳ Verificando token con GitHub...','#60a5fa');
+  fetch('https://api.github.com/gists/'+gistId+'?t='+Date.now(),{
+    headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){
+    if(r.status===200||r.status===201){
+      _saveGHConfig({token:token,gistId:gistId});
+      _showGHStatus('✅ Token válido — configuración guardada','#10b981');
+      _syncToGitHub();
+    } else if(r.status===401){
+      _showGHStatus('❌ Token inválido (401) — genera un nuevo token en github.com/settings/tokens','#ef4444');
+    } else if(r.status===404){
+      _showGHStatus('❌ Gist ID no encontrado (404) — verifica el ID del Gist','#ef4444');
+    } else {
+      _showGHStatus('⚠️ Error '+r.status+' — token guardado sin verificar','#f59e0b');
+      _saveGHConfig({token:token,gistId:gistId});
+    }
+  }).catch(function(){
+    // Sin conexión — guardar igual
+    _saveGHConfig({token:token,gistId:gistId});
+    _showGHStatus('⚠️ Sin conexión — token guardado localmente','#f59e0b');
+  });
 }
 function testGHSync(){
   var cfg=_ghCfg||_loadGHConfig();
@@ -5035,8 +5056,39 @@ function fbMigrateLocalGames(){
 // LOGIN / LOGOUT ADMIN
 // ════════════════════════════════════════════════════════════════
 
+// ── Limpiar sesión corrupta y reiniciar Firebase ──────────
+function clearAdminSession(){
+  if(!confirm('¿Limpiar sesión y estado local?\nSe borrarán tokens y caché. Tendrás que volver a iniciar sesión.')) return;
+  // Cerrar sesión Firebase
+  try{ if(_fbAuth) _fbAuth.signOut(); }catch(e){}
+  // Limpiar SOLO las claves de sesión — no borrar preferencias del usuario
+  var keysToRemove = [];
+  for(var i=0; i<localStorage.length; i++){
+    var k = localStorage.key(i);
+    if(k && (
+      k.indexOf('firebase:')===0 ||
+      k.indexOf('jd_gh_cfg')===0 ||
+      k.indexOf('firebaseLocalStorage')===0
+    )) keysToRemove.push(k);
+  }
+  keysToRemove.forEach(function(k){ localStorage.removeItem(k); });
+  _fbUser = null; _fbReady = false; _fbInitDone = false;
+  _db = null; _fbAuth = null; _ghCfg = null;
+  showToast('🧹 Sesión limpiada. Reiniciando Firebase en 2s...');
+  setTimeout(function(){
+    _initFirebase();
+  }, 2000);
+}
+
+
 function fbAdminLogin(){
-  if(!_fbReady){ showToast('⚠️ Firebase no configurado aún'); return; }
+  if(!_fbReady || !_fbAuth){
+    // Firebase aún cargando — intentar iniciar y reintentar en 1.5s
+    showToast('⏳ Iniciando Firebase...');
+    _initFirebase();
+    setTimeout(fbAdminLogin, 1500);
+    return;
+  }
   var email = prompt('Tu email de administrador:', ADMIN_EMAIL||'');
   if(!email) return;
   var pass  = prompt('Tu contraseña de Firebase:', '');
@@ -5128,7 +5180,12 @@ function fbDiagnostico(){
   var lines = [];
   lines.push('🔍 DIAGNÓSTICO FIREBASE\n');
   lines.push('SDK cargado: '+(typeof firebase!=='undefined'?'✅':'❌'));
-  lines.push('Firebase inicializado: '+(_fbReady?'✅':'❌'));
+  lines.push('Firebase listo: '+(_fbReady?'✅ Sí':'❌ No (ejecuta clearAdminSession)'));
+  lines.push('Admin activo: '+(_isAdmin()?'✅ Sí':'❌ No — haz Login Admin Firebase'));
+  lines.push('_fbUser UID: '+((_fbUser&&_fbUser.uid)||'ninguno'));
+  lines.push('ADMIN_UID: '+(ADMIN_UID||'no configurado'));
+  lines.push('UIDs coinciden: '+((_fbUser&&_fbUser.uid===ADMIN_UID)?'✅':'❌'));
+  lines.push('Token GH guardado: '+(_loadGHConfig()&&_loadGHConfig().token?'✅':'❌ No hay token'));
   lines.push('Usuario auth: '+(_fbUser?'✅ '+_fbUser.email:'❌ Sin sesión'));
   lines.push('Es admin: '+(_isAdmin()?'✅':'❌ UID no coincide'));
   lines.push('');
