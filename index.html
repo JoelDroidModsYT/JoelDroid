@@ -2,6 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.gstatic.com https://*.tailwindcss.com https://unpkg.com https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://*.google.com https://*.firebaseapp.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
@@ -2393,7 +2396,7 @@ function renderRecommendedGames(currentId){
         '</div>'+
       '</div>'+
       '<div class="flex gap-2">'+
-        '<button onclick="showDetail('+g.id+')" class="rec-visit-btn flex-1 justify-center" style="background:linear-gradient(135deg,'+siteState.buttonSettings.globalDetailButtonColor+','+colorPalette.blue.hex+');">'+
+        '<button onclick="showDetail(\''+g.id+'\')" class="rec-visit-btn flex-1 justify-center" style="background:linear-gradient(135deg,'+siteState.buttonSettings.globalDetailButtonColor+','+colorPalette.blue.hex+');">'+
           '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'+
           '<span>'+tStr('Ver Juego')+'</span>'+
         '</button>'+
@@ -2476,7 +2479,7 @@ function renderGames(){
     var miniRatingLine=miniR.total>0
       ?('<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">'+miniStarsHtml+'<span style="font-size:8px;font-weight:800;color:#f59e0b;margin-left:2px;opacity:.85;">'+miniAvg.toFixed(1)+'</span><span style="font-size:8px;opacity:.3;margin-left:1px;">('+miniR.total+')</span></div>')
       :'';
-    return'<div class="game-card flex gap-4 p-4 rounded-[30px]" onclick="showDetail('+g.id+')">'+
+    return'<div class="game-card flex gap-4 p-4 rounded-[30px]" onclick="showDetail(\''+g.id+'\')">'+
       '<div class="icon-container">'+
         '<img data-src="'+g.thumb+'" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="icon-img lazy-img" alt="'+g.name+'">'+
         updateBadgeHtml+modBadgeHtml+
@@ -2486,7 +2489,7 @@ function renderGames(){
         '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-70 font-medium line-clamp-2 mt-0.5 leading-tight">'+g.description+'</p>'+
         '<p class="text-[9px] font-black uppercase tracking-tighter mt-1 mb-1 card-ver-txt" style="color:'+siteState.verification.color+';">JoelDroid Mods YT \u2022 '+verText+'</p>'+
         miniRatingLine+
-        '<button class="btn-download-main w-full py-2.5 rounded-xl text-white font-black text-[9px] uppercase tracking-widest" style="'+(g.homeButtonVisible?'':'display:none;')+'background:'+siteState.buttonSettings.globalHomeButtonColor+';" onclick="event.stopPropagation();showDetail('+g.id+');">'+
+        '<button class="btn-download-main w-full py-2.5 rounded-xl text-white font-black text-[9px] uppercase tracking-widest" style="'+(g.homeButtonVisible?'':'display:none;')+'background:'+siteState.buttonSettings.globalHomeButtonColor+';" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
           '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
           '<span class="global-dl-btn-text">'+dlBtnText+'</span>'+
         '</button>'+
@@ -2531,7 +2534,7 @@ function scrollToDownloads(){
 
 // FIX 1: showDetail — todos los textos de UI usan t(), nombres de juegos NO se traducen
 function showDetail(id){
-  var game=siteState.gamesList.find(function(x){return x.id===id;});
+  var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
   if(!game)return;
 
@@ -3260,8 +3263,8 @@ function checkDeepLink(){
     var params=new URLSearchParams(window.location.search);
     var id=params.get('id');
     if(id){
-      var gid=parseInt(id);
-      var g=siteState.gamesList.find(function(x){return x.id===gid;});
+      var gid=id;
+      var g=siteState.gamesList.find(function(x){return String(x.id)===String(gid);});
       if(g){
         // Pequeño delay para que el DOM esté listo
         setTimeout(function(){showDetail(g.id);},80);
