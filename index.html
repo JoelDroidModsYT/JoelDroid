@@ -4725,13 +4725,22 @@ function _initFirebase(){
       if(user && ADMIN_UID && user.uid === ADMIN_UID){
         _updateSyncUI(true, '✅ Admin activo: '+user.email);
         // Al autenticarse: sincronizar estado local → Firebase
-        // (por si hubo cambios antes de que Auth respondiera)
         setTimeout(function(){
-          if(_isAdmin()){
-            console.log('[Firebase] Admin autenticado — sincronizando estado...');
-            _fbSaveSiteConfig();
-          }
-        }, 500);
+          if(!_isAdmin()) return;
+          console.log('[Firebase] Admin autenticado — verificando Firestore...');
+          // Verificar si Firestore tiene mods, si no → migrar automáticamente
+          _db.collection('mods').limit(1).get()
+            .then(function(snap){
+              if(snap.empty && siteState.gamesList && siteState.gamesList.length > 0){
+                console.log('[Firebase] Firestore vacío — auto-migrando...');
+                _autoMigrateToFirestore();
+              } else {
+                // Firestore tiene datos → solo guardar config
+                _fbSaveSiteConfig();
+              }
+            })
+            .catch(function(){ _fbSaveSiteConfig(); });
+        }, 800);
       } else if(user){
         _updateSyncUI(null, '⚠️ Sin permisos admin (UID: '+user.uid+')');
       } else {
@@ -4767,9 +4776,13 @@ function _fbListenMods(){
     .onSnapshot(function(snap){
       console.log('[Firebase] onSnapshot mods:', snap.size, 'documentos');
       if(snap.empty){
-        // Firestore vacío → mantener juegos locales como fallback
-        console.log('[Firebase] Colección mods vacía — usando datos locales');
-        renderGames();
+        console.log('[Firebase] Colección mods vacía');
+        renderGames(); // mostrar datos locales mientras
+        // Si soy el admin y hay juegos locales → subir automáticamente
+        if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
+          console.log('[Firebase] Auto-migrando', siteState.gamesList.length, 'juegos a Firestore...');
+          _autoMigrateToFirestore();
+        }
         return;
       }
       var games = snap.docs.map(function(doc){
@@ -4882,6 +4895,34 @@ function _fbSaveSiteConfig(){
 }
 
 // Migrar juegos locales a Firestore (una sola vez al activar Firebase)
+// ── Auto-migración silenciosa (se llama cuando Firestore mods está vacío)
+function _autoMigrateToFirestore(){
+  if(!_db || !_isAdmin()) return;
+  var games = siteState.gamesList;
+  if(!games || !games.length) return;
+  console.log('[Firebase] Iniciando auto-migración de', games.length, 'juegos...');
+  var batch = _db.batch();
+  games.forEach(function(g, i){
+    var ref = _db.collection('mods').doc(String(g.id));
+    var d = Object.assign({}, g, {
+      order: i,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(ref, d, {merge: true});
+  });
+  batch.commit()
+    .then(function(){
+      console.log('[Firebase] Auto-migración completada:', games.length, 'juegos');
+      showToast('✅ '+games.length+' mods sincronizados con Firebase 🌍');
+      // También guardar config del sitio
+      _fbSaveSiteConfig();
+    })
+    .catch(function(e){
+      console.error('[Firebase] Error en auto-migración:', e.message);
+    });
+}
+
 function fbMigrateLocalGames(){
   if(!_db || !_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
   var games = siteState.gamesList;
