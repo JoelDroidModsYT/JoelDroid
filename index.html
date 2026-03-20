@@ -2388,7 +2388,7 @@ function renderRecommendedGames(currentId){
   container.innerHTML=shuffled.map(function(g){
     return'<div class="recommended-card p-4">'+
       '<div class="flex gap-3 items-center mb-3">'+
-        '<img data-src="'+g.thumb+'" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-img w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
+        '<img data-src="'+(g.thumb||g.imagen||g.icon||'')+'" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-img w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
         '<div class="min-w-0 flex-grow">'+
           '<p class="font-black text-xs uppercase tracking-tight notranslate leading-tight">'+g.name+'</p>'+
           '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-60 font-medium line-clamp-2 mt-0.5 leading-relaxed">'+g.description+'</p>'+
@@ -2536,12 +2536,47 @@ function scrollToDownloads(){
 function showDetail(id){
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
-  if(!game)return;
+  if(!game){
+    // Intentar buscar con ID original (por si viene de Firebase con doc.id diferente)
+    console.warn('[showDetail] No encontrado id='+id, 'Lista:', siteState.gamesList.map(function(g){return g.id;}));
+    return;
+  }
 
   var dv=document.getElementById('detail-view');
   if(dv)dv.scrollTop=0;
 
-  // Null-safe setters — evitan TypeError si algún elemento no está en el DOM
+  // Normalizar campos — acepta esquema en español (Firebase manual) O inglés (panel)
+  // nombre|name, descripcion|description, imagen|thumb, enlace|downloadButtonLink1
+  var _f = function(a,b,c){ return a||b||c||''; };
+  var g = {
+    name:                 _f(game.name, game.nombre, ''),
+    description:          _f(game.description, game.descripcion, ''),
+    thumb:                _f(game.thumb, game.imagen, game.icon, 'https://via.placeholder.com/72'),
+    size:                 _f(game.size, game.peso, game.tamaño, '—'),
+    ver:                  _f(game.ver, game.version, game.versión, '—'),
+    downloadButtonLink1:  _f(game.downloadButtonLink1, game.enlace, game.link, '#'),
+    downloadButtonLink2:  _f(game.downloadButtonLink2, game.enlace2, game.link2, '#'),
+    downloadButtonText1:  _f(game.downloadButtonText1, game.boton1, 'Descargar Mod 1'),
+    downloadButtonText2:  _f(game.downloadButtonText2, game.boton2, 'Descargar Mod 2'),
+    downloadButtonVisible1: game.downloadButtonVisible1!==false,
+    downloadButtonVisible2: game.downloadButtonVisible2!==false,
+    downloadButtonColor1: _f(game.downloadButtonColor1, game.color1, '#3b82f6'),
+    downloadButtonColor2: _f(game.downloadButtonColor2, game.color2, '#3b82f6'),
+    downloadNameSecondary:_f(game.downloadNameSecondary, game.subtitulo, 'JUEGO MOD APP'),
+    features:             game.features||game.caracteristicas||[],
+    warningVisible:       game.warningVisible||game.advertencia_visible||false,
+    warningText:          _f(game.warningText, game.advertencia, ''),
+    updateBadgeVisible:   game.updateBadgeVisible!==false,
+    updateBadgeText:      _f(game.updateBadgeText, 'UPDATE'),
+    updateBadgeBgColor:   _f(game.updateBadgeBgColor, '#10b981'),
+    modBadgeVisible:      game.modBadgeVisible!==false,
+    modBadgeText:         _f(game.modBadgeText, 'MOD APP'),
+    modBadgeBgColor:      _f(game.modBadgeBgColor, '#ef4444'),
+  };
+  // Reemplazar game con versión normalizada para el resto de showDetail
+  game = Object.assign({}, game, g);
+
+  // Null-safe setters
   var _set=function(elId,val){var e=document.getElementById(elId);if(e)e.innerText=val;};
   var _setH=function(elId,val){var e=document.getElementById(elId);if(e)e.innerHTML=val;};
 
@@ -4800,6 +4835,15 @@ function _fbListenMods(){
         var d = doc.data();
         d.id = doc.id;
         delete d.updatedAt; delete d.createdAt;
+        // Compatibilidad: mapear campos en español a inglés
+        if(!d.name && d.nombre)         d.name = d.nombre;
+        if(!d.description && d.descripcion) d.description = d.descripcion;
+        if(!d.thumb && d.imagen)         d.thumb = d.imagen;
+        if(!d.thumb && d.icon)           d.thumb = d.icon;
+        if(!d.ver && d.version)          d.ver = d.version;
+        if(!d.size && d.peso)            d.size = d.peso;
+        if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
+        if(!d.downloadButtonLink1 && d.link)   d.downloadButtonLink1 = d.link;
         return d;
       });
       siteState.gamesList = games;
