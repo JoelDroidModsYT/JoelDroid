@@ -2884,7 +2884,11 @@ function _loadFromGitHub(cb){
           installVisible:remote.installVisible!==false,
           showGeoShapes:remote.showGeoShapes!==false,
           activeScene:remote.activeScene||'none',
-          gamesList:remote.gamesList||[]
+          // gamesList NO se toma del Gist — Firebase es la fuente de juegos
+          // Preservar juegos que ya están en siteState (de Firebase)
+          gamesList:siteState.gamesList&&siteState.gamesList.length>0
+            ? siteState.gamesList
+            : (remote.gamesList||[])
         };
         localStorage.setItem('siteState',JSON.stringify(siteState));
         if(cb)cb(true);
@@ -2927,7 +2931,7 @@ function loadSettings(){
       };
     }catch(e){}
   }
-  // Luego intentar cargar de GitHub (puede actualizar lo local)
+  // GitHub Gist — solo para config visual, NUNCA sobreescribe juegos de Firebase
   _ghCfg=_loadGHConfig();
   if(_ghCfg&&_ghCfg.gistId){
     _loadFromGitHub(function(ok){
@@ -5315,6 +5319,10 @@ window.addEventListener('DOMContentLoaded', function() {
     });
     // Service Worker omitido (compatibilidad TrebEdit)}
   }catch(e){}
+
+  // 🔥 FIREBASE — conectar para TODOS los visitantes del mundo
+  // Los listeners onSnapshot actualizarán los juegos en tiempo real
+  setTimeout(_initFirebase, 0);
 });
 
 
