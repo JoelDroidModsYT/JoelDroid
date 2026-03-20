@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://www.gstatic.com https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://apis.google.com https://*.firebaseapp.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 <script>
@@ -53,7 +54,10 @@ var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 //     match /comments/{id} { allow read, write: if request.auth != null; }
 //   }
 // }
-var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000 };
+var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
+  // Gist de respaldo para sincronización
+  gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
+};
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -993,6 +997,8 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
           </div>
           <button onclick="fbAdminLogin()" id="fb-login-btn" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:8px;cursor:pointer;margin-top:4px">🔑 Login Admin Firebase</button>
           <button onclick="fbAdminLogout()" id="fb-logout-btn" class="hidden" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3);border-radius:8px;cursor:pointer;margin-top:4px">Cerrar sesión Firebase</button>
+          <button onclick="fbMigrateLocalGames()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);border-radius:8px;cursor:pointer;margin-top:4px">🌍 Publicar todos los juegos ahora</button>
+          <button onclick="fbDiagnostico()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);border-radius:8px;cursor:pointer;margin-top:4px">🔍 Diagnóstico Firebase</button>
         </details>
       </div>
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -4575,116 +4581,7 @@ function _fillGHInputs(){
 
 // ════════════════════════════════════════════════════════════════
 // PROTECCIÓN ANTIHACK — Defensa en capas para sitio web
-// ════════════════════════════════════════════════════════════════
-(function _antiHack(){
-  // 1) Bloquear apertura en iframe (clickjacking)
-  if(window.top!==window.self){
-    try{window.top.location=window.location;}catch(e){}
-    document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;font-size:14px;color:#ef4444;background:#020408">⛔ Acceso no permitido en iframe</div>';
-    return;
-  }
-
-  // 2) Detectar DevTools (básico) — si se abre la consola ralentizar
-  var _devCheck=function(){
-    var threshold=160;
-    var devOpen=(window.outerHeight-window.innerHeight>threshold)||(window.outerWidth-window.innerWidth>threshold);
-    if(devOpen){
-      // Ofuscar datos sensibles cuando DevTools está abierto
-      var fields=['gh-token-in','sec-current-code','sec-new-code'];
-      fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    }
-  };
-  setInterval(_devCheck,3000);
-
-  // 3) Deshabilitar clic derecho en imágenes (anti-robo de assets)
-  document.addEventListener('contextmenu',function(e){
-    if(e.target.tagName==='IMG')e.preventDefault();
-  });
-
-  // 4) Proteger contra console injection — override básico en producción
-  // Solo se activa si hay config de GitHub (= sitio en producción real)
-  var _patchConsole=function(){
-    var cfg=null;try{cfg=JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');}catch(er){}
-    if(cfg&&cfg.gistId){
-      // En producción: limpiar console para no exponer datos
-      // (El admin puede desactivar esto desconectando GitHub)
-      var _noop=function(){};
-      // Solo limpiamos log, no error (para no romper el sitio)
-      // window.console.log=_noop; // Comentado: puede romper EmailJS
-    }
-  };
-  setTimeout(_patchConsole,2000);
-
-  // 5) Detectar intentos de XSS en parámetros URL
-  var _sanitizeURL=function(){
-    var params=window.location.search+window.location.hash;
-    var xssPatterns=/<script|javascript:|data:text\/html|onerror=|onload=/i;
-    if(xssPatterns.test(decodeURIComponent(params))){
-      history.replaceState(null,'',window.location.pathname);
-    }
-  };
-  _sanitizeURL();
-
-  // 6) CSP meta tag dinámico
-  var _csp=document.createElement('meta');
-  _csp.httpEquiv='Content-Security-Policy';
-  _csp.content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://api.github.com; img-src * data: blob:; connect-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;";
-  document.head.appendChild(_csp);
-
-  // 7) Watermark invisible anti-clonación
-  var _wm=document.createElement('meta');
-  _wm.name='jd-owner';
-  _wm.content='JoelDroid Mods YT — Sitio protegido. No clonar sin autorización.';
-  document.head.appendChild(_wm);
-})();
-
-// ════════════════════════════════════════════════════════════════
-// OPTIMIZACIÓN DE CARGA — Prefetch, caché y reducción de red
-// ════════════════════════════════════════════════════════════════
-(function _perfOptimize(){
-  // Resource hints — preconectar a dominios usados
-  var domains=['https://cdn.tailwindcss.com','https://unpkg.com','https://fonts.googleapis.com','https://flagcdn.com','https://api.github.com','https://img.youtube.com'];
-  domains.forEach(function(d){
-    var link=document.createElement('link');
-    link.rel='preconnect';link.href=d;link.crossOrigin='anonymous';
-    document.head.appendChild(link);
-  });
-
-  // Service Worker para caché offline (solo si el navegador lo soporta)
-  if('serviceWorker' in navigator){
-    // El SW se registra silenciosamente — no bloquea la carga
-    try{
-      var swCode='self.addEventListener("install",function(e){self.skipWaiting();});'+
-        'self.addEventListener("activate",function(e){e.waitUntil(self.clients.claim());});'+
-        'self.addEventListener("fetch",function(e){'+
-        '  if(e.request.url.includes("flagcdn.com")||e.request.url.includes("fonts.googleapis")){'+
-        '    e.respondWith(caches.open("jd-v1").then(function(c){'+
-        '      return c.match(e.request).then(function(r){'+
-        '        return r||(fetch(e.request).then(function(res){c.put(e.request,res.clone());return res;}));'+
-        '      });'+
-        '    }));'+
-        '  }'+
-        '});';
-      var swBlob=new Blob([swCode],{type:'application/javascript'});
-      var swURL=URL.createObjectURL(swBlob);
-      navigator.serviceWorker.register(swURL).catch(function(){});
-    }catch(e){}
-  }
-
-  // Pausar animaciones CSS cuando la pestaña no está visible (ahorra batería)
-  document.addEventListener('visibilitychange',function(){
-    var bg=document.getElementById('animated-bg');
-    if(!bg)return;
-    if(document.hidden){
-      bg.style.animationPlayState='paused';
-      _sceneEls.forEach(function(el){el.style.animationPlayState='paused';});
-    }else{
-      bg.style.animationPlayState='running';
-      _sceneEls.forEach(function(el){el.style.animationPlayState='running';});
-    }
-  });
-})();
-// ════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════// ════════════════════════════════════════════════════════════════
 // BOTÓN COMPARTIR — Web Share API nativa + fallback clipboard
 // ════════════════════════════════════════════════════════════════
 function shareApp(){
@@ -4783,12 +4680,13 @@ var _syncPollTimer = null, _lastSyncHash = '';
 // ── Inicializar Firebase ──────────────────────────────────────
 function _initFirebase(){
   if(_fbInitDone) return;
+  // Esperar al SDK de Firebase si aún no cargó
   if(typeof firebase==='undefined'){setTimeout(_initFirebase,300);return;}
   _fbInitDone = true;
 
   var key = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey;
   if(!key || key.indexOf('PEGA_') === 0){
-    _updateSyncUI(false, '⚠️ Pega tus credenciales Firebase en el HTML para activar la sincronización global.');
+    _updateSyncUI(false, '⚠️ Firebase no configurado.');
     return;
   }
 
@@ -4796,31 +4694,43 @@ function _initFirebase(){
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db     = firebase.firestore();
     _fbAuth = firebase.auth();
-    // Sesión persistente: el admin no se desloguea al cerrar el navegador
+    // Sesión persistente — el admin no se desloguea al cerrar
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady = true;
 
-    // Escuchar cambios de autenticación
+    // ── ARRANCAR LISTENERS (UNA SOLA VEZ) ─────────────────────
+    // Se activan para TODOS los visitantes del mundo
+    // El admin NO necesita estar logueado para que los visitantes reciban datos
+    _fbListenMods();
+    _fbListenConfig();
+
+    // ── Reconexión automática al volver online ─────────────────
+    window.addEventListener('online', function(){
+      console.log('[Firebase] Reconectando listeners...');
+      _fbListenMods();
+      _fbListenConfig();
+    });
+
+    // ── Escuchar autenticación (solo para el admin) ────────────
     _fbAuth.onAuthStateChanged(function(user){
       _fbUser = user;
       _updateAdminBtns(user);
       if(user && ADMIN_UID && user.uid === ADMIN_UID){
-        _updateSyncUI(true, '✅ Admin activo: '+user.email+' — todos los cambios se guardan globalmente');
+        _updateSyncUI(true, '✅ Admin activo: '+user.email);
       } else if(user){
-        _updateSyncUI(null, '⚠️ Cuenta sin permisos (UID: '+user.uid+')');
+        _updateSyncUI(null, '⚠️ Sin permisos admin (UID: '+user.uid+')');
       } else {
-        _updateSyncUI(null, '🔒 Solo lectura — cambios del admin llegan en tiempo real');
+        _updateSyncUI(null, '🔒 Modo visitante — datos en tiempo real activos');
       }
     });
 
-    // ARRANCAR LISTENERS — se activan para TODOS los visitantes del mundo
-    _fbListenMods();
-    _fbListenConfig();
-
-    _updateSyncUI(null, '✅ Firebase conectado — escuchando cambios en tiempo real...');
+    _updateSyncUI(null, '✅ Firebase conectado — tiempo real activo para todos');
   } catch(e){
-    _updateSyncUI(false, '❌ Error Firebase: '+e.message+'. Verifica tus credenciales.');
+    _updateSyncUI(false, '❌ Error Firebase: '+e.message);
     console.error('[Firebase]', e);
+    // Reintentar en 5 segundos
+    _fbInitDone = false;
+    setTimeout(_initFirebase, 5000);
   }
 }
 
@@ -4833,25 +4743,37 @@ function _initFirebase(){
 // aparece/desaparece en tiempo real en TODOS los celulares del mundo
 function _fbListenMods(){
   if(!_db) return;
+  // Cancelar listener anterior si existe para evitar duplicados
   if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
 
+  console.log('[Firebase] Iniciando listener de mods...');
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
     .onSnapshot(function(snap){
-      if(snap.empty) return; // sin juegos en Firebase → conservar locales
+      console.log('[Firebase] onSnapshot mods:', snap.size, 'documentos');
+      if(snap.empty){
+        // Firestore vacío → mantener juegos locales como fallback
+        console.log('[Firebase] Colección mods vacía — usando datos locales');
+        renderGames();
+        return;
+      }
       var games = snap.docs.map(function(doc){
         var d = doc.data();
         d.id = doc.id;
-        delete d.updatedAt; delete d.createdAt; // no serializables
+        delete d.updatedAt; delete d.createdAt;
         return d;
       });
+      console.log('[Firebase] Juegos recibidos:', games.map(function(g){return g.name;}));
       siteState.gamesList = games;
       renderGames();
       updateBannerBasedOnFilter();
-      // Refresh admin game list if panel is open
-      if(document.getElementById('game-list-editor'))renderGameEditorList();
+      if(document.getElementById('game-list-editor')) renderGameEditorList();
     }, function(err){
-      console.warn('[Firebase:mods]', err.code, err.message);
+      console.error('[Firebase:mods] Error:', err.code, err.message);
+      // Reintentar en 3 segundos si hay error de red
+      if(err.code === 'unavailable' || err.code === 'failed-precondition'){
+        setTimeout(_fbListenMods, 3000);
+      }
     });
 }
 
@@ -4871,7 +4793,10 @@ function _fbListenConfig(){
       siteState.gamesList = prevGames; // los juegos vienen de _fbListenMods
       _applyAllUI();
     }, function(err){
-      console.warn('[Firebase:config]', err.code, err.message);
+      console.error('[Firebase:config] Error:', err.code, err.message);
+      if(err.code === 'unavailable' || err.code === 'failed-precondition'){
+        setTimeout(_fbListenConfig, 3000);
+      }
     });
 }
 
@@ -4982,7 +4907,9 @@ function fbAdminLogin(){
         }
       } else {
         showToast('🔥 Admin conectado — sesión guardada en este dispositivo');
-        _updateSyncUI(true, '✅ Admin activo: '+email+' — los cambios se guardan para todos');
+        _updateSyncUI(true, '✅ Admin activo: '+email+' — verificando Firestore...');
+        // Auto-migrar si Firestore está vacío
+        setTimeout(_fbAutoMigrateIfEmpty, 1500);
       }
     })
     .catch(function(e){ showToast('❌ Error: '+e.message); });
@@ -5013,6 +4940,58 @@ function testJSONBin(){
 
 function _isAdmin(){
   return _fbUser && ADMIN_UID && _fbUser.uid === ADMIN_UID;
+}
+
+// Auto-migrar datos locales a Firestore si está vacío
+function _fbAutoMigrateIfEmpty(){
+  if(!_db || !_isAdmin()) return;
+  _db.collection('mods').limit(1).get().then(function(snap){
+    if(snap.empty){
+      // Firestore vacío → migrar automáticamente
+      _updateSyncUI(null, '⏳ Firestore vacío — publicando juegos automáticamente...');
+      fbMigrateLocalGames();
+    } else {
+      _updateSyncUI(true, '✅ Admin activo: '+(_fbUser&&_fbUser.email||'')+' — '+snap.size+' mods en Firestore');
+    }
+  }).catch(function(e){
+    _updateSyncUI(false, '❌ Error verificando Firestore: '+e.message+' — verifica las Reglas');
+  });
+}
+
+// Diagnóstico completo del sistema Firebase
+function fbDiagnostico(){
+  var lines = [];
+  lines.push('🔍 DIAGNÓSTICO FIREBASE\n');
+  lines.push('SDK cargado: '+(typeof firebase!=='undefined'?'✅':'❌'));
+  lines.push('Firebase inicializado: '+(_fbReady?'✅':'❌'));
+  lines.push('Usuario auth: '+(_fbUser?'✅ '+_fbUser.email:'❌ Sin sesión'));
+  lines.push('Es admin: '+(_isAdmin()?'✅':'❌ UID no coincide'));
+  lines.push('');
+  lines.push('ADMIN_UID en código: '+ADMIN_UID.substring(0,8)+'...');
+  lines.push('UID actual: '+(_fbUser?_fbUser.uid.substring(0,8)+'...':'—'));
+  lines.push('Coinciden: '+((_fbUser&&_fbUser.uid===ADMIN_UID)?'✅ SÍ':'❌ NO'));
+  lines.push('');
+  if(_db){
+    lines.push('Verificando Firestore...');
+    _db.collection('mods').get().then(function(snap){
+      lines.push('Mods en Firestore: '+snap.size);
+      lines.push('siteConfig: verificando...');
+      _db.collection('siteConfig').doc('main').get().then(function(doc){
+        lines.push('siteConfig/main: '+(doc.exists?'✅ existe':'❌ vacío'));
+        alert(lines.join('\n'));
+      });
+    }).catch(function(e){
+      lines.push('Error Firestore: '+e.message);
+      lines.push('');
+      lines.push('SOLUCIÓN: Ve a Firebase Console → Firestore → Reglas');
+      lines.push('Verifica que las reglas tengan tu UID:');
+      lines.push(ADMIN_UID);
+      alert(lines.join('\n'));
+    });
+  } else {
+    lines.push('Firestore: ❌ No conectado');
+    alert(lines.join('\n'));
+  }
 }
 
 function _applyAllUI(){
@@ -5126,28 +5105,101 @@ window.addEventListener('DOMContentLoaded', function() {
   setTimeout(_fillGHInputs, 500);
   _initShareBtn();
 
+  // ── Seguridad anti-hack (dentro de DOM listo)
+  try{
+    (function _antiHack(){
+      // 1) Bloquear apertura en iframe (clickjacking)
+      if(window.top!==window.self){
+        try{window.top.location=window.location;}catch(e){}
+        document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;font-size:14px;color:#ef4444;background:#020408">⛔ Acceso no permitido en iframe</div>';
+        return;
+      }
+    
+      // 2) Detectar DevTools (básico) — si se abre la consola ralentizar
+      var _devCheck=function(){
+        var threshold=160;
+        var devOpen=(window.outerHeight-window.innerHeight>threshold)||(window.outerWidth-window.innerWidth>threshold);
+        if(devOpen){
+          // Ofuscar datos sensibles cuando DevTools está abierto
+          var fields=['gh-token-in','sec-current-code','sec-new-code'];
+          fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+        }
+      };
+      setInterval(_devCheck,3000);
+    
+      // 3) Deshabilitar clic derecho en imágenes (anti-robo de assets)
+      document.addEventListener('contextmenu',function(e){
+        if(e.target.tagName==='IMG')e.preventDefault();
+      });
+    
+      // 4) Proteger contra console injection — override básico en producción
+      // Solo se activa si hay config de GitHub (= sitio en producción real)
+      var _patchConsole=function(){
+        var cfg=null;try{cfg=JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');}catch(er){}
+        if(cfg&&cfg.gistId){
+          // En producción: limpiar console para no exponer datos
+          // (El admin puede desactivar esto desconectando GitHub)
+          var _noop=function(){};
+          // Solo limpiamos log, no error (para no romper el sitio)
+          // window.console.log=_noop; // Comentado: puede romper EmailJS
+        }
+      };
+      setTimeout(_patchConsole,2000);
+    
+      // 5) Detectar intentos de XSS en parámetros URL
+      var _sanitizeURL=function(){
+        var params=window.location.search+window.location.hash;
+        var xssPatterns=/<script|javascript:|data:text\/html|onerror=|onload=/i;
+        if(xssPatterns.test(decodeURIComponent(params))){
+          history.replaceState(null,'',window.location.pathname);
+        }
+      };
+      _sanitizeURL();
+      // CSP definido en <head> como meta estático
+    
+      // 7) Watermark invisible anti-clonación
+      var _wm=document.createElement('meta');
+      _wm.name='jd-owner';
+      _wm.content='JoelDroid Mods YT — Sitio protegido. No clonar sin autorización.';
+      document.head.appendChild(_wm);
+    })();
+  }catch(_e){}
+
   // ── 🔥 Firebase: arranca DESPUÉS del DOM
   //    _fbListenMods y _fbListenConfig activarán onSnapshot
   //    → cualquier cambio del admin aparece en tiempo real para TODOS
   setTimeout(_initFirebase, 0);
+
+  // ── Performance: prefetch y Service Worker (DOM ya listo)
+  try{
+    // Preconectar dominios
+    ['https://cdn.tailwindcss.com','https://fonts.googleapis.com',
+     'https://www.gstatic.com','https://flagcdn.com'].forEach(function(d){
+      var l=document.createElement('link');
+      l.rel='preconnect';l.href=d;l.crossOrigin='anonymous';
+      document.head.appendChild(l);
+    });
+    // Service Worker omitido (compatibilidad TrebEdit)}
+  }catch(e){}
 });
 
-// Fallback por si DOMContentLoaded ya disparó antes de que se registrara
-if(document.readyState === 'interactive' || document.readyState === 'complete'){
-  if(!_appInited){ _appInited=true; (function(){
-    initLazyLoading(); loadSettings();
-    if(!loadThemePreference()) autoThemeDetection();
-    var sl=localStorage.getItem('selectedLang')||detectBrowserLanguage();
-    currentLang=sl; renderGames(); applyUIChanges(); applyTranslations(sl); checkDeepLink();
-    var cy=document.getElementById('current-year'); if(cy)cy.textContent=new Date().getFullYear();
-    var cyd=document.getElementById('current-year-det'); if(cyd)cyd.textContent=new Date().getFullYear();
-    setTimeout(function(){applyBgTheme(siteState.bgTheme||'neon');},0);
-    _updateFAB(); _restoreScene(); setTimeout(_fillGHInputs,500); _initShareBtn();
-    setTimeout(_initFirebase,0);
-  })(); }
-}
 
-window.onload=function(){if(typeof _appInited!=="undefined"&&_appInited)return;var e=new Event("DOMContentLoaded");document.dispatchEvent(e);};
+// Fallback por si DOMContentLoaded ya disparó antes de que se registrara
+// window.onload handles late init
+
+window.onload=function(){
+  if(typeof _appInited!=="undefined"&&_appInited)return;
+  _appInited=true;
+  initLazyLoading();loadSettings();
+  if(!loadThemePreference())autoThemeDetection();
+  var sl=localStorage.getItem("selectedLang")||detectBrowserLanguage();
+  currentLang=sl;renderGames();applyUIChanges();applyTranslations(sl);checkDeepLink();
+  var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
+  var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
+  setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
+  _updateFAB();_restoreScene();setTimeout(_fillGHInputs,500);_initShareBtn();
+  setTimeout(_initFirebase,0);
+};
 </script>
 <!-- ══ FAB USUARIO (abajo derecha) ══════════════════════════════ -->
 <button id="user-fab" onclick="openUserMenu()" title="Mi cuenta">
