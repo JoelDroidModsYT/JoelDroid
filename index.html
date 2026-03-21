@@ -238,8 +238,8 @@ body{top:0!important}
 #admin-panel label,#admin-panel h3{font-size:10px}
 #admin-panel .admin-input{font-size:10px}
 #admin-panel .color-selector{font-size:10px}
-.lazy-img{opacity:0;transition:opacity .4s ease}
-.lazy-img.loaded{opacity:1}
+.icon-img-loaded{opacity:0;transition:opacity .4s ease}
+.icon-img-loaded.loaded{opacity:1}
 #video-section{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);border-radius:24px;overflow:hidden}
 /* FIX 3: Installation tutorial section */
 #install-tutorial-section{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);border-radius:24px;overflow:hidden}
@@ -718,7 +718,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
 
     <div class="px-6 flex gap-5 items-start">
-      <img id="det-icon" src="" class="ios-icon-large lazy-img" loading="lazy">
+      <img id="det-icon" src="" class="ios-icon-large icon-img-loaded" loading="lazy">
       <div class="flex-grow">
         <h2 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1 notranslate">---</h2>
         <p id="det-verification-text" class="text-blue-500 text-[10px] font-bold uppercase tracking-wider mb-3 notranslate">JoelDroid Mods YT • Verificado</p>
@@ -944,6 +944,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
       <div class="flex gap-2">
         <button onclick="openEmailPanel()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 0 10px rgba(220,38,38,.4)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail</button>
+        <button onclick="_flushPendingChanges()" id="admin-save-all-btn" style="background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:8px 14px;font-size:10px;font-weight:900;cursor:pointer;margin-right:6px;letter-spacing:.05em">💾 Guardar Cambios</button>
         <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase">Cerrar</button>
       </div>
     </div>
@@ -2292,26 +2293,10 @@ function updateInstallVideo(){
 // LAZY LOADING
 // ============================================================
 var lazyObserver=null;
-function initLazyLoading(){
-  if('IntersectionObserver' in window){
-    lazyObserver=new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          var img=entry.target;
-          if(img.dataset.src){
-            img.src=img.dataset.src;
-            img.onload=function(){img.classList.add('loaded');};
-            img.onerror=function(){img.classList.add('loaded');};
-            lazyObserver.unobserve(img);
-          }
-        }
-      });
-    },{rootMargin:'100px'});
-  }
-}
+function initLazyLoading(){/* lazy loading disabled - direct src */}
 function observeLazyImages(){
   if(!lazyObserver)return;
-  document.querySelectorAll('img.lazy-img[data-src]').forEach(function(img){lazyObserver.observe(img);});
+  document.querySelectorAll('img.icon-img-loaded[data-src]').forEach(function(img){lazyObserver.observe(img);});
 }
 
 // ============================================================
@@ -2408,7 +2393,7 @@ function renderRecommendedGames(currentId){
   container.innerHTML=shuffled.map(function(g){
     return'<div class="recommended-card p-4">'+
       '<div class="flex gap-3 items-center mb-3">'+
-        '<img data-src="'+(g.thumb||g.imagen||g.icon||'')+'" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-img w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
+        '<img src="'+(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" class="icon-img-loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
         '<div class="min-w-0 flex-grow">'+
           '<p class="font-black text-xs uppercase tracking-tight notranslate leading-tight">'+g.name+'</p>'+
           '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-60 font-medium line-clamp-2 mt-0.5 leading-relaxed">'+g.description+'</p>'+
@@ -2501,7 +2486,7 @@ function renderGames(){
       :'';
     return'<div class="game-card flex gap-4 p-4 rounded-[30px]" onclick="showDetail(\''+g.id+'\')">'+
       '<div class="icon-container">'+
-        '<img data-src="'+g.thumb+'" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="icon-img lazy-img" alt="'+g.name+'">'+
+        '<img src="'+g.thumb+'" class="icon-img" alt="'+g.name+'">'+
         updateBadgeHtml+modBadgeHtml+
       '</div>'+
       '<div class="flex flex-col justify-center min-w-0 flex-grow">'+
@@ -2910,13 +2895,17 @@ function saveSettings(){
         setTimeout(function(){ if(_isAdmin()) _fbSaveSiteConfig(true); }, 1500);
       }
     }
-    _syncToGitHub();
+    if(_ghCfg && _ghCfg.token) _syncToGitHub();
   }, 800);
 }
 
 function _syncToGitHub(){
   var cfg=_ghCfg||_loadGHConfig();
-  if(!cfg||!cfg.token||!cfg.gistId)return;
+  if(!cfg||!cfg.gistId){ return; }
+  if(!cfg.token){
+    showToast("GitHub: Sin token. Panel → GitHub Sync → configura Token + Gist ID");console.warn("[GitHub Sync] Sin token");
+    return;
+  }
   if(_syncPending)return; // No apilar llamadas
   _syncPending=true;
   var payload=JSON.stringify({files:{'joeldroid_state.json':{content:JSON.stringify(siteState)}}});
@@ -3140,34 +3129,43 @@ function renderAdminUI(){
   setChk('updated-banner-visibility-switch',!siteState.updatedBanner.visible);
   setChk('popular-banner-visibility-switch',!siteState.popularBanner.visible);
   renderColorSelector('color-selector-ui',function(k){changeBrandColor(k,true);},siteState.ui.selectedColor,'key');
-  renderColorSelector('title-color-selector-ui',function(k){siteState.ui.titleTextColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.ui.titleTextColor,'hex');
-  renderColorSelector('subtitle-color-selector-ui',function(k){siteState.ui.subtitleTextColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.ui.subtitleTextColor,'hex');
-  renderColorSelector('logo-color-selector-ui',function(k){siteState.ui.logoColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.ui.logoColor,'hex');
-  renderColorSelector('ann-color-selector-ui',function(k){siteState.announcement.bgColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.announcement.bgColor,'hex');
-  renderColorSelector('banner-color-selector-ui',function(k){siteState.banner.bgColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.banner.bgColor,'hex');
-  renderColorSelector('updated-banner-color-selector-ui',function(k){siteState.updatedBanner.bgColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.updatedBanner.bgColor,'hex');
-  renderColorSelector('popular-banner-color-selector-ui',function(k){siteState.popularBanner.bgColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.popularBanner.bgColor,'hex');
-  renderColorSelector('popular-top-badge-color-selector-ui',function(k){siteState.popularBanner.popularTopBadgeColor=k;applyUIChanges();saveSettings();},siteState.popularBanner.popularTopBadgeColor,'key');
-  renderColorSelector('popular-badge-color-selector-ui',function(k){siteState.popularBanner.popularBadgeColor=k;applyUIChanges();saveSettings();},siteState.popularBanner.popularBadgeColor,'key');
-  renderColorSelector('copyright-color-selector-ui',function(k){siteState.copyright.textColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.copyright.textColor,'hex');
-  renderColorSelector('verification-color-selector-ui',function(k){siteState.verification.color=colorPalette[k].hex;applyUIChanges();renderGames();saveSettings();},siteState.verification.color,'hex');
-  renderColorSelector('global-home-button-color-selector-ui',function(k){siteState.buttonSettings.globalHomeButtonColor=colorPalette[k].hex;applyUIChanges();renderGames();saveSettings();},siteState.buttonSettings.globalHomeButtonColor,'hex');
-  renderColorSelector('global-detail-button-color-selector-ui',function(k){siteState.buttonSettings.globalDetailButtonColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.buttonSettings.globalDetailButtonColor,'hex');
+  renderColorSelector('title-color-selector-ui',function(k){siteState.ui.titleTextColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.ui.titleTextColor,'hex');
+  renderColorSelector('subtitle-color-selector-ui',function(k){siteState.ui.subtitleTextColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.ui.subtitleTextColor,'hex');
+  renderColorSelector('logo-color-selector-ui',function(k){siteState.ui.logoColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.ui.logoColor,'hex');
+  renderColorSelector('ann-color-selector-ui',function(k){siteState.announcement.bgColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.announcement.bgColor,'hex');
+  renderColorSelector('banner-color-selector-ui',function(k){siteState.banner.bgColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.banner.bgColor,'hex');
+  renderColorSelector('updated-banner-color-selector-ui',function(k){siteState.updatedBanner.bgColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.updatedBanner.bgColor,'hex');
+  renderColorSelector('popular-banner-color-selector-ui',function(k){siteState.popularBanner.bgColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.popularBanner.bgColor,'hex');
+  renderColorSelector('popular-top-badge-color-selector-ui',function(k){siteState.popularBanner.popularTopBadgeColor=k;applyUIChanges();_markPendingChange('Color');},siteState.popularBanner.popularTopBadgeColor,'key');
+  renderColorSelector('popular-badge-color-selector-ui',function(k){siteState.popularBanner.popularBadgeColor=k;applyUIChanges();_markPendingChange('Color');},siteState.popularBanner.popularBadgeColor,'key');
+  renderColorSelector('copyright-color-selector-ui',function(k){siteState.copyright.textColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.copyright.textColor,'hex');
+  renderColorSelector('verification-color-selector-ui',function(k){siteState.verification.color=colorPalette[k].hex;applyUIChanges();renderGames();_markPendingChange('Color');},siteState.verification.color,'hex');
+  renderColorSelector('global-home-button-color-selector-ui',function(k){siteState.buttonSettings.globalHomeButtonColor=colorPalette[k].hex;applyUIChanges();renderGames();_markPendingChange('Color');},siteState.buttonSettings.globalHomeButtonColor,'hex');
+  renderColorSelector('global-detail-button-color-selector-ui',function(k){siteState.buttonSettings.globalDetailButtonColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.buttonSettings.globalDetailButtonColor,'hex');
 }
 
-function updateSiteInfo(){siteState.ui.title=document.getElementById('site-title-in').value;siteState.ui.subtitle=document.getElementById('site-subtitle-in').value;siteState.ui.logoVisible=!document.getElementById('logo-visibility-switch').checked;applyUIChanges();saveSettings();}
+function updateSiteInfo(){showToast('Titulo/subtitulo actualizado');siteState.ui.title=document.getElementById('site-title-in').value;siteState.ui.subtitle=document.getElementById('site-subtitle-in').value;siteState.ui.logoVisible=!document.getElementById('logo-visibility-switch').checked;applyUIChanges();showToast('Titulo actualizado');
+  saveSettings();}
 function handleLogoFileChange(input){if(input.files&&input.files[0]){var r=new FileReader();r.onload=function(e){siteState.ui.logoUrl=e.target.result;applyUIChanges();saveSettings();};r.readAsDataURL(input.files[0]);}}
-function updateLogo(){var f=document.getElementById('logo-file-in'),u=document.getElementById('logo-url-in');if(f&&f.files&&f.files.length>0){saveSettings();}else if(u&&u.value){siteState.ui.logoUrl=u.value;applyUIChanges();saveSettings();}else{siteState.ui.logoUrl=null;applyUIChanges();saveSettings();}}
-function updateAnnouncement(){siteState.announcement.text=document.getElementById('ann-text-in').value;siteState.announcement.url=document.getElementById('ann-url-in').value;siteState.announcement.visible=!document.getElementById('announcement-visibility-switch').checked;applyUIChanges();saveSettings();}
-function updateBanner(){siteState.banner.title=document.getElementById('banner-title-in').value;siteState.banner.subtitle=document.getElementById('banner-subtitle-in').value;siteState.banner.visible=!document.getElementById('banner-visibility-switch').checked;applyUIChanges();saveSettings();}
-function updateUpdatedBanner(){siteState.updatedBanner.title=document.getElementById('updated-banner-title-in').value;siteState.updatedBanner.subtitle=document.getElementById('updated-banner-subtitle-in').value;siteState.updatedBanner.visible=!document.getElementById('updated-banner-visibility-switch').checked;applyUIChanges();saveSettings();}
-function updatePopularBanner(){siteState.popularBanner.title=document.getElementById('popular-banner-title-in').value;siteState.popularBanner.subtitle=document.getElementById('popular-banner-subtitle-in').value;siteState.popularBanner.visible=!document.getElementById('popular-banner-visibility-switch').checked;siteState.popularBanner.popularTopBadgeText=document.getElementById('popular-top-badge-text-in').value;siteState.popularBanner.popularBadgeText=document.getElementById('popular-badge-text-in').value;applyUIChanges();saveSettings();}
-function updateCopyright(){siteState.copyright.text=document.getElementById('copyright-text-in').value;applyUIChanges();saveSettings();}
+function updateLogo(){var f=document.getElementById('logo-file-in'),u=document.getElementById('logo-url-in');if(f&&f.files&&f.files.length>0){showToast('Logo actualizado');
+  saveSettings();}else if(u&&u.value){siteState.ui.logoUrl=u.value;applyUIChanges();saveSettings();}else{siteState.ui.logoUrl=null;applyUIChanges();saveSettings();}}
+function updateAnnouncement(){showToast('Comunicado actualizado');siteState.announcement.text=document.getElementById('ann-text-in').value;siteState.announcement.url=document.getElementById('ann-url-in').value;siteState.announcement.visible=!document.getElementById('announcement-visibility-switch').checked;applyUIChanges();showToast('Comunicado actualizado');
+  saveSettings();}
+function updateBanner(){showToast('Banner principal actualizado');siteState.banner.title=document.getElementById('banner-title-in').value;siteState.banner.subtitle=document.getElementById('banner-subtitle-in').value;siteState.banner.visible=!document.getElementById('banner-visibility-switch').checked;applyUIChanges();showToast('Banner actualizado');
+  saveSettings();}
+function updateUpdatedBanner(){showToast('Banner Actualizados guardado');siteState.updatedBanner.title=document.getElementById('updated-banner-title-in').value;siteState.updatedBanner.subtitle=document.getElementById('updated-banner-subtitle-in').value;siteState.updatedBanner.visible=!document.getElementById('updated-banner-visibility-switch').checked;applyUIChanges();showToast('Banner Actualizados guardado');
+  saveSettings();}
+function updatePopularBanner(){showToast('Banner Popular guardado');siteState.popularBanner.title=document.getElementById('popular-banner-title-in').value;siteState.popularBanner.subtitle=document.getElementById('popular-banner-subtitle-in').value;siteState.popularBanner.visible=!document.getElementById('popular-banner-visibility-switch').checked;siteState.popularBanner.popularTopBadgeText=document.getElementById('popular-top-badge-text-in').value;siteState.popularBanner.popularBadgeText=document.getElementById('popular-badge-text-in').value;applyUIChanges();showToast('Banner Popular guardado');
+  saveSettings();}
+function updateCopyright(){showToast('Copyright actualizado');siteState.copyright.text=document.getElementById('copyright-text-in').value;applyUIChanges();showToast('Copyright actualizado');
+  saveSettings();}
 function updateVerificationSettings(){
   siteState.verification.text=document.getElementById('verification-text-in').value;
-  applyUIChanges();renderGames();saveSettings();
+  applyUIChanges();renderGames();showToast('Verificacion actualizada');
+  saveSettings();
 }
-function updateGlobalButtonSettings(){siteState.buttonSettings.globalHomeButtonText=document.getElementById('global-home-button-text-in').value;siteState.buttonSettings.globalDetailButtonText=document.getElementById('global-detail-button-text-in').value;applyUIChanges();renderGames();saveSettings();}
+function updateGlobalButtonSettings(){siteState.buttonSettings.globalHomeButtonText=document.getElementById('global-home-button-text-in').value;siteState.buttonSettings.globalDetailButtonText=document.getElementById('global-detail-button-text-in').value;applyUIChanges();renderGames();showToast('Botones actualizados');
+  saveSettings();}
 
 // ============================================================
 // GAME EDITOR
@@ -3313,6 +3311,8 @@ function saveGame(){
 function processSaveGameData(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
   var gameId=editId?String(editId):String(Date.now());
+  // Deep clone data to ensure each game has independent properties
+  data = JSON.parse(JSON.stringify(data));
   var newGame=Object.assign({id:gameId},data,{
     update:data.updateBadgeVisible,
     lastUpdate:new Date().toISOString().split('T')[0],
@@ -5095,15 +5095,15 @@ function _fbSaveSiteConfig(_silent){
   var cfg = Object.assign({}, siteState);
   delete cfg.gamesList;
   cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-  if(!_silent) showToast('⏳ Guardando...');
   _db.collection('siteConfig').doc('main').set(cfg, {merge: true})
     .then(function(){
-      if(!_silent) showToast('✅ Guardado globalmente 🌍');
-      _updateSyncUI(true, '✅ Cambios visibles para todos');
+      if(!_silent) showToast('✅ Guardando cambios: Visualización global activa 🌍');
+      _updateSyncUI(true, '✅ Cambios guardados — todos los usuarios los ven');
     })
     .catch(function(e){
-      showToast('❌ Error: '+e.message);
+      showToast('❌ Error al guardar: '+e.message);
       _updateSyncUI(false, '❌ '+e.message);
+      console.error('[Firebase siteConfig]', e);
     });
 }
 
@@ -5341,6 +5341,33 @@ function fbDiagnostico(){
     lines.push('Firestore: ❌ No conectado');
     alert(lines.join('\n'));
   }
+}
+
+var _pendingChanges = false;
+function _markPendingChange(label){
+  _pendingChanges = true;
+  var bar = document.getElementById('pending-changes-bar');
+  if(bar){ bar.style.display='flex'; }
+  var lbl = document.getElementById('pending-label');
+  if(lbl) lbl.innerText = label||'Cambios sin guardar';
+}
+function _flushPendingChanges(){
+  _pendingChanges=false;
+  saveSettings();
+  var btn=document.getElementById('admin-save-all-btn');
+  if(btn)btn.style.background='';
+  showToast('Guardando cambios: Visualizacion global activa');
+}
+
+function _clearPendingChanges(){
+  _pendingChanges = false;
+  var bar = document.getElementById('pending-changes-bar');
+  if(bar) bar.style.display='none';
+}
+function saveAllChanges(){
+  showToast('Guardando cambios: Visualizacion global activa...');
+  saveSettings();
+  _clearPendingChanges();
 }
 
 var _applyAllUIBusy = false;
