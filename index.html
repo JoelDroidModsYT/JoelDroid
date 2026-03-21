@@ -907,22 +907,38 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen" class="fixed inset-0 z-[110] bg-[var(--overlay-bg)] hidden flex items-center justify-center px-6">
-  <div class="w-full max-w-xs space-y-6">
-    <h2 class="text-center text-xl font-black uppercase">Admin Access</h2>
-    <div class="space-y-2">
-      <input type="text" id="login-name" class="admin-input" placeholder="NOMBRE" autocomplete="off">
-      <input type="text" id="login-lastname" class="admin-input" placeholder="APELLIDO" autocomplete="off">
-      <input type="password" id="login-code" class="admin-input" placeholder="CÓDIGO" autocomplete="off">
-      <input type="text" id="login-city" class="admin-input" placeholder="CIUDAD" autocomplete="off">
-      <input type="text" id="login-nick" class="admin-input" placeholder="APODO" autocomplete="off">
+  <div class="w-full max-w-xs" style="background:rgba(10,14,26,.97);border:1px solid rgba(0,212,255,.25);border-radius:20px;padding:28px 24px;box-shadow:0 0 60px rgba(0,212,255,.1)">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:28px;margin-bottom:8px">🔥</div>
+      <h2 style="font-size:16px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#00d4ff">Admin Firebase</h2>
+      <p style="font-size:9px;color:rgba(0,212,255,.5);margin-top:4px">JoelDroid Mods YT</p>
     </div>
-    <button onclick="verifyLogin()" class="w-full py-4 bg-[var(--admin-btn-color)] text-white rounded-2xl font-black uppercase" data-i18n="login_btn">Entrar</button>
-    <button onclick="closeLogin()" class="w-full text-[10px] font-black opacity-30 uppercase" data-i18n="cancel_btn">Cancelar</button>
+    <div style="margin-bottom:12px">
+      <input type="email" id="fb-login-email" class="admin-input" placeholder="gamerssimulacionjl@gmail.com"
+        style="width:100%;margin-bottom:10px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
+        autocomplete="email" value="">
+      <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña de Firebase"
+        style="width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
+        autocomplete="current-password">
+    </div>
+    <div id="fb-login-status" style="font-size:10px;color:#f87171;min-height:20px;text-align:center;margin-bottom:12px"></div>
+    <button onclick="doFirebaseLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#fb923c,#ef4444);color:white;border:none;border-radius:12px;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;margin-bottom:8px">
+      🔑 INICIAR SESIÓN
+    </button>
+    <button onclick="closeLogin()" style="width:100%;padding:10px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:12px;font-size:10px;font-weight:700;cursor:pointer">
+      Cancelar
+    </button>
   </div>
 </div>
 
 <!-- ADMIN PANEL -->
 <div id="admin-panel" class="fixed inset-0 z-[100] bg-[var(--overlay-bg)] hidden overflow-y-auto p-6">
+
+  <!-- ═══ BOTÓN DE EMERGENCIA — SIEMPRE VISIBLE ═══ -->
+  <div id="emergency-reset-bar" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);border-bottom:2px solid #ef4444;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="color:#fca5a5;font-size:9px;font-weight:900;letter-spacing:.1em;flex:1">🔒 MODO VISITANTE / TOKEN INVÁLIDO?</span>
+    <button onclick="emergencyReset()" style="background:#ef4444;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap">⚡ FORZAR RESET DE SESIÓN</button>
+  </div>
   <div class="max-w-md mx-auto space-y-6">
     <div class="flex justify-between items-center">
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
@@ -2739,11 +2755,38 @@ function showToast(message){
 function handleAdminTrigger(){
   if(!window._clickCount)window._clickCount=0;
   window._clickCount++;
-  if(window._clickCount>=10){window._clickCount=0;openLogin();}
+  // 5 clicks = abrir panel (antes eran 10)
+  if(window._clickCount>=5){
+    window._clickCount=0;
+    // Si ya está autenticado como admin → ir directo al panel
+    if(_isAdmin()){
+      openAdmin();
+    } else {
+      // Mostrar login de Firebase (no el de nombre/apellido)
+      openLogin();
+    }
+  }
   clearTimeout(window._clickTimer);
   window._clickTimer=setTimeout(function(){window._clickCount=0;},2000);
 }
-function openLogin(){var s=document.getElementById('login-screen');if(s){s.classList.remove('hidden');document.body.style.overflow='hidden';}}
+function openLogin(){
+  var s=document.getElementById('login-screen');
+  if(s){
+    s.classList.remove('hidden');
+    document.body.style.overflow='hidden';
+    // Pre-rellenar email del admin
+    var emailInput = document.getElementById('fb-login-email');
+    if(emailInput && !emailInput.value) emailInput.value = ADMIN_EMAIL||'';
+    // Limpiar status anterior
+    var st = document.getElementById('fb-login-status');
+    if(st) st.innerText='';
+    // Focus en contraseña si email ya está
+    setTimeout(function(){
+      var passInput = document.getElementById('fb-login-pass');
+      if(passInput) passInput.focus();
+    },200);
+  }
+}
 function closeLogin(){var s=document.getElementById('login-screen');if(s){s.classList.add('hidden');document.body.style.overflow='';}}
 function verifyLogin(){
   var n=document.getElementById('login-name').value;
@@ -3653,6 +3696,44 @@ function _renderProfile(){
   }
   var pid=document.getElementById('profile-id');if(pid)pid.textContent=s.id;
 }
+function doFirebaseLogin(){
+  var email = (document.getElementById('fb-login-email')||{}).value||'';
+  var pass  = (document.getElementById('fb-login-pass')||{}).value||'';
+  var status = document.getElementById('fb-login-status');
+  if(!email||!pass){
+    if(status) status.innerText='⚠️ Ingresa email y contraseña';
+    return;
+  }
+  if(status) status.innerText='⏳ Iniciando sesión...';
+  // Si Firebase no está listo, iniciarlo primero
+  if(!_fbReady || !_fbAuth){
+    if(status) status.innerText='⏳ Conectando Firebase...';
+    _initFirebase();
+    setTimeout(doFirebaseLogin, 1500);
+    return;
+  }
+  _fbAuth.signInWithEmailAndPassword(email.trim(), pass)
+    .then(function(cred){
+      if(cred.user.uid === ADMIN_UID){
+        if(status) status.innerText='✅ Admin verificado';
+        setTimeout(function(){
+          closeLogin();
+          openAdmin();
+        }, 500);
+      } else {
+        if(status) status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
+        _fbAuth.signOut();
+      }
+    })
+    .catch(function(err){
+      var msg = err.code === 'auth/wrong-password'  ? '❌ Contraseña incorrecta' :
+                err.code === 'auth/user-not-found'  ? '❌ Email no registrado en Firebase' :
+                err.code === 'auth/too-many-requests'? '❌ Demasiados intentos. Espera unos minutos' :
+                '❌ Error: '+err.message;
+      if(status) status.innerText = msg;
+    });
+}
+
 function doLogin(){
   var email=document.getElementById('auth-email-login').value;
   var pass=document.getElementById('auth-pass-login').value;
@@ -5081,6 +5162,25 @@ function clearAdminSession(){
 }
 
 
+// ── RESET DE EMERGENCIA — limpia TODO y recarga ──────────
+function emergencyReset(){
+  // 1. Cerrar sesión Firebase
+  try{ if(typeof firebase!=='undefined' && firebase.apps.length){
+    firebase.auth().signOut().catch(function(){});
+  }}catch(e){}
+  // 2. Limpiar TODO el localStorage (nuclear)
+  try{ localStorage.clear(); }catch(e){}
+  // 3. Limpiar sessionStorage
+  try{ sessionStorage.clear(); }catch(e){}
+  // 4. Resetear variables globales
+  _fbUser=null; _fbReady=false; _fbInitDone=false;
+  try{_db=null; _fbAuth=null; _ghCfg=null;}catch(e){}
+  // 5. Recargar la página
+  showToast('🧹 Sesión limpiada. Recargando...');
+  setTimeout(function(){ window.location.reload(true); }, 1000);
+}
+
+
 function fbAdminLogin(){
   if(!_fbReady || !_fbAuth){
     // Firebase aún cargando — intentar iniciar y reintentar en 1.5s
@@ -5296,6 +5396,12 @@ function _syncSave(msg){
 var _appInited = false;
 
 window.addEventListener('DOMContentLoaded', function() {
+  // Reset de emergencia por URL: abre el sitio con ?reset=1 para limpiar sesión
+  if(window.location.search.indexOf('reset=1') >= 0){
+    try{ localStorage.clear(); sessionStorage.clear(); }catch(e){}
+    window.location.replace(window.location.pathname);
+    return;
+  }
   if(_appInited) return;
   _appInited = true;
 
