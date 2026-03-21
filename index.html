@@ -452,7 +452,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .scene-heart{animation-name:heartFloat!important}
 .scene-shamrock{animation-name:shamrockSpin!important}
 /* Fondo geométrico también detrás */
-.animated-background{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;pointer-events:none!important}
+.animated-background{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;overflow:hidden;pointer-events:none!importantwill-change:transform;contain:strict;}
 
 /* ══ TEMAS DE FONDO ANIMADOS ════════════════════════════════════ */
 /* Elemento base */
@@ -2865,20 +2865,23 @@ function _saveGHConfig(cfg){
 }
 
 // Guardar en localStorage (inmediato) + GitHub Gist (sync) + Firebase (global)
+var _saveSettingsTimer = null;
 function saveSettings(){
+  // Guardar en localStorage inmediatamente (instantáneo, sin costo)
   localStorage.setItem('siteState',JSON.stringify(siteState));
-  // Guardar en Firebase — con reintento si Auth aún no respondió
-  if(_fbReady && _db){
-    if(_isAdmin()){
-      _fbSaveSiteConfig();
-    } else {
-      // Auth asíncrono puede tardar — reintentar en 1.5s
-      setTimeout(function(){
-        if(_isAdmin()) _fbSaveSiteConfig();
-      }, 1500);
+  // Debounce Firebase: esperar 800ms desde el último cambio antes de guardar en la nube
+  // Evita miles de escrituras en Firestore cuando el usuario escribe o mueve sliders
+  clearTimeout(_saveSettingsTimer);
+  _saveSettingsTimer = setTimeout(function(){
+    if(_fbReady && _db){
+      if(_isAdmin()){
+        _fbSaveSiteConfig();
+      } else {
+        setTimeout(function(){ if(_isAdmin()) _fbSaveSiteConfig(); }, 1500);
+      }
     }
-  }
-  _syncToGitHub();
+    _syncToGitHub();
+  }, 800);
 }
 
 function _syncToGitHub(){
@@ -3004,7 +3007,7 @@ function getContrastColor(hex){
   return((.299*r+.587*g+.114*b)/255)>.5?'#000000':'#ffffff';
 }
 
-function changeBrandColor(color){
+function changeBrandColor(color, _save){
   var c=colorPalette[color];if(!c)return;
   document.documentElement.style.setProperty('--brand-color',c.hex);
   document.documentElement.style.setProperty('--border-color','rgba('+c.rgb+',.7)');
@@ -3012,7 +3015,9 @@ function changeBrandColor(color){
   siteState.ui.selectedColor=color;
   document.querySelectorAll('#color-selector-ui .color-option').forEach(function(el){el.classList.remove('active');});
   var el=document.getElementById('color-option-'+color);if(el)el.classList.add('active');
-  saveSettings();
+  // Solo guardar cuando el usuario elige explícitamente (_save=true)
+  // NO guardar cuando se llama desde applyUIChanges (render normal)
+  if(_save===true) saveSettings();
 }
 
 function applyUIChanges(){
@@ -3037,7 +3042,7 @@ function applyUIChanges(){
   }
   document.documentElement.style.setProperty('--title-text-color',siteState.ui.titleTextColor);
   document.documentElement.style.setProperty('--subtitle-text-color',siteState.ui.subtitleTextColor);
-  changeBrandColor(siteState.ui.selectedColor);
+  changeBrandColor(siteState.ui.selectedColor, false); // render only, no save
   // ANNOUNCEMENT
   var ann=document.getElementById('site-announcement'),annTxt=document.getElementById('ann-text-ui');
   if(ann&&annTxt){
@@ -3104,7 +3109,7 @@ function renderAdminUI(){
   setChk('banner-visibility-switch',!siteState.banner.visible);
   setChk('updated-banner-visibility-switch',!siteState.updatedBanner.visible);
   setChk('popular-banner-visibility-switch',!siteState.popularBanner.visible);
-  renderColorSelector('color-selector-ui',changeBrandColor,siteState.ui.selectedColor,'key');
+  renderColorSelector('color-selector-ui',function(k){changeBrandColor(k,true);},siteState.ui.selectedColor,'key');
   renderColorSelector('title-color-selector-ui',function(k){siteState.ui.titleTextColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.ui.titleTextColor,'hex');
   renderColorSelector('subtitle-color-selector-ui',function(k){siteState.ui.subtitleTextColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.ui.subtitleTextColor,'hex');
   renderColorSelector('logo-color-selector-ui',function(k){siteState.ui.logoColor=colorPalette[k].hex;applyUIChanges();saveSettings();},siteState.ui.logoColor,'hex');
@@ -4314,7 +4319,7 @@ function _mk(tag,css,parent){
   if(_sceneEls.length>=_SCENE_MAX)return document.createElement('div'); // devolver dummy sin agregar
   var el=document.createElement(tag||'div');
   // Forzar z-index negativo aunque el css inline diga otra cosa
-  el.style.cssText=(css||'').replace(/z-index\s*:\s*[^;]+;?/gi,'')+'z-index:-2!important;';
+  el.style.cssText=(css||'').replace(/z-index\s*:\s*[^;]+;?/gi,'')+'z-index:-2!important;will-change:transform;';
   (parent||document.body).appendChild(el);
   _sceneEls.push(el);
   return el;
@@ -5067,16 +5072,16 @@ function _fbSaveSiteConfig(){
   delete cfg.gamesList;
   cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
   console.log('[Firebase] Guardando siteConfig en Firestore...');
+  showToast('⏳ Guardando cambios...');
   _db.collection('siteConfig').doc('main').set(cfg, {merge: true})
     .then(function(){
-      console.log('[Firebase] siteConfig guardado OK');
-      _updateSyncUI(true, '✅ Cambios guardados — visibles para todos 🌍');
-      // También guardar Gist como backup
-      _syncToGitHub();
+      showToast('✅ Cambios guardados globalmente 🌍');
+      _updateSyncUI(true, '✅ Guardado — todos los usuarios lo verán al instante');
     })
     .catch(function(e){
+      showToast('❌ Error de conexión: '+e.message);
+      _updateSyncUI(false, '❌ Error: '+e.message);
       console.error('[Firebase] Error siteConfig:', e);
-      _updateSyncUI(false, '❌ Error al guardar: '+e.message);
     });
 }
 
@@ -5316,12 +5321,19 @@ function fbDiagnostico(){
   }
 }
 
+var _applyAllUIBusy = false;
 function _applyAllUI(){
-  applyUIChanges(); renderGames(); applyTranslations(currentLang);
-  applyYoutubeVideo(); applyInstallVideo(); updateBannerBasedOnFilter();
-  setTimeout(function(){
-    applyBgTheme(siteState.bgTheme||'neon'); _clearScene(); _restoreScene();
-  }, 50);
+  // Guard anti-bucle: si ya está corriendo, esperar
+  if(_applyAllUIBusy) return;
+  _applyAllUIBusy = true;
+  try{
+    applyUIChanges(); renderGames(); applyTranslations(currentLang);
+    applyYoutubeVideo(); applyInstallVideo(); updateBannerBasedOnFilter();
+    setTimeout(function(){
+      try{ applyBgTheme(siteState.bgTheme||'neon'); _clearScene(); _restoreScene(); }catch(e){}
+      _applyAllUIBusy = false;
+    }, 100);
+  }catch(e){ _applyAllUIBusy = false; }
 }
 
 function _mergeState(remote){
