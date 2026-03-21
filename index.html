@@ -2865,7 +2865,37 @@ function _saveGHConfig(cfg){
 }
 
 // Guardar en localStorage (inmediato) + GitHub Gist (sync) + Firebase (global)
-var _saveSettingsTimer = null;
+function testServers(){
+  var show=function(msg,color){
+    showToast(msg);
+    var el=document.getElementById('server-status')||document.getElementById('gh-status');
+    if(el){el.innerText=msg;el.style.color=color||'#60a5fa';}
+  };
+  show('Probando servidores...','#60a5fa');
+  var fb_ok=_fbReady&&!!_db;
+  var admin_ok=_isAdmin();
+  var gh_cfg=_loadGHConfig();
+  var gh_token=!!(gh_cfg&&gh_cfg.token&&gh_cfg.gistId);
+  var r1='Firebase: '+(fb_ok?'OK':'NO LISTO');
+  var r2='Admin: '+(admin_ok?(_fbUser&&_fbUser.email||'activo'):'NO autenticado');
+  var r3='GitHub token: '+(gh_token?'Configurado':'Sin token');
+  if(gh_token){
+    fetch('https://api.github.com/gists/'+gh_cfg.gistId+'?t='+Date.now(),{
+      headers:{'Authorization':'token '+gh_cfg.token}
+    }).then(function(r){
+      var r4='GitHub Gist: '+(r.ok?'OK '+r.status:'Error '+r.status);
+      show(r4, r.ok?'#10b981':'#ef4444');
+      alert(r1+' | '+r2+' | '+r3+' | '+r4);
+    }).catch(function(e){
+      show('Error GitHub: '+e.message,'#ef4444');
+      alert(r1+' | '+r2+' | '+r3+' | Error: '+e.message);
+    });
+  } else {
+    show(admin_ok?'Firebase OK — sin token GitHub':'Sin autenticacion admin', admin_ok?'#10b981':'#f59e0b');
+    alert(r1+' | '+r2+' | '+r3);
+  }
+}
+
 function saveSettings(){
   // Guardar en localStorage inmediatamente (instantáneo, sin costo)
   localStorage.setItem('siteState',JSON.stringify(siteState));
@@ -2877,7 +2907,7 @@ function saveSettings(){
       if(_isAdmin()){
         _fbSaveSiteConfig();
       } else {
-        setTimeout(function(){ if(_isAdmin()) _fbSaveSiteConfig(); }, 1500);
+        setTimeout(function(){ if(_isAdmin()) _fbSaveSiteConfig(true); }, 1500);
       }
     }
     _syncToGitHub();
@@ -4914,19 +4944,16 @@ function _initFirebase(){
         // Al autenticarse: sincronizar estado local → Firebase
         setTimeout(function(){
           if(!_isAdmin()) return;
-          console.log('[Firebase] Admin autenticado — verificando Firestore...');
-          // Verificar si Firestore tiene mods, si no → migrar automáticamente
+          // Solo verificar si hay mods para migrar — NO guardar config automáticamente
+          // (evita el "Guardando cambios..." al cargar la página)
           _db.collection('mods').limit(1).get()
             .then(function(snap){
               if(snap.empty && siteState.gamesList && siteState.gamesList.length > 0){
-                console.log('[Firebase] Firestore vacío — auto-migrando...');
                 _autoMigrateToFirestore();
-              } else {
-                // Firestore tiene datos → solo guardar config
-                _fbSaveSiteConfig();
               }
+              // NO llamar _fbSaveSiteConfig() aquí — solo migrar si está vacío
             })
-            .catch(function(){ _fbSaveSiteConfig(); });
+            .catch(function(e){ console.warn('[Firebase] Error verificando mods:', e.message); });
         }, 800);
       } else if(user){
         _updateSyncUI(null, '⚠️ Sin permisos admin (UID: '+user.uid+')');
@@ -5044,8 +5071,6 @@ function _fbSaveGame(gameData, editId){
   .then(function(){
     console.log('[Firebase] Mod guardado OK:', gameData.name);
     showToast('✅ Guardado — visible para todos al instante 🌍');
-    // Guardar config del sitio también (por si cambió algo)
-    _fbSaveSiteConfig();
   })
   .catch(function(e){
     console.error('[Firebase] Error guardando mod:', e);
@@ -5065,23 +5090,20 @@ function _fbDeleteGame(gameId){
 }
 
 // Guardar configuración del sitio → _fbListenConfig la distribuye a todos
-function _fbSaveSiteConfig(){
-  if(!_db){ console.warn('[Firebase] _db no disponible'); return; }
-  if(!_isAdmin()){ console.warn('[Firebase] No es admin — uid:',_fbUser&&_fbUser.uid); return; }
+function _fbSaveSiteConfig(_silent){
+  if(!_db || !_isAdmin()) return;
   var cfg = Object.assign({}, siteState);
   delete cfg.gamesList;
   cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-  console.log('[Firebase] Guardando siteConfig en Firestore...');
-  showToast('⏳ Guardando cambios...');
+  if(!_silent) showToast('⏳ Guardando...');
   _db.collection('siteConfig').doc('main').set(cfg, {merge: true})
     .then(function(){
-      showToast('✅ Cambios guardados globalmente 🌍');
-      _updateSyncUI(true, '✅ Guardado — todos los usuarios lo verán al instante');
+      if(!_silent) showToast('✅ Guardado globalmente 🌍');
+      _updateSyncUI(true, '✅ Cambios visibles para todos');
     })
     .catch(function(e){
-      showToast('❌ Error de conexión: '+e.message);
-      _updateSyncUI(false, '❌ Error: '+e.message);
-      console.error('[Firebase] Error siteConfig:', e);
+      showToast('❌ Error: '+e.message);
+      _updateSyncUI(false, '❌ '+e.message);
     });
 }
 
