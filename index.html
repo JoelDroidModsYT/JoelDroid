@@ -2490,8 +2490,19 @@ function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
   var games=siteState.gamesList.filter(function(g){return g.name.toLowerCase().includes(searchQuery)&&g.visible;});
-  if(currentFilter==='updated')games.sort(function(a,b){return new Date(b.lastUpdate)-new Date(a.lastUpdate);});
-  else if(currentFilter==='popular')games.sort(function(a,b){return b.visits-a.visits;});
+  if(currentFilter==='updated'){
+    games.sort(function(a,b){return new Date(b.lastUpdate||0)-new Date(a.lastUpdate||0);});
+  } else if(currentFilter==='popular'){
+    games.sort(function(a,b){return (b.visits||0)-(a.visits||0);});
+  } else {
+    // 'Todo': recién editados primero (lastUpdate desc), luego por orden manual
+    games.sort(function(a,b){
+      var da=new Date(b.lastUpdate||'2000-01-01');
+      var db=new Date(a.lastUpdate||'2000-01-01');
+      if(da-db!==0) return da-db;
+      return (a.order||999)-(b.order||999);
+    });
+  }
 
   // FIX 1: texto del botón de descarga en el idioma actual
   // Si el admin no personalizó el texto del botón, traducirlo al idioma activo
@@ -2533,7 +2544,9 @@ function renderGames(){
         updateBadgeHtml+modBadgeHtml+
       '</div>'+
       '<div class="flex flex-col justify-center min-w-0 flex-grow">'+
-        '<h3 class="font-black uppercase tracking-tighter truncate text-[13px] notranslate">'+g.name+'</h3>'+
+        '<div style="display:flex;align-items:baseline;gap:6px;min-width:0">'+
+          '<h3 class="font-black uppercase tracking-tighter truncate text-[13px] notranslate" style="flex:1;min-width:0">'+g.name+'</h3>'+
+          (g.ver?'<span style="font-size:8px;font-weight:900;color:#10b981;letter-spacing:.06em;white-space:nowrap;'+'text-shadow:0 0 8px rgba(16,185,129,.6);flex-shrink:0">'+g.ver+'</span>':'')+'</div>'+
         '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-70 font-medium line-clamp-2 mt-0.5 leading-tight">'+g.description+'</p>'+
         '<p class="text-[9px] font-black uppercase tracking-tighter mt-1 mb-1 card-ver-txt" style="color:'+siteState.verification.color+';">JoelDroid Mods YT \u2022 '+verText+'</p>'+
         miniRatingLine+
@@ -2581,14 +2594,35 @@ function scrollToDownloads(){
 }
 
 // FIX 1: showDetail — todos los textos de UI usan t(), nombres de juegos NO se traducen
+// ── Contador de vistas por juego ─────────────────────────
+function _incrementVisit(gameId){
+  // 1. Actualizar en siteState local
+  var g = siteState.gamesList.find(function(x){ return String(x.id)===String(gameId); });
+  if(!g) return;
+  g.visits = (g.visits||0) + 1;
+  // 2. Guardar en Firebase (si es posible) con increment atómico
+  if(_fbReady && _db){
+    try{
+      _db.collection('mods').doc(String(gameId)).update({
+        visits: firebase.firestore.FieldValue.increment(1)
+      }).catch(function(){}); // silencioso si falla
+    }catch(e){}
+  }
+  // 3. Guardar localmente
+  try{
+    var key = 'jd_visits_'+gameId;
+    var v = parseInt(localStorage.getItem(key)||'0')+1;
+    localStorage.setItem(key, v);
+  }catch(e){}
+}
+
+
 function showDetail(id){
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
-  if(!game){
-    // Intentar buscar con ID original (por si viene de Firebase con doc.id diferente)
-    console.warn('[showDetail] No encontrado id='+id, 'Lista:', siteState.gamesList.map(function(g){return g.id;}));
-    return;
-  }
+  if(!game){ console.warn('[showDetail] ID no encontrado:',id); return; }
+  // Incrementar visitas
+  setTimeout(function(){ _incrementVisit(id); }, 300);
 
   var dv=document.getElementById('detail-view');
   if(dv)dv.scrollTop=0;
@@ -3373,6 +3407,7 @@ function processSaveGameData(editId,data){
     lastUpdate:new Date().toISOString().split('T')[0],
     visits:editId?(function(){var g=siteState.gamesList.find(function(x){return String(x.id)===String(editId);});return g?g.visits:0;})():0,
     homeButtonVisible:true,
+    order: editId ? (function(){ var g=siteState.gamesList.find(function(x){return String(x.id)===String(editId);}); return g&&g.order!=null?g.order:siteState.gamesList.length; })() : siteState.gamesList.length,
     updateBadgeBgColor:colorPalette[ukKey]?colorPalette[ukKey].hex:'#10b981',
     modBadgeBgColor:colorPalette[mkKey]?colorPalette[mkKey].hex:'#ef4444',
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
