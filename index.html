@@ -1034,7 +1034,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <!-- LOGO -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Logo del Sitio</h3>
-        <div class="flex items-center space-x-2"><input type="checkbox" id="logo-visibility-switch" class="h-4 w-4" onchange="liveUpdate()"><span class="text-sm">Ocultar Logo</span></div>
+        <div class="flex items-center space-x-2"><input type="checkbox" id="logo-visibility-switch" class="h-4 w-4" onchange="updateSiteInfo()"><span class="text-sm">Ocultar Logo</span></div>
         <label class="block text-sm font-medium text-gray-300 mb-1">URL de Imagen</label>
         <input type="url" id="logo-url-in" class="admin-input" placeholder="https://ejemplo.com/logo.png" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Subir Archivo</label>
@@ -1047,7 +1047,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <h3 class="font-bold uppercase text-blue-400">Configuración de Anuncio</h3>
         <textarea id="ann-text-in" class="admin-input" placeholder="Escribe el anuncio..." oninput="liveUpdate()"></textarea>
         <input type="text" id="ann-url-in" class="admin-input" placeholder="URL de redireccionamiento (opcional)">
-        <div class="flex items-center space-x-2"><input type="checkbox" id="announcement-visibility-switch" class="h-4 w-4" onchange="liveUpdate()"><span class="text-sm">Ocultar Anuncio</span></div>
+        <div class="flex items-center space-x-2"><input type="checkbox" id="announcement-visibility-switch" class="h-4 w-4" onchange="updateAnnouncement()"><span class="text-sm">Ocultar Anuncio</span></div>
         <label class="block text-sm font-medium text-gray-300 mt-2">Color de Fondo</label>
         <div id="ann-color-selector-ui" class="color-selector"></div>
         <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateAnnouncement()">Actualizar</button>
@@ -1055,7 +1055,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <!-- BANNER MAIN -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Banner Principal</h3>
-        <div class="flex items-center space-x-2"><input type="checkbox" id="banner-visibility-switch" class="h-4 w-4" onchange="liveUpdate()"><span class="text-sm">Ocultar Banner</span></div>
+        <div class="flex items-center space-x-2"><input type="checkbox" id="banner-visibility-switch" class="h-4 w-4" onchange="updateBanner()"><span class="text-sm">Ocultar Banner</span></div>
         <label class="block text-sm font-medium text-gray-300 mb-1">Título</label>
         <input type="text" id="banner-title-in" class="admin-input" placeholder="MODS EXCLUSIVOS" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Subtítulo</label>
@@ -1067,7 +1067,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <!-- UPDATED BANNER -->
       <div class="space-y-2 p-4 border rounded-xl border-orange-500/30">
         <h3 class="font-bold uppercase text-orange-400">Banner de Actualizados</h3>
-        <div class="flex items-center space-x-2"><input type="checkbox" id="updated-banner-visibility-switch" class="h-4 w-4" onchange="liveUpdate()"><span class="text-sm">Ocultar Banner Actualizados</span></div>
+        <div class="flex items-center space-x-2"><input type="checkbox" id="updated-banner-visibility-switch" class="h-4 w-4" onchange="updateUpdatedBanner()"><span class="text-sm">Ocultar Banner Actualizados</span></div>
         <label class="block text-sm font-medium text-gray-300 mb-1">Título</label>
         <input type="text" id="updated-banner-title-in" class="admin-input" placeholder="MODS ACTUALIZADOS" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Subtítulo</label>
@@ -1079,7 +1079,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <!-- POPULAR BANNER -->
       <div class="space-y-2 p-4 border rounded-xl border-red-500/30">
         <h3 class="font-bold uppercase text-red-400">Banner de Popular</h3>
-        <div class="flex items-center space-x-2"><input type="checkbox" id="popular-banner-visibility-switch" class="h-4 w-4" onchange="liveUpdate()"><span class="text-sm">Ocultar Banner Popular</span></div>
+        <div class="flex items-center space-x-2"><input type="checkbox" id="popular-banner-visibility-switch" class="h-4 w-4" onchange="updatePopularBanner()"><span class="text-sm">Ocultar Banner Popular</span></div>
         <label class="block text-sm font-medium text-gray-300 mb-1">Título</label>
         <input type="text" id="popular-banner-title-in" class="admin-input" placeholder="TOP DESCARGAS" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Subtítulo</label>
@@ -2393,7 +2393,7 @@ function renderRecommendedGames(currentId){
   container.innerHTML=shuffled.map(function(g){
     return'<div class="recommended-card p-4">'+
       '<div class="flex gap-3 items-center mb-3">'+
-        '<img src="'+(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" class="icon-img-loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
+        '<img src="'+(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
         '<div class="min-w-0 flex-grow">'+
           '<p class="font-black text-xs uppercase tracking-tight notranslate leading-tight">'+g.name+'</p>'+
           '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-60 font-medium line-clamp-2 mt-0.5 leading-relaxed">'+g.description+'</p>'+
@@ -3099,7 +3099,11 @@ function renderColorSelector(id,fn,selected,type){
     c.appendChild(btn);
   }
 }
-function liveUpdate(){applyUIChanges();}
+function liveUpdate(){
+  applyUIChanges();
+  // Guardar cambios con debounce (evita spam a Firebase)
+  saveSettings();
+}
 
 function renderAdminUI(){
   var set=function(id,v){var el=document.getElementById(id);if(el)el.value=v||'';};
@@ -5352,11 +5356,22 @@ function _markPendingChange(label){
   if(lbl) lbl.innerText = label||'Cambios sin guardar';
 }
 function _flushPendingChanges(){
-  _pendingChanges=false;
-  saveSettings();
-  var btn=document.getElementById('admin-save-all-btn');
-  if(btn)btn.style.background='';
-  showToast('Guardando cambios: Visualizacion global activa');
+  _pendingChanges = false;
+  // 1. Guardar en localStorage inmediatamente
+  localStorage.setItem('siteState', JSON.stringify(siteState));
+  // 2. Guardar en Firebase Firestore (config + escenas)
+  if(_fbReady && _db && _isAdmin()){
+    _fbSaveSiteConfig();
+  }
+  // 3. Sincronizar con GitHub Gist (backup completo: config + juegos)
+  if(_ghCfg && _ghCfg.token && _ghCfg.gistId){
+    _syncToGitHub();
+    showToast('✅ Guardando cambios: Visualización global activa 🌍');
+  } else {
+    showToast('✅ Guardado en Firebase — configura GitHub Gist para backup completo');
+  }
+  var btn = document.getElementById('admin-save-all-btn');
+  if(btn){ btn.style.background=''; btn.style.animation=''; }
 }
 
 function _clearPendingChanges(){
