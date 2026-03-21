@@ -944,7 +944,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
       <div class="flex gap-2">
         <button onclick="openEmailPanel()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 0 10px rgba(220,38,38,.4)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail</button>
-        <button onclick="_flushPendingChanges()" id="admin-save-all-btn" style="background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:8px 14px;font-size:10px;font-weight:900;cursor:pointer;margin-right:6px;letter-spacing:.05em">💾 Guardar Cambios</button>
+        <button onclick="_flushPendingChanges()" id="admin-save-all-btn" style="background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:8px 14px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.05em">💾 Guardar</button><span style="display:inline-block;width:8px"></span>
         <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase">Cerrar</button>
       </div>
     </div>
@@ -1037,6 +1037,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <div class="flex items-center space-x-2"><input type="checkbox" id="logo-visibility-switch" class="h-4 w-4" onchange="updateSiteInfo()"><span class="text-sm">Ocultar Logo</span></div>
         <label class="block text-sm font-medium text-gray-300 mb-1">URL de Imagen</label>
         <input type="url" id="logo-url-in" class="admin-input" placeholder="https://ejemplo.com/logo.png" oninput="liveUpdate()">
+        <button onclick="resetLogoDefault()" style="font-size:9px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:8px;padding:6px 12px;cursor:pointer;margin-top:6px;width:100%">↩️ Restaurar logo original del sitio</button>
         <label class="block text-sm font-medium text-gray-300 mb-1">Subir Archivo</label>
         <input type="file" id="logo-file-in" class="admin-input" onchange="handleLogoFileChange(this)">
         <div class="pt-2"><h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color del Icono</h4><div id="logo-color-selector-ui" class="color-selector"></div></div>
@@ -1044,6 +1045,17 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       </div>
       <!-- ANNOUNCEMENT -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
+
+      <!-- Modo Claro -->
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">
+        <p style="font-size:9px;font-weight:900;color:#fbbf24;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🌅 Colores Modo Claro</p>
+        <label class="admin-label">Fondo claro</label>
+        <input type="color" id="lc-bg" value="#f0f4f8" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.bg=this.value;applyLightColors();_markPendingChange('Fondo modo claro')">
+        <label class="admin-label">Tarjeta/Card</label>
+        <input type="color" id="lc-card" value="#ffffff" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.card=this.value;applyLightColors();_markPendingChange('Card modo claro')">
+        <label class="admin-label">Texto</label>
+        <input type="color" id="lc-text" value="#0f172a" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.text=this.value;applyLightColors();_markPendingChange('Texto modo claro')">
+      </div>
         <h3 class="font-bold uppercase text-blue-400">Configuración de Anuncio</h3>
         <textarea id="ann-text-in" class="admin-input" placeholder="Escribe el anuncio..." oninput="liveUpdate()"></textarea>
         <input type="text" id="ann-url-in" class="admin-input" placeholder="URL de redireccionamiento (opcional)">
@@ -1869,6 +1881,21 @@ var BG_THEMES={
 };
 
 // ── Motor principal de fondos ─────────────────────────────────────
+function applyLightColors(){
+  var lc = siteState.lightColors || {};
+  var s = document.documentElement.style;
+  // Solo aplica si está en modo claro
+  if(!document.body.classList.contains('light-mode')) return;
+  if(lc.bg)           s.setProperty('--bg-color',    lc.bg);
+  if(lc.card)         s.setProperty('--card-bg',     lc.card);
+  if(lc.text)         s.setProperty('--text-main',   lc.text);
+  if(lc.textSecondary)s.setProperty('--text-secondary', lc.textSecondary);
+  if(lc.brand){
+    var c = Object.values(colorPalette).find(function(p){return p.hex===lc.brand;});
+    if(c) s.setProperty('--brand-color', lc.brand);
+  }
+}
+
 function applyBgTheme(themeKey){
   var bg=document.getElementById('animated-bg');if(!bg)return;
   // Limpiar elementos anteriores
@@ -2230,6 +2257,20 @@ function applyTranslations(lang){
     el.textContent=useDefault?tStr('Descargar APK'):adminTxt;
   });
   localStorage.setItem('selectedLang',lang);
+
+  // Traducir textos de botones de descarga en la vista de detalle
+  if(lang !== 'es'){
+    var dlBtns = document.querySelectorAll('[data-i18n="download_mod_btn"]');
+    dlBtns.forEach(function(el){
+      var custom = siteState.buttonSettings && siteState.buttonSettings.globalDetailButtonText;
+      if(custom && custom !== 'Descargar Mod Apk'){
+        // Texto personalizado — traducir dinámicamente
+        trAPI(custom, function(tr){ if(tr) el.textContent = tr; });
+      }
+    });
+  }
+  // Aplicar colores modo claro si corresponde
+  applyLightColors();
 }
 
 function selectLanguage(langCode,flagUrl){
@@ -2321,7 +2362,9 @@ var colorPalette={
   white:{name:'Blanco',hex:'#f3f4f6',rgb:'243,244,246'},
   black:{name:'Negro',hex:'#1f2937',rgb:'31,41,55'},
   brown:{name:'Café',hex:'#a16207',rgb:'161,98,7'},
-  navyBlue:{name:'Azul Marino',hex:'#1e3a8a',rgb:'30,58,138'}
+  navyBlue:{name:'Azul Marino',hex:'#1e3a8a',rgb:'30,58,138'},
+  gray:{name:'Gris',hex:'#6b7280',rgb:'107,114,128'},
+  lightGray:{name:'Gris Claro',hex:'#9ca3af',rgb:'156,163,175'}
 };
 
 var initialGames=[
@@ -3151,6 +3194,14 @@ function renderAdminUI(){
 function updateSiteInfo(){showToast('Titulo/subtitulo actualizado');siteState.ui.title=document.getElementById('site-title-in').value;siteState.ui.subtitle=document.getElementById('site-subtitle-in').value;siteState.ui.logoVisible=!document.getElementById('logo-visibility-switch').checked;applyUIChanges();showToast('Titulo actualizado');
   saveSettings();}
 function handleLogoFileChange(input){if(input.files&&input.files[0]){var r=new FileReader();r.onload=function(e){siteState.ui.logoUrl=e.target.result;applyUIChanges();saveSettings();};r.readAsDataURL(input.files[0]);}}
+function resetLogoDefault(){
+  siteState.ui.logoUrl = null;
+  siteState.ui.logoVisible = true;
+  applyUIChanges();
+  saveSettings();
+  showToast('🔄 Logo restaurado al original del sitio');
+}
+
 function updateLogo(){var f=document.getElementById('logo-file-in'),u=document.getElementById('logo-url-in');if(f&&f.files&&f.files.length>0){showToast('Logo actualizado');
   saveSettings();}else if(u&&u.value){siteState.ui.logoUrl=u.value;applyUIChanges();saveSettings();}else{siteState.ui.logoUrl=null;applyUIChanges();saveSettings();}}
 function updateAnnouncement(){showToast('Comunicado actualizado');siteState.announcement.text=document.getElementById('ann-text-in').value;siteState.announcement.url=document.getElementById('ann-url-in').value;siteState.announcement.visible=!document.getElementById('announcement-visibility-switch').checked;applyUIChanges();showToast('Comunicado actualizado');
@@ -3883,20 +3934,22 @@ function detStarHoverClear(){
 
 function detRateGame(stars){
   if(!_currentGameId){showToast('Abre un juego primero');return;}
-  var s=_AUTH.getSession();
-  if(!s){
-    // Mostrar visual de que se intenta puntuar antes de pedir login
+  // Verificar autenticación: Firebase Auth primero, luego sistema local
+  var fbLoggedIn = _fbUser && _fbUser.uid;
+  var localSession = _AUTH.getSession();
+  if(!fbLoggedIn && !localSession){
+    // Mostrar estrellas brevemente, luego pedir login
     document.querySelectorAll('.ps-star-btn').forEach(function(btn){
       btn.classList.toggle('lit',parseInt(btn.dataset.v)<=stars);
     });
     setTimeout(function(){
-      // Resetear visual y abrir modal
       document.querySelectorAll('.ps-star-btn').forEach(function(btn){btn.classList.remove('lit');});
+      showToast('🔐 Para puntuar o comentar, por favor Inicia Sesión');
       openAuthModal('login');
-      showToast('🔐 Inicia sesión para valorar');
-    },600);
+    }, 700);
     return;
   }
+  var s = localSession || {id: _fbUser.uid};
   var r=_loadGameRatings(_currentGameId);
   var prev=r.votes[s.id]||0;
   if(prev>0){r.dist[prev-1]=Math.max(0,(r.dist[prev-1]||0)-1);r.sum-=prev;r.total--;}
