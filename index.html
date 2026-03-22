@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.gstatic.com https://*.tailwindcss.com https://unpkg.com https://*.jsdelivr.net https://*.profitablecpmratenetwork.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://*.google.com https://*.firebaseapp.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.gstatic.com https://*.tailwindcss.com https://unpkg.com https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://*.google.com https://*.firebaseapp.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 <script>
@@ -1995,7 +1995,7 @@ pt:{'Todo':'Tudo','Actualizados':'Atualizados','Popular':'Popular','Buscar aplic
   'Atrás':'Voltar','Descargar Mod Apk':'Baixar Mod Apk','Versión':'Versão','Peso':'Tamanho',
   'Seguridad':'Segurança','100% SEGURO':'100% SEGURO','Información del Juego':'Informações do Jogo',
   'Características del Mod':'Recursos do Mod','Advertencia importante':'Aviso importante',
-  'Enlaces Oficiales':'Links Oficiais','También te puede gustar':'Você também pode gostar',
+  'Enlaces Oficiais':'Links Oficiais','También te puede gustar':'Você também pode gostar',
   'HOME':'INÍCIO','Regresar al panel principal.':'Voltar ao painel principal.',
   'Juegos':'Jogos','Nuestra colección de mods premium.':'Nossa coleção de mods premium.',
   'Sobre Nosotros':'Sobre Nós','El equipo detrás de JoelDroid Mods.':'A equipe por trás do JoelDroid Mods.',
@@ -3290,7 +3290,7 @@ function openGameEditor(gameId){
     var g=siteState.gamesList.find(function(x){return String(x.id)===String(gameId);});if(!g)return;
     // Helper seguro: evita TypeError si el modal no está listo
     var _es=function(id){return document.getElementById(id)||{value:'',innerText:'',checked:false,innerHTML:''};};
-    _es('editor-title').innerText='Editar Juego: '+g.name;
+    _es('editor-title').innerHTML='Editar Juego: '+g.name;
     _es('editor-game-id').value=g.id;
     _es('editor-name').value=g.name;
     _es('editor-description').value=g.description;
@@ -3320,7 +3320,7 @@ function openGameEditor(gameId){
     renderDlBtnColorSelector('dl-btn-color-selector-2',setDlBtnColor2,g.downloadButtonColorKey2||'blue','dl-btn2');
   }else{
     var etitle=document.getElementById('editor-title');
-    if(etitle)etitle.innerText='Agregar Nuevo Juego';
+    if(etitle)etitle.innerHTML='Agregar Nuevo Juego';
   }
   modal.classList.remove('hidden');modal.style.display='flex';document.body.style.overflow='hidden';
 }
@@ -5887,10 +5887,6 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<!-- ══ ADSTERRA AD FOOTER ══════════════════════════════════════════ -->
-<div id="ad-footer-container" style="min-height: 100px; width: 100%; text-align: center; margin-top: 20px; margin-bottom: 20px; clear: both;">
-    <script async src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
-</div>
-
+<script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 </body>
 </html>
