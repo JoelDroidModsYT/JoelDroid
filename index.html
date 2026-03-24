@@ -552,73 +552,97 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 
 /* ══ BANNER ADSTERRA FIJO ABAJO — Cyberpunk Neón ════════════════ */
-#ad-banner-bottom{
+#jd-ad-bar{
   position:fixed;
   bottom:0;left:0;right:0;
   z-index:190;
-  background:rgba(2,4,8,.97);
-  border-top:2px solid rgba(37,99,235,.8);
-  box-shadow:0 -4px 24px rgba(37,99,235,.35),0 -1px 0 rgba(37,99,235,.2);
-  padding:10px 16px 12px;
+  background:rgba(2,4,8,.96);
+  border-top:2px solid #2563eb;
+  box-shadow:0 -4px 20px rgba(37,99,235,.45),0 -1px 8px rgba(37,99,235,.2);
+  padding:8px 14px 10px;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
-  transition:transform .35s ease,opacity .35s ease;
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
+  gap:0;
+  transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s ease;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
 }
-#ad-banner-bottom.ad-hidden{
+#jd-ad-bar.jd-ad-hidden{
   transform:translateY(110%);
   opacity:0;
   pointer-events:none;
 }
-#ad-banner-bottom .ad-inner{
+/* Etiqueta "Publicidad" arriba izquierda */
+#jd-ad-bar::before{
+  content:'Publicidad';
+  position:absolute;
+  top:-11px;left:12px;
+  font-size:8px;font-weight:900;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:#60a5fa;
+  background:rgba(2,4,8,.95);
+  padding:1px 8px;
+  border-radius:4px;
+  border:1px solid rgba(37,99,235,.5);
+  pointer-events:none;
+}
+/* Línea neon superior animada */
+#jd-ad-bar::after{
+  content:'';
+  position:absolute;
+  top:-2px;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#2563eb,#06b6d4,#2563eb,transparent);
+  background-size:200% 100%;
+  animation:adNeonScan 3s linear infinite;
+}
+@keyframes adNeonScan{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+#jd-ad-slot{
   flex:1;
   text-align:center;
-  overflow:hidden;
   min-height:50px;
+  max-height:100px;
+  overflow:hidden;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-#ad-banner-bottom .ad-close-btn{
+#jd-ad-close{
   position:absolute;
-  top:-14px;right:10px;
-  width:26px;height:26px;
+  top:-16px;right:10px;
+  width:28px;height:28px;
   border-radius:50%;
-  background:rgba(37,99,235,.9);
-  border:1.5px solid rgba(37,99,235,1);
-  box-shadow:0 0 10px rgba(37,99,235,.6);
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  border:1.5px solid #3b82f6;
+  box-shadow:0 0 12px rgba(37,99,235,.7);
   color:#fff;
-  font-size:13px;font-weight:900;
+  font-size:14px;font-weight:900;
   line-height:1;
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  transition:background .2s,transform .15s;
-  z-index:5;
+  transition:all .2s;
   -webkit-tap-highlight-color:transparent;
+  z-index:5;
 }
-#ad-banner-bottom .ad-close-btn:hover{background:rgba(59,130,246,1);transform:scale(1.12);}
-#ad-banner-bottom .ad-close-btn:active{transform:scale(.9);}
-#ad-banner-bottom .ad-label{
-  position:absolute;
-  top:-11px;left:12px;
-  font-size:8px;font-weight:900;
-  letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(37,99,235,.9);
-  background:rgba(2,4,8,.95);
-  padding:1px 7px;
-  border-radius:4px;
-  border:1px solid rgba(37,99,235,.4);
-  pointer-events:none;
+#jd-ad-close:hover{
+  background:linear-gradient(135deg,#2563eb,#3b82f6);
+  box-shadow:0 0 18px rgba(59,130,246,.9);
+  transform:scale(1.15);
 }
-/* Espacio para que el contenido no quede tapado por el banner */
-body.ad-banner-visible{padding-bottom:78px;}
-.light-mode #ad-banner-bottom{
-  background:rgba(255,255,255,.97);
+#jd-ad-close:active{transform:scale(.88);}
+/* Padding al body para no tapar contenido */
+body.jd-ad-open{padding-bottom:76px;}
+.light-mode #jd-ad-bar{
+  background:rgba(248,250,252,.97);
   border-top-color:rgba(37,99,235,.5);
-  box-shadow:0 -4px 20px rgba(37,99,235,.15);
+  box-shadow:0 -4px 16px rgba(37,99,235,.15);
+}
+.light-mode #jd-ad-bar::before{
+  color:#2563eb;
+  background:rgba(248,250,252,.97);
 }
 </style>
 </head>
@@ -2576,10 +2600,11 @@ function showDetail(id){
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
   if(!game){
-    // Intentar buscar con ID original (por si viene de Firebase con doc.id diferente)
     console.warn('[showDetail] No encontrado id='+id, 'Lista:', siteState.gamesList.map(function(g){return g.id;}));
     return;
   }
+  // SEO: título empieza con el nombre del juego
+  try{document.title=game.name+' MOD - JoelDroidMods.com';}catch(e){}
 
   var dv=document.getElementById('detail-view');
   if(dv)dv.scrollTop=0;
@@ -2687,7 +2712,8 @@ function closeDetail(){
   if(dv)dv.classList.add('hidden');
   document.body.style.overflow='';
   currentDetailId=null;
-  // URL vuelve al dominio base limpio sin parámetros
+  // Restaurar título base y URL limpia al volver al home
+  try{document.title='JoelDroid Mods YT | Premium Platform';}catch(e){}
   try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
 }
 
@@ -2695,16 +2721,15 @@ function shareGame(){
   if(!currentDetailId)return;
   var game=siteState.gamesList.find(function(g){return g.id===currentDetailId;});
   if(!game)return;
-  // URL limpia: joeldroidmodsyt.com/?game=global-truck-online-mod
-  var base=window.location.protocol+'//'+window.location.host+window.location.pathname;
-  var shareUrl=base+'?game='+slugify(game.name);
+  // URL limpia: joeldroidmods.com/?game=global-truck-online-mod
+  var base=window.location.protocol+'//'+window.location.host+'/';
+  var slug=slugify(game.name)+'-mod';
+  var shareUrl=base+'?game='+slug;
   try{window.history.replaceState({},'',shareUrl);}catch(e){}
+  var shareTitle=game.name+' MOD - JoelDroidMods.com';
+  var shareText='🎮 '+game.name+' MOD APK — Descarga gratis en JoelDroid Mods YT';
   if(navigator.share){
-    navigator.share({
-      title:game.name+' — JoelDroid Mods YT',
-      text:'🎮 '+game.name+' MOD APK — Descarga gratis en JoelDroid Mods YT',
-      url:shareUrl
-    }).catch(function(){});
+    navigator.share({title:shareTitle,text:shareText,url:shareUrl}).catch(function(){});
   } else {
     navigator.clipboard.writeText(shareUrl).then(function(){
       showToast('🔗 Enlace copiado: '+shareUrl);
@@ -3441,7 +3466,7 @@ function deleteGameGlobal(gameId){
 }
 
 
-// ── Convierte nombre de juego en slug URL amigable ───────────────
+// ── Genera slug URL desde nombre del juego ───────────────────────
 function slugify(text){
   if(!text)return'';
   return text.toString().toLowerCase()
@@ -3450,66 +3475,63 @@ function slugify(text){
     .replace(/\s+/g,'-').replace(/-+/g,'-');
 }
 
-// Busca un juego por su slug generado desde el nombre
 function findGameBySlug(slug){
+  if(!slug)return null;
   return siteState.gamesList.find(function(g){
-    return g.visible!==false && slugify(g.name)===slug;
-  });
+    return g.visible!==false && (
+      slugify(g.name)===slug ||
+      slugify(g.name+'-mod')===slug ||
+      slugify(g.name)+'-mod'===slug
+    );
+  })||null;
 }
 
-// checkDeepLink — EXTREMA PRIORIDAD:
-// Lee ?game=nombre-slug de la URL y abre el modal automáticamente.
-// Reintenta hasta 4s esperando que Firebase cargue los juegos.
+// checkDeepLink — DETECCIÓN AUTOMÁTICA:
+// Lee ?game= o el pathname /Nombre-MOD y abre el modal.
+// Reintenta 4s esperando carga de Firebase.
 function checkDeepLink(){
   try{
-    // Limpiar URL de inmediato para que el navegador muestre solo el dominio
-    var fullSearch = window.location.search;
-    try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
+    var search  = window.location.search;
+    var pathname= window.location.pathname;
 
-    var params = new URLSearchParams(fullSearch);
+    // Limpiar URL inmediatamente (el dominio queda limpio)
+    try{window.history.replaceState({},'',window.location.origin+window.location.pathname.replace(/\/[^\/]+$/,'/')+'');}catch(e){}
 
-    // PRIORIDAD 1: ?game=nombre-slug (sistema nuevo)
+    var params = new URLSearchParams(search);
+
+    // PRIORIDAD 1: ?game=nombre-slug
     var gameSlug = params.get('game');
-    if(gameSlug){
-      var attempts = 0;
-      var maxAttempts = 16; // 4 segundos máx (16 × 250ms)
-      var tryOpenGame = function(){
-        var g = findGameBySlug(gameSlug);
-        if(g){
-          showDetail(g.id);
-          return;
-        }
-        if(++attempts < maxAttempts){
-          setTimeout(tryOpenGame, 250);
-        }
-      };
-      // Intentar inmediatamente y luego con reintentos
-      if(siteState.gamesList && siteState.gamesList.length > 0){
-        tryOpenGame();
-      } else {
-        setTimeout(tryOpenGame, 300);
+
+    // PRIORIDAD 2: pathname tipo /global-truck-online-mod
+    if(!gameSlug){
+      var pathParts = pathname.replace(/^\/+/,'').replace(/\/+$/,'').split('/');
+      var lastPart  = pathParts[pathParts.length-1];
+      if(lastPart && lastPart.length>2 && lastPart!=='index.html'){
+        gameSlug = lastPart;
       }
-      return;
     }
 
-    // PRIORIDAD 2: ?id=numerico (legacy — compatibilidad con links anteriores)
-    var id = params.get('id');
-    if(id){
-      var attempts2 = 0;
-      var tryOpenId = function(){
-        var g = siteState.gamesList.find(function(x){return String(x.id)===String(id);});
-        if(g){
-          showDetail(g.id);
-          return;
-        }
-        if(++attempts2 < 16) setTimeout(tryOpenId, 250);
-      };
-      if(siteState.gamesList && siteState.gamesList.length > 0){
-        tryOpenId();
-      } else {
-        setTimeout(tryOpenId, 300);
+    // PRIORIDAD 3: ?id= legacy
+    var legacyId = params.get('id');
+
+    if(!gameSlug && !legacyId) return;
+
+    // Limpiar URL al dominio base
+    try{window.history.replaceState({},'',window.location.origin+'/');}catch(e){}
+
+    var attempts=0;
+    var tryOpen=function(){
+      if(gameSlug){
+        var g=findGameBySlug(gameSlug);
+        if(g){showDetail(g.id);return;}
       }
-    }
+      if(legacyId){
+        var g2=siteState.gamesList.find(function(x){return String(x.id)===String(legacyId);});
+        if(g2){showDetail(g2.id);return;}
+      }
+      if(++attempts<20) setTimeout(tryOpen,250); // reintenta hasta 5s
+    };
+    setTimeout(tryOpen, siteState.gamesList&&siteState.gamesList.length>0?0:400);
   }catch(e){}
 }
 
@@ -5928,35 +5950,77 @@ window.onload=function(){
 </div><!-- end email-panel -->
 
 
-<!-- ══ BANNER ADSTERRA FIJO — FONDO NEÓN ════════════════════════ -->
-<div id="ad-banner-bottom">
-  <span class="ad-label">Publicidad</span>
-  <button class="ad-close-btn" onclick="closeAdBanner()" title="Cerrar anuncio" aria-label="Cerrar anuncio">✕</button>
-  <div class="ad-inner">
+<!-- ══ BANNER ADSTERRA — FIJO ABAJO, NEÓN AZUL ═══════════════════ -->
+<div id="jd-ad-bar">
+  <button id="jd-ad-close" onclick="jdAdClose()" title="Cerrar anuncio" aria-label="Cerrar">✕</button>
+  <div id="jd-ad-slot">
     <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
   </div>
 </div>
-<!-- ════════════════════════════════════════════════════════════════ -->
 
 <script>
-// ── Banner Adsterra: cerrar y recordar cierre ────────────────────
-function closeAdBanner(){
-  var b=document.getElementById('ad-banner-bottom');
-  if(!b)return;
-  b.classList.add('ad-hidden');
-  document.body.classList.remove('ad-banner-visible');
-  try{sessionStorage.setItem('jd_ad_closed','1');}catch(e){}
-}
-(function initAdBanner(){
-  // No mostrar si el usuario ya lo cerró en esta sesión
-  try{if(sessionStorage.getItem('jd_ad_closed')==='1')return;}catch(e){}
-  document.addEventListener('DOMContentLoaded',function(){
-    var b=document.getElementById('ad-banner-bottom');
-    if(b){
-      document.body.classList.add('ad-banner-visible');
+// ── Banner Adsterra: control + auto-refresh cada 20s ─────────────
+(function(){
+  var BAR_ID   = 'jd-ad-bar';
+  var SLOT_ID  = 'jd-ad-slot';
+  var AD_SRC   = 'https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js';
+  var INTERVAL = 20000; // 20 segundos
+  var _timer   = null;
+  var _closed  = false;
+
+  function _getBar(){  return document.getElementById(BAR_ID);  }
+  function _getSlot(){ return document.getElementById(SLOT_ID); }
+
+  // Recargar el slot inyectando el script de nuevo
+  function _reloadAd(){
+    if(_closed) return;
+    var slot = _getSlot();
+    if(!slot) return;
+    // Vaciar slot
+    slot.innerHTML = '';
+    // Crear nuevo script tag
+    var s = document.createElement('script');
+    s.src = AD_SRC;
+    s.async = true;
+    slot.appendChild(s);
+  }
+
+  // Iniciar ciclo de refresh
+  function _startRefresh(){
+    clearInterval(_timer);
+    _timer = setInterval(function(){
+      if(!_closed) _reloadAd();
+    }, INTERVAL);
+  }
+
+  // Cerrar banner (llamado también desde el botón X)
+  window.jdAdClose = function(){
+    _closed = true;
+    clearInterval(_timer);
+    var bar = _getBar();
+    if(bar) bar.classList.add('jd-ad-hidden');
+    document.body.classList.remove('jd-ad-open');
+    try{ sessionStorage.setItem('jd_ad_off','1'); }catch(e){}
+  };
+
+  // Inicializar al cargar
+  function _init(){
+    // No mostrar si el usuario ya lo cerró esta sesión
+    try{ if(sessionStorage.getItem('jd_ad_off')==='1'){ _closed=true; return; } }catch(e){}
+    var bar = _getBar();
+    if(bar){
+      document.body.classList.add('jd-ad-open');
+      _startRefresh();
     }
-  });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', _init);
+  } else {
+    _init();
+  }
 })();
 </script>
+<!-- ════════════════════════════════════════════════════════════════ -->
 </body>
 </html>
