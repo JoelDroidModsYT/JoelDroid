@@ -950,24 +950,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
     <div class="space-y-4">
 
-      <!-- SECURITY (FIX 4: keeps security section) -->
-      <div class="space-y-2 p-4 border rounded-xl border-yellow-500/40 bg-yellow-500/5">
-        <h3 class="font-bold uppercase text-yellow-400 flex items-center gap-2">🔐 Contraseña y Seguridad</h3>
-        <p class="text-[9px] text-yellow-300/70 font-medium">Actualiza tus credenciales de acceso al panel admin.</p>
-        <label class="block text-xs font-medium text-gray-300 mb-1">Nombre</label>
-        <input type="text" id="sec-name" class="admin-input" placeholder="Nuevo nombre" autocomplete="off">
-        <label class="block text-xs font-medium text-gray-300 mb-1">Apellido</label>
-        <input type="text" id="sec-lastname" class="admin-input" placeholder="Nuevo apellido" autocomplete="off">
-        <label class="block text-xs font-medium text-gray-300 mb-1">Ciudad</label>
-        <input type="text" id="sec-city" class="admin-input" placeholder="Nueva ciudad" autocomplete="off">
-        <label class="block text-xs font-medium text-gray-300 mb-1">Apodo (Nickname)</label>
-        <input type="text" id="sec-nick" class="admin-input" placeholder="Nuevo apodo" autocomplete="off">
-        <label class="block text-xs font-medium text-gray-300 mb-1">Código / Contraseña actual</label>
-        <input type="password" id="sec-current-code" class="admin-input" placeholder="Código actual (para confirmar)" autocomplete="off">
-        <label class="block text-xs font-medium text-gray-300 mb-1">Nuevo Código / Contraseña</label>
-        <input type="password" id="sec-new-code" class="admin-input" placeholder="Nuevo código (dejar vacío = sin cambiar)" autocomplete="off">
-        <button onclick="updateSecurityCredentials()" class="w-full py-3 bg-yellow-500 text-black rounded-xl font-black uppercase text-xs mt-3 hover:bg-yellow-400 transition-all">🔐 Actualizar Credenciales</button>
-      </div>
+      <!-- [Panel Contraseña y Seguridad antiguo eliminado - ahora usa Firebase Authentication] -->
 
       <!-- GITHUB SYNC — sincronización global en tiempo real -->
       <div class="space-y-2 p-4 border rounded-xl border-green-500/40 bg-green-500/5">
@@ -1561,72 +1544,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
-// ============================================================
-// FIX 4: CREDENCIALES OFUSCADAS - doble capa XOR+ROT + salt
-// Toda la lógica de autenticación está empaquetada en IIFE
-// con nombres ofuscados; ningún string legible queda expuesto.
-// ============================================================
-(function(){
-  // Capa 1: XOR con clave variable
-  function _x(s,k){var r='';for(var i=0;i<s.length;i++)r+=String.fromCharCode(s.charCodeAt(i)^k.charCodeAt(i%k.length));return r;}
-  // Capa 2: base64 encode/decode
-  function _e(s,k){return btoa(_x(s,k));}
-  function _d(s,k){return _x(atob(s),k);}
-  // Salt rotativo (función del índice de carácter)
-  var _K='\x6a\x64\x21\x32\x33\x24\x78';
-  // Valores por defecto (Joel/Laguna/77092724/Espinar-Cusco-Peru/Clisber) — guardados ofuscados
-  var _DEF={
-    n:_e('Joel',_K),
-    l:_e('Laguna',_K),
-    c:_e('77092724',_K),
-    ci:_e('Espinar-Cusco-Peru',_K),
-    ni:_e('Clisber',_K)
-  };
-  // Carga creds desde storage (codificadas)
-  function _lc(){
-    try{
-      var s=localStorage.getItem('\x5f\x61\x63');
-      if(s){var p=JSON.parse(s);if(p.n&&p.l&&p.c&&p.ci&&p.ni)return p;}
-    }catch(e){}
-    return null;
-  }
-  // Guarda creds codificadas
-  window['\x5f\x73\x61\x63']=function(n,l,c,ci,ni){
-    var obj={n:_e(n,_K),l:_e(l,_K),c:_e(c,_K),ci:_e(ci,_K),ni:_e(ni,_K)};
-    localStorage.setItem('\x5f\x61\x63',JSON.stringify(obj));
-  };
-  // Verificación — retorna bool, sin exponer valores
-  window['\x5f\x76\x61']=function(n,l,c,ci,ni){
-    var cr=_lc()||_DEF;
-    return _d(cr.n,_K)===n&&_d(cr.l,_K)===l&&_d(cr.c,_K)===c&&_d(cr.ci,_K)===ci&&_d(cr.ni,_K)===ni;
-  };
-  // Obtener creds actuales en claro (solo para prefill en admin, dentro de admin panel)
-  window['\x5f\x67\x63']=function(){
-    var cr=_lc()||_DEF;
-    return{n:_d(cr.n,_K),l:_d(cr.l,_K),c:_d(cr.c,_K),ci:_d(cr.ci,_K),ni:_d(cr.ni,_K)};
-  };
-})();
+// [Sistema de credenciales cifradas XOR eliminado - obsoleto desde migración a Firebase]
 
-// Alias internos (nombres sin semántica)
-var _VA=window['\x5f\x76\x61'];
-var _SAC=window['\x5f\x73\x61\x63'];
-var _GC=window['\x5f\x67\x63'];
-
-function updateSecurityCredentials(){
-  var cc=document.getElementById('sec-current-code').value;
-  var cr=_GC();
-  if(cc!==cr.c){alert('❌ Código actual incorrecto.');return;}
-  var n=document.getElementById('sec-name').value.trim();
-  var l=document.getElementById('sec-lastname').value.trim();
-  var city=document.getElementById('sec-city').value.trim();
-  var ni=document.getElementById('sec-nick').value.trim();
-  var nc=document.getElementById('sec-new-code').value.trim();
-  _SAC(n||cr.n,l||cr.l,nc||cr.c,city||cr.ci,ni||cr.ni);
-  ['sec-name','sec-lastname','sec-city','sec-nick','sec-current-code','sec-new-code'].forEach(function(id){
-    var el=document.getElementById(id);if(el)el.value='';
-  });
-  showToast('✅ Credenciales actualizadas.');
-}
+// [updateSecurityCredentials eliminada - panel antiguo removido]
 
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE TEMAS DE FONDO — 12 temas, tiempo real, panel admin
@@ -1995,7 +1915,7 @@ pt:{'Todo':'Tudo','Actualizados':'Atualizados','Popular':'Popular','Buscar aplic
   'Atrás':'Voltar','Descargar Mod Apk':'Baixar Mod Apk','Versión':'Versão','Peso':'Tamanho',
   'Seguridad':'Segurança','100% SEGURO':'100% SEGURO','Información del Juego':'Informações do Jogo',
   'Características del Mod':'Recursos do Mod','Advertencia importante':'Aviso importante',
-  'Enlaces Oficiais':'Links Oficiais','También te puede gustar':'Você também pode gostar',
+  'Enlaces Oficiales':'Links Oficiais','También te puede gustar':'Você também pode gostar',
   'HOME':'INÍCIO','Regresar al panel principal.':'Voltar ao painel principal.',
   'Juegos':'Jogos','Nuestra colección de mods premium.':'Nossa coleção de mods premium.',
   'Sobre Nosotros':'Sobre Nós','El equipo detrás de JoelDroid Mods.':'A equipe por trás do JoelDroid Mods.',
@@ -2816,15 +2736,7 @@ function openLogin(){
   }
 }
 function closeLogin(){var s=document.getElementById('login-screen');if(s){s.classList.add('hidden');document.body.style.overflow='';}}
-function verifyLogin(){
-  var n=document.getElementById('login-name').value;
-  var l=document.getElementById('login-lastname').value;
-  var c=document.getElementById('login-code').value;
-  var ci=document.getElementById('login-city').value;
-  var ni=document.getElementById('login-nick').value;
-  if(_VA(n,l,c,ci,ni)){closeLogin();openAdmin();}
-  else{alert("Identificación inválida. Verifique sus credenciales.");}
-}
+// [Sistema login antiguo eliminado - ahora usa Firebase]
 function openAdmin(){
   var p=document.getElementById('admin-panel');
   if(p){p.classList.remove('hidden');document.body.style.overflow='hidden';renderAdminUI();renderGameEditorList();_fillGHInputs();}
@@ -3290,7 +3202,7 @@ function openGameEditor(gameId){
     var g=siteState.gamesList.find(function(x){return String(x.id)===String(gameId);});if(!g)return;
     // Helper seguro: evita TypeError si el modal no está listo
     var _es=function(id){return document.getElementById(id)||{value:'',innerText:'',checked:false,innerHTML:''};};
-    _es('editor-title').innerHTML='Editar Juego: '+g.name;
+    _es('editor-title').innerText='Editar Juego: '+g.name;
     _es('editor-game-id').value=g.id;
     _es('editor-name').value=g.name;
     _es('editor-description').value=g.description;
@@ -3320,7 +3232,7 @@ function openGameEditor(gameId){
     renderDlBtnColorSelector('dl-btn-color-selector-2',setDlBtnColor2,g.downloadButtonColorKey2||'blue','dl-btn2');
   }else{
     var etitle=document.getElementById('editor-title');
-    if(etitle)etitle.innerHTML='Agregar Nuevo Juego';
+    if(etitle)etitle.innerText='Agregar Nuevo Juego';
   }
   modal.classList.remove('hidden');modal.style.display='flex';document.body.style.overflow='hidden';
 }
@@ -5887,6 +5799,6 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
+<script src="https://pl28956566.profitablecpmratenetwork.com/d903324069963ed3acae362437eaf0f6.js"></script>
 </body>
 </html>
