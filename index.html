@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.gstatic.com https://*.tailwindcss.com https://unpkg.com https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://*.google.com https://*.firebaseapp.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.gstatic.com https://*.tailwindcss.com https://unpkg.com https://*.jsdelivr.net https://*.profitablecpmratenetwork.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tailwindcss.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://api.github.com https://api.mymemory.translated.net https://flagcdn.com https://*.profitablecpmratenetwork.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*; frame-src 'self' https://*.google.com https://*.firebaseapp.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 <script>
@@ -618,6 +618,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
   </div>
 
+  <!-- ══ SLOT PUBLICITARIO ADSTERRA ══════════════════════════════ -->
+  <div id="ad-slot" style="min-height:250px;width:100%;text-align:center;margin:15px 0;"></div>
+
   <div class="space-y-3">
     <div class="search-container mx-1">
       <i data-lucide="search" class="w-3.5 h-3.5 text-blue-500 opacity-70"></i>
@@ -950,7 +953,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
     <div class="space-y-4">
 
-      <!-- [Panel Contraseña y Seguridad antiguo eliminado - ahora usa Firebase Authentication] -->
+      <!-- [Panel Contraseña antigua eliminado — usa Firebase Authentication] -->
 
       <!-- GITHUB SYNC — sincronización global en tiempo real -->
       <div class="space-y-2 p-4 border rounded-xl border-green-500/40 bg-green-500/5">
@@ -1544,9 +1547,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
-// [Sistema de credenciales cifradas XOR eliminado - obsoleto desde migración a Firebase]
+// [Sistema XOR eliminado — autenticación ahora 100% Firebase]
 
-// [updateSecurityCredentials eliminada - panel antiguo removido]
+// [updateSecurityCredentials eliminada]
 
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE TEMAS DE FONDO — 12 temas, tiempo real, panel admin
@@ -2616,17 +2619,19 @@ function closeDetail(){
   if(dv)dv.classList.add('hidden');
   document.body.style.overflow='';
   currentDetailId=null;
+  // Limpiar URL — volver al dominio base sin parámetros
+  try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
 }
 
 function shareGame(){
   if(!currentDetailId)return;
   var game=siteState.gamesList.find(function(g){return g.id===currentDetailId;});
   if(!game)return;
-  // URL con ?id= para GitHub Pages y dominios personalizados
+  // URL limpia usando el nombre como slug: joeldroidmods.com/?game=global-truck-online-mod
   var base=window.location.protocol+'//'+window.location.host+window.location.pathname;
-  // Limpiar parámetros previos
-  var shareUrl=base+'?id='+currentDetailId;
-  // Actualizar la URL del navegador sin recargar
+  var slug=slugify(game.name);
+  var shareUrl=base+'?game='+slug;
+  // Actualizar la URL del navegador sin recargar (URL queda limpia al volver al home)
   try{window.history.replaceState({},'',shareUrl);}catch(e){}
   if(navigator.share){
     navigator.share({
@@ -2636,7 +2641,7 @@ function shareGame(){
     }).catch(function(){});
   } else {
     navigator.clipboard.writeText(shareUrl).then(function(){
-      showToast('🔗 Enlace copiado: '+shareUrl.slice(-20)+'...');
+      showToast('🔗 Enlace copiado: '+shareUrl);
     }).catch(function(){
       showToast('🔗 Comparte: '+shareUrl);
     });
@@ -2736,7 +2741,7 @@ function openLogin(){
   }
 }
 function closeLogin(){var s=document.getElementById('login-screen');if(s){s.classList.add('hidden');document.body.style.overflow='';}}
-// [Sistema login antiguo eliminado - ahora usa Firebase]
+// [verifyLogin eliminado — solo Firebase]
 function openAdmin(){
   var p=document.getElementById('admin-panel');
   if(p){p.classList.remove('hidden');document.body.style.overflow='hidden';renderAdminUI();renderGameEditorList();_fillGHInputs();}
@@ -3370,17 +3375,53 @@ function deleteGameGlobal(gameId){
 }
 
 
+// ── Convierte nombre a slug URL amigable ─────────────────────────
+function slugify(text){
+  if(!text)return'';
+  return text.toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // quitar tildes
+    .replace(/[^a-z0-9\s-]/g,'')   // solo letras, números, espacios y guiones
+    .trim()
+    .replace(/\s+/g,'-')           // espacios → guiones
+    .replace(/-+/g,'-');            // guiones múltiples → uno solo
+}
+
+// Busca un juego por su slug de nombre
+function findGameBySlug(slug){
+  return siteState.gamesList.find(function(g){
+    return slugify(g.name)===slug && g.visible!==false;
+  });
+}
+
 function checkDeepLink(){
   try{
     var params=new URLSearchParams(window.location.search);
+    // Parámetro nuevo: ?game=nombre-slug
+    var gameSlug=params.get('game');
+    if(gameSlug){
+      // Esperar hasta que Firebase cargue los juegos (máx 3s)
+      var tries=0;
+      var tryFind=function(){
+        var g=findGameBySlug(gameSlug);
+        if(g){ setTimeout(function(){showDetail(g.id);},80); return; }
+        if(++tries<12){ setTimeout(tryFind,250); } // reintenta cada 250ms hasta 3s
+      };
+      tryFind();
+      // Limpiar URL a solo el dominio base
+      try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
+      return;
+    }
+    // Compatibilidad legacy: ?id= (IDs numéricos anteriores)
     var id=params.get('id');
     if(id){
-      var gid=id;
-      var g=siteState.gamesList.find(function(x){return String(x.id)===String(gid);});
-      if(g){
-        // Pequeño delay para que el DOM esté listo
-        setTimeout(function(){showDetail(g.id);},80);
-      }
+      var tries2=0;
+      var tryId=function(){
+        var g=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
+        if(g){ setTimeout(function(){showDetail(g.id);},80); return; }
+        if(++tries2<12){ setTimeout(tryId,250); }
+      };
+      tryId();
+      try{window.history.replaceState({},'',window.location.pathname);}catch(e){}
     }
   }catch(e){}
 }
@@ -5799,6 +5840,6 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<script src="https://pl28956566.profitablecpmratenetwork.com/d903324069963ed3acae362437eaf0f6.js"></script>
+<script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 </body>
 </html>
