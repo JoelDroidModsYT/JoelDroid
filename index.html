@@ -5864,34 +5864,36 @@ window.onload=function(){
     </div>
 </div>
 
-<div id="ad-social-container"></div>
-
 <script>
-    function manejarPublicidadInteligente() {
-        const contenedor = document.getElementById('ad-social-container');
-        const esPaginaDetalles = window.location.href.includes('id=');
+/** * CONTROLADOR DE LANZAMIENTO JOELDROID 
+ * Mantiene el Native funcionando y controla el Social Bar
+ */
+function gestionarPublicidadJoelDroid() {
+    const esDetalleJuego = window.location.href.includes('id=');
+    
+    // 1. BUSCAMOS EL ANUNCIO FLOTANTE (Social Bar)
+    const anuncioFlotante = document.querySelector('.social-bar, [id^="at-cv-"], [class^="at-cv-"]');
 
-        // SI ESTAMOS EN UN JUEGO (ID DETECTADO)
-        if (esPaginaDetalles) {
-            // Borramos el anuncio para que no estorbe al descargar
-            contenedor.innerHTML = ''; 
-            // Buscamos si quedó algún rastro flotando y lo eliminamos
-            const flotante = document.querySelector('[class^="at-cv-"], [id^="at-cv-"], .social-bar');
-            if (flotante) flotante.remove();
-        } 
-        // SI ESTAMOS EN EL INICIO Y EL CONTENEDOR ESTÁ VACÍO
-        else if (!esPaginaDetalles && contenedor.innerHTML === '') {
-            // Cargamos el anuncio de nuevo para ganar centavos en el inicio
+    if (esDetalleJuego) {
+        // SI ESTÁ EN DETALLES: Lo borramos para que se vea tu logo e icono
+        if (anuncioFlotante) {
+            anuncioFlotante.style.display = 'none';
+            anuncioFlotante.remove();
+        }
+    } else {
+        // SI ESTÁ EN EL INICIO: Verificamos que el script del Social Bar exista
+        if (!document.getElementById('script-social-bar') && !anuncioFlotante) {
             const script = document.createElement('script');
+            script.id = 'script-social-bar';
             script.async = true;
-            script.setAttribute('data-cfasync', 'false');
-            script.src = 'https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js';
-            contenedor.appendChild(script);
+            script.src = "//pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js";
+            document.body.appendChild(script);
         }
     }
+}
 
-    // Revisa cada segundo para no fallar
-    setInterval(manejarPublicidadInteligente, 1000);
+// Ejecución ultra rápida (cada 500ms) para que el cambio sea instantáneo
+setInterval(gestionarPublicidadJoelDroid, 500);
 </script>
 
 </body>
