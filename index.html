@@ -5864,44 +5864,37 @@ window.onload=function(){
     </div>
 </div>
 
-<div id="contenedor-social-bar">
-    <script async="async" data-cfasync="false" src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
-</div>
-
-<style id="estilo-limpiador"></style>
+<style id="control-ads-joeldroid">
+    /* Por defecto el anuncio se ve */
+    .social-bar, [class^="at-cv-"], [id^="at-cv-"] { display: block; }
+</style>
 
 <script>
-function eliminarPublicidadInvasiva() {
-    const estilo = document.getElementById('estilo-limpiador');
-    
-    // SI ESTAMOS EN UN JUEGO (DETALLES)
-    if (window.location.href.includes('id=')) {
-        // Bloqueamos por CSS cualquier cosa que flote de Adsterra
+function gestionarPublicidad() {
+    const estilo = document.getElementById('control-ads-joeldroid');
+    const seccionDetalles = document.getElementById('game-details'); // Asegúrate que este sea el ID de tu zona de detalles
+
+    // Si la sección de detalles tiene la clase 'active' o no está oculta:
+    if (seccionDetalles && seccionDetalles.style.display !== 'none') {
+        // ESCONDEMOS EL ANUNCIO POR COMPLETO
         estilo.innerHTML = `
-            [class^="at-cv-"], [id^="at-cv-"], .social-bar, #at-cv-lightbox-container { 
+            .social-bar, [class^="at-cv-"], [id^="at-cv-"], #at-cv-lightbox-container { 
                 display: none !important; 
-                visibility: hidden !important; 
+                opacity: 0 !important; 
                 pointer-events: none !important; 
             }
         `;
-        
-        // También borramos el contenedor por si acaso
-        document.getElementById('contenedor-social-bar').style.display = 'none';
-        
-        // Borramos los elementos físicamente si ya aparecieron
-        const ads = document.querySelectorAll('[class^="at-cv-"], [id^="at-cv-"], .social-bar');
-        ads.forEach(ad => ad.remove());
-        
     } else {
-        // SI ESTAMOS EN EL INICIO: Limpiamos el bloqueo para que ganes dinero
+        // EN EL INICIO: SE MUESTRA NORMAL
         estilo.innerHTML = '';
-        document.getElementById('contenedor-social-bar').style.display = 'block';
     }
 }
 
-// Ejecutar cada 300ms (super rápido para que no llegue a salir)
-setInterval(eliminarPublicidadInvasiva, 300);
+// Revisa el cambio cada 400 milisegundos
+setInterval(gestionarPublicidad, 400);
 </script>
+
+<script async="async
 
 </body>
 </html>
