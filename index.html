@@ -5862,63 +5862,32 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<div id="seccion-ads-final" style="width: 95%; max-width: 600px; margin: -28px auto 20px auto; padding: 10px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 25px; border: 1px solid rgba(0, 123, 255, 0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; z-index: 10;">
+<div id="seccion-ads-adaptable" style="width: 95%; max-width: 480px; margin: -28px auto 20px auto; padding: 12px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 25px; border: 1px solid rgba(0, 123, 255, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; z-index: 10;">
     
     <div style="display: flex; align-items: center; margin-bottom: 8px; padding-left: 5px;">
         <div style="width: 3px; height: 14px; background: #007bff; border-radius: 4px; margin-right: 8px;"></div>
         <span style="color: #444; font-family: sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase;">PUBLICIDAD</span>
     </div>
 
-    <div id="container-reparado" style="width: 100%; min-height: 150px; overflow: hidden; display: flex; justify-content: center;">
-        <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81" style="width: 100%;"></div>
+    <div id="wrapper-auto" style="width: 100%; min-height: 80px; max-height: 200px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; border-radius: 15px; transition: all 0.3s ease;">
+        <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81" style="width: 100%;">
+            <script async="async" data-cfasync="false" src="//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js"></script>
+        </div>
     </div>
 </div>
 
-<script>
-    (function() {
-        function rotarAnuncioJoelDroid() {
-            const container = document.getElementById('container-ec8e04f7f5f2b33bf58e0f40ba2b6c81');
-            if (!container) return;
-
-            // Transición suave para cambiar de anuncio
-            container.style.opacity = "0.2";
-            
-            setTimeout(() => {
-                container.innerHTML = '';
-                const script = document.createElement('script');
-                script.async = true;
-                script.setAttribute('data-cfasync', 'false');
-                // Cache Buster para intentar forzar variedad de anuncios (Godzilla, Fútbol, etc.)
-                script.src = "//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js?cb=" + Math.random();
-                
-                container.appendChild(script);
-                container.style.opacity = "1";
-                console.log("Adsterra: Farmeando nueva impresión con imagen mini... 🚛💨");
-            }, 400);
-        }
-
-        // Carga inicial
-        rotarAnuncioJoelDroid();
-        
-        // Rotación cada 20 segundos para farmear ingresos
-        setInterval(rotarAnuncioJoelDroid, 20000);
-    })();
-</script>
-
 <style>
-    /* REDUCCIÓN RADICAL DEL TAMAÑO DE LA IMAGEN DE PUBLICIDAD */
-    /* Aquí está lo que pediste: Reduce la imagen, no el banner de tu sitio */
+    /* Forzamos al anuncio a ser flexible dentro del límite */
     #container-ec8e04f7f5f2b33bf58e0f40ba2b6c81 iframe {
         max-width: 100% !important;
-        height: 130px !important; /* Forzamos la altura total a un tamaño pequeño */
-        border-radius: 15px !important;
+        /* El iframe intentará ocupar el espacio que necesite el anuncio */
+        height: auto !important; 
+        min-height: 80px !important;
+        max-height: 195px !important; 
         border: none !important;
-    }
-    
-    /* Esta regla es para forzar a Adsterra a encoger su Godzilla */
-    #container-ec8e04f7f5f2b33bf58e0f40ba2b6c81 img {
-        height: 110px !important; 
-        object-fit: contain !important; /* No corta la imagen, la adapta */
+        display: block;
+        transform: scale(0.98); 
+        transform-origin: top center;
     }
 </style>
 
