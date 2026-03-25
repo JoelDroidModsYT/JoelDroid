@@ -5948,19 +5948,20 @@ window.onload=function(){
     }
 </style>
 <style>
-  /* FORZAR POSICIÓN INFERIOR */
+  /* FORZADO ABSOLUTO AL SUELO */
   #social-bar-joeldroid { 
     position: fixed !important; 
     bottom: 0 !important; 
+    top: auto !important; /* Esto evita que suba */
     left: 0 !important; 
-    right: 0 !important;
     width: 100% !important; 
-    z-index: 9999999 !important; 
+    height: auto !important;
+    z-index: 2147483647 !important; /* El nivel máximo de capas en la web */
+    background: none !important;
     text-align: center !important;
-    background: transparent !important;
   }
 
-  /* OCULTAR EN DETALLES DEL JUEGO */
+  /* DESAPARECE EN DETALLES (MODO NOCHE COMPATIBLE) */
   #detail-view:not(.hidden) ~ #social-bar-joeldroid { 
     display: none !important; 
   }
