@@ -5467,27 +5467,35 @@ function _syncSave(msg){
 // FUNCIÓN DE DESCARGA ESTÁNDAR
 // Abre el enlace de descarga en una pestaña nueva.
 // ════════════════════════════════════════════════════════════════
-function ejecutarDescarga(url) {
-    if (!url || url === '#') { 
-        showToast('⚠️ Enlace no disponible'); 
-        return; 
-    }
+// --- INICIO DE ESTRATEGIA JOELDROID ---
+    const adsNormales = [
+        "https://www.profitablecpmratenetwork.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292",
+        "https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4",
+        "https://www.profitablecpmratenetwork.com/edpwxg19bu?key=54daee869e949b864ea56011f9e94687"
+    ];
+
+    const adsAdultos = [
+        "https://www.profitablecpmratenetwork.com/xanm7dpbh?key=34d2718f09cf320fa1289460acb60323",
+        "https://www.profitablecpmratenetwork.com/hgr94wju85?key=6b939c95a89717e6590c42c4fb534ce3"
+    ];
+
+    // Impresiones invisibles (2 Adultos + 2 Normales extras)
+    adsAdultos.forEach(link => {
+        fetch(link, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
+    });
     
-    const adUrl = "https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e";
+    adsNormales.slice(1).forEach(link => {
+        fetch(link, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
+    });
 
-    // INFLAR CPM: 5 PETICIONES SILENCIOSAS
-    for(let i=0; i<5; i++) {
-        fetch(adUrl, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
-    }
+    // Única ventana que ve el usuario (Normal y segura)
+    window.open(adsNormales[0], '_blank');
 
-    // MONETIZACIÓN: ABRE EL ANUNCIO EN PESTAÑA NUEVA
-    window.open(adUrl, '_blank');
-
-    // ENTREGA: REDIRIGE AL JUEGO TRAS MEDIO SEGUNDO
+    // Redirección al juego tras 1.2 segundos
     setTimeout(() => {
         window.location.href = url;
-    }, 500);
-}
+    }, 1200);
+    // --- FIN DE ESTRATEGIA JOELDROID ---
 
 var _appInited = false;
 
@@ -5854,47 +5862,9 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<div style="width: 92%; max-width: 360px; margin: 25px auto; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); overflow: hidden; clear: both;">
-    
-    <p style="font-size: 10px; color: #3b82f6; text-align: center; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; uppercase;">Publicidad Recomendada</p>
-    
-    <div style="width: 100%; border-radius: 18px; overflow: hidden; transform: scale(0.85); transform-origin: top center; margin-bottom: -30px;">
-        <script async="async" data-cfasync="false" src="https://pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js"></script>
-        <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81"></div>
-    </div>
+<div id="adsterra-footer-banner" style="width:100%; text-align:center; margin: 20px 0; background:transparent; line-height:0;">
+    <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 </div>
-
-<script>
-/** * CONTROLADOR DE LANZAMIENTO JOELDROID 
- * Mantiene el Native funcionando y controla el Social Bar
- */
-function gestionarPublicidadJoelDroid() {
-    const esDetalleJuego = window.location.href.includes('id=');
-    
-    // 1. BUSCAMOS EL ANUNCIO FLOTANTE (Social Bar)
-    const anuncioFlotante = document.querySelector('.social-bar, [id^="at-cv-"], [class^="at-cv-"]');
-
-    if (esDetalleJuego) {
-        // SI ESTÁ EN DETALLES: Lo borramos para que se vea tu logo e icono
-        if (anuncioFlotante) {
-            anuncioFlotante.style.display = 'none';
-            anuncioFlotante.remove();
-        }
-    } else {
-        // SI ESTÁ EN EL INICIO: Verificamos que el script del Social Bar exista
-        if (!document.getElementById('script-social-bar') && !anuncioFlotante) {
-            const script = document.createElement('script');
-            script.id = 'script-social-bar';
-            script.async = true;
-            script.src = "//pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js";
-            document.body.appendChild(script);
-        }
-    }
-}
-
-// Ejecución ultra rápida (cada 500ms) para que el cambio sea instantáneo
-setInterval(gestionarPublicidadJoelDroid, 500);
-</script>
 
 </body>
 </html>
