@@ -5862,45 +5862,40 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<div id="wrapper-ads-joeldroid" style="width: 92%; max-width: 500px; margin: 5px auto 20px auto; padding: 12px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); border-radius: 25px; border: 1px solid rgba(0, 123, 255, 0.15); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); box-sizing: border-box;">
+<div id="seccion-ads-final" style="width: 95%; max-width: 650px; margin: -25px auto 20px auto; padding: 12px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 25px; border: 1px solid rgba(0, 123, 255, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; position: relative; z-index: 10;">
     
-    <div style="display: flex; align-items: center; margin-bottom: 8px; padding-left: 5px;">
-        <div style="width: 3px; height: 14px; background: #007bff; border-radius: 5px; margin-right: 8px;"></div>
-        <span style="color: #444; font-family: sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Contenido Patrocinado</span>
+    <div style="display: flex; align-items: center; margin-bottom: 10px; padding-left: 5px;">
+        <div style="width: 3px; height: 14px; background: #007bff; border-radius: 4px; margin-right: 8px;"></div>
+        <span style="color: #444; font-family: sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase;">Contenido Patrocinado</span>
     </div>
 
-    <div id="container-ads-logic" style="width: 100%; max-height: 180px; display: flex; justify-content: center; overflow: hidden; border-radius: 15px;">
-        <div id="container-e2twy8hn" style="width: 100%;"></div>
-    </div>
+    <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81" style="width: 100%; min-height: 280px;"></div>
 </div>
 
 <script>
     (function() {
-        function refrescarAnuncioPremium() {
-            const contenedor = document.getElementById('container-e2twy8hn');
-            if (!contenedor) return;
-            contenedor.innerHTML = '';
-            const scriptAd = document.createElement('script');
-            scriptAd.async = true;
-            scriptAd.setAttribute('data-cfasync', 'false');
-            scriptAd.src = "//www.profitablecpmratenetwork.com/e2twy8hn/invoke.js";
-            contenedor.appendChild(scriptAd);
+        function rotarAnuncioReal() {
+            const container = document.getElementById('container-ec8e04f7f5f2b33bf58e0f40ba2b6c81');
+            if (!container) return;
+
+            // Limpieza y recarga con el ID CORRECTO
+            container.innerHTML = '';
+            const script = document.createElement('script');
+            script.async = true;
+            script.setAttribute('data-cfasync', 'false');
+            script.src = "//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js";
+            
+            container.appendChild(script);
+            console.log("Adsterra: Farmeando con ID Real ec8e... 🚛💨");
         }
-        refrescarAnuncioPremium();
-        // Rotación de 20 segundos para farmear
-        setInterval(refrescarAnuncioPremium, 20000);
+
+        // Carga inicial
+        rotarAnuncioReal();
+        
+        // Rotación cada 20 segundos
+        setInterval(rotarAnuncioReal, 20000);
     })();
 </script>
-
-<style>
-    /* Forzamos el tamaño para que no crezca de más */
-    #container-e2twy8hn iframe {
-        max-width: 100% !important;
-        height: 160px !important; /* Altura fija para que no sea inmenso */
-        border-radius: 15px !important;
-        object-fit: contain;
-    }
-</style>
 
 </body>
 </html>
