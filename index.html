@@ -603,26 +603,21 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
- <div id="ad-container-joeldroid" style="width: 100%; display: flex; justify-content: center; align-items: center; margin: 20px 0; min-height: 60px;">
+   <div style="width: 100%; display: flex; justify-content: center; margin: 15px 0;">
     
     <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
 
     <script type="text/javascript">
-        function loadJoelAd() {
-            const container = document.getElementById('ad-container-joeldroid');
-            // Limpiamos y recargamos para forzar la rotación y el pago
-            container.innerHTML = '<script type="text/javascript">aclib.runBanner({ zoneId: "11121030" });<\/script>';
-            console.log("Anuncio de JoelDroid rotado para maximizar ganancias");
-        }
-
-        // Primera carga
-        loadJoelAd();
-
-        // Rotación cada 20 segundos (20000ms)
-        // Esto cambia el anuncio y genera una nueva impresión pagada
+        aclib.runBanner({
+            zoneId: '11121030',
+        });
+        
+        // Rotación cada 25 segundos para no saturar al inicio
         setInterval(function() {
-            loadJoelAd();
-        }, 20000);
+            if(typeof aclib !== 'undefined') {
+                aclib.runBanner({ zoneId: '11121030' });
+            }
+        }, 25000);
     </script>
 </div>
   <div id="site-announcement" class="hidden">
