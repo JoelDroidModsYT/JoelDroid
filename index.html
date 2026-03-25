@@ -5862,51 +5862,43 @@ window.onload=function(){
 
 </div><!-- end email-panel -->
 
-<div id="farm-native-final" style="width: 100%; min-height: 250px; text-align: center; margin: 30px 0; display: flex; justify-content: center; align-items: center;">
-    <div id="container-e2twy8hn"></div>
+<div id="wrapper-ads-joeldroid" style="width: 92%; max-width: 500px; margin: 5px auto 20px auto; padding: 12px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); border-radius: 25px; border: 1px solid rgba(0, 123, 255, 0.15); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); box-sizing: border-box;">
+    
+    <div style="display: flex; align-items: center; margin-bottom: 8px; padding-left: 5px;">
+        <div style="width: 3px; height: 14px; background: #007bff; border-radius: 5px; margin-right: 8px;"></div>
+        <span style="color: #444; font-family: sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Contenido Patrocinado</span>
+    </div>
+
+    <div id="container-ads-logic" style="width: 100%; max-height: 180px; display: flex; justify-content: center; overflow: hidden; border-radius: 15px;">
+        <div id="container-e2twy8hn" style="width: 100%;"></div>
+    </div>
 </div>
 
 <script>
     (function() {
-        function rotarAnuncioJoelDroid() {
+        function refrescarAnuncioPremium() {
             const contenedor = document.getElementById('container-e2twy8hn');
             if (!contenedor) return;
-
-            // Efecto de transición suave
-            contenedor.style.opacity = "0.3";
-            
-            setTimeout(() => {
-                contenedor.innerHTML = '';
-                const scriptAd = document.createElement('script');
-                scriptAd.async = true;
-                scriptAd.setAttribute('data-cfasync', 'false');
-                scriptAd.src = "//www.profitablecpmratenetwork.com/e2twy8hn/invoke.js";
-                
-                contenedor.appendChild(scriptAd);
-                contenedor.style.opacity = "1";
-                console.log("Adsterra: Nuevo anuncio cargado al final del sitio 🚛💨");
-            }, 400);
+            contenedor.innerHTML = '';
+            const scriptAd = document.createElement('script');
+            scriptAd.async = true;
+            scriptAd.setAttribute('data-cfasync', 'false');
+            scriptAd.src = "//www.profitablecpmratenetwork.com/e2twy8hn/invoke.js";
+            contenedor.appendChild(scriptAd);
         }
-
-        // Carga inicial al entrar al sitio
-        rotarAnuncioJoelDroid();
-        
-        // Farmeo automático cada 20 segundos (20000ms)
-        setInterval(rotarAnuncioJoelDroid, 20000);
+        refrescarAnuncioPremium();
+        // Rotación de 20 segundos para farmear
+        setInterval(refrescarAnuncioPremium, 20000);
     })();
 </script>
 
 <style>
-    #container-e2twy8hn {
-        transition: opacity 0.5s ease-in-out;
-        width: 100%;
-        max-width: 100%;
-    }
+    /* Forzamos el tamaño para que no crezca de más */
     #container-e2twy8hn iframe {
         max-width: 100% !important;
+        height: 160px !important; /* Altura fija para que no sea inmenso */
         border-radius: 15px !important;
-        border: 1px solid #00ff00; /* Estilo Neón JoelDroid */
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.15);
+        object-fit: contain;
     }
 </style>
 
