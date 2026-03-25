@@ -603,24 +603,26 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
-  <div id="contenedor-banner-inicio" style="width: 100%; display: flex; justify-content: center; margin: 15px 0; min-height: 55px;">
+ <div id="ad-container-joeldroid" style="width: 100%; display: flex; justify-content: center; align-items: center; margin: 20px 0; min-height: 60px;">
+    
+    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+
     <script type="text/javascript">
-        (function() {
-            // Datos del banner original de JoelDroid
-            window.atOptions = {
-                'key' : '13d51e2826afc9138cb8f865b0b8ea66',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-            
-            var s = document.createElement('script');
-            // Agregamos el truco de cambio de anuncio (?cb=)
-            s.src = "https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js?cb=" + Math.floor(Math.random() * 99999);
-            s.async = true;
-            document.getElementById('contenedor-banner-inicio').appendChild(s);
-        })();
+        function loadJoelAd() {
+            const container = document.getElementById('ad-container-joeldroid');
+            // Limpiamos y recargamos para forzar la rotación y el pago
+            container.innerHTML = '<script type="text/javascript">aclib.runBanner({ zoneId: "11121030" });<\/script>';
+            console.log("Anuncio de JoelDroid rotado para maximizar ganancias");
+        }
+
+        // Primera carga
+        loadJoelAd();
+
+        // Rotación cada 20 segundos (20000ms)
+        // Esto cambia el anuncio y genera una nueva impresión pagada
+        setInterval(function() {
+            loadJoelAd();
+        }, 20000);
     </script>
 </div>
   <div id="site-announcement" class="hidden">
