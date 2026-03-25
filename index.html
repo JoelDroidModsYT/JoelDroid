@@ -5864,5 +5864,25 @@ window.onload=function(){
     </div>
 </div>
 
+<div id="publicidad-dinamica">
+    <script async="async" data-cfasync="false" src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
+</div>
+
+<script>
+function revisarPublicidad() {
+    var anuncio = document.getElementById('publicidad-dinamica');
+    // Si la URL tiene "id=", el usuario está viendo un juego: ESCONDEMOS EL ANUNCIO
+    if (window.location.href.includes('id=')) {
+        anuncio.style.display = 'none';
+    } else {
+        // Si está en el inicio: MOSTRAMOS EL ANUNCIO
+        anuncio.style.display = 'block';
+    }
+}
+
+// Revisa cada segundo si cambió la página para quitar o poner el anuncio
+setInterval(revisarPublicidad, 500);
+</script>
+
 </body>
 </html>
