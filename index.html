@@ -762,20 +762,80 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
 
     <div id="download-section" class="px-6 mt-10 space-y-4">
-      <div id="det-warning-box" class="bg-red-600/10 border border-red-600/30 p-4 rounded-2xl flex items-center gap-4 mb-6 hidden">
-        <div class="bg-red-600 rounded-full p-2 alert-pulse shrink-0">
-          <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+      <div style="background:rgba(239,68,68,0.10);border:1.5px solid rgba(239,68,68,0.35);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="background:#dc2626;border-radius:50%;padding:8px;flex-shrink:0;animation:pulse-red 1.5s infinite;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <p style="font-size:10px;font-weight:900;color:#ef4444;text-transform:uppercase;margin:0 0 3px 0;letter-spacing:0.05em;">¡ADVERTENCIA IMPORTANTE!</p>
+            <p style="font-size:9px;font-weight:700;color:#ef4444;opacity:0.8;margin:0;line-height:1.5;">Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.</p>
+          </div>
         </div>
-        <div>
-          <p class="text-[10px] font-black text-red-600 uppercase mb-0.5" data-i18n="warning_title">Advertencia importante</p>
-          <p id="det-warning-text" class="text-[9px] leading-tight opacity-70 font-bold uppercase"></p>
-        </div>
+        
       </div>
       <div class="text-center py-4 border-t border-[var(--border-color)]">
+          <div style="width: 100%; text-align: center; margin: 20px 0; clear: both; display: block;">
+    <span style="font-size: 8px; color: #888; font-family: sans-serif; font-weight: bold; margin-bottom: 5px; display: block;">PUBLICIDAD</span>
+    <div style="display: inline-block; width: 320px; height: 50px; overflow: hidden;">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '13d51e2826afc9138cb8f865b0b8ea66',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"></script>
+    </div>
+</div>
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2" data-i18n="official_links">Enlaces Oficiales</p>
         <h3 id="det-name-dl-secondary" class="text-xs font-black uppercase notranslate">JUEGO MOD APP</h3>
       </div>
-      <div id="det-download-buttons" class="space-y-1.5 text-center"></div>
+      <div id="det-download-buttons" class="space-y-1.5 text-center">
+
+        <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── (HTML estático — editar link aquí) -->
+        <div class="space-y-1.5 text-center" id="btn-descarga-1-wrapper">
+          <button id="btn-descarga-1" onclick="ejecutarDescarga(document.getElementById('btn-descarga-1').dataset.link||'#')" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+            <span id="btn-descarga-1-texto">Descargar Mod 1</span>
+          </button>
+          <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+        </div>
+
+        <!-- ── BOTÓN 2: DESCARGAR MOD 2 (Mediafire-Seguro) ── (HTML estático — editar link aquí) -->
+        <div class="space-y-1.5 text-center" id="btn-descarga-2-wrapper">
+          <button id="btn-descarga-2" onclick="ejecutarDescarga(document.getElementById('btn-descarga-2').dataset.link||'#')" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="btn-descarga-2-texto">Descargar Mod 2</span>
+          </button>
+          <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════
+             ZONA DE ENLACES SECUNDARIOS
+             Pega aquí banners, iframes, botones extra o URLs adicionales.
+             Este bloque es seguro: está FUERA del JavaScript principal.
+             ════════════════════════════════════════════════════════════ -->
+   <div id="zona-de-fuego-ads" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 20px 0 30px 0; clear: both; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 15px 0;">
+    <span style="font-size: 8px; color: #888; font-family: sans-serif; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase;">Publicidad Recomendada</span>
+    
+    <div style="width: 320px; height: 50px; overflow: hidden; box-shadow: 0px 4px 12px rgba(0,0,0,0.4); border-radius: 4px;">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '13d51e2826afc9138cb8f865b0b8ea66',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"></script>
+    </div>
+</div>
+
+      </div>
     </div>
 
     <!-- ══ RATING + COMENTARIOS POR JUEGO ══════════════════════ -->
@@ -2578,26 +2638,23 @@ function showDetail(id){
   var featCont=document.getElementById('det-mod-features');
   if(featCont)featCont.innerHTML=(game.features||[]).map(function(f){return'<span class="mod-tag">'+f+'</span>';}).join('');
 
-  var warnBox=document.getElementById('det-warning-box');
-  var warnText=document.getElementById('det-warning-text');
-  if(warnBox&&warnText){
-    if(game.warningVisible&&game.warningText){
-      warnBox.classList.remove('hidden');
-      warnText.innerText=game.warningText;
-      if(currentLang!=='es'){trAPI(game.warningText,function(tr){var e=document.getElementById('det-warning-text');if(e)e.innerText=tr;});}
-    } else warnBox.classList.add('hidden');
-  }
-
-  // Botones de descarga
-  var dlButtons=document.getElementById('det-download-buttons');
-  var safeTxt=tStr('Mediafire-Seguro');
+  // Botones de descarga — MIGRADO A HTML ESTÁTICO (ver div#det-download-buttons en el HTML)
+  // Los botones #btn-descarga-1 y #btn-descarga-2 son ahora elementos estáticos.
+  // El JS solo actualiza sus links, textos, colores y visibilidad según el juego activo.
+  var dlBtn1=document.getElementById('btn-descarga-1');
+  var dlBtn1wrap=document.getElementById('btn-descarga-1-wrapper');
+  var dlBtn1txt=document.getElementById('btn-descarga-1-texto');
+  var dlBtn2=document.getElementById('btn-descarga-2');
+  var dlBtn2wrap=document.getElementById('btn-descarga-2-wrapper');
+  var dlBtn2txt=document.getElementById('btn-descarga-2-texto');
   var btn1Text=game.downloadButtonText1||'Descargar Mod 1';
   var btn2Text=game.downloadButtonText2||'Descargar Mod 2';
-  if(dlButtons){
-    dlButtons.innerHTML=
-      (game.downloadButtonVisible1?'<div class="space-y-1.5 text-center"><button onclick="ejecutarDescarga(\''+(game.downloadButtonLink1||'#')+'\')" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:'+(game.downloadButtonColor1||'#3b82f6')+'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg><span>'+btn1Text+'</span></button><p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">'+safeTxt+'</p></div>':'')+
-      (game.downloadButtonVisible2?'<div class="space-y-1.5 text-center"><button onclick="ejecutarDescarga(\''+(game.downloadButtonLink2||'#')+'\')" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:'+(game.downloadButtonColor2||'#3b82f6')+'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>'+btn2Text+'</span></button><p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">'+safeTxt+'</p></div>':'');
-  }
+  if(dlBtn1){dlBtn1.dataset.link=game.downloadButtonLink1||'#';dlBtn1.style.backgroundColor=game.downloadButtonColor1||'#3b82f6';}
+  if(dlBtn1txt){dlBtn1txt.textContent=btn1Text;}
+  if(dlBtn1wrap){dlBtn1wrap.style.display=game.downloadButtonVisible1?'':'none';}
+  if(dlBtn2){dlBtn2.dataset.link=game.downloadButtonLink2||'#';dlBtn2.style.backgroundColor=game.downloadButtonColor2||'#3b82f6';}
+  if(dlBtn2txt){dlBtn2txt.textContent=btn2Text;}
+  if(dlBtn2wrap){dlBtn2wrap.style.display=game.downloadButtonVisible2?'':'none';}
 
   var dtTitle=document.getElementById('detail-site-title-ui');
   if(dtTitle)dtTitle.innerText=siteState.ui.title;
