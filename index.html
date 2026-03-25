@@ -5868,28 +5868,39 @@ window.onload=function(){
     <script async="async" data-cfasync="false" src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 </div>
 
+<style id="estilo-limpiador"></style>
+
 <script>
-function limpiarPublicidad() {
-    // Si estamos en la página de un juego (tiene id=)
+function eliminarPublicidadInvasiva() {
+    const estilo = document.getElementById('estilo-limpiador');
+    
+    // SI ESTAMOS EN UN JUEGO (DETALLES)
     if (window.location.href.includes('id=')) {
-        // 1. Ocultamos el contenedor
-        var contenedor = document.getElementById('contenedor-social-bar');
-        if (contenedor) contenedor.style.display = 'none';
+        // Bloqueamos por CSS cualquier cosa que flote de Adsterra
+        estilo.innerHTML = `
+            [class^="at-cv-"], [id^="at-cv-"], .social-bar, #at-cv-lightbox-container { 
+                display: none !important; 
+                visibility: hidden !important; 
+                pointer-events: none !important; 
+            }
+        `;
         
-        // 2. BORRAMOS el anuncio de la pantalla (lo que flota y tapa el logo)
-        var anuncioFlotante = document.querySelector('[class^="at-cv-"], [id^="at-cv-"], .social-bar');
-        if (anuncioFlotante) {
-            anuncioFlotante.remove(); 
-        }
+        // También borramos el contenedor por si acaso
+        document.getElementById('contenedor-social-bar').style.display = 'none';
+        
+        // Borramos los elementos físicamente si ya aparecieron
+        const ads = document.querySelectorAll('[class^="at-cv-"], [id^="at-cv-"], .social-bar');
+        ads.forEach(ad => ad.remove());
+        
     } else {
-        // Si vuelve al inicio, que se vea el contenedor
-        var contenedor = document.getElementById('contenedor-social-bar');
-        if (contenedor) contenedor.style.display = 'block';
+        // SI ESTAMOS EN EL INICIO: Limpiamos el bloqueo para que ganes dinero
+        estilo.innerHTML = '';
+        document.getElementById('contenedor-social-bar').style.display = 'block';
     }
 }
 
-// Revisa cada 500ms para que el anuncio no tenga tiempo de estorbar
-setInterval(limpiarPublicidad, 500);
+// Ejecutar cada 300ms (super rápido para que no llegue a salir)
+setInterval(eliminarPublicidadInvasiva, 300);
 </script>
 
 </body>
