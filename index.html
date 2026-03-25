@@ -5864,24 +5864,32 @@ window.onload=function(){
     </div>
 </div>
 
-<div id="publicidad-dinamica">
+<div id="contenedor-social-bar">
     <script async="async" data-cfasync="false" src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 </div>
 
 <script>
-function revisarPublicidad() {
-    var anuncio = document.getElementById('publicidad-dinamica');
-    // Si la URL tiene "id=", el usuario está viendo un juego: ESCONDEMOS EL ANUNCIO
+function limpiarPublicidad() {
+    // Si estamos en la página de un juego (tiene id=)
     if (window.location.href.includes('id=')) {
-        anuncio.style.display = 'none';
+        // 1. Ocultamos el contenedor
+        var contenedor = document.getElementById('contenedor-social-bar');
+        if (contenedor) contenedor.style.display = 'none';
+        
+        // 2. BORRAMOS el anuncio de la pantalla (lo que flota y tapa el logo)
+        var anuncioFlotante = document.querySelector('[class^="at-cv-"], [id^="at-cv-"], .social-bar');
+        if (anuncioFlotante) {
+            anuncioFlotante.remove(); 
+        }
     } else {
-        // Si está en el inicio: MOSTRAMOS EL ANUNCIO
-        anuncio.style.display = 'block';
+        // Si vuelve al inicio, que se vea el contenedor
+        var contenedor = document.getElementById('contenedor-social-bar');
+        if (contenedor) contenedor.style.display = 'block';
     }
 }
 
-// Revisa cada segundo si cambió la página para quitar o poner el anuncio
-setInterval(revisarPublicidad, 500);
+// Revisa cada 500ms para que el anuncio no tenga tiempo de estorbar
+setInterval(limpiarPublicidad, 500);
 </script>
 
 </body>
