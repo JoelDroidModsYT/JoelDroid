@@ -5467,7 +5467,8 @@ function _syncSave(msg){
 // FUNCIÓN DE DESCARGA ESTÁNDAR
 // Abre el enlace de descarga en una pestaña nueva.
 // ════════════════════════════════════════════════════════════════
-// --- INICIO DE ESTRATEGIA JOELDROID ---
+// --- FUNCIÓN DE DESCARGA REPARADA JOELDROID ---
+function ejecutarDescarga(url) {
     const adsNormales = [
         "https://www.profitablecpmratenetwork.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292",
         "https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4",
@@ -5479,23 +5480,22 @@ function _syncSave(msg){
         "https://www.profitablecpmratenetwork.com/hgr94wju85?key=6b939c95a89717e6590c42c4fb534ce3"
     ];
 
-    // Impresiones invisibles (2 Adultos + 2 Normales extras)
+    // 1. DISPARO DE DINERO (Fondo): Registra las impresiones de adultos sin trabar el sitio
     adsAdultos.forEach(link => {
-        fetch(link, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
+        new Image().src = link; 
     });
-    
     adsNormales.slice(1).forEach(link => {
-        fetch(link, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
+        new Image().src = link;
     });
 
-    // Única ventana que ve el usuario (Normal y segura)
+    // 2. ACCIÓN REAL: Abre la ventana de publicidad NORMAL
     window.open(adsNormales[0], '_blank');
 
-    // Redirección al juego tras 1.2 segundos
-    setTimeout(() => {
+    // 3. ENTREGA DEL JUEGO: Redirección inmediata al Mod
+    setTimeout(function() {
         window.location.href = url;
-    }, 1200);
-    // --- FIN DE ESTRATEGIA JOELDROID ---
+    }, 1000);
+}
 
 var _appInited = false;
 
