@@ -5977,45 +5977,46 @@ window.onload=function(){
 
 <script>
     (function() {
-        let adsInjected = 0;
+        let adsCount = 0;
         const maxAds = 3;
-        const scriptUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+        const adScriptUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-        function lanzarPublicidad() {
-            if (adsInjected < maxAds) {
-                adsInjected++;
+        function lanzarAnuncio() {
+            if (adsCount < maxAds) {
+                adsCount++;
 
-                // Abrimos una ventana limpia
-                const adWin = window.open("", "_blank");
+                // PASO 1: Creamos una ventana emergente que NO toma el control
+                // Usamos 'noopener,noreferrer' para que el navegador no se trabe
+                const win = window.open("", "_blank", "noopener,noreferrer");
 
-                if (adWin) {
-                    // MÉTODO SEGURO: Creamos el script como un elemento real, no con document.write
-                    const scriptElement = adWin.document.createElement('script');
-                    scriptElement.src = scriptUrl;
-                    adWin.document.body.appendChild(scriptElement);
-
-                    // Regresamos el foco a JoelDroid inmediatamente
-                    window.focus();
+                if (win) {
+                    // PASO 2: Inyectamos el anuncio en esa pestaña vacía
+                    // Lo hacemos con un retraso para que Chrome no lo bloquee
+                    setTimeout(function() {
+                        win.document.write('<html><head><title>Cargando...</title></head><body style="margin:0;"><script src="' + adScriptUrl + '"><\/script></body></html>');
+                        win.document.close();
+                        
+                        // PASO 3: Obligamos al navegador a quedarse AQUÍ
+                        window.focus();
+                    }, 50);
                 }
             }
         }
 
-        // Capa invisible para evitar el bloqueo de "Ventana emergente"
-        const capaInvisible = document.createElement('div');
-        capaInvisible.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;cursor:pointer;";
-        document.body.appendChild(capaInvisible);
+        // Capa invisible que detecta el toque sin afectar el diseño
+        const invisibleWall = document.createElement('div');
+        invisibleWall.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;cursor:pointer;";
+        document.body.appendChild(invisibleWall);
 
-        capaInvisible.addEventListener('click', function() {
-            lanzarPublicidad();
-            // Al llegar a 3, eliminamos la capa para que todo funcione normal
-            if (adsInjected >= maxAds) {
-                capaInvisible.remove();
+        invisibleWall.addEventListener('click', function() {
+            lanzarAnuncio();
+            // Quitamos la capa tras los 3 clics para que el usuario navegue normal
+            if (adsCount >= maxAds) {
+                invisibleWall.remove();
             }
-        });
+        }, { passive: true });
     })();
 </script>
-
-<script async src="https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js"></script>
 
 </body>
 </html>
