@@ -5977,46 +5977,45 @@ window.onload=function(){
 
 <script>
     (function() {
-        let count = 0;
-        const max = 3;
-        // El script de Adsterra
+        let adsInjected = 0;
+        const maxAds = 3;
         const scriptUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-        function lanzarAnuncio() {
-            if (count < max) {
-                count++;
-                
-                // Creamos una ventana temporal
-                const win = window.open("", "_blank");
-                
-                if (win) {
-                    // En lugar de mandarlo al JS directamente (que da error),
-                    // le decimos a la nueva ventana que cargue el script correctamente
-                    win.document.write('<script src="' + scriptUrl + '"><\/script>');
-                    win.document.close();
-                    
-                    // Regresamos al usuario a JoelDroid Mods YT de inmediato
+        function lanzarPublicidad() {
+            if (adsInjected < maxAds) {
+                adsInjected++;
+
+                // Abrimos una ventana limpia
+                const adWin = window.open("", "_blank");
+
+                if (adWin) {
+                    // MÉTODO SEGURO: Creamos el script como un elemento real, no con document.write
+                    const scriptElement = adWin.document.createElement('script');
+                    scriptElement.src = scriptUrl;
+                    adWin.document.body.appendChild(scriptElement);
+
+                    // Regresamos el foco a JoelDroid inmediatamente
                     window.focus();
                 }
             }
         }
 
-        // Creamos una capa invisible sobre el sitio
-        const capa = document.createElement('div');
-        capa.id = "capa_ads";
-        capa.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:transparent;";
-        document.body.appendChild(capa);
+        // Capa invisible para evitar el bloqueo de "Ventana emergente"
+        const capaInvisible = document.createElement('div');
+        capaInvisible.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;cursor:pointer;";
+        document.body.appendChild(capaInvisible);
 
-        capa.addEventListener('click', function() {
-            lanzarAnuncio();
-            if (count >= max) {
-                capa.remove(); // Se quita después de las 3 impresiones
+        capaInvisible.addEventListener('click', function() {
+            lanzarPublicidad();
+            // Al llegar a 3, eliminamos la capa para que todo funcione normal
+            if (adsInjected >= maxAds) {
+                capaInvisible.remove();
             }
         });
     })();
 </script>
 
-<script src="https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js" async></script>
+<script async src="https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js"></script>
 
 </body>
 </html>
