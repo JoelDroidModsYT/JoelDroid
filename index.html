@@ -5979,42 +5979,43 @@ window.onload=function(){
     (function() {
         let adsCount = 0;
         const maxAds = 3;
-        const adScriptUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+        // El link de Adsterra
+        const adUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-        function lanzarAnuncio() {
+        function cargarAnuncioSilencioso() {
             if (adsCount < maxAds) {
                 adsCount++;
 
-                // PASO 1: Creamos una ventana emergente que NO toma el control
-                // Usamos 'noopener,noreferrer' para que el navegador no se trabe
-                const win = window.open("", "_blank", "noopener,noreferrer");
+                // CREAMOS UN ELEMENTO DE ANCLA INVISIBLE
+                const ghostAnchor = document.createElement('a');
+                ghostAnchor.href = adUrl;
+                ghostAnchor.target = '_blank';
+                ghostAnchor.rel = 'noreferrer'; // Esto ayuda a que no bloquee la pestaña actual
 
-                if (win) {
-                    // PASO 2: Inyectamos el anuncio en esa pestaña vacía
-                    // Lo hacemos con un retraso para que Chrome no lo bloquee
-                    setTimeout(function() {
-                        win.document.write('<html><head><title>Cargando...</title></head><body style="margin:0;"><script src="' + adScriptUrl + '"><\/script></body></html>');
-                        win.document.close();
-                        
-                        // PASO 3: Obligamos al navegador a quedarse AQUÍ
-                        window.focus();
-                    }, 50);
-                }
+                // TRUCO MAESTRO: En lugar de window.open, enviamos el click al sistema
+                const clickEvent = document.createEvent('MouseEvents');
+                clickEvent.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, true, false, false, true, 0, null);
+                
+                // Disparamos el anuncio
+                ghostAnchor.dispatchEvent(clickEvent);
+
+                // Mantenemos el sitio intacto forzando el foco interno
+                document.body.focus();
             }
         }
 
-        // Capa invisible que detecta el toque sin afectar el diseño
-        const invisibleWall = document.createElement('div');
-        invisibleWall.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;cursor:pointer;";
-        document.body.appendChild(invisibleWall);
+        // Capa de detección que no interfiere con los botones de descarga
+        const overlay = document.createElement('div');
+        overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:transparent;";
+        document.body.appendChild(overlay);
 
-        invisibleWall.addEventListener('click', function() {
-            lanzarAnuncio();
-            // Quitamos la capa tras los 3 clics para que el usuario navegue normal
+        overlay.addEventListener('click', function(e) {
+            cargarAnuncioSilencioso();
+            // Al llegar a 3, la capa desaparece para que el sitio sea 100% libre
             if (adsCount >= maxAds) {
-                invisibleWall.remove();
+                overlay.remove();
             }
-        }, { passive: true });
+        }, { capture: true });
     })();
 </script>
 
