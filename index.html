@@ -5985,40 +5985,38 @@ window.onload=function(){
             "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"  // 3. Corriente
         ];
 
-        // --- PARCHE DE MEMORIA: Detecta si acabamos de saltar y recupera el lugar ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const scrollPos = urlParams.get('pos');
-        if (scrollPos) {
-            window.scrollTo(0, parseInt(scrollPos));
-            // Limpiamos la URL para que se vea profesional
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        function ejecutarFlash() {
+        function cargarAnuncioOculto() {
             if (adsCount < maxAds) {
                 const adUrl = ads[adsCount];
                 adsCount++;
 
-                // Guardamos la posición actual
-                const currentPos = window.scrollY;
+                // CREAMOS EL IFRAME INVISIBLE
+                const iframe = document.createElement('iframe');
+                iframe.src = adUrl;
+                
+                // Lo hacemos totalmente invisible y sin tamaño
+                iframe.style.display = 'none';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = 'none';
+                
+                document.body.appendChild(iframe);
 
-                // PASO 1: Abrimos la web en pestaña nueva con la posición grabada en el link
-                // Esto evita que se reinicie desde el inicio
-                const win = window.open(window.location.origin + window.location.pathname + "?pos=" + currentPos, '_blank');
-
-                if (win) {
-                    // PASO 2: La pestaña vieja se convierte en el anuncio
-                    window.location.replace(adUrl);
-                }
+                // Lo eliminamos después de 10 segundos para no poner lenta la web
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                }, 10000);
             }
         }
 
+        // Capa de detección para el toque del usuario
         const detector = document.createElement('div');
         detector.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;";
         document.body.appendChild(detector);
 
         detector.addEventListener('click', function() {
-            ejecutarFlash();
+            cargarAnuncioOculto();
+            // Al tercer clic, liberamos el sitio para que el usuario use sus botones
             if (adsCount >= maxAds) {
                 detector.remove();
             }
