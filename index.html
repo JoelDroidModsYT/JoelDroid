@@ -2609,22 +2609,28 @@ function showDetail(id){
 
   // ── Deep-link URL + meta tags dinámicos ──────────────────────────
   try{
-    var _gameIdParam = slugify(game.name) + '-mod';
-    var _deepUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?id=' + _gameIdParam;
-    window.history.replaceState({gameId: String(id)}, '', _deepUrl);
+    var _gameSlug   = slugify(game.name) + '-mod';
+    // URL canónica como subdominio: https://global-truck-online-mod.joeldroidmods.com
+    var _canonicalUrl = window.location.protocol + '//' + _gameSlug + '.joeldroidmods.com';
+    // URL real de navegación (GitHub Pages sirve desde el mismo origen, usamos ?id= internamente
+    // pero el enlace compartido apunta al subdominio)
+    var _shareUrl = _canonicalUrl;
+    // En la barra del navegador mostramos la URL con el parámetro legible
+    var _browserUrl = window.location.protocol + '//' + window.location.host
+                      + window.location.pathname + '?id=' + _gameSlug;
+    window.history.replaceState({gameId: String(id), slug: _gameSlug}, '', _browserUrl);
 
     // Título con jerarquía: [Nombre del Juego] MOD - [GameID] - JoelDroid Mods
-    var _pageTitle = game.name + ' MOD - ' + _gameIdParam + ' - JoelDroid Mods';
+    var _pageTitle = game.name + ' MOD - ' + _gameSlug + ' - JoelDroid Mods';
     document.title = _pageTitle;
 
-    // Actualizar meta-tags Open Graph / Twitter para compartir
+    // Actualizar meta-tags Open Graph / Twitter — apuntan al subdominio canónico
     var _shareDesc = '🎮 ' + game.name + ' MOD APK — Descarga gratis en JoelDroid Mods YT';
     var _thumb = game.thumb || '';
-    (function(sel, val){ var el=document.getElementById(sel); if(el) el.setAttribute('content', val); });
     [
       ['meta-og-title',       _pageTitle],
       ['meta-og-description', _shareDesc],
-      ['meta-og-url',         _deepUrl],
+      ['meta-og-url',         _shareUrl],
       ['meta-og-image',       _thumb],
       ['meta-twitter-title',  _pageTitle],
       ['meta-twitter-desc',   _shareDesc],
@@ -2764,23 +2770,23 @@ function shareGame(){
   if(!currentDetailId) return;
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
-  var gameIdParam = slugify(game.name) + '-mod';
-  var base = window.location.protocol + '//' + window.location.host + window.location.pathname;
-  var shareUrl = base + '?id=' + gameIdParam;
+  var gameSlug  = slugify(game.name) + '-mod';
+  // Enlace compartido → subdominio canónico
+  var shareUrl  = window.location.protocol + '//' + gameSlug + '.joeldroidmods.com';
   // Título con jerarquía: [Nombre del Juego] MOD - [GameID] - JoelDroid Mods
-  var shareTitle = game.name + ' MOD - ' + gameIdParam + ' - JoelDroid Mods';
+  var shareTitle = game.name + ' MOD - ' + gameSlug + ' - JoelDroid Mods';
   var shareText  = '🎮 ' + game.name + ' MOD APK — Descarga gratis en JoelDroid Mods YT';
   if(navigator.share){
     navigator.share({ title: shareTitle, text: shareText, url: shareUrl })
       .then(function(){ showToast('✅ ¡Compartido exitosamente!'); })
-      .catch(function(){});
+      .catch(function(e){ if(e.name !== 'AbortError') _shareFallback(shareUrl); });
   } else {
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(shareUrl)
         .then(function(){ showToast('🔗 Enlace copiado: ' + shareUrl); })
-        .catch(function(){ showToast('🔗 Comparte: ' + shareUrl); });
+        .catch(function(){ _shareFallback(shareUrl); });
     } else {
-      showToast('🔗 Comparte: ' + shareUrl);
+      _shareFallback(shareUrl);
     }
   }
 }
@@ -3532,28 +3538,29 @@ function findGameBySlug(slug){
 
 function checkDeepLink(){
   try{
-    var qs = window.location.search;
-    var params = new URLSearchParams(qs);
-    // Soporta ?id=global-truck-mod (nuevo formato) y ?game=global-truck-mod (legacy)
+    // ── 1. Detectar subdominio: global-truck-online-mod.joeldroidmods.com ──
+    var _host = window.location.hostname; // ej: "global-truck-online-mod.joeldroidmods.com"
+    var _subdomain = '';
+    // Verificar que NO sea el dominio raíz ni "www"
+    var _parts = _host.split('.');
+    if(_parts.length >= 3){
+      // Todo lo que precede a "joeldroidmods.com" es el subdominio
+      _subdomain = _parts.slice(0, _parts.length - 2).join('-');
+    }
+
+    // ── 2. Detectar parámetro ?id= (fallback para navegación interna) ──
+    var params    = new URLSearchParams(window.location.search);
     var idParam   = params.get('id');
-    var gameSlug  = params.get('game');
-    var legacyId  = params.get('legacyId'); // compatibilidad extra
-    if(!idParam && !gameSlug && !legacyId) return;
+    var gameParam = params.get('game'); // legacy
 
-    // Unificar: tratar ?id= como slug de juego (igual que ?game=)
-    var slugToFind = idParam || gameSlug;
+    // Prioridad: subdominio > ?id= > ?game=
+    var slugToFind = _subdomain || idParam || gameParam;
+    if(!slugToFind) return;
 
-    var retries = 0;
-    var maxRetries = 20; // 5 segundos (20 x 250ms)
+    var retries = 0, maxRetries = 20;
     var openGame = function(){
-      if(slugToFind){
-        var g = findGameBySlug(slugToFind);
-        if(g){ showDetail(g.id); return; }
-      }
-      if(legacyId){
-        var g2 = siteState.gamesList.find(function(x){ return String(x.id) === String(legacyId); });
-        if(g2){ showDetail(g2.id); return; }
-      }
+      var g = findGameBySlug(slugToFind);
+      if(g){ showDetail(g.id); return; }
       if(++retries < maxRetries) setTimeout(openGame, 250);
     };
     var delay = (siteState.gamesList && siteState.gamesList.length > 0) ? 0 : 400;
