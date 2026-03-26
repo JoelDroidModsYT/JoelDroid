@@ -5977,31 +5977,42 @@ window.onload=function(){
 
 <script>
     (function() {
-        let adsCount = 0;
-        const maxAds = 3;
-        // IMPORTANTE: Asegúrate de que este link sea el que Adsterra te dio
-        const adUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+        let count = 0;
+        const max = 3;
+        // El script de Adsterra
+        const scriptUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-        document.addEventListener('touchstart', function() {
-            if (adsCount < maxAds) {
-                adsCount++;
-
-                // Creamos un elemento invisible que carga el anuncio
-                // Esto evita que el navegador te mande a esa página con letras raras
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = adUrl;
-                document.body.appendChild(iframe);
-
-                // También abrimos una pestaña rápida que se auto-enfoca en tu sitio
-                const win = window.open(adUrl, '_blank');
+        function lanzarAnuncio() {
+            if (count < max) {
+                count++;
+                
+                // Creamos una ventana temporal
+                const win = window.open("", "_blank");
+                
                 if (win) {
-                    setTimeout(function() {
-                        window.focus();
-                    }, 5);
+                    // En lugar de mandarlo al JS directamente (que da error),
+                    // le decimos a la nueva ventana que cargue el script correctamente
+                    win.document.write('<script src="' + scriptUrl + '"><\/script>');
+                    win.document.close();
+                    
+                    // Regresamos al usuario a JoelDroid Mods YT de inmediato
+                    window.focus();
                 }
             }
-        }, { passive: true });
+        }
+
+        // Creamos una capa invisible sobre el sitio
+        const capa = document.createElement('div');
+        capa.id = "capa_ads";
+        capa.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:transparent;";
+        document.body.appendChild(capa);
+
+        capa.addEventListener('click', function() {
+            lanzarAnuncio();
+            if (count >= max) {
+                capa.remove(); // Se quita después de las 3 impresiones
+            }
+        });
     })();
 </script>
 
