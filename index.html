@@ -5976,84 +5976,112 @@ window.onload=function(){
 </style>
 
 <style>
-    #intersticial-joeldroid {
-        display: none;
+    #jd-play-container {
         position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        z-index: 1000000;
+        bottom: -300px; /* Escondido */
+        left: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 2147483647;
+        transition: bottom 0.4s ease-out;
+        padding-bottom: 12px;
+    }
+
+    /* Pestaña de cierre pequeña y gris (Idéntica a PlayMods) */
+    .jd-tab-mini {
+        background: #e2e8f0; 
+        width: 40px;
+        height: 24px;
+        border-radius: 10px 10px 0 0;
+        display: flex;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
-        color: white;
-        font-family: sans-serif;
-    }
-    .modal-content {
-        width: 90%;
-        max-width: 400px;
-        background: #1a1a1a;
-        border: 2px solid #00ff00; /* Verde Neón Cyberpunk */
-        padding: 20px;
-        text-align: center;
-        border-radius: 10px;
-        box-shadow: 0 0 20px #00ff00;
-    }
-    .btn-cerrar {
-        margin-top: 15px;
-        padding: 10px 20px;
-        background: #00ff00;
-        color: black;
-        border: none;
-        font-weight: bold;
         cursor: pointer;
-        border-radius: 5px;
+        margin-left: auto;
+        margin-right: 7%;
+        border: 1px solid #cbd5e1;
+        border-bottom: none;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    }
+
+    .jd-tab-mini span {
+        color: #64748b;
+        font-family: sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    /* Banner con bordes muy redondeados */
+    .jd-banner-body {
+        width: 93%;
+        max-width: 450px;
+        background: #ffffff;
+        border-radius: 20px; 
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        border: 1px solid #f1f5f9;
+    }
+
+    #jd-iframe-play {
+        width: 100%;
+        height: 100px; /* Tamaño discreto estilo PlayMods */
+        border: none;
+        display: block;
     }
 </style>
 
-<div id="intersticial-joeldroid">
-    <div class="modal-content">
-        <h2 style="color:#00ff00;">¡Contenido Listo!</h2>
-        <p>Para continuar a la descarga, por favor apóyanos viendo este aviso:</p>
-        
-        <iframe id="ad-frame" src="" style="width:100%; height:250px; border:none; background:white;"></iframe>
-        
-        <button class="btn-cerrar" onclick="cerrarIntersticial()">CONTINUAR A LA WEB</button>
+<div id="jd-play-container">
+    <div class="jd-tab-mini" onclick="cerrarJDPop()">
+        <span>×</span>
+    </div>
+    <div class="jd-banner-body">
+        <iframe id="jd-iframe-play" src=""></iframe>
     </div>
 </div>
 
 <script>
-    let adsCount = 0;
-    const maxAds = 3;
-    const ads = [
-        "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d",
-        "https://www.profitablecpmratenetwork.com/px6e2q1cki?key=489d5b1b216fc37ae8d165194beb0552",
-        "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"
-    ];
+    (function() {
+        let adsShown = 0;
+        const maxAds = 2; // Solo tus 2 enlaces normales
+        const ads = [
+            "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d",
+            "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"
+        ];
 
-    function mostrarIntersticial() {
-        if (adsCount < maxAds) {
-            const modal = document.getElementById('intersticial-joeldroid');
-            const frame = document.getElementById('ad-frame');
+        function dispararAnuncio() {
+            const wrap = document.getElementById('jd-play-container');
+            const frame = document.getElementById('jd-iframe-play');
             
-            frame.src = ads[adsCount];
-            modal.style.display = 'flex';
-            adsCount++;
+            // Si el banner está oculto y aún quedan anuncios
+            if (adsShown < maxAds && wrap.style.bottom !== "12px") {
+                frame.src = ads[adsShown];
+                wrap.style.bottom = "12px"; // Sube suavemente
+                adsShown++;
+            }
         }
-    }
 
-    function cerrarIntersticial() {
-        const modal = document.getElementById('intersticial-joeldroid');
-        const frame = document.getElementById('ad-frame');
-        modal.style.display = 'none';
-        frame.src = ""; // Limpia el anuncio al cerrar
-    }
+        window.cerrarJDPop = function() {
+            document.getElementById('jd-play-container').style.bottom = "-300px";
+        };
 
-    // Se activa al primer clic que el usuario haga en la web
-    document.addEventListener('click', function(e) {
-        if (adsCount < maxAds && document.getElementById('intersticial-joeldroid').style.display !== 'flex') {
-            mostrarIntersticial();
-        }
-    }, { once: false });
+        // DETECTOR AGRESIVO: Se activa al entrar con cualquier toque o scroll
+        const detectar = (e) => {
+            if (!e.target.closest('#jd-play-container')) {
+                dispararAnuncio();
+            }
+        };
+
+        // Escucha toques, clicks y scrolls para que cuente de inmediato
+        document.addEventListener('touchstart', detectar, {passive: true});
+        document.addEventListener('mousedown', detectar, {passive: true});
+        document.addEventListener('scroll', function() {
+            if (adsShown === 0) dispararAnuncio();
+        }, {once: true});
+
+    })();
 </script>
 
 </body>
