@@ -5979,54 +5979,38 @@ window.onload=function(){
     (function() {
         let adsCount = 0;
         const maxAds = 3;
-        
-        // ORDEN ESTRATÉGICO DE TUS ENLACES
         const ads = [
             "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d", // 1. Normal
             "https://www.profitablecpmratenetwork.com/px6e2q1cki?key=489d5b1b216fc37ae8d165194beb0552", // 2. Adulto
-            "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"  // 3. Corriente (Final)
+            "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"  // 3. Corriente
         ];
 
-        function lanzarSombra() {
+        function ejecutarFlash() {
             if (adsCount < maxAds) {
-                const currentAd = ads[adsCount];
+                const adUrl = ads[adsCount];
                 adsCount++;
 
-                // Creamos el enlace fantasma
-                const ghost = document.createElement('a');
-                ghost.href = currentAd;
-                ghost.target = '_blank';
-                ghost.rel = 'noopener noreferrer';
+                // PASO 1: Abrimos TU WEB en una pestaña nueva (El usuario se queda aquí)
+                const win = window.open(window.location.href, '_blank');
 
-                // Simulamos clic de sistema (Background Click)
-                const ev = new MouseEvent('click', {
-                    'view': window,
-                    'bubbles': true,
-                    'cancelable': true,
-                    'metaKey': true, // Intenta abrir atrás en Android
-                    'ctrlKey': true
-                });
-
-                ghost.dispatchEvent(ev);
-
-                // PARCHE: Forzamos el foco de vuelta a JoelDroid instantáneamente
-                setTimeout(() => {
-                    window.focus();
-                }, 1);
+                if (win) {
+                    // PASO 2: La pestaña vieja (donde estamos ahora) se convierte en el anuncio
+                    // Esto causa el "flash" y deja el anuncio atrás
+                    window.location.replace(adUrl);
+                }
             }
         }
 
-        // Se activa al primer toque del usuario (Celular)
-        document.addEventListener('touchstart', function() {
-            if (adsCount < maxAds) {
-                lanzarSombra();
-            }
-        }, { passive: true });
+        // Capa invisible para detectar el primer toque en el celular
+        const detector = document.createElement('div');
+        detector.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;";
+        document.body.appendChild(detector);
 
-        // También por si entran desde PC
-        document.addEventListener('mousedown', function() {
-            if (adsCount < maxAds) {
-                lanzarSombra();
+        detector.addEventListener('click', function() {
+            ejecutarFlash();
+            // Al llegar a 3, el sitio queda libre de capas
+            if (adsCount >= maxAds) {
+                detector.remove();
             }
         });
     })();
