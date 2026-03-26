@@ -5985,32 +5985,39 @@ window.onload=function(){
             "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"  // 3. Corriente
         ];
 
-        function ejecutarFlash() {
+        function lanzarAnuncioSinMoverse() {
             if (adsCount < maxAds) {
                 const adUrl = ads[adsCount];
                 adsCount++;
 
-                // PASO 1: Abrimos TU WEB en una pestaña nueva (El usuario se queda aquí)
-                const win = window.open(window.location.href, '_blank');
+                // PASO 1: Abrimos el anuncio en pestaña nueva
+                const win = window.open(adUrl, '_blank');
 
+                // PASO 2: EL PARCHE PARA NO REINICIAR Y NO PERDER EL SITIO
                 if (win) {
-                    // PASO 2: La pestaña vieja (donde estamos ahora) se convierte en el anuncio
-                    // Esto causa el "flash" y deja el anuncio atrás
-                    window.location.replace(adUrl);
+                    // Obligamos al navegador a quedarse AQUÍ, sin refrescar nada
+                    window.focus();
+                    
+                    // Creamos un elemento temporal para clavar el foco en el scroll actual
+                    const anchor = document.createElement('input');
+                    anchor.style.cssText = "position:absolute;top:" + window.scrollY + "px;opacity:0;";
+                    document.body.appendChild(anchor);
+                    anchor.focus();
+                    document.body.removeChild(anchor);
                 }
             }
         }
 
-        // Capa invisible para detectar el primer toque en el celular
-        const detector = document.createElement('div');
-        detector.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;";
-        document.body.appendChild(detector);
+        // Capa invisible para detectar el clic en cualquier parte
+        const wall = document.createElement('div');
+        wall.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;";
+        document.body.appendChild(wall);
 
-        detector.addEventListener('click', function() {
-            ejecutarFlash();
-            // Al llegar a 3, el sitio queda libre de capas
+        wall.addEventListener('click', function() {
+            lanzarAnuncioSinMoverse();
+            // Al tercer clic, la capa se va para que el usuario use los botones de descarga
             if (adsCount >= maxAds) {
-                detector.remove();
+                wall.remove();
             }
         });
     })();
