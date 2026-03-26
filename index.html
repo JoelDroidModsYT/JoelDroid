@@ -5551,32 +5551,46 @@ function _syncSave(msg){
 // ════════════════════════════════════════════════════════════════
 // --- FUNCIÓN DE DESCARGA REPARADA JOELDROID ---
 function ejecutarDescarga(url) {
-    const adsNormales = [
-        "https://www.profitablecpmratenetwork.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292",
-        "https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4",
-        "https://www.profitablecpmratenetwork.com/edpwxg19bu?key=54daee869e949b864ea56011f9e94687"
-    ];
+    // 1. Enlaces (1 Direct Link y 1 de Adultos para monetizar)
+    const adLink = "https://www.profitablecpmratenetwork.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292";
+    const adBack = "https://www.profitablecpmratenetwork.com/xanm7dpbh?key=34d2718f09cf320fa1289460acb60323";
 
-    const adsAdultos = [
-        "https://www.profitablecpmratenetwork.com/xanm7dpbh?key=34d2718f09cf320fa1289460acb60323",
-        "https://www.profitablecpmratenetwork.com/hgr94wju85?key=6b939c95a89717e6590c42c4fb534ce3"
-    ];
+    // Cobro en segundo plano
+    new Image().src = adBack;
 
-    // 1. DISPARO DE DINERO (Fondo): Registra las impresiones de adultos sin trabar el sitio
-    adsAdultos.forEach(link => {
-        new Image().src = link; 
-    });
-    adsNormales.slice(1).forEach(link => {
-        new Image().src = link;
-    });
+    // 2. CREAR EL OVERLAY AN1 (Degradado Real + Pantalla Completa)
+    const overlay = document.createElement('div');
+    overlay.id = 'an1-premium-overlay';
+    
+    // Fondo degradado sutil (transparente arriba, más oscuro abajo) para estética Premium
+    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)); z-index:2147483647; display:flex; flex-direction:column; overflow:hidden;";
 
-    // 2. ACCIÓN REAL: Abre la ventana de publicidad NORMAL
-    window.open(adsNormales[0], '_blank');
+    overlay.innerHTML = `
+        <div style="width:100%; height:55px; display:flex; justify-content:flex-end; align-items:center; padding:0 15px; box-sizing:border-box;">
+            <button id="an1-close-pro" style="background:#ffffff; color:#333; padding:4px 14px; border-radius:20px; font-family:sans-serif; font-size:12px; font-weight:bold; border:none; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.3);">Close</button>
+        </div>
+        
+        <div style="flex-grow:1; width:100%; height:100%;">
+            <iframe src="${adLink}" style="width:100%; height:100%; border:none; background:transparent;"></iframe>
+        </div>
+    `;
 
-    // 3. ENTREGA DEL JUEGO: Redirección inmediata al Mod
-    setTimeout(function() {
-        window.location.href = url;
-    }, 1000);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden'; // Bloquea el scroll de JoelDroid
+
+    // 3. CIERRE Y DESCARGA (Sin preguntas, directo al mod)
+    document.getElementById('an1-close-pro').onclick = function() {
+        document.body.removeChild(overlay);
+        document.body.style.overflow = 'auto'; // Restaura el sitio
+        
+        // Empieza la descarga de Global Truck Online o el mod elegido
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
 }
 
 var _appInited = false;
@@ -6090,7 +6104,7 @@ window.onload=function(){
         document.addEventListener('scroll', trigger, {once: true});
 
     })();
-</script>
+</script>    
 
 </body>
 </html>
