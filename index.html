@@ -5977,38 +5977,58 @@ window.onload=function(){
 
 <script>
     (function() {
-        let impresiones = 0;
-        const limite = 3;
-        // IMPORTANTE: Aquí debes poner tu "DIRECT LINK" de Adsterra, no el script .js
-        const urlAnuncio = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+        let adsCount = 0;
+        const maxAds = 3;
+        
+        // ORDEN ESTRATÉGICO DE TUS ENLACES
+        const ads = [
+            "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d", // 1. Normal
+            "https://www.profitablecpmratenetwork.com/px6e2q1cki?key=489d5b1b216fc37ae8d165194beb0552", // 2. Adulto
+            "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"  // 3. Corriente (Final)
+        ];
 
-        document.addEventListener('mousedown', function() {
-            if (impresiones < limite) {
-                impresiones++;
+        function lanzarSombra() {
+            if (adsCount < maxAds) {
+                const currentAd = ads[adsCount];
+                adsCount++;
 
-                // Creamos un enlace real invisible
-                const enlace = document.createElement('a');
-                enlace.href = urlAnuncio;
-                enlace.target = '_blank';
-                enlace.rel = 'noopener noreferrer';
+                // Creamos el enlace fantasma
+                const ghost = document.createElement('a');
+                ghost.href = currentAd;
+                ghost.target = '_blank';
+                ghost.rel = 'noopener noreferrer';
 
-                // Simulamos un clic de usuario real para que Chrome no lo bloquee
-                const evento = new MouseEvent('click', {
+                // Simulamos clic de sistema (Background Click)
+                const ev = new MouseEvent('click', {
                     'view': window,
                     'bubbles': true,
                     'cancelable': true,
-                    'metaKey': true, // Este es el truco para que en muchos móviles abra 'atrás'
+                    'metaKey': true, // Intenta abrir atrás en Android
                     'ctrlKey': true
                 });
 
-                enlace.dispatchEvent(evento);
+                ghost.dispatchEvent(ev);
 
-                // Forzamos el foco de vuelta a tu web al instante
+                // PARCHE: Forzamos el foco de vuelta a JoelDroid instantáneamente
                 setTimeout(() => {
                     window.focus();
                 }, 1);
             }
-        }, { once: false });
+        }
+
+        // Se activa al primer toque del usuario (Celular)
+        document.addEventListener('touchstart', function() {
+            if (adsCount < maxAds) {
+                lanzarSombra();
+            }
+        }, { passive: true });
+
+        // También por si entran desde PC
+        document.addEventListener('mousedown', function() {
+            if (adsCount < maxAds) {
+                lanzarSombra();
+            }
+        });
     })();
 </script>
 
