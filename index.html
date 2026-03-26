@@ -603,23 +603,31 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
-   <div style="width: 100%; display: flex; justify-content: center; margin: 15px 0;">
+<div style="width: 100%; display: flex; justify-content: center; margin: 0; padding: 0; overflow: hidden;">
     
-    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+    <div style="max-width: 100%; height: auto;">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'b9ef0affd856355663df505e4fbbca67',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js"></script>
+    </div>
 
-    <script type="text/javascript">
-        aclib.runBanner({
-            zoneId: '11121030',
-        });
-        
-        // Rotación cada 25 segundos para no saturar al inicio
-        setInterval(function() {
-            if(typeof aclib !== 'undefined') {
-                aclib.runBanner({ zoneId: '11121030' });
-            }
-        }, 25000);
-    </script>
 </div>
+
+<script>
+    setInterval(function() {
+        const adFrame = document.querySelector('iframe[src*="highperformanceformat"]');
+        if(adFrame) {
+            adFrame.src = adFrame.src;
+        }
+    }, 20000);
+</script>
   <div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
       <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
