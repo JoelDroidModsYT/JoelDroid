@@ -5978,41 +5978,34 @@ window.onload=function(){
 <style>
     #jd-play-container {
         position: fixed;
-        bottom: -300px; /* Escondido */
+        bottom: -350px; /* Oculto más abajo para asegurar que no se vea antes de tiempo */
         left: 0;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         z-index: 2147483647;
-        transition: bottom 0.4s ease-out;
+        transition: bottom 0.3s ease-out; /* Animación más rápida */
         padding-bottom: 12px;
     }
 
     /* Pestaña de cierre pequeña y gris (Idéntica a PlayMods) */
     .jd-tab-mini {
         background: #e2e8f0; 
-        width: 40px;
-        height: 24px;
-        border-radius: 10px 10px 0 0;
+        width: 38px;
+        height: 22px;
+        border-radius: 8px 8px 0 0;
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
         margin-left: auto;
-        margin-right: 7%;
+        margin-right: 8%;
         border: 1px solid #cbd5e1;
         border-bottom: none;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
     }
 
-    .jd-tab-mini span {
-        color: #64748b;
-        font-family: sans-serif;
-        font-size: 16px;
-        font-weight: bold;
-        line-height: 1;
-    }
+    .jd-tab-mini span { color: #475569; font-family: sans-serif; font-size: 14px; font-weight: bold; }
 
     /* Banner con bordes muy redondeados */
     .jd-banner-body {
@@ -6021,15 +6014,16 @@ window.onload=function(){
         background: #ffffff;
         border-radius: 20px; 
         overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         border: 1px solid #f1f5f9;
     }
 
     #jd-iframe-play {
         width: 100%;
-        height: 100px; /* Tamaño discreto estilo PlayMods */
+        height: 100px;
         border: none;
         display: block;
+        background: #fdfdfd; /* Fondo claro para que no se vea negro mientras carga */
     }
 </style>
 
@@ -6045,41 +6039,55 @@ window.onload=function(){
 <script>
     (function() {
         let adsShown = 0;
-        const maxAds = 2; // Solo tus 2 enlaces normales
+        const maxAds = 2;
         const ads = [
             "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d",
             "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"
         ];
 
-        function dispararAnuncio() {
-            const wrap = document.getElementById('jd-play-container');
-            const frame = document.getElementById('jd-iframe-play');
-            
-            // Si el banner está oculto y aún quedan anuncios
-            if (adsShown < maxAds && wrap.style.bottom !== "12px") {
+        const wrap = document.getElementById('jd-play-container');
+        const frame = document.getElementById('jd-iframe-play');
+
+        // FUNCIÓN 1: Pre-carga el anuncio en el fondo para que sea instantáneo
+        function preCargarAd() {
+            if (adsShown < maxAds) {
                 frame.src = ads[adsShown];
-                wrap.style.bottom = "12px"; // Sube suavemente
+            }
+        }
+
+        // FUNCIÓN 2: Muestra el anuncio que ya estaba cargado
+        function mostrarAdYaCargado() {
+            if (adsShown < maxAds && wrap.style.bottom !== "12px") {
+                wrap.style.bottom = "12px";
                 adsShown++;
+                
+                // Si falta uno por mostrar, lo pre-cargamos cuando el usuario cierre el actual
             }
         }
 
         window.cerrarJDPop = function() {
-            document.getElementById('jd-play-container').style.bottom = "-300px";
-        };
-
-        // DETECTOR AGRESIVO: Se activa al entrar con cualquier toque o scroll
-        const detectar = (e) => {
-            if (!e.target.closest('#jd-play-container')) {
-                dispararAnuncio();
+            wrap.style.bottom = "-350px";
+            // Al cerrar, pre-cargamos el segundo anuncio de inmediato
+            if (adsShown < maxAds) {
+                setTimeout(preCargarAd, 500);
             }
         };
 
-        // Escucha toques, clicks y scrolls para que cuente de inmediato
-        document.addEventListener('touchstart', detectar, {passive: true});
-        document.addEventListener('mousedown', detectar, {passive: true});
-        document.addEventListener('scroll', function() {
-            if (adsShown === 0) dispararAnuncio();
-        }, {once: true});
+        // INICIO: Pre-cargar el primer anuncio apenas abra la web (sin mostrarlo)
+        window.addEventListener('load', () => {
+            setTimeout(preCargarAd, 1000); 
+        });
+
+        // DETECTOR AGRESIVO: Muestra el anuncio al primer toque
+        const trigger = (e) => {
+            if (!e.target.closest('#jd-play-container')) {
+                mostrarAdYaCargado();
+            }
+        };
+
+        document.addEventListener('touchstart', trigger, {passive: true});
+        document.addEventListener('mousedown', trigger, {passive: true});
+        document.addEventListener('scroll', trigger, {once: true});
 
     })();
 </script>
