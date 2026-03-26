@@ -5975,53 +5975,85 @@ window.onload=function(){
     body.dark-mode #seccion-ads-adaptable span { color: #fff !important; }
 </style>
 
+<style>
+    #intersticial-joeldroid {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000000;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: white;
+        font-family: sans-serif;
+    }
+    .modal-content {
+        width: 90%;
+        max-width: 400px;
+        background: #1a1a1a;
+        border: 2px solid #00ff00; /* Verde Neón Cyberpunk */
+        padding: 20px;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 0 20px #00ff00;
+    }
+    .btn-cerrar {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: #00ff00;
+        color: black;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+</style>
+
+<div id="intersticial-joeldroid">
+    <div class="modal-content">
+        <h2 style="color:#00ff00;">¡Contenido Listo!</h2>
+        <p>Para continuar a la descarga, por favor apóyanos viendo este aviso:</p>
+        
+        <iframe id="ad-frame" src="" style="width:100%; height:250px; border:none; background:white;"></iframe>
+        
+        <button class="btn-cerrar" onclick="cerrarIntersticial()">CONTINUAR A LA WEB</button>
+    </div>
+</div>
+
 <script>
-    (function() {
-        let adsCount = 0;
-        const maxAds = 3;
-        const ads = [
-            "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d", // 1. Normal
-            "https://www.profitablecpmratenetwork.com/px6e2q1cki?key=489d5b1b216fc37ae8d165194beb0552", // 2. Adulto
-            "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"  // 3. Corriente
-        ];
+    let adsCount = 0;
+    const maxAds = 3;
+    const ads = [
+        "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d",
+        "https://www.profitablecpmratenetwork.com/px6e2q1cki?key=489d5b1b216fc37ae8d165194beb0552",
+        "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"
+    ];
 
-        function cargarAnuncioOculto() {
-            if (adsCount < maxAds) {
-                const adUrl = ads[adsCount];
-                adsCount++;
-
-                // CREAMOS EL IFRAME INVISIBLE
-                const iframe = document.createElement('iframe');
-                iframe.src = adUrl;
-                
-                // Lo hacemos totalmente invisible y sin tamaño
-                iframe.style.display = 'none';
-                iframe.style.width = '0';
-                iframe.style.height = '0';
-                iframe.style.border = 'none';
-                
-                document.body.appendChild(iframe);
-
-                // Lo eliminamos después de 10 segundos para no poner lenta la web
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
-                }, 10000);
-            }
+    function mostrarIntersticial() {
+        if (adsCount < maxAds) {
+            const modal = document.getElementById('intersticial-joeldroid');
+            const frame = document.getElementById('ad-frame');
+            
+            frame.src = ads[adsCount];
+            modal.style.display = 'flex';
+            adsCount++;
         }
+    }
 
-        // Capa de detección para el toque del usuario
-        const detector = document.createElement('div');
-        detector.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:transparent;";
-        document.body.appendChild(detector);
+    function cerrarIntersticial() {
+        const modal = document.getElementById('intersticial-joeldroid');
+        const frame = document.getElementById('ad-frame');
+        modal.style.display = 'none';
+        frame.src = ""; // Limpia el anuncio al cerrar
+    }
 
-        detector.addEventListener('click', function() {
-            cargarAnuncioOculto();
-            // Al tercer clic, liberamos el sitio para que el usuario use sus botones
-            if (adsCount >= maxAds) {
-                detector.remove();
-            }
-        });
-    })();
+    // Se activa al primer clic que el usuario haga en la web
+    document.addEventListener('click', function(e) {
+        if (adsCount < maxAds && document.getElementById('intersticial-joeldroid').style.display !== 'flex') {
+            mostrarIntersticial();
+        }
+    }, { once: false });
 </script>
 
 </body>
