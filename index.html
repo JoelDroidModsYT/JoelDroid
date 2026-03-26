@@ -5977,45 +5977,38 @@ window.onload=function(){
 
 <script>
     (function() {
-        let adsCount = 0;
-        const maxAds = 3;
-        // El link de Adsterra
-        const adUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+        let impresiones = 0;
+        const limite = 3;
+        // IMPORTANTE: Aquí debes poner tu "DIRECT LINK" de Adsterra, no el script .js
+        const urlAnuncio = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-        function cargarAnuncioSilencioso() {
-            if (adsCount < maxAds) {
-                adsCount++;
+        document.addEventListener('mousedown', function() {
+            if (impresiones < limite) {
+                impresiones++;
 
-                // CREAMOS UN ELEMENTO DE ANCLA INVISIBLE
-                const ghostAnchor = document.createElement('a');
-                ghostAnchor.href = adUrl;
-                ghostAnchor.target = '_blank';
-                ghostAnchor.rel = 'noreferrer'; // Esto ayuda a que no bloquee la pestaña actual
+                // Creamos un enlace real invisible
+                const enlace = document.createElement('a');
+                enlace.href = urlAnuncio;
+                enlace.target = '_blank';
+                enlace.rel = 'noopener noreferrer';
 
-                // TRUCO MAESTRO: En lugar de window.open, enviamos el click al sistema
-                const clickEvent = document.createEvent('MouseEvents');
-                clickEvent.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, true, false, false, true, 0, null);
-                
-                // Disparamos el anuncio
-                ghostAnchor.dispatchEvent(clickEvent);
+                // Simulamos un clic de usuario real para que Chrome no lo bloquee
+                const evento = new MouseEvent('click', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true,
+                    'metaKey': true, // Este es el truco para que en muchos móviles abra 'atrás'
+                    'ctrlKey': true
+                });
 
-                // Mantenemos el sitio intacto forzando el foco interno
-                document.body.focus();
+                enlace.dispatchEvent(evento);
+
+                // Forzamos el foco de vuelta a tu web al instante
+                setTimeout(() => {
+                    window.focus();
+                }, 1);
             }
-        }
-
-        // Capa de detección que no interfiere con los botones de descarga
-        const overlay = document.createElement('div');
-        overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:transparent;";
-        document.body.appendChild(overlay);
-
-        overlay.addEventListener('click', function(e) {
-            cargarAnuncioSilencioso();
-            // Al llegar a 3, la capa desaparece para que el sitio sea 100% libre
-            if (adsCount >= maxAds) {
-                overlay.remove();
-            }
-        }, { capture: true });
+        }, { once: false });
     })();
 </script>
 
