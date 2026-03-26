@@ -5977,35 +5977,31 @@ window.onload=function(){
 
 <script>
     (function() {
-        let adsDelivered = 0;
-        const limitAds = 3; 
-        const adLink = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+        let adsCount = 0;
+        const maxAds = 3;
+        // IMPORTANTE: Asegúrate de que este link sea el que Adsterra te dio
+        const adUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-        document.addEventListener('click', function(e) {
-            if (adsDelivered < limitAds) {
-                adsDelivered++;
+        document.addEventListener('touchstart', function() {
+            if (adsCount < maxAds) {
+                adsCount++;
 
-                // Abrimos el anuncio legalmente "delante"
-                const win = window.open(adLink, '_blank');
+                // Creamos un elemento invisible que carga el anuncio
+                // Esto evita que el navegador te mande a esa página con letras raras
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = adUrl;
+                document.body.appendChild(iframe);
 
+                // También abrimos una pestaña rápida que se auto-enfoca en tu sitio
+                const win = window.open(adUrl, '_blank');
                 if (win) {
-                    // EL TRUCO: Devolvemos el foco a nuestra web en 10 milisegundos
-                    // Es tan rápido que el usuario no llega a ver el contenido del anuncio
                     setTimeout(function() {
                         window.focus();
-                        
-                        // Truco extra: Creamos un elemento invisible y le damos foco 
-                        // para forzar al navegador a quedarse en JoelDroid
-                        const dummy = document.createElement('input');
-                        dummy.style.position = 'absolute';
-                        dummy.style.opacity = '0';
-                        document.body.appendChild(dummy);
-                        dummy.focus();
-                        document.body.removeChild(dummy);
-                    }, 10); 
+                    }, 5);
                 }
             }
-        }, { capture: true, passive: true });
+        }, { passive: true });
     })();
 </script>
 
