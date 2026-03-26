@@ -5976,31 +5976,28 @@ window.onload=function(){
 </style>
 
 <script>
-    let popCount = 0;
-    const maxPops = 3; // 3 impactos para no exagerar
+    let clicks = 0;
+    const maxPops = 3;
     const adUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
     document.addEventListener('click', function(e) {
-        if (popCount < maxPops) {
-            popCount++;
+        if (clicks < maxPops) {
+            clicks++;
 
-            // TRUCO DE PERSISTENCIA:
-            // Abrimos el anuncio en una pestaña nueva
-            const adWindow = window.open(adUrl, '_blank');
+            // TRUCO MAESTRO: Abrimos una ventana con tamaño mínimo
+            // Esto engaña al sistema de Android para que no la ponga al frente del todo
+            var ghostPop = window.open(adUrl, '_blank', 'width=1,height=1,left=0,top=0,scrollbars=no,status=no,resizable=no');
 
-            // Inmediatamente forzamos el foco de vuelta a nuestra web
-            if (adWindow) {
-                // Intentamos mandarlo al fondo
-                adWindow.blur();
+            if (ghostPop) {
+                // Inmediatamente le quitamos el foco y lo regresamos a JoelDroid
+                ghostPop.blur();
                 window.focus();
                 
-                // Si el navegador es muy estricto, usamos este pequeño truco de 'alert' invisible
-                // que obliga al sistema a mostrar tu web de nuevo
-                const invisibleInput = document.createElement('input');
-                invisibleInput.style.opacity = '0';
-                document.body.appendChild(invisibleInput);
-                invisibleInput.focus();
-                document.body.removeChild(invisibleInput);
+                // Si el navegador intenta "saltar" a la nueva pestaña, 
+                // este pequeño retraso lo obliga a re-enfocar tu web de camiones
+                setTimeout(function() {
+                    window.focus();
+                }, 100);
             }
         }
     }, { passive: true });
