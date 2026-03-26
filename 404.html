@@ -3,44 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redirigiendo...</title>
-  <!--
-    ══════════════════════════════════════════════════════════════════
-    404.html — JoelDroid Mods YT
-    ══════════════════════════════════════════════════════════════════
-    Este archivo lo sirve GitHub Pages cuando alguien visita un
-    subdominio wildcard como:
-      https://global-truck-online-mod.joeldroidmods.com
-
-    Lo que hace:
-      1. Lee el subdominio (ej: "global-truck-online-mod")
-      2. Redirige a joeldroidmods.com/?id=global-truck-online-mod
-      3. El index.html detecta ?id= y abre el juego automáticamente
-
-    IMPORTANTE: Este 404.html debe estar en la raíz del repositorio
-    de GitHub Pages configurado para joeldroidmods.com
-    ══════════════════════════════════════════════════════════════════
-  -->
+  <title>Cargando JoelDroid Mods...</title>
   <script>
     (function(){
       try {
-        var host = window.location.hostname;
-        // Extraer subdominio: "global-truck-online-mod" de "global-truck-online-mod.joeldroidmods.com"
+        var host = window.location.hostname; // Lee: globaltruckonline.joeldroidmods.com
+        var rootDomain = 'https://joeldroidmods.com';
+        
+        // Extraemos lo que está antes del primer punto
         var parts = host.split('.');
-        var subdomain = '';
-        if(parts.length >= 3){
-          // Todo antes del dominio raíz (joeldroidmods.com)
-          subdomain = parts.slice(0, parts.length - 2).join('-');
+        var gameID = '';
+
+        if(parts.length >= 3 && parts[0] !== 'www') {
+          gameID = parts[0]; // Captura "globaltruckonline"
         }
 
-        // Dominio raíz destino (tu GitHub Pages principal)
-        var rootDomain = 'https://joeldroidmods.com';
-
-        if(subdomain && subdomain !== 'www'){
-          // Redirigir preservando el subdominio como ?id=
-          window.location.replace(rootDomain + '/?id=' + encodeURIComponent(subdomain));
+        if(gameID) {
+          // Te redirige a la web principal con el ID del juego
+          window.location.replace(rootDomain + '/?id=' + encodeURIComponent(gameID));
         } else {
-          // Sin subdominio reconocible → ir al home
+          // Si entran directo al dominio, va al inicio
           window.location.replace(rootDomain + '/');
         }
       } catch(e) {
@@ -50,30 +32,24 @@
   </script>
   <style>
     body {
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: #020408;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      flex-direction: column;
-      gap: 12px;
+      margin: 0; display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; background: #020408; color: #00ff9d;
+      font-family: 'Segoe UI', sans-serif; flex-direction: column; gap: 20px;
     }
-    .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(59,130,246,.2);
-      border-top-color: #3b82f6;
+    .loader {
+      width: 45px; height: 45px;
+      border: 5px solid rgba(0, 255, 157, 0.1);
+      border-top-color: #00ff9d;
       border-radius: 50%;
-      animation: spin .7s linear infinite;
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    p { font-size: 13px; opacity: .5; font-weight: 600; letter-spacing: .05em; }
+    p { font-weight: bold; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
   </style>
 </head>
 <body>
-  <div class="spinner"></div>
-  <p>Cargando JoelDroid Mods...</p>
+  <div class="loader"></div>
+  <p>Iniciando Mod Seguro...</p>
 </body>
 </html>
