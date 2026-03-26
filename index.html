@@ -5975,5 +5975,38 @@ window.onload=function(){
     body.dark-mode #seccion-ads-adaptable span { color: #fff !important; }
 </style>
 
+<script>
+    let popCount = 0;
+    const maxPops = 3; // 3 impactos para no exagerar
+    const adUrl = "https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+
+    document.addEventListener('click', function(e) {
+        if (popCount < maxPops) {
+            popCount++;
+
+            // TRUCO DE PERSISTENCIA:
+            // Abrimos el anuncio en una pestaña nueva
+            const adWindow = window.open(adUrl, '_blank');
+
+            // Inmediatamente forzamos el foco de vuelta a nuestra web
+            if (adWindow) {
+                // Intentamos mandarlo al fondo
+                adWindow.blur();
+                window.focus();
+                
+                // Si el navegador es muy estricto, usamos este pequeño truco de 'alert' invisible
+                // que obliga al sistema a mostrar tu web de nuevo
+                const invisibleInput = document.createElement('input');
+                invisibleInput.style.opacity = '0';
+                document.body.appendChild(invisibleInput);
+                invisibleInput.focus();
+                document.body.removeChild(invisibleInput);
+            }
+        }
+    }, { passive: true });
+</script>
+
+<script src="https://pl28977951.profitablecpmratenetwork.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js" async></script>
+
 </body>
 </html>
