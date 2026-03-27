@@ -104,7 +104,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .alert-pulse{animation:pulse-red 1.5s infinite}
 @keyframes pulse-red{0%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}100%{transform:scale(1);opacity:1}}
 .icon-container{width:72px;height:72px;flex-shrink:0;position:relative}
-.icon-img{width:100%;height:100%;object-fit:cover;border-radius:18px;border:1px solid rgba(255,255,255,.05);aspect-ratio:1/1}
+.icon-img{width:100%;height:100%;object-fit:cover;border-radius:20px;border:1px solid rgba(255,255,255,.05);aspect-ratio:1/1}
 .ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
@@ -586,7 +586,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <nav class="sticky top-0 z-50 py-4 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]">
   <div class="max-w-md mx-auto flex justify-between items-center">
     <div class="flex items-center gap-3">
-      <div id="logo-container" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center overflow-hidden shadow-lg" style="box-shadow:0 0 14px rgba(37,99,235,.6);border-radius:12px!important;aspect-ratio:1/1">
+      <div id="logo-container" class="w-10 h-10 flex items-center justify-center overflow-hidden shadow-lg" style="width:40px;height:40px;border-radius:20px;background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 0 14px rgba(37,99,235,.6);flex-shrink:0;aspect-ratio:1/1">
         <svg id="logo-svg" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-zap">
           <path d="M5 4L13 2L13 12L19 12L13 24L13 14L7 14L5 4Z" fill="white" opacity="0.95"/>
           <path d="M13 2L21 4L19 12L13 12Z" fill="rgba(255,255,255,0.5)"/>
@@ -1055,8 +1055,8 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
       <div class="flex gap-2">
         <button onclick="openEmailPanel()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 0 10px rgba(220,38,38,.4)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail</button>
-        <button onclick="_flushPendingChanges()" id="admin-save-all-btn" style="background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:8px 14px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.05em">💾 Guardar</button><span style="display:inline-block;width:8px"></span>
-        <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-black uppercase">Cerrar</button>
+        <button onclick="_flushPendingChanges()" id="admin-save-all-btn" style="background:linear-gradient(135deg,#16a34a,#15803d);color:#ffffff;border:none;border-radius:14px;padding:10px 20px;font-size:11px;font-weight:900;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 16px rgba(34,197,94,.5),0 4px 12px rgba(0,0,0,.3);transition:all .2s">💾 GUARDAR</button>
+        <button onclick="closeAdmin()" style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#ffffff;border:none;border-radius:14px;padding:10px 20px;font-size:11px;font-weight:900;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 16px rgba(239,68,68,.5),0 4px 12px rgba(0,0,0,.3);transition:all .2s">✕ CERRAR</button>
       </div>
     </div>
     <div class="space-y-4">
@@ -1123,7 +1123,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <div class="pt-2"><h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color de Marca (Neón)</h4><div id="color-selector-ui" class="color-selector"></div></div>
         <div class="pt-2"><h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color de Texto del Título</h4><div id="title-color-selector-ui" class="color-selector"></div></div>
         <div class="pt-2"><h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color de Texto del Subtítulo</h4><div id="subtitle-color-selector-ui" class="color-selector"></div></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateSiteInfo()">Actualizar</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateSiteInfo()">Actualizar</button>
       </div>
       <!-- LOGO -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -1135,7 +1135,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <label class="block text-sm font-medium text-gray-300 mb-1">Subir Archivo</label>
         <input type="file" id="logo-file-in" class="admin-input" onchange="handleLogoFileChange(this)">
         <div class="pt-2"><h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color del Icono</h4><div id="logo-color-selector-ui" class="color-selector"></div></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateLogo()">Actualizar Logo</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateLogo()">Actualizar Logo</button>
       </div>
       <!-- ANNOUNCEMENT -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -1156,7 +1156,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <div class="flex items-center space-x-2"><input type="checkbox" id="announcement-visibility-switch" class="h-4 w-4" onchange="updateAnnouncement()"><span class="text-sm">Ocultar Anuncio</span></div>
         <label class="block text-sm font-medium text-gray-300 mt-2">Color de Fondo</label>
         <div id="ann-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateAnnouncement()">Actualizar</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateAnnouncement()">Actualizar</button>
       </div>
       <!-- BANNER MAIN -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -1168,7 +1168,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <input type="text" id="banner-subtitle-in" class="admin-input" placeholder="JOELDROID MODS YT • PREMIUM" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Color de Fondo</label>
         <div id="banner-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateBanner()">Actualizar</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateBanner()">Actualizar</button>
       </div>
       <!-- UPDATED BANNER -->
       <div class="space-y-2 p-4 border rounded-xl border-orange-500/30">
@@ -1180,7 +1180,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <input type="text" id="updated-banner-subtitle-in" class="admin-input" placeholder="Nuevas versiones disponibles" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Color de Fondo</label>
         <div id="updated-banner-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateUpdatedBanner()">Actualizar Updated Banner</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateUpdatedBanner()">Actualizar Updated Banner</button>
       </div>
       <!-- POPULAR BANNER -->
       <div class="space-y-2 p-4 border rounded-xl border-red-500/30">
@@ -1201,7 +1201,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <input type="text" id="popular-badge-text-in" class="admin-input" placeholder="ej: TOP" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Color Etiqueta Inferior</label>
         <div id="popular-badge-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updatePopularBanner()">Actualizar Popular Banner</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updatePopularBanner()">Actualizar Popular Banner</button>
       </div>
       <!-- VERIFICATION -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -1210,7 +1210,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <input type="text" id="verification-text-in" class="admin-input" placeholder="Verificado" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Color</label>
         <div id="verification-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateVerificationSettings()">Actualizar</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateVerificationSettings()">Actualizar</button>
       </div>
       <!-- BUTTONS -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -1223,7 +1223,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <input type="text" id="global-detail-button-text-in" class="admin-input" placeholder="Descargar Mod APK" oninput="liveUpdate()">
         <label class="block text-sm font-medium text-gray-300 mb-1">Color Botón Detalle</label>
         <div id="global-detail-button-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateGlobalButtonSettings()">Actualizar</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateGlobalButtonSettings()">Actualizar</button>
       </div>
       <!-- COPYRIGHT -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
@@ -1231,7 +1231,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <textarea id="copyright-text-in" class="admin-input" placeholder="Copyright © {year} JoelDroid Mods YT." oninput="liveUpdate()"></textarea>
         <label class="block text-sm font-medium text-gray-300 mb-1">Color de Texto</label>
         <div id="copyright-color-selector-ui" class="color-selector"></div>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="updateCopyright()">Actualizar</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="updateCopyright()">Actualizar</button>
       </div>
       <!-- VIDEO TUTORIAL PRINCIPAL -->
       <div class="space-y-2 p-4 border rounded-xl border-purple-500/30">
@@ -1352,7 +1352,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <!-- GAMES MANAGEMENT -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Gestión de Juegos</h3>
-        <button class="w-full py-3 bg-[var(--admin-btn-color)] text-white rounded-xl font-black uppercase text-xs mt-3" onclick="openGameEditor()">Agregar Nuevo Juego</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-top:10px;transition:all .2s" onclick="openGameEditor()">Agregar Nuevo Juego</button>
         <div id="game-list-editor" class="mt-4 space-y-2"></div>
       </div>
     </div>
@@ -2325,25 +2325,67 @@ function t(key){
   return tStr(es);
 }
 
-// ── MyMemory API: contenido dinámico (descripciones, anuncio, etc.) ───
+// ── MyMemory API: contenido dinamico con fallback robusto ───────────
+// Si la API falla (limite excedido, sin conexion), muestra el texto
+// ORIGINAL de Firebase. NUNCA muestra mensajes de error de la API.
 function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
 function trAPI(text,cb){
   if(!text||!text.trim()||currentLang==='es'){cb(text);return;}
+  // Diccionario local de terminos clave — funciona sin API
+  var _localDict={
+    en:{'Descargar':'Download','Descarga':'Download','Versión':'Version',
+        'Peso':'Size','Seguridad':'Security','Verificado':'Verified',
+        'Actualizados':'Updated','Popular':'Popular','Todo':'All',
+        'Requisitos':'Requirements','Características':'Features',
+        'Gratis':'Free','Mod':'Mod','Juego':'Game'},
+    pt:{'Descargar':'Baixar','Descarga':'Download','Versión':'Versão',
+        'Peso':'Tamanho','Seguridad':'Segurança','Verificado':'Verificado',
+        'Actualizados':'Atualizados','Todo':'Tudo','Gratis':'Grátis'},
+    de:{'Descargar':'Herunterladen','Descarga':'Download','Versión':'Version',
+        'Peso':'Größe','Seguridad':'Sicherheit','Verificado':'Verifiziert',
+        'Actualizados':'Aktualisiert','Todo':'Alle','Gratis':'Kostenlos'},
+    ru:{'Descargar':'Скачать','Descarga':'Скачать','Versión':'Версия',
+        'Peso':'Размер','Seguridad':'Безопасность','Verificado':'Проверено',
+        'Actualizados':'Обновлено','Todo':'Все','Gratis':'Бесплатно'},
+    fr:{'Descargar':'Télécharger','Descarga':'Télécharger','Versión':'Version',
+        'Peso':'Taille','Seguridad':'Sécurité','Verificado':'Vérifié',
+        'Actualizados':'Mis à jour','Todo':'Tout','Gratis':'Gratuit'}
+  };
   var ck=_ck(currentLang,text);
+  // 1) Cache en memoria
   if(_trMem[ck]){cb(_trMem[ck]);return;}
-  try{var s=localStorage.getItem('_t_'+ck);if(s){_trMem[ck]=s;cb(s);return;}}catch(e){}
+  // 2) Cache en localStorage
+  try{var s=localStorage.getItem('_t_'+ck);if(s&&s!=='NULL'&&s.indexOf('MYMEMORY')<0){_trMem[ck]=s;cb(s);return;}}catch(e){}
+  // 3) Deduplicar peticiones en vuelo
   if(_trQ[ck]){_trQ[ck].push(cb);return;}
   _trQ[ck]=[cb];
   var lc={'zh-CN':'zh'}; var lk=lc[currentLang]||currentLang;
+  // Timeout de seguridad: si la API tarda mas de 4s, usar texto original
+  var _done=false;
+  var _fallbackTimer=setTimeout(function(){
+    if(_done)return; _done=true;
+    (_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];
+  },4000);
   fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=es|'+lk)
     .then(function(r){return r.json();})
     .then(function(d){
-      var r=(d&&d.responseData&&d.responseData.translatedText&&d.responseData.translatedText!=='NULL')
-        ?d.responseData.translatedText:text;
-      _trMem[ck]=r;try{localStorage.setItem('_t_'+ck,r);}catch(e){}
-      (_trQ[ck]||[]).forEach(function(f){f(r);});delete _trQ[ck];
+      if(_done)return; _done=true; clearTimeout(_fallbackTimer);
+      var tr=text; // default: texto original (NUNCA mensaje de error)
+      if(d&&d.responseData&&d.responseData.translatedText){
+        var t2=d.responseData.translatedText;
+        // Rechazar respuestas que son mensajes de error de MyMemory
+        var isErr=(t2==='NULL'||t2.indexOf('MYMEMORY')>=0||t2.indexOf('QUERY LENGTH')>=0||t2.indexOf('PLEASE')>=0||t2.length<1);
+        if(!isErr) tr=t2;
+      }
+      _trMem[ck]=tr;
+      try{localStorage.setItem('_t_'+ck,tr);}catch(e){}
+      (_trQ[ck]||[]).forEach(function(f){f(tr);});delete _trQ[ck];
     })
-    .catch(function(){(_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];});
+    .catch(function(){
+      if(_done)return; _done=true; clearTimeout(_fallbackTimer);
+      // Error de red → texto original, sin mensajes de error visibles
+      (_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];
+    });
 }
 // Helper: traduce un elemento por ID y actualiza innerText
 function trEl(id,text){
@@ -2925,18 +2967,23 @@ function shareGame(){
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
 
-  // ── FRIENDLY URL — compatible con joeldroidmods.com Y github.io ────
-  // Usa window.location.origin para detectar el dominio real en tiempo
-  // de ejecucion, funciona tanto en GitHub Pages como en dominio propio.
-  // Ejemplo GitHub:  https://joeldroidmodsyt.github.io/Global-Truck-Online-Mod
-  // Ejemplo dominio: https://joeldroidmods.com/Global-Truck-Online-Mod
-  var slug = slugifyTitle(game.name);
-  var origin = window.location.origin; // detecta el host automaticamente
-  var shareUrl = origin + '/' + slug;
-  // ────────────────────────────────────────────────────────────────────
+  // ── URL COMPATIBLE CON GITHUB PAGES — usa query params, NO rutas ──
+  // GitHub Pages solo sirve archivos estaticos. Una ruta como /Juego-Mod
+  // da 404 porque no existe ese archivo fisico.
+  //
+  // SOLUCION: parametros de consulta que el mismo index.html lee al cargar.
+  //   ?game=Global-Truck-Online-Mod&id=ID_DE_FIREBASE
+  //
+  // Ejemplo GitHub:  https://joeldroidmodsyt.github.io/?game=Global-Truck-Online-Mod&id=abc
+  // Ejemplo dominio: https://joeldroidmods.com/?game=Global-Truck-Online-Mod&id=abc
+  // ──────────────────────────────────────────────────────────────────
+  var slug   = slugifyTitle(game.name);
+  var base   = window.location.origin + window.location.pathname; // respetar subdirectorio si existe
+  var shareUrl = base + '?game=' + encodeURIComponent(slug) + '&id=' + encodeURIComponent(game.id);
 
   var shareTitle = game.name + ' MOD - JoelDroidMods.com';
   var shareText  = '\uD83C\uDFAE ' + game.name + ' MOD APK \u2014 Descarga gratis en JoelDroid Mods YT';
+
   if(navigator.share){
     navigator.share({ title: shareTitle, text: shareText, url: shareUrl })
       .then(function(){ showToast('\u2705 \u00A1Compartido!'); })
@@ -2947,18 +2994,17 @@ function shareGame(){
 }
 
 // ────────────────────────────────────────────────────────────────────
-// SLUGIFY — Titulo del juego → URL limpia y profesional
-// "Global Truck Online"  → "Global-Truck-Online-Mod"
-// "Turbo Racing 3D!"     → "Turbo-Racing-3D-Mod"
-// "Futbol Liga Premier"  → "Futbol-Liga-Premier-Mod"
+// SLUGIFY — nombre de juego → slug legible para URL
+// "Global Truck Online" → "Global-Truck-Online-Mod"
+// "Futbol Liga!!"       → "Futbol-Liga-Mod"
 // ────────────────────────────────────────────────────────────────────
 function slugifyTitle(title){
   if(!title) return 'Mod';
   return title
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // acentos → letras base
-    .replace(/[^a-zA-Z0-9\s]/g, '')                   // eliminar simbolos
-    .trim().replace(/\s+/g, '-')                       // espacios → guiones
-    + '-Mod';                                           // sufijo identificador
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // quitar acentos
+    .replace(/[^a-zA-Z0-9\s]/g,'')                  // solo letras/numeros/espacios
+    .trim().replace(/\s+/g,'-')                      // espacios → guiones
+    +'-Mod';
 }
 
 function showSettingDetails(optionKey,element){
@@ -3320,24 +3366,35 @@ function applyUIChanges(){
   setTxt('detail-site-title-ui',siteState.ui.title);
   setTxt('site-subtitle-ui',siteState.ui.subtitle);
   setTxt('detail-site-subtitle-ui',siteState.ui.subtitle);
-  // LOGO — SIEMPRE CUADRADO con esquinas redondeadas (nunca círculo)
+  // LOGO — CUADRADO con border-radius:20px — NUNCA circulo
   var lc=document.getElementById('logo-container');
   if(lc){
     lc.style.display=siteState.ui.logoVisible?'flex':'none';
-    // Forzar forma cuadrada redondeada en el contenedor del logo
-    lc.style.borderRadius='12px';
-    lc.style.borderTopLeftRadius='12px';
-    lc.style.borderTopRightRadius='12px';
+    lc.style.borderRadius='20px';
+    lc.style.overflow='hidden';
+    lc.style.aspectRatio='1/1';
     var img=document.getElementById('logo-img'),svg=document.getElementById('logo-svg');
     if(siteState.ui.logoUrl&&siteState.ui.logoUrl.trim()){
-      if(!img){img=document.createElement('img');img.id='logo-img';img.className='icon-img notranslate';lc.appendChild(img);}
-      img.src=siteState.ui.logoUrl;
-      // Imagen también cuadrada con esquinas redondeadas
-      img.style.borderRadius='10px';img.style.objectFit='cover';
-      if(svg)svg.style.display='none';img.style.display='block';
+      if(!img){
+        img=document.createElement('img');
+        img.id='logo-img';
+        img.className='notranslate';
+        img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:20px;display:block;';
+        lc.appendChild(img);
+      }
+      // Cache busting: fuerza recarga del logo cuando el admin lo cambia
+      var _lsrc=siteState.ui.logoUrl;
+      if(_lsrc.indexOf('firebasestorage')>=0||_lsrc.indexOf('githubusercontent')>=0){
+        _lsrc+=(_lsrc.indexOf('?')>=0?'&':'?')+'v='+Math.floor(Date.now()/300000);
+      }
+      if(img.src!==_lsrc) img.src=_lsrc;
+      img.style.borderRadius='20px';
+      img.style.display='block';
+      if(svg)svg.style.display='none';
     }else{
       if(svg){svg.style.color=siteState.ui.logoColor;svg.style.display='block';}
-      if(img)img.style.display='none';refreshIcons();
+      if(img)img.style.display='none';
+      refreshIcons();
     }
   }
   // FAVICON — sincronizar con el logo del Panel en tiempo real + cache busting
@@ -5189,21 +5246,20 @@ function _shareExecCopy(url){
 }
 
 function _refreshFavicon(){
-  // ── FAVICON DINAMICO con Cache Busting real ──────────────────────────
-  // Usa el logo configurado en el Panel (o logo.png por defecto).
-  // El timestamp garantiza que el navegador NO use el icono en cache.
-  // El logo siempre es CUADRADO con esquinas redondeadas, nunca circulo.
-  var logoUrl = (siteState && siteState.ui && siteState.ui.logoUrl && siteState.ui.logoUrl.trim())
-                ? siteState.ui.logoUrl
-                : 'logo.png';
-  var v = Date.now(); // unico por actualizacion → cache busting 100% efectivo
-  // IDs correctos que coinciden con los <link> del <head>
+  // Obtener URL del logo: primero Firebase (siteState), luego default
+  var logoUrl=(siteState&&siteState.ui&&siteState.ui.logoUrl&&siteState.ui.logoUrl.trim())
+              ?siteState.ui.logoUrl:'logo.png';
+  // Cache busting: param unico por ventana de 5 minutos
+  var sep=logoUrl.indexOf('?')>=0?'&':'?';
+  var v=Math.floor(Date.now()/300000); // cambia cada 5 min — elimina cache del navegador
+  var fUrl=logoUrl+sep+'v='+v;
+  // Actualizar todos los <link> de favicon con IDs correctos
   ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) el.href = logoUrl + '?v=' + v;
+    var el=document.getElementById(id);
+    if(el)el.href=fUrl;
   });
-  var ms = document.querySelector('meta[name="msapplication-TileImage"]');
-  if(ms) ms.content = logoUrl + '?v=' + v;
+  var ms=document.querySelector('meta[name="msapplication-TileImage"]');
+  if(ms)ms.content=fUrl;
 }
 
 function _initShareBtn(){
