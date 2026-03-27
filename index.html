@@ -6223,123 +6223,144 @@ window.onload=function(){
     /* Esto asegura que el texto se lea en modo oscuro si tu body cambia de clase */
     body.dark-mode #seccion-ads-adaptable span { color: #fff !important; }
 </style>
-
-<style>
+ 
+ <style>
     #jd-play-container {
         position: fixed;
-        bottom: -350px; /* Oculto más abajo para asegurar que no se vea antes de tiempo */
+        bottom: -400px;
         left: 0;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         z-index: 2147483647;
-        transition: bottom 0.3s ease-out; /* Animación más rápida */
-        padding-bottom: 12px;
+        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        padding-bottom: 10px;
     }
 
-    /* Pestaña de cierre pequeña y gris (Idéntica a PlayMods) */
+    #jd-play-container.visible { bottom: 10px; }
+
+    /* Pestaña de cierre idéntica a tu captura */
     .jd-tab-mini {
         background: #e2e8f0; 
-        width: 38px;
-        height: 22px;
-        border-radius: 8px 8px 0 0;
+        width: 42px;
+        height: 24px;
+        border-radius: 10px 10px 0 0;
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
         margin-left: auto;
-        margin-right: 8%;
+        margin-right: 6%;
         border: 1px solid #cbd5e1;
         border-bottom: none;
     }
 
-    .jd-tab-mini span { color: #475569; font-family: sans-serif; font-size: 14px; font-weight: bold; }
-
-    /* Banner con bordes muy redondeados */
+    /* Contenedor principal estilo Nativo */
     .jd-banner-body {
-        width: 93%;
-        max-width: 450px;
+        width: 94%;
+        max-width: 480px;
         background: #ffffff;
-        border-radius: 20px; 
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        border-radius: 15px; /* Bordes exactos como PlayMods */
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         border: 1px solid #f1f5f9;
+        height: 90px; /* Altura perfecta para móvil */
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* El Iframe se ajusta para mostrar el icono a la izquierda y texto a la derecha */
+    .jd-ad-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
     }
 
     #jd-iframe-play {
-        width: 100%;
-        height: 100px;
+        width: 160%; /* Lo hacemos más ancho para capturar el texto */
+        height: 160%; /* Lo hacemos más alto para capturar el icono */
         border: none;
-        display: block;
-        background: #fdfdfd; /* Fondo claro para que no se vea negro mientras carga */
+        transform: scale(0.65); /* Escalado para que el icono sea el protagonista */
+        transform-origin: top left;
+        position: absolute;
+        top: -12px;
+        left: 5px;
+    }
+
+    /* Capa invisible para que cualquier toque sea un clic al anuncio */
+    .jd-click-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        cursor: pointer;
     }
 </style>
 
 <div id="jd-play-container">
     <div class="jd-tab-mini" onclick="cerrarJDPop()">
-        <span>×</span>
+        <span style="color: #64748b; font-size: 18px; font-weight: bold;">×</span>
     </div>
     <div class="jd-banner-body">
-        <iframe id="jd-iframe-play" src=""></iframe>
+        <div class="jd-click-overlay" onclick="abrirAnuncio()"></div>
+        <div class="jd-ad-content">
+            <iframe id="jd-iframe-play" src=""></iframe>
+        </div>
     </div>
 </div>
 
 <script>
     (function() {
-        let adsShown = 0;
-        const maxAds = 2;
-        const ads = [
+        let currentAdIndex = 0;
+        const adsList = [
             "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d",
             "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"
         ];
-
+        
         const wrap = document.getElementById('jd-play-container');
         const frame = document.getElementById('jd-iframe-play');
+        let rotationTimer;
 
-        // FUNCIÓN 1: Pre-carga el anuncio en el fondo para que sea instantáneo
-        function preCargarAd() {
-            if (adsShown < maxAds) {
-                frame.src = ads[adsShown];
-            }
+        function actualizarAnuncio() {
+            frame.src = adsList[currentAdIndex];
+            currentAdIndex = (currentAdIndex + 1) % adsList.length;
         }
 
-        // FUNCIÓN 2: Muestra el anuncio que ya estaba cargado
-        function mostrarAdYaCargado() {
-            if (adsShown < maxAds && wrap.style.bottom !== "12px") {
-                wrap.style.bottom = "12px";
-                adsShown++;
-                
-                // Si falta uno por mostrar, lo pre-cargamos cuando el usuario cierre el actual
-            }
+        function mostrarPopUp() {
+            if (wrap.classList.contains('visible')) return;
+            actualizarAnuncio();
+            wrap.classList.add('visible');
+
+            // ROTACIÓN CADA 30 SEGUNDOS (Imprescindible para monetizar más)
+            rotationTimer = setInterval(actualizarAnuncio, 30000);
         }
+
+        window.abrirAnuncio = function() {
+            window.open(adsList[currentAdIndex === 0 ? adsList.length - 1 : currentAdIndex - 1], '_blank');
+        };
 
         window.cerrarJDPop = function() {
-            wrap.style.bottom = "-350px";
-            // Al cerrar, pre-cargamos el segundo anuncio de inmediato
-            if (adsShown < maxAds) {
-                setTimeout(preCargarAd, 500);
-            }
+            wrap.classList.remove('visible');
+            clearInterval(rotationTimer);
         };
 
-        // INICIO: Pre-cargar el primer anuncio apenas abra la web (sin mostrarlo)
-        window.addEventListener('load', () => {
-            setTimeout(preCargarAd, 1000); 
-        });
-
-        // DETECTOR AGRESIVO: Muestra el anuncio al primer toque
-        const trigger = (e) => {
-            if (!e.target.closest('#jd-play-container')) {
-                mostrarAdYaCargado();
-            }
+        // Activación al primer toque o scroll
+        const launch = () => {
+            setTimeout(mostrarPopUp, 1200);
+            document.removeEventListener('click', launch);
+            document.removeEventListener('touchstart', launch);
         };
 
-        document.addEventListener('touchstart', trigger, {passive: true});
-        document.addEventListener('mousedown', trigger, {passive: true});
-        document.addEventListener('scroll', trigger, {once: true});
-
+        document.addEventListener('click', launch);
+        document.addEventListener('touchstart', launch);
+        window.addEventListener('scroll', launch, {once: true});
     })();
-</script>    
+</script>
 
 </body>
 </html>
