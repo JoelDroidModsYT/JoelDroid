@@ -8,12 +8,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 
-<!-- ══ FAVICON — se sincroniza automáticamente con el logo del Panel ══ -->
-<link id="favicon-ico"  rel="icon"              type="image/x-icon"  href="favicon.ico">
-<link id="favicon-png"  rel="icon"              type="image/png"     href="logo.png">
-<link id="favicon-192"  rel="icon"              type="image/png"     sizes="192x192" href="logo.png">
-<link id="favicon-180"  rel="apple-touch-icon"                       href="logo.png">
-<meta name="msapplication-TileImage"            content="logo.png">
+<!-- ══ FAVICON OFICIAL JOELDROID — Cache Busting v2 ══════════════════ -->
+<!-- Usa logo.png como favicon cuadrado con esquinas redondeadas.      -->
+<!-- El parámetro ?v= fuerza recarga en todos los navegadores.         -->
+<link id="favicon-main" rel="icon"            type="image/png"     sizes="32x32"   href="logo.png?v=2">
+<link id="favicon-192"  rel="icon"            type="image/png"     sizes="192x192" href="logo.png?v=2">
+<link id="favicon-512"  rel="icon"            type="image/png"     sizes="512x512" href="logo.png?v=2">
+<link id="favicon-180"  rel="apple-touch-icon"                                     href="logo.png?v=2">
+<meta name="msapplication-TileImage"          content="logo.png?v=2">
+<meta name="msapplication-TileColor"          content="#020408">
+<meta name="theme-color"                      content="#007bff">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
@@ -87,8 +91,8 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .alert-pulse{animation:pulse-red 1.5s infinite}
 @keyframes pulse-red{0%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}100%{transform:scale(1);opacity:1}}
 .icon-container{width:72px;height:72px;flex-shrink:0;position:relative}
-.icon-img{width:100%;height:100%;object-fit:cover;border-radius:18px;border:1px solid rgba(255,255,255,.05)}
-.ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover}
+.icon-img{width:100%;height:100%;object-fit:cover;border-radius:18px;border:1px solid rgba(255,255,255,.05);aspect-ratio:1/1}
+.ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
 #site-banner{position:relative;background:linear-gradient(135deg,#0f172a,#06b6d4);box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);padding:1.8rem 1rem;border-radius:35px;overflow:hidden;text-align:center;display:flex;justify-content:center;align-items:center}
@@ -569,7 +573,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <nav class="sticky top-0 z-50 py-4 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]">
   <div class="max-w-md mx-auto flex justify-between items-center">
     <div class="flex items-center gap-3">
-      <div id="logo-container" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center overflow-hidden shadow-lg" style="box-shadow:0 0 14px rgba(37,99,235,.6)">
+      <div id="logo-container" class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center overflow-hidden shadow-lg" style="box-shadow:0 0 14px rgba(37,99,235,.6);border-radius:12px!important;aspect-ratio:1/1">
         <svg id="logo-svg" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-zap">
           <path d="M5 4L13 2L13 12L19 12L13 24L13 14L7 14L5 4Z" fill="white" opacity="0.95"/>
           <path d="M13 2L21 4L19 12L13 12Z" fill="rgba(255,255,255,0.5)"/>
@@ -2907,9 +2911,15 @@ function shareGame(){
   if(!currentDetailId) return;
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
-  // URL directa con ?id= — funciona en YouTube, Telegram y WhatsApp
-  var base = window.location.protocol + '//' + window.location.host + window.location.pathname;
-  var shareUrl = base + '?id=' + encodeURIComponent(game.id);
+
+  // ── FRIENDLY URL con slugify ─────────────────────────────────────────
+  // ❌ Antes: ?id=-OKjL2z8n9m1&title=Global%20Truck%20Online
+  // ✅ Ahora: /Global-Truck-Online-Mod
+  var slug = slugifyTitle(game.name);
+  var base = 'https://joeldroidmods.com';
+  var shareUrl = base + '/' + slug;
+  // ────────────────────────────────────────────────────────────────────
+
   var shareTitle = game.name + ' MOD - JoelDroidMods.com';
   var shareText  = '🎮 ' + game.name + ' MOD APK — Descarga gratis en JoelDroid Mods YT';
   if(navigator.share){
@@ -2921,6 +2931,24 @@ function shareGame(){
           .catch(function(){ _shareExecCopy(shareUrl); })
       : _shareExecCopy(shareUrl);
   }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// SLUGIFY — Convierte título de juego en URL limpia y profesional
+// "Global Truck Online" → "Global-Truck-Online-Mod"
+// "¡Descarga el Juego Gratis!" → "Descarga-el-Juego-Gratis-Mod"
+// ────────────────────────────────────────────────────────────────────
+function slugifyTitle(title){
+  if(!title) return 'Mod';
+  return title
+    // 1. Normalizar acentos/diéresis → letras base
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    // 2. Eliminar caracteres que no sean letras, números ni espacios
+    .replace(/[^a-zA-Z0-9\s]/g, '')
+    // 3. Convertir espacios (y múltiples espacios) en guiones
+    .trim().replace(/\s+/g, '-')
+    // 4. Añadir sufijo "-Mod" para identificar el enlace
+    + '-Mod';
 }
 
 function showSettingDetails(optionKey,element){
@@ -3274,25 +3302,6 @@ function changeBrandColor(color, _save){
   if(_save===true) saveSettings();
 }
 
-// ══════════════════════════════════════════════════════════════════
-// 🔖 FAVICON — Sincronización en tiempo real con el logo del Panel
-// ══════════════════════════════════════════════════════════════════
-function syncFavicon(logoUrl){
-  // Si no hay URL personalizada, mantener los favicons estáticos del <head>
-  if(!logoUrl||!logoUrl.trim()){return;}
-  // Actualizar todas las etiquetas <link> de favicon en tiempo real
-  var ids=['favicon-ico','favicon-png','favicon-192','favicon-180'];
-  ids.forEach(function(id){
-    var el=document.getElementById(id);
-    if(el){
-      // Forzar recarga añadiendo timestamp para evitar caché del navegador
-      el.href=logoUrl+'?v='+Date.now();
-    }
-  });
-  // Actualizar meta msapplication (Edge/IE)
-  var msTag=document.querySelector('meta[name="msapplication-TileImage"]');
-  if(msTag) msTag.setAttribute('content',logoUrl);
-}
 // ════════════════════════════════════════════════════════════════
 
 function applyUIChanges(){
@@ -3301,22 +3310,28 @@ function applyUIChanges(){
   setTxt('detail-site-title-ui',siteState.ui.title);
   setTxt('site-subtitle-ui',siteState.ui.subtitle);
   setTxt('detail-site-subtitle-ui',siteState.ui.subtitle);
-  // LOGO
+  // LOGO — SIEMPRE CUADRADO con esquinas redondeadas (nunca círculo)
   var lc=document.getElementById('logo-container');
   if(lc){
     lc.style.display=siteState.ui.logoVisible?'flex':'none';
+    // Forzar forma cuadrada redondeada en el contenedor del logo
+    lc.style.borderRadius='12px';
+    lc.style.borderTopLeftRadius='12px';
+    lc.style.borderTopRightRadius='12px';
     var img=document.getElementById('logo-img'),svg=document.getElementById('logo-svg');
     if(siteState.ui.logoUrl&&siteState.ui.logoUrl.trim()){
       if(!img){img=document.createElement('img');img.id='logo-img';img.className='icon-img notranslate';lc.appendChild(img);}
       img.src=siteState.ui.logoUrl;
+      // Imagen también cuadrada con esquinas redondeadas
+      img.style.borderRadius='10px';img.style.objectFit='cover';
       if(svg)svg.style.display='none';img.style.display='block';
     }else{
       if(svg){svg.style.color=siteState.ui.logoColor;svg.style.display='block';}
       if(img)img.style.display='none';refreshIcons();
     }
   }
-  // FAVICON — sincronizar con el logo del Panel en tiempo real
-  syncFavicon(siteState.ui.logoUrl);
+  // FAVICON — sincronizar con el logo del Panel en tiempo real + cache busting
+  _refreshFavicon();
   document.documentElement.style.setProperty('--title-text-color',siteState.ui.titleTextColor);
   document.documentElement.style.setProperty('--subtitle-text-color',siteState.ui.subtitleTextColor);
   changeBrandColor(siteState.ui.selectedColor, false); // render only, no save
@@ -5163,6 +5178,29 @@ function _shareExecCopy(url){
   }
 }
 
+function _refreshFavicon(){
+  // ── FAVICON DINÁMICO con Cache Busting ──────────────────────────────
+  // Detecta si el admin actualizó el logo en el Panel y fuerza recarga
+  // del favicon en TODOS los navegadores (sin que el usuario recargue).
+  // El logo siempre es CUADRADO con esquinas redondeadas (nunca círculo).
+  var logoUrl = (siteState && siteState.ui && siteState.ui.logoUrl) || 'logo.png';
+  var v = Date.now(); // cache buster único por actualización
+  var links = [
+    document.getElementById('favicon-main'),
+    document.getElementById('favicon-192'),
+    document.getElementById('favicon-512'),
+    document.getElementById('favicon-180')
+  ];
+  links.forEach(function(el){
+    if(el){
+      // Actualizar href con nuevo logo + cache buster
+      el.href = logoUrl + '?v=' + v;
+    }
+  });
+  var tile = document.querySelector('meta[name="msapplication-TileImage"]');
+  if(tile) tile.content = logoUrl + '?v=' + v;
+}
+
 function _initShareBtn(){
   // El botón ya está en el HTML; solo validar que exista
   var btn=document.getElementById('share-fab');
@@ -5330,6 +5368,15 @@ function _fbListenMods(){
       renderGames();
       updateBannerBasedOnFilter();
       if(document.getElementById('game-list-editor')) renderGameEditorList();
+      // ── SINCRONIZACIÓN DE TRADUCCIÓN ─────────────────────────────
+      // Cuando Firebase actualiza un juego, re-procesar las traducciones
+      // para que el nuevo texto aparezca en el idioma activo del visitante.
+      if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
+        // Limpiar cache de traducciones de las descripciones para forzar re-traducción
+        _trCache = {};
+        // Re-aplicar traducciones con el idioma actual
+        setTimeout(function(){ applyTranslations(currentLang); }, 200);
+      }
     }, function(err){
       console.error('[Firebase:mods]', err.code, err.message);
       if(err.code === 'unavailable' || err.code === 'failed-precondition'){
@@ -5353,6 +5400,15 @@ function _fbListenConfig(){
       siteState = _mergeState(cfg);
       siteState.gamesList = prevGames; // los juegos vienen de _fbListenMods
       _applyAllUI();
+      // ── SINCRONIZACIÓN DE TRADUCCIÓN ────────────────────────────
+      // Cuando el admin cambia texto de configuración (anuncios, banners, etc.)
+      // re-procesar traducciones para todos los idiomas activos.
+      if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
+        _trCache = {};
+        setTimeout(function(){ applyTranslations(currentLang); }, 300);
+      }
+      // ── FAVICON DINÁMICO: si el admin cambió el logo, actualizar favicon ─
+      _refreshFavicon();
     }, function(err){
       console.error('[Firebase:config] Error:', err.code, err.message);
       if(err.code === 'unavailable' || err.code === 'failed-precondition'){
