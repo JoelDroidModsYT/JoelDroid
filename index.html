@@ -8,16 +8,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 
-<!-- ══ FAVICON OFICIAL JOELDROID — Cache Busting v2 ══════════════════ -->
-<!-- Usa logo.png como favicon cuadrado con esquinas redondeadas.      -->
-<!-- El parámetro ?v= fuerza recarga en todos los navegadores.         -->
-<link id="favicon-main" rel="icon"            type="image/png"     sizes="32x32"   href="logo.png?v=2">
-<link id="favicon-192"  rel="icon"            type="image/png"     sizes="192x192" href="logo.png?v=2">
-<link id="favicon-512"  rel="icon"            type="image/png"     sizes="512x512" href="logo.png?v=2">
-<link id="favicon-180"  rel="apple-touch-icon"                                     href="logo.png?v=2">
-<meta name="msapplication-TileImage"          content="logo.png?v=2">
+<!-- ══ FAVICON OFICIAL JOELDROID — Cache Busting Agresivo ══════════ -->
+<!-- CUADRADO con esquinas redondeadas. NUNCA circulo.                 -->
+<link id="favicon"      rel="icon"            type="image/png"     href="logo.png?v=1.1">
+<link id="favicon-192"  rel="icon"            type="image/png"     sizes="192x192" href="logo.png?v=1.1">
+<link id="favicon-512"  rel="icon"            type="image/png"     sizes="512x512" href="logo.png?v=1.1">
+<link id="favicon-180"  rel="apple-touch-icon"                                     href="logo.png?v=1.1">
+<meta name="msapplication-TileImage"          content="logo.png?v=1.1">
 <meta name="msapplication-TileColor"          content="#020408">
 <meta name="theme-color"                      content="#007bff">
+<!-- Script inline: fuerza favicon ANTES del DOM completo -->
+<script>
+(function(){
+  var _fv='1.1.'+Math.floor(Date.now()/60000);
+  document.addEventListener('DOMContentLoaded',function(){
+    ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.href='logo.png?v='+_fv;
+    });
+    var ms=document.querySelector('meta[name="msapplication-TileImage"]');
+    if(ms)ms.content='logo.png?v='+_fv;
+  });
+})();
+</script>
 <!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
@@ -2912,43 +2925,40 @@ function shareGame(){
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
 
-  // ── FRIENDLY URL con slugify ─────────────────────────────────────────
-  // ❌ Antes: ?id=-OKjL2z8n9m1&title=Global%20Truck%20Online
-  // ✅ Ahora: /Global-Truck-Online-Mod
+  // ── FRIENDLY URL — compatible con joeldroidmods.com Y github.io ────
+  // Usa window.location.origin para detectar el dominio real en tiempo
+  // de ejecucion, funciona tanto en GitHub Pages como en dominio propio.
+  // Ejemplo GitHub:  https://joeldroidmodsyt.github.io/Global-Truck-Online-Mod
+  // Ejemplo dominio: https://joeldroidmods.com/Global-Truck-Online-Mod
   var slug = slugifyTitle(game.name);
-  var base = 'https://joeldroidmods.com';
-  var shareUrl = base + '/' + slug;
+  var origin = window.location.origin; // detecta el host automaticamente
+  var shareUrl = origin + '/' + slug;
   // ────────────────────────────────────────────────────────────────────
 
   var shareTitle = game.name + ' MOD - JoelDroidMods.com';
-  var shareText  = '🎮 ' + game.name + ' MOD APK — Descarga gratis en JoelDroid Mods YT';
+  var shareText  = '\uD83C\uDFAE ' + game.name + ' MOD APK \u2014 Descarga gratis en JoelDroid Mods YT';
   if(navigator.share){
-    navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(function(){});
+    navigator.share({ title: shareTitle, text: shareText, url: shareUrl })
+      .then(function(){ showToast('\u2705 \u00A1Compartido!'); })
+      .catch(function(e){ if(e.name!=='AbortError') _shareFallback(shareUrl); });
   } else {
-    navigator.clipboard
-      ? navigator.clipboard.writeText(shareUrl)
-          .then(function(){ showToast('🔗 Enlace copiado: ' + shareUrl); })
-          .catch(function(){ _shareExecCopy(shareUrl); })
-      : _shareExecCopy(shareUrl);
+    _shareFallback(shareUrl);
   }
 }
 
 // ────────────────────────────────────────────────────────────────────
-// SLUGIFY — Convierte título de juego en URL limpia y profesional
-// "Global Truck Online" → "Global-Truck-Online-Mod"
-// "¡Descarga el Juego Gratis!" → "Descarga-el-Juego-Gratis-Mod"
+// SLUGIFY — Titulo del juego → URL limpia y profesional
+// "Global Truck Online"  → "Global-Truck-Online-Mod"
+// "Turbo Racing 3D!"     → "Turbo-Racing-3D-Mod"
+// "Futbol Liga Premier"  → "Futbol-Liga-Premier-Mod"
 // ────────────────────────────────────────────────────────────────────
 function slugifyTitle(title){
   if(!title) return 'Mod';
   return title
-    // 1. Normalizar acentos/diéresis → letras base
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    // 2. Eliminar caracteres que no sean letras, números ni espacios
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    // 3. Convertir espacios (y múltiples espacios) en guiones
-    .trim().replace(/\s+/g, '-')
-    // 4. Añadir sufijo "-Mod" para identificar el enlace
-    + '-Mod';
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // acentos → letras base
+    .replace(/[^a-zA-Z0-9\s]/g, '')                   // eliminar simbolos
+    .trim().replace(/\s+/g, '-')                       // espacios → guiones
+    + '-Mod';                                           // sufijo identificador
 }
 
 function showSettingDetails(optionKey,element){
@@ -5179,26 +5189,21 @@ function _shareExecCopy(url){
 }
 
 function _refreshFavicon(){
-  // ── FAVICON DINÁMICO con Cache Busting ──────────────────────────────
-  // Detecta si el admin actualizó el logo en el Panel y fuerza recarga
-  // del favicon en TODOS los navegadores (sin que el usuario recargue).
-  // El logo siempre es CUADRADO con esquinas redondeadas (nunca círculo).
-  var logoUrl = (siteState && siteState.ui && siteState.ui.logoUrl) || 'logo.png';
-  var v = Date.now(); // cache buster único por actualización
-  var links = [
-    document.getElementById('favicon-main'),
-    document.getElementById('favicon-192'),
-    document.getElementById('favicon-512'),
-    document.getElementById('favicon-180')
-  ];
-  links.forEach(function(el){
-    if(el){
-      // Actualizar href con nuevo logo + cache buster
-      el.href = logoUrl + '?v=' + v;
-    }
+  // ── FAVICON DINAMICO con Cache Busting real ──────────────────────────
+  // Usa el logo configurado en el Panel (o logo.png por defecto).
+  // El timestamp garantiza que el navegador NO use el icono en cache.
+  // El logo siempre es CUADRADO con esquinas redondeadas, nunca circulo.
+  var logoUrl = (siteState && siteState.ui && siteState.ui.logoUrl && siteState.ui.logoUrl.trim())
+                ? siteState.ui.logoUrl
+                : 'logo.png';
+  var v = Date.now(); // unico por actualizacion → cache busting 100% efectivo
+  // IDs correctos que coinciden con los <link> del <head>
+  ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.href = logoUrl + '?v=' + v;
   });
-  var tile = document.querySelector('meta[name="msapplication-TileImage"]');
-  if(tile) tile.content = logoUrl + '?v=' + v;
+  var ms = document.querySelector('meta[name="msapplication-TileImage"]');
+  if(ms) ms.content = logoUrl + '?v=' + v;
 }
 
 function _initShareBtn(){
@@ -5368,14 +5373,24 @@ function _fbListenMods(){
       renderGames();
       updateBannerBasedOnFilter();
       if(document.getElementById('game-list-editor')) renderGameEditorList();
-      // ── SINCRONIZACIÓN DE TRADUCCIÓN ─────────────────────────────
-      // Cuando Firebase actualiza un juego, re-procesar las traducciones
-      // para que el nuevo texto aparezca en el idioma activo del visitante.
+      // ── TRADUCCION DINAMICA: cuando Firebase actualiza juegos,
+      // limpiar cache (_trMem) y re-traducir INMEDIATAMENTE los
+      // nuevos textos en el idioma activo del visitante.
       if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
-        // Limpiar cache de traducciones de las descripciones para forzar re-traducción
-        _trCache = {};
-        // Re-aplicar traducciones con el idioma actual
-        setTimeout(function(){ applyTranslations(currentLang); }, 200);
+        _trMem = {};  // limpiar cache con el nombre correcto de la variable
+        try{ localStorage.removeItem('_t_'+currentLang); }catch(e){}
+        setTimeout(function(){
+          applyTranslations(currentLang);
+          // Si hay un detalle abierto, re-traducir su descripcion
+          if(currentDetailId){
+            var descEl=document.getElementById('det-desc');
+            if(descEl && descEl.dataset.esOrig){
+              trAPI(descEl.dataset.esOrig, function(tr){
+                var e=document.getElementById('det-desc'); if(e) e.innerText=tr;
+              });
+            }
+          }
+        }, 150);
       }
     }, function(err){
       console.error('[Firebase:mods]', err.code, err.message);
@@ -5400,14 +5415,13 @@ function _fbListenConfig(){
       siteState = _mergeState(cfg);
       siteState.gamesList = prevGames; // los juegos vienen de _fbListenMods
       _applyAllUI();
-      // ── SINCRONIZACIÓN DE TRADUCCIÓN ────────────────────────────
-      // Cuando el admin cambia texto de configuración (anuncios, banners, etc.)
-      // re-procesar traducciones para todos los idiomas activos.
+      // ── TRADUCCION DINAMICA: cuando el admin cambia textos en el Panel
+      // (anuncios, banners, etc.), re-traducir en todos los idiomas activos.
       if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
-        _trCache = {};
-        setTimeout(function(){ applyTranslations(currentLang); }, 300);
+        _trMem = {};  // limpiar cache — nombre correcto de la variable
+        setTimeout(function(){ applyTranslations(currentLang); }, 250);
       }
-      // ── FAVICON DINÁMICO: si el admin cambió el logo, actualizar favicon ─
+      // ── FAVICON DINAMICO: si el admin cambio el logo, actualizar favicon ──
       _refreshFavicon();
     }, function(err){
       console.error('[Firebase:config] Error:', err.code, err.message);
