@@ -17,17 +17,24 @@
 <meta name="msapplication-TileImage"          content="logo.png?v=1.1">
 <meta name="msapplication-TileColor"          content="#020408">
 <meta name="theme-color"                      content="#007bff">
-<!-- Script inline: fuerza favicon ANTES del DOM completo -->
+<!-- Script inline: fuerza favicon con cache-busting agresivo ANTES del DOM -->
 <script>
 (function(){
-  var _fv='1.1.'+Math.floor(Date.now()/60000);
+  // Genera versión única por sesión — elimina el icono genérico del browser
+  var _fv = Date.now().toString(36);
+  // Aplicar inmediatamente a los link tags existentes
+  var links = document.querySelectorAll('link[id^="favicon"]');
+  links.forEach(function(el){
+    var base = el.href.split('?')[0];
+    el.href = base + '?jdv=' + _fv;
+  });
   document.addEventListener('DOMContentLoaded',function(){
     ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
       var el=document.getElementById(id);
-      if(el)el.href='logo.png?v='+_fv;
+      if(el){ var base=el.href.split('?')[0]; el.href=base+'?jdv='+_fv; }
     });
     var ms=document.querySelector('meta[name="msapplication-TileImage"]');
-    if(ms)ms.content='logo.png?v='+_fv;
+    if(ms){ var base=ms.content.split('?')[0]; ms.content=base+'?jdv='+_fv; }
   });
 })();
 </script>
@@ -1074,6 +1081,19 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     <div class="space-y-4">
 
       <!-- [panel contraseña antigua eliminado] -->
+
+      <!-- ═══ ESTADÍSTICAS EN TIEMPO REAL ═══════════════════════════ -->
+      <div class="space-y-2 p-4 border rounded-xl" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.04)">
+        <h3 class="font-bold uppercase flex items-center gap-2" style="color:#60a5fa">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Estadísticas en Tiempo Real
+        </h3>
+        <p style="font-size:9px;opacity:.5;line-height:1.5">Visitas al sitio y clicks por juego. Se actualiza automáticamente desde Firebase.</p>
+        <div id="stats-panel-content" style="margin-top:10px">
+          <p style="font-size:10px;opacity:.35;text-align:center;padding:16px">Presiona "Actualizar" para cargar estadísticas.</p>
+        </div>
+        <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Estadísticas</button>
+      </div>
 
       <!-- GITHUB SYNC — sincronización global en tiempo real -->
       <div class="space-y-2 p-4 border rounded-xl border-green-500/40 bg-green-500/5">
@@ -2608,12 +2628,8 @@ function updateInstallVideo(){
 // ============================================================
 // LAZY LOADING
 // ============================================================
-var lazyObserver=null;
-function initLazyLoading(){/* lazy loading disabled - direct src */}
-function observeLazyImages(){
-  if(!lazyObserver)return;
-  document.querySelectorAll('img.icon-img-loaded[data-src]').forEach(function(img){lazyObserver.observe(img);});
-}
+// Lazy loading implementado más abajo con IntersectionObserver
+var lazyObserver=null; // kept for legacy compat
 
 // ============================================================
 // STATE
@@ -2760,25 +2776,86 @@ function setFilter(filter){
   updateBannerBasedOnFilter();
 }
 
-// FIX 1: renderGames — usa t() para todos los textos de UI, NO para nombres de juegos
+// ════════════════════════════════════════════════════════════════
+// RENDER GAMES — Lazy Loading + Paginación (12 iniciales) + Timestamp sort
+// ════════════════════════════════════════════════════════════════
+var _gamesPage = 0;
+var _gamesPageSize = 12;
+var _gamesFiltered = [];
+var _gamesLoadMoreObserver = null;
+
 function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
-  var games=siteState.gamesList.filter(function(g){return g.name.toLowerCase().includes(searchQuery)&&g.visible;});
-  if(currentFilter==='updated')games.sort(function(a,b){return new Date(b.lastUpdate)-new Date(a.lastUpdate);});
-  else if(currentFilter==='popular')games.sort(function(a,b){return b.visits-a.visits;});
 
-  // FIX 1: texto del botón de descarga en el idioma actual
-  // Si el admin no personalizó el texto del botón, traducirlo al idioma activo
-  var _adminBtn=siteState.buttonSettings.globalHomeButtonText||'';
-  var _defaults=['Descargar APK','Download APK','Baixar APK','APK Herunterladen','Скачать APK',
-    '下载 APK','APKをダウンロード','APK İndir','APK डाउनलोड करें','Télécharger APK',''];
-  var dlBtnText=(_defaults.indexOf(_adminBtn)>=0)?tStr('Descargar APK'):_adminBtn;
-  // FIX 1: texto de verificación en el idioma actual
-  var verText=siteState.verification.text||tStr('Verificado');
+  // Filtro de búsqueda
+  var q = searchQuery || '';
+  var games = siteState.gamesList.filter(function(g){
+    return g.visible && (g.name||'').toLowerCase().indexOf(q) !== -1;
+  });
 
-  list.innerHTML=games.map(function(g){
-    var updateBadgeHtml='',modBadgeHtml='';
+  // Ordenamiento — prioridad: timestamp desc (siempre mueve los más nuevos/editados arriba)
+  if(currentFilter==='updated'){
+    games.sort(function(a,b){
+      var ta = b.timestamp || new Date(b.lastUpdate||0).getTime() || 0;
+      var tb = a.timestamp || new Date(a.lastUpdate||0).getTime() || 0;
+      return ta - tb;
+    });
+  } else if(currentFilter==='popular'){
+    games.sort(function(a,b){ return (b.visits||0)-(a.visits||0); });
+  } else {
+    // default: timestamp desc — juegos nuevos/editados primero
+    games.sort(function(a,b){
+      var ta = b.timestamp || 0;
+      var tb = a.timestamp || 0;
+      return ta - tb;
+    });
+  }
+
+  _gamesFiltered = games;
+  _gamesPage = 0;
+
+  // Renderizar primera página
+  list.innerHTML = '';
+  _renderGamesBatch(list, 0, _gamesPageSize);
+  _gamesPage = 1;
+
+  // Sentinel para infinite scroll
+  _setupLoadMoreSentinel(list);
+
+  refreshIcons();
+
+  // Traducir descripciones si no es español
+  if(currentLang !== 'es'){
+    games.slice(0, _gamesPageSize).forEach(function(g){
+      trAPI(g.description, function(tr){
+        document.querySelectorAll('[data-cdesc="'+g.id+'"]').forEach(function(e){ e.innerText=tr; });
+      });
+    });
+    var newVer = tStr(siteState.verification.text||'Verificado');
+    document.querySelectorAll('.card-ver-txt').forEach(function(e){
+      e.innerText = 'JoelDroid Mods YT \u2022 '+newVer;
+    });
+  }
+}
+
+function _renderGamesBatch(list, start, count){
+  if(!list || !_gamesFiltered) return;
+  var end = Math.min(start + count, _gamesFiltered.length);
+  var games = _gamesFiltered.slice(start, end);
+  if(!games.length){
+    if(start === 0) list.innerHTML = '<p class="text-center opacity-40 text-xs py-8">No hay juegos disponibles.</p>';
+    return;
+  }
+  var _adminBtn = siteState.buttonSettings.globalHomeButtonText || '';
+  var _defaults = ['Descargar APK','Download APK','Baixar APK','APK Herunterladen',
+    'Скачать APK','下载 APK','APKをダウンロード','APK İndir','APK डाउनलोड करें','Télécharger APK',''];
+  var dlBtnText = (_defaults.indexOf(_adminBtn)>=0) ? tStr('Descargar APK') : _adminBtn;
+  var verText = siteState.verification.text || tStr('Verificado');
+
+  var frag = document.createDocumentFragment();
+  games.forEach(function(g){
+    var updateBadgeHtml='', modBadgeHtml='';
     if(currentFilter==='popular'){
       if(siteState.popularBanner.popularTopBadgeText){
         var c1=colorPalette[siteState.popularBanner.popularTopBadgeColor]?colorPalette[siteState.popularBanner.popularTopBadgeColor].hex:'#3b82f6';
@@ -2792,7 +2869,6 @@ function renderGames(){
       if(g.updateBadgeVisible)updateBadgeHtml='<div class="update-badge" style="background-color:'+g.updateBadgeBgColor+';box-shadow:0 0 12px '+g.updateBadgeBgColor+';">'+g.updateBadgeText+'</div>';
       if(g.modBadgeVisible)modBadgeHtml='<div class="mod-badge-neon" style="background-color:'+g.modBadgeBgColor+';box-shadow:0 0 12px '+g.modBadgeBgColor+';">'+g.modBadgeText+'</div>';
     }
-    // Mini-estrellas de solo lectura para la tarjeta home
     var miniR=_loadGameRatings(g.id);
     var miniAvg=miniR.total>0?(miniR.sum/miniR.total):0;
     var miniStarsHtml='';
@@ -2802,9 +2878,13 @@ function renderGames(){
     var miniRatingLine=miniR.total>0
       ?('<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">'+miniStarsHtml+'<span style="font-size:8px;font-weight:800;color:#f59e0b;margin-left:2px;opacity:.85;">'+miniAvg.toFixed(1)+'</span><span style="font-size:8px;opacity:.3;margin-left:1px;">('+miniR.total+')</span></div>')
       :'';
-    return'<div class="game-card flex gap-4 p-4 rounded-[30px]" onclick="showDetail(\''+g.id+'\')">'+
+
+    var card = document.createElement('div');
+    card.className = 'game-card flex gap-4 p-4 rounded-[30px]';
+    card.setAttribute('onclick', 'showDetail(\''+g.id+'\')');
+    card.innerHTML =
       '<div class="icon-container">'+
-        '<img src="'+g.thumb+'" class="icon-img" alt="'+g.name+'">'+
+        '<img data-src="'+(g.thumb||'')+'" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="icon-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
         updateBadgeHtml+modBadgeHtml+
       '</div>'+
       '<div class="flex flex-col justify-center min-w-0 flex-grow">'+
@@ -2816,25 +2896,96 @@ function renderGames(){
           '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
           '<span class="global-dl-btn-text">'+dlBtnText+'</span>'+
         '</button>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-  observeLazyImages();
+      '</div>';
+    frag.appendChild(card);
+  });
+  list.appendChild(frag);
+  _initLazyImages();
+}
+
+function _setupLoadMoreSentinel(list){
+  // Eliminar sentinel anterior
+  var old = document.getElementById('load-more-sentinel');
+  if(old && old.parentNode) old.parentNode.removeChild(old);
+  if(_gamesLoadMoreObserver){ _gamesLoadMoreObserver.disconnect(); _gamesLoadMoreObserver=null; }
+  if(_gamesFiltered.length <= _gamesPageSize) return;
+
+  var sentinel = document.createElement('div');
+  sentinel.id = 'load-more-sentinel';
+  sentinel.style.cssText = 'height:40px;display:flex;align-items:center;justify-content:center;';
+  sentinel.innerHTML = '<span style="font-size:9px;opacity:.4;font-weight:700;text-transform:uppercase;letter-spacing:.1em">Cargando más...</span>';
+  list.parentNode && list.parentNode.insertBefore(sentinel, list.nextSibling);
+
+  if(!('IntersectionObserver' in window)){
+    // Fallback para navegadores sin IntersectionObserver
+    sentinel.querySelector('span').textContent = '';
+    var loadBtn = document.createElement('button');
+    loadBtn.textContent = 'Cargar más juegos';
+    loadBtn.style.cssText = 'font-size:10px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);border-radius:12px;padding:8px 20px;cursor:pointer;margin:10px auto;display:block;';
+    loadBtn.onclick = _loadMoreGames;
+    sentinel.appendChild(loadBtn);
+    return;
+  }
+
+  _gamesLoadMoreObserver = new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting) _loadMoreGames();
+  }, { rootMargin: '200px' });
+  _gamesLoadMoreObserver.observe(sentinel);
+}
+
+function _loadMoreGames(){
+  var list = document.getElementById('game-list');
+  if(!list || !_gamesFiltered) return;
+  var start = _gamesPage * _gamesPageSize;
+  if(start >= _gamesFiltered.length){
+    var s = document.getElementById('load-more-sentinel');
+    if(s && s.parentNode){ s.parentNode.removeChild(s); }
+    if(_gamesLoadMoreObserver){ _gamesLoadMoreObserver.disconnect(); _gamesLoadMoreObserver=null; }
+    return;
+  }
+  _renderGamesBatch(list, start, _gamesPageSize);
+  _gamesPage++;
   refreshIcons();
-  // Traducir descripciones de tarjetas via API si no es español
-  if(currentLang!=='es'){
-    games.forEach(function(g){
-      trAPI(g.description,function(tr){
-        document.querySelectorAll('[data-cdesc="'+g.id+'"]').forEach(function(e){e.innerText=tr;});
+  if(currentLang !== 'es'){
+    _gamesFiltered.slice(start, start+_gamesPageSize).forEach(function(g){
+      trAPI(g.description, function(tr){
+        document.querySelectorAll('[data-cdesc="'+g.id+'"]').forEach(function(e){ e.innerText=tr; });
       });
-    });
-    // Actualizar texto verificado si siteState.verification.text cambió
-    var newVer=tStr(siteState.verification.text||'Verificado');
-    document.querySelectorAll('.card-ver-txt').forEach(function(e){
-      e.innerText='JoelDroid Mods YT • '+newVer;
     });
   }
 }
+
+// ── Lazy Loading de imágenes con IntersectionObserver ────────────
+var _lazyIO = null;
+function _initLazyImages(){
+  var imgs = document.querySelectorAll('img.lazy-img[data-src]');
+  if(!imgs.length) return;
+  if(!('IntersectionObserver' in window)){
+    // Fallback: cargar todas directamente
+    imgs.forEach(function(img){
+      if(img.dataset.src){ img.src=img.dataset.src; img.removeAttribute('data-src'); img.classList.add('loaded'); }
+    });
+    return;
+  }
+  if(!_lazyIO){
+    _lazyIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(!entry.isIntersecting) return;
+        var img = entry.target;
+        if(img.dataset.src){
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          img.onload = function(){ img.classList.add('loaded'); };
+          img.onerror = function(){ img.src='https://via.placeholder.com/72x72/1e293b/60a5fa?text=JD'; img.classList.add('loaded'); };
+          _lazyIO.unobserve(img);
+        }
+      });
+    }, { rootMargin: '150px' });
+  }
+  imgs.forEach(function(img){ _lazyIO.observe(img); });
+}
+function initLazyLoading(){ _initLazyImages(); }
+function observeLazyImages(){ _initLazyImages(); }
 
 function updateBannerBasedOnFilter(){
   var bannerTitle=document.getElementById('banner-title-ui');
@@ -2860,10 +3011,11 @@ function showDetail(id){
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
   if(!game){
-    // Intentar buscar con ID original (por si viene de Firebase con doc.id diferente)
     console.warn('[showDetail] No encontrado id='+id, 'Lista:', siteState.gamesList.map(function(g){return g.id;}));
     return;
   }
+  // Registrar click para estadísticas
+  try{ _trackClick(id, game.name||game.nombre||''); }catch(e){}
 
   try{ document.title = game.name + ' MOD - JoelDroidMods.com'; }catch(e){}
   var dv=document.getElementById('detail-view');
@@ -3113,7 +3265,15 @@ function closeLogin(){var s=document.getElementById('login-screen');if(s){s.clas
 // [verifyLogin eliminado]
 function openAdmin(){
   var p=document.getElementById('admin-panel');
-  if(p){p.classList.remove('hidden');document.body.style.overflow='hidden';renderAdminUI();renderGameEditorList();_fillGHInputs();}
+  if(p){
+    p.classList.remove('hidden');
+    document.body.style.overflow='hidden';
+    renderAdminUI();
+    renderGameEditorList();
+    _fillGHInputs();
+    // Iniciar escucha de estadísticas en tiempo real al abrir el panel
+    try{ if(_db) _listenStats(); }catch(e){}
+  }
 }
 function closeAdmin(){var p=document.getElementById('admin-panel');if(p)p.classList.add('hidden');document.body.style.overflow='';}
 
@@ -3392,15 +3552,27 @@ function applyUIChanges(){
         img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:20%;display:block;';
         lc.appendChild(img);
       }
-      // Cache busting: fuerza recarga del logo cuando el admin lo cambia
-      var _lsrc=siteState.ui.logoUrl;
-      if(_lsrc.indexOf('firebasestorage')>=0||_lsrc.indexOf('githubusercontent')>=0){
-        _lsrc+=(_lsrc.indexOf('?')>=0?'&':'?')+'v='+Math.floor(Date.now()/300000);
+      try{
+        var _lsrc=siteState.ui.logoUrl||'';
+        if(_lsrc&&(_lsrc.indexOf('firebasestorage')>=0||_lsrc.indexOf('githubusercontent')>=0)){
+          _lsrc+=(_lsrc.indexOf('?')>=0?'&':'?')+'v='+Math.floor(Date.now()/300000);
+        }
+        img.onerror=function(){
+          try{
+            this.onerror=null;
+            this.src='assets/logo.png?v='+Date.now();
+            this.onerror=function(){ this.onerror=null; this.src='logo.png'; };
+          }catch(fe){}
+        };
+        if(img.src!==_lsrc) img.src=_lsrc;
+        img.style.borderRadius='20%';
+        img.style.display='block';
+        if(svg)svg.style.display='none';
+      }catch(logoErr){
+        console.warn('[Logo] Error cargando logo, usando fallback SVG:', logoErr);
+        if(svg){svg.style.color=siteState.ui.logoColor||'#fff';svg.style.display='block';}
+        if(img)img.style.display='none';
       }
-      if(img.src!==_lsrc) img.src=_lsrc;
-      img.style.borderRadius='20%';
-      img.style.display='block';
-      if(svg)svg.style.display='none';
     }else{
       if(svg){svg.style.color=siteState.ui.logoColor;svg.style.display='block';}
       if(img)img.style.display='none';
@@ -3748,6 +3920,7 @@ function processSaveGameData(editId,data){
   var newGame=Object.assign({id:gameId},data,{
     update:data.updateBadgeVisible,
     lastUpdate:new Date().toISOString().split('T')[0],
+    timestamp: Date.now(), // ← campo para ordenar: siempre más nuevo al editar
     visits:editId?(function(){var g=siteState.gamesList.find(function(x){return String(x.id)===String(editId);});return g?g.visits:0;})():0,
     homeButtonVisible:true,
     updateBadgeBgColor:colorPalette[ukKey]?colorPalette[ukKey].hex:'#10b981',
@@ -5346,21 +5519,91 @@ function _shareExecCopy(url){
   }
 }
 
-function _refreshFavicon(){
-  // Obtener URL del logo: primero Firebase (siteState), luego default
-  var logoUrl=(siteState&&siteState.ui&&siteState.ui.logoUrl&&siteState.ui.logoUrl.trim())
-              ?siteState.ui.logoUrl:'logo.png';
-  // Cache busting: param unico por ventana de 5 minutos
-  var sep=logoUrl.indexOf('?')>=0?'&':'?';
-  var v=Math.floor(Date.now()/300000); // cambia cada 5 min — elimina cache del navegador
-  var fUrl=logoUrl+sep+'v='+v;
-  // Actualizar todos los <link> de favicon con IDs correctos
-  ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.href=fUrl;
+// ════════════════════════════════════════════════════════════════
+// 📊 ESTADÍSTICAS EN TIEMPO REAL — Visitas + Clicks por juego
+// ════════════════════════════════════════════════════════════════
+function _trackVisit(){
+  try{
+    if(!_db) return;
+    _db.collection('siteConfig').doc('stats').set({
+      visits: firebase.firestore.FieldValue.increment(1),
+      lastVisit: firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true}).catch(function(){});
+  }catch(e){}
+}
+function _trackClick(gameId, gameName){
+  try{
+    if(!_db || !gameId) return;
+    var safeId = String(gameId).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40);
+    var upd = { ['gameClicks_'+safeId]: firebase.firestore.FieldValue.increment(1) };
+    upd['gameName_'+safeId] = gameName||'';
+    _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
+  }catch(e){}
+}
+var _statsUnsub = null;
+function _listenStats(){
+  if(!_db) return;
+  if(_statsUnsub){ _statsUnsub(); _statsUnsub=null; }
+  _statsUnsub = _db.collection('siteConfig').doc('stats')
+    .onSnapshot(function(doc){ if(doc.exists) _renderStatsPanel(doc.data()); }, function(){});
+}
+function _renderStatsPanel(data){
+  var panel = document.getElementById('stats-panel-content');
+  if(!panel) return;
+  if(!data){ panel.innerHTML='<p style="font-size:10px;opacity:.4;text-align:center;padding:16px">Sin datos todavía — espera a que haya visitas.</p>'; return; }
+  var visits = data.visits||0;
+  var clicks = [];
+  Object.keys(data).forEach(function(k){
+    if(k.indexOf('gameClicks_')===0){
+      var gid = k.replace('gameClicks_','');
+      clicks.push({name:data['gameName_'+gid]||gid, count:data[k]||0});
+    }
   });
-  var ms=document.querySelector('meta[name="msapplication-TileImage"]');
-  if(ms)ms.content=fUrl;
+  clicks.sort(function(a,b){ return b.count-a.count; });
+  var top = clicks.slice(0,8);
+  var maxC = top.length ? top[0].count : 1;
+  var colors = ['#60a5fa','#a78bfa','#34d399','#f59e0b','#f472b6','#06b6d4','#fb923c','#818cf8'];
+  panel.innerHTML =
+    '<div style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">'
+      +'<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#60a5fa;opacity:.7;margin-bottom:2px">Visitas Totales</p>'
+      +'<p style="font-size:30px;font-weight:900;color:#60a5fa;text-shadow:0 0 20px rgba(96,165,250,.5);line-height:1">'+visits.toLocaleString()+'</p></div>'
+      +'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5" opacity=".5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+    +'</div>'
+    +(top.length
+      ?'<p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;opacity:.7;margin-bottom:8px">🔥 Más clickeados</p>'
+        +top.map(function(c,i){
+          var pct=Math.round(c.count/maxC*100);
+          var col=colors[i%colors.length];
+          return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px">'
+            +'<span style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:6px" class="notranslate">'+c.name+'</span>'
+            +'<span style="font-size:9px;font-weight:900;color:'+col+'">'+c.count+'</span></div>'
+            +'<div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:2px;box-shadow:0 0 6px '+col+'88"></div></div></div>';
+        }).join('')
+      :'<p style="font-size:9px;opacity:.35;text-align:center;padding:8px">Sin clicks registrados aún.</p>');
+}
+function refreshStats(){
+  if(!_db){showToast('⚠️ Firebase no conectado');return;}
+  _listenStats(); showToast('📊 Estadísticas en vivo activadas');
+}
+
+// ════════════════════════════════════════════════════════════════
+// Fix 5: Favicon con hash de la URL del logo — elimina caché definitivamente
+// ════════════════════════════════════════════════════════════════
+function _refreshFavicon(){
+  try{
+    var logoUrl=(siteState&&siteState.ui&&siteState.ui.logoUrl&&siteState.ui.logoUrl.trim())
+               ?siteState.ui.logoUrl:'logo.png';
+    // Hash basado en la URL del logo — cambia SOLO cuando el admin actualiza el logo
+    var h=0; for(var ci=0;ci<Math.min(logoUrl.length,60);ci++){ h=((h<<5)-h)+logoUrl.charCodeAt(ci);h|=0; }
+    var sep=logoUrl.indexOf('?')>=0?'&':'?';
+    // Combina hash único del logo + ventana horaria → el favicon cambia cuando el logo cambia
+    var fUrl=logoUrl+sep+'jdv='+Math.abs(h)+'_'+Math.floor(Date.now()/300000);
+    ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
+      var el=document.getElementById(id); if(el&&el.href!==fUrl)el.href=fUrl;
+    });
+    var ms=document.querySelector('meta[name="msapplication-TileImage"]');
+    if(ms)ms.content=fUrl;
+  }catch(e){}
 }
 
 function _initShareBtn(){
@@ -5502,43 +5745,43 @@ function _fbListenMods(){
     .orderBy('order', 'asc')
     .onSnapshot(function(snap){
       if(snap.empty){
-        // Firestore vacío — mostrar datos locales
         renderGames();
-        // Solo el admin puede subir datos (visitantes no pueden)
         if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
           _autoMigrateToFirestore();
         }
         return;
       }
-      // ── Datos recibidos de Firestore — para TODOS los visitantes ──
       var games = snap.docs.map(function(doc){
         var d = doc.data();
         d.id = doc.id;
         delete d.updatedAt; delete d.createdAt;
-        // Compatibilidad: mapear campos en español a inglés
-        if(!d.name && d.nombre)         d.name = d.nombre;
+        if(!d.name && d.nombre)             d.name = d.nombre;
         if(!d.description && d.descripcion) d.description = d.descripcion;
-        if(!d.thumb && d.imagen)         d.thumb = d.imagen;
-        if(!d.thumb && d.icon)           d.thumb = d.icon;
-        if(!d.ver && d.version)          d.ver = d.version;
-        if(!d.size && d.peso)            d.size = d.peso;
+        if(!d.thumb && d.imagen)            d.thumb = d.imagen;
+        if(!d.thumb && d.icon)              d.thumb = d.icon;
+        if(!d.ver && d.version)             d.ver = d.version;
+        if(!d.size && d.peso)               d.size = d.peso;
         if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
         if(!d.downloadButtonLink1 && d.link)   d.downloadButtonLink1 = d.link;
+        // Garantizar que timestamp existe para ordenamiento correcto
+        if(!d.timestamp) d.timestamp = 0;
         return d;
+      });
+      // Ordenar: timestamp desc (más nuevos/editados primero), fallback a order asc
+      games.sort(function(a,b){
+        var ta = b.timestamp||0, tb = a.timestamp||0;
+        if(ta !== tb) return ta - tb;
+        return (a.order||0) - (b.order||0);
       });
       siteState.gamesList = games;
       renderGames();
       updateBannerBasedOnFilter();
       if(document.getElementById('game-list-editor')) renderGameEditorList();
-      // ── TRADUCCION DINAMICA: cuando Firebase actualiza juegos,
-      // limpiar cache (_trMem) y re-traducir INMEDIATAMENTE los
-      // nuevos textos en el idioma activo del visitante.
       if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
-        _trMem = {};  // limpiar cache con el nombre correcto de la variable
+        _trMem = {};
         try{ localStorage.removeItem('_t_'+currentLang); }catch(e){}
         setTimeout(function(){
           applyTranslations(currentLang);
-          // Si hay un detalle abierto, re-traducir su descripcion
           if(currentDetailId){
             var descEl=document.getElementById('det-desc');
             if(descEl && descEl.dataset.esOrig){
@@ -5610,6 +5853,7 @@ function _fbSaveGame(gameData, editId){
   console.log('[Firebase] Guardando mod:', gameData.name, 'editId:', editId);
   return ref.set(Object.assign({}, gameData, {
     order:     order,
+    timestamp: Date.now(),  // ← actualiza cada vez que se edita → salta al tope
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     createdAt: (editId && gameData.createdAt)
                ? gameData.createdAt
@@ -6164,6 +6408,8 @@ window.addEventListener('DOMContentLoaded', function() {
   //    _fbListenMods y _fbListenConfig activarán onSnapshot
   //    → cualquier cambio del admin aparece en tiempo real para TODOS
   setTimeout(_initFirebase, 0);
+  // Registrar visita cuando Firebase esté listo (con pequeño retardo)
+  setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
 
   // ── Performance: prefetch y Service Worker (DOM ya listo)
   try{
