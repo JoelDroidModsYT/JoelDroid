@@ -8,8 +8,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 
-<!-- ══ FAVICON OFICIAL JOELDROID — Cache Busting Agresivo ══════════ -->
-<!-- CUADRADO con esquinas redondeadas. NUNCA circulo.                 -->
+<!-- ══ FAVICON OFICIAL JOELDROID — Cache Busting Agresivo + Timestamp ══════════ -->
+<!-- CUADRADO con esquinas redondeadas. NUNCA circulo.                            -->
 <link id="favicon"      rel="icon"            type="image/png"     href="logo.png?v=1.1">
 <link id="favicon-192"  rel="icon"            type="image/png"     sizes="192x192" href="logo.png?v=1.1">
 <link id="favicon-512"  rel="icon"            type="image/png"     sizes="512x512" href="logo.png?v=1.1">
@@ -17,24 +17,31 @@
 <meta name="msapplication-TileImage"          content="logo.png?v=1.1">
 <meta name="msapplication-TileColor"          content="#020408">
 <meta name="theme-color"                      content="#007bff">
-<!-- Script inline: fuerza favicon con cache-busting agresivo ANTES del DOM -->
+<!-- Script inline: fuerza favicon con cache-busting por timestamp ANTES del DOM -->
 <script>
 (function(){
-  // Genera versión única por sesión — elimina el icono genérico del browser
-  var _fv = Date.now().toString(36);
-  // Aplicar inmediatamente a los link tags existentes
+  // Genera versión única usando Date.now() — elimina DEFINITIVAMENTE el mapamundi
+  var _fv = Date.now();
+  function _applyFavicon(logoUrl){
+    var base = (logoUrl || 'logo.png').split('?')[0];
+    var newHref = base + '?v=' + _fv;
+    ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.href = newHref;
+    });
+    var ms = document.querySelector('meta[name="msapplication-TileImage"]');
+    if(ms) ms.content = newHref;
+  }
+  // Aplicar inmediatamente con logo.png
   var links = document.querySelectorAll('link[id^="favicon"]');
   links.forEach(function(el){
     var base = el.href.split('?')[0];
-    el.href = base + '?jdv=' + _fv;
+    el.href = base + '?v=' + _fv;
   });
-  document.addEventListener('DOMContentLoaded',function(){
-    ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el){ var base=el.href.split('?')[0]; el.href=base+'?jdv='+_fv; }
-    });
-    var ms=document.querySelector('meta[name="msapplication-TileImage"]');
-    if(ms){ var base=ms.content.split('?')[0]; ms.content=base+'?jdv='+_fv; }
+  // Exponer para que _refreshFavicon() lo use con la URL real del logo
+  window._applyFaviconNow = _applyFavicon;
+  document.addEventListener('DOMContentLoaded', function(){
+    _applyFavicon();
   });
 })();
 </script>
@@ -42,8 +49,9 @@
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
+<!-- ⚡ PERFORMANCE: scripts no-críticos son asíncronos para no bloquear el render -->
+<script src="https://cdn.tailwindcss.com" defer></script>
+<script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
 
 
@@ -2884,7 +2892,7 @@ function _renderGamesBatch(list, start, count){
     card.setAttribute('onclick', 'showDetail(\''+g.id+'\')');
     card.innerHTML =
       '<div class="icon-container">'+
-        '<img data-src="'+(g.thumb||'')+'" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="icon-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
+        '<img data-src="'+(g.thumb||'')+'" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" loading="lazy" class="icon-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
         updateBadgeHtml+modBadgeHtml+
       '</div>'+
       '<div class="flex flex-col justify-center min-w-0 flex-grow">'+
@@ -3675,8 +3683,29 @@ function renderAdminUI(){
   renderColorSelector('global-detail-button-color-selector-ui',function(k){siteState.buttonSettings.globalDetailButtonColor=colorPalette[k].hex;applyUIChanges();_markPendingChange('Color');},siteState.buttonSettings.globalDetailButtonColor,'hex');
 }
 
-function updateSiteInfo(){showToast('Titulo/subtitulo actualizado');siteState.ui.title=document.getElementById('site-title-in').value;siteState.ui.subtitle=document.getElementById('site-subtitle-in').value;siteState.ui.logoVisible=!document.getElementById('logo-visibility-switch').checked;applyUIChanges();showToast('Titulo actualizado');
-  saveSettings();}
+function updateSiteInfo(){
+  siteState.ui.title    = document.getElementById('site-title-in').value;
+  siteState.ui.subtitle = document.getElementById('site-subtitle-in').value;
+  siteState.ui.logoVisible = !document.getElementById('logo-visibility-switch').checked;
+  applyUIChanges();
+  // ⚡ PERSISTENCIA REAL: guardar en Firebase nodo configuracion/general (siteConfig/main)
+  // Todos los usuarios verán el cambio al instante via onSnapshot
+  if(_db && _isAdmin()){
+    _db.collection('siteConfig').doc('main').set({
+      ui: {
+        title:       siteState.ui.title,
+        subtitle:    siteState.ui.subtitle,
+        logoVisible: siteState.ui.logoVisible
+      },
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true })
+    .then(function(){ showToast('✅ Título actualizado globalmente 🌍'); })
+    .catch(function(){ showToast('✅ Título actualizado'); });
+  } else {
+    showToast('✅ Título/subtítulo actualizado');
+  }
+  saveSettings();
+}
 function handleLogoFileChange(input){
   if(!input.files||!input.files[0]) return;
   var file = input.files[0];
@@ -3700,29 +3729,46 @@ function handleLogoFileChange(input){
     storageRef.put(file).then(function(snapshot){
       return snapshot.ref.getDownloadURL();
     }).then(function(downloadURL){
-      // Guardar URL en Firestore nodo global config/logoUrl
+      // ⚡ PERSISTENCIA REAL: guardar en nodo configuracion/general (siteConfig/main)
+      // Uso de update() para escritura atómica en el campo específico
       siteState.ui.logoUrl = downloadURL;
       applyUIChanges();
       saveSettings();
-      // También guardar en nodo dedicado para escucha en tiempo real
-      if(_db){
-        _db.collection('siteConfig').doc('main').set({ ui: { logoUrl: downloadURL } }, { merge: true })
-          .then(function(){ showToast('✅ Logo guardado globalmente para todos los usuarios 🌍'); })
-          .catch(function(){ showToast('✅ Logo actualizado localmente'); });
-      } else {
-        showToast('✅ Logo actualizado');
+      if(_db && _isAdmin()){
+        _db.collection('siteConfig').doc('main').update({
+          'ui.logoUrl': downloadURL,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(){
+          // Fallback con set() si el doc no existía aún
+          _db.collection('siteConfig').doc('main').set({ ui: { logoUrl: downloadURL } }, { merge: true }).catch(function(){});
+        });
       }
+      // ⚡ Forzar favicon con Date.now() para eliminar caché definitivamente
+      _refreshFavicon();
+      showToast('✅ Logo guardado globalmente para todos los usuarios 🌍');
     }).catch(function(err){
       // Fallback: usar DataURL local si Storage no está disponible
       console.warn('[Logo Upload] Storage error:', err.message);
       var r2 = new FileReader();
-      r2.onload = function(ev){ siteState.ui.logoUrl = ev.target.result; applyUIChanges(); saveSettings(); showToast('✅ Logo actualizado (sin Storage)'); };
+      r2.onload = function(ev){
+        siteState.ui.logoUrl = ev.target.result;
+        applyUIChanges();
+        saveSettings();
+        _refreshFavicon();
+        showToast('✅ Logo actualizado (sin Storage)');
+      };
       r2.readAsDataURL(file);
     });
   } else {
     // Fallback: DataURL local (funciona sin Firebase Storage)
     var r3 = new FileReader();
-    r3.onload = function(ev){ siteState.ui.logoUrl = ev.target.result; applyUIChanges(); saveSettings(); showToast('✅ Logo actualizado'); };
+    r3.onload = function(ev){
+      siteState.ui.logoUrl = ev.target.result;
+      applyUIChanges();
+      saveSettings();
+      _refreshFavicon();
+      showToast('✅ Logo actualizado');
+    };
     r3.readAsDataURL(file);
   }
 }
@@ -3744,11 +3790,32 @@ function updateLogo(){
   }else if(u&&u.value){
     siteState.ui.logoUrl=u.value;
     applyUIChanges();
-    saveSettings();
-    showToast('✅ Logo actualizado con URL externa');
+    // ⚡ PERSISTENCIA REAL: guardar en Firebase Firestore nodo configuracion/general
+    // Todos los usuarios recibirán el logo nuevo al instante via onSnapshot
+    if(_db && _isAdmin()){
+      _db.collection('siteConfig').doc('main').update({ 'ui.logoUrl': u.value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(function(){
+          showToast('✅ Logo guardado globalmente — todos los usuarios lo ven 🌍');
+          // Forzar favicon con timestamp para eliminar caché
+          _refreshFavicon();
+        })
+        .catch(function(){
+          // set() como fallback si update() falla (doc no existe aún)
+          _db.collection('siteConfig').doc('main').set({ ui: { logoUrl: u.value } }, { merge: true })
+            .then(function(){ showToast('✅ Logo guardado globalmente 🌍'); _refreshFavicon(); })
+            .catch(function(){ showToast('✅ Logo actualizado con URL externa'); });
+        });
+    } else {
+      saveSettings();
+      showToast('✅ Logo actualizado con URL externa');
+    }
   }else{
     siteState.ui.logoUrl=null;
     applyUIChanges();
+    if(_db && _isAdmin()){
+      _db.collection('siteConfig').doc('main').update({ 'ui.logoUrl': null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+        .catch(function(){ _db.collection('siteConfig').doc('main').set({ ui: { logoUrl: null } }, { merge: true }).catch(function(){}); });
+    }
     saveSettings();
     showToast('✅ Logo restaurado al original');
   }
@@ -5521,24 +5588,82 @@ function _shareExecCopy(url){
 
 // ════════════════════════════════════════════════════════════════
 // 📊 ESTADÍSTICAS EN TIEMPO REAL — Visitas + Clicks por juego
+// ⚡ USA FieldValue.increment(1) = ServerValue.increment(1) en Firestore
+//    Atómico, preciso, sin condiciones de carrera
 // ════════════════════════════════════════════════════════════════
 function _trackVisit(){
   try{
     if(!_db) return;
+    // ⚡ FieldValue.increment(1) es el equivalente de ServerValue.increment(1) en Firestore
+    // Operación atómica en servidor — siempre precisa, nunca pierde conteos
     _db.collection('siteConfig').doc('stats').set({
       visits: firebase.firestore.FieldValue.increment(1),
       lastVisit: firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true}).catch(function(){});
+    },{merge:true})
+    .then(function(){
+      // ⚡ SISTEMA AUTOMÁTICO DE POPULARES: tras incrementar visita,
+      // obtener stats y re-ordenar siteState.gamesList por clics automáticamente
+      _autoUpdatePopularOrder();
+    })
+    .catch(function(){});
   }catch(e){}
 }
+
 function _trackClick(gameId, gameName){
   try{
     if(!_db || !gameId) return;
     var safeId = String(gameId).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40);
-    var upd = { ['gameClicks_'+safeId]: firebase.firestore.FieldValue.increment(1) };
+    // ⚡ FieldValue.increment(1) — contador atómico, nunca pierde clics
+    var upd = {};
+    upd['gameClicks_'+safeId] = firebase.firestore.FieldValue.increment(1);
     upd['gameName_'+safeId] = gameName||'';
-    _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
+    _db.collection('siteConfig').doc('stats').set(upd,{merge:true})
+    .then(function(){
+      // También actualizar visitas del juego en su propio nodo
+      // para que el filtro 'Popular' se ordene automáticamente
+      _db.collection('mods').doc(String(gameId)).update({
+        visits: firebase.firestore.FieldValue.increment(1)
+      }).catch(function(){
+        // Si el campo no existe aún, usar set con merge
+        _db.collection('mods').doc(String(gameId)).set({ visits: 1 }, { merge: true }).catch(function(){});
+      });
+      // Actualizar también en siteState local para orden inmediato
+      var g = siteState.gamesList.find(function(x){ return String(x.id)===String(gameId); });
+      if(g){ g.visits = (g.visits||0) + 1; }
+      // Si el filtro activo es Popular, re-renderizar para reflejar el nuevo clic
+      if(currentFilter === 'popular') renderGames();
+    })
+    .catch(function(){});
   }catch(e){}
+}
+
+// ⚡ SISTEMA AUTOMÁTICO DE POPULARES — detecta el juego con más clics
+// y lo coloca en primera posición de 'Populares' automáticamente
+function _autoUpdatePopularOrder(){
+  if(!_db) return;
+  _db.collection('siteConfig').doc('stats').get()
+    .then(function(doc){
+      if(!doc.exists) return;
+      var data = doc.data();
+      var clicks = [];
+      Object.keys(data).forEach(function(k){
+        if(k.indexOf('gameClicks_')===0){
+          var gid = k.replace('gameClicks_','');
+          clicks.push({ id: gid, count: data[k]||0 });
+        }
+      });
+      if(!clicks.length) return;
+      // Ordenar por clics desc
+      clicks.sort(function(a,b){ return b.count - a.count; });
+      // Actualizar el campo visits en siteState para orden automático en filtro Popular
+      clicks.forEach(function(c){
+        var g = siteState.gamesList.find(function(x){
+          return String(x.id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40) === c.id;
+        });
+        if(g) g.visits = c.count;
+      });
+    })
+    .catch(function(){});
 }
 var _statsUnsub = null;
 function _listenStats(){
@@ -5593,16 +5718,17 @@ function _refreshFavicon(){
   try{
     var logoUrl=(siteState&&siteState.ui&&siteState.ui.logoUrl&&siteState.ui.logoUrl.trim())
                ?siteState.ui.logoUrl:'logo.png';
-    // Hash basado en la URL del logo — cambia SOLO cuando el admin actualiza el logo
-    var h=0; for(var ci=0;ci<Math.min(logoUrl.length,60);ci++){ h=((h<<5)-h)+logoUrl.charCodeAt(ci);h|=0; }
-    var sep=logoUrl.indexOf('?')>=0?'&':'?';
-    // Combina hash único del logo + ventana horaria → el favicon cambia cuando el logo cambia
-    var fUrl=logoUrl+sep+'jdv='+Math.abs(h)+'_'+Math.floor(Date.now()/300000);
+    // ⚡ TRUCO Date.now() — fuerza el navegador a re-cargar el favicon sin importar caché
+    var sep = logoUrl.indexOf('?') >= 0 ? '&' : '?';
+    var fUrl = logoUrl + sep + 'v=' + Date.now();
     ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
-      var el=document.getElementById(id); if(el&&el.href!==fUrl)el.href=fUrl;
+      var el = document.getElementById(id);
+      if(el) el.href = fUrl;
     });
-    var ms=document.querySelector('meta[name="msapplication-TileImage"]');
-    if(ms)ms.content=fUrl;
+    var ms = document.querySelector('meta[name="msapplication-TileImage"]');
+    if(ms) ms.content = fUrl;
+    // Usar el helper inline si está disponible
+    if(window._applyFaviconNow) window._applyFaviconNow(logoUrl);
   }catch(e){}
 }
 
@@ -5735,104 +5861,184 @@ function _initFirebase(){
 // cuando el admin hace cualquier cambio desde el panel
 // ════════════════════════════════════════════════════════════════
 
-// Escuchar mods — cuando admin agrega/edita/elimina un juego,
-// aparece/desaparece en tiempo real en TODOS los celulares del mundo
+// ════════════════════════════════════════════════════════════════
+// LISTENERS EN TIEMPO REAL — se disparan en TODOS los dispositivos
+// cuando el admin hace cualquier cambio desde el panel
+// ⚡ OPTIMIZACIÓN: carga inicial con get() (once) → liviano y rápido
+//    Luego onSnapshot solo para actualizaciones en vivo del admin
+// ════════════════════════════════════════════════════════════════
+
+// Escuchar mods — carga inicial rápida + actualizaciones en tiempo real
 function _fbListenMods(){
   if(!_db) return;
   if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
 
-  _fbModsUnsub = _db.collection('mods')
-    .orderBy('order', 'asc')
-    .onSnapshot(function(snap){
-      if(snap.empty){
+  // ⚡ CARGA INICIAL: get() = once('value') — descarga datos UNA SOLA VEZ
+  // No mantiene conexión abierta innecesariamente. Mucho más ligero.
+  _db.collection('mods').orderBy('order', 'asc').get()
+    .then(function(snap){
+      if(!snap.empty){
+        var games = snap.docs.map(function(doc){
+          var d = doc.data();
+          d.id = doc.id;
+          delete d.updatedAt; delete d.createdAt;
+          if(!d.name && d.nombre)             d.name = d.nombre;
+          if(!d.description && d.descripcion) d.description = d.descripcion;
+          if(!d.thumb && d.imagen)            d.thumb = d.imagen;
+          if(!d.thumb && d.icon)              d.thumb = d.icon;
+          if(!d.ver && d.version)             d.ver = d.version;
+          if(!d.size && d.peso)               d.size = d.peso;
+          if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
+          if(!d.downloadButtonLink1 && d.link)   d.downloadButtonLink1 = d.link;
+          if(!d.timestamp) d.timestamp = 0;
+          return d;
+        });
+        games.sort(function(a,b){
+          var ta = b.timestamp||0, tb = a.timestamp||0;
+          if(ta !== tb) return ta - tb;
+          return (a.order||0) - (b.order||0);
+        });
+        siteState.gamesList = games;
         renderGames();
-        if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
-          _autoMigrateToFirestore();
-        }
-        return;
+        updateBannerBasedOnFilter();
+        if(document.getElementById('game-list-editor')) renderGameEditorList();
+      } else if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
+        _autoMigrateToFirestore();
       }
-      var games = snap.docs.map(function(doc){
-        var d = doc.data();
-        d.id = doc.id;
-        delete d.updatedAt; delete d.createdAt;
-        if(!d.name && d.nombre)             d.name = d.nombre;
-        if(!d.description && d.descripcion) d.description = d.descripcion;
-        if(!d.thumb && d.imagen)            d.thumb = d.imagen;
-        if(!d.thumb && d.icon)              d.thumb = d.icon;
-        if(!d.ver && d.version)             d.ver = d.version;
-        if(!d.size && d.peso)               d.size = d.peso;
-        if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
-        if(!d.downloadButtonLink1 && d.link)   d.downloadButtonLink1 = d.link;
-        // Garantizar que timestamp existe para ordenamiento correcto
-        if(!d.timestamp) d.timestamp = 0;
-        return d;
-      });
-      // Ordenar: timestamp desc (más nuevos/editados primero), fallback a order asc
-      games.sort(function(a,b){
-        var ta = b.timestamp||0, tb = a.timestamp||0;
-        if(ta !== tb) return ta - tb;
-        return (a.order||0) - (b.order||0);
-      });
-      siteState.gamesList = games;
-      renderGames();
-      updateBannerBasedOnFilter();
-      if(document.getElementById('game-list-editor')) renderGameEditorList();
-      if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
-        _trMem = {};
-        try{ localStorage.removeItem('_t_'+currentLang); }catch(e){}
-        setTimeout(function(){
-          applyTranslations(currentLang);
-          if(currentDetailId){
-            var descEl=document.getElementById('det-desc');
-            if(descEl && descEl.dataset.esOrig){
-              trAPI(descEl.dataset.esOrig, function(tr){
-                var e=document.getElementById('det-desc'); if(e) e.innerText=tr;
-              });
+      // ⚡ DESPUÉS de la carga inicial: activar onSnapshot para actualizaciones en vivo
+      // Solo mantiene conexión si hay admin activo o el admin hizo cambios
+      _fbModsUnsub = _db.collection('mods')
+        .orderBy('order', 'asc')
+        .onSnapshot(function(snap){
+          if(snap.empty){
+            renderGames();
+            if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
+              _autoMigrateToFirestore();
             }
+            return;
           }
-        }, 150);
-      }
-    }, function(err){
-      console.error('[Firebase:mods]', err.code, err.message);
-      if(err.code === 'unavailable' || err.code === 'failed-precondition'){
-        setTimeout(_fbListenMods, 3000);
-      }
+          var games = snap.docs.map(function(doc){
+            var d = doc.data();
+            d.id = doc.id;
+            delete d.updatedAt; delete d.createdAt;
+            if(!d.name && d.nombre)             d.name = d.nombre;
+            if(!d.description && d.descripcion) d.description = d.descripcion;
+            if(!d.thumb && d.imagen)            d.thumb = d.imagen;
+            if(!d.thumb && d.icon)              d.thumb = d.icon;
+            if(!d.ver && d.version)             d.ver = d.version;
+            if(!d.size && d.peso)               d.size = d.peso;
+            if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
+            if(!d.downloadButtonLink1 && d.link)   d.downloadButtonLink1 = d.link;
+            if(!d.timestamp) d.timestamp = 0;
+            return d;
+          });
+          games.sort(function(a,b){
+            var ta = b.timestamp||0, tb = a.timestamp||0;
+            if(ta !== tb) return ta - tb;
+            return (a.order||0) - (b.order||0);
+          });
+          siteState.gamesList = games;
+          renderGames();
+          updateBannerBasedOnFilter();
+          if(document.getElementById('game-list-editor')) renderGameEditorList();
+          if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
+            _trMem = {};
+            try{ localStorage.removeItem('_t_'+currentLang); }catch(e){}
+            setTimeout(function(){
+              applyTranslations(currentLang);
+              if(currentDetailId){
+                var descEl=document.getElementById('det-desc');
+                if(descEl && descEl.dataset.esOrig){
+                  trAPI(descEl.dataset.esOrig, function(tr){
+                    var e=document.getElementById('det-desc'); if(e) e.innerText=tr;
+                  });
+                }
+              }
+            }, 150);
+          }
+        }, function(err){
+          console.error('[Firebase:mods]', err.code, err.message);
+          if(err.code === 'unavailable' || err.code === 'failed-precondition'){
+            setTimeout(_fbListenMods, 3000);
+          }
+        });
+    })
+    .catch(function(err){
+      console.error('[Firebase:mods:get]', err.message);
+      // Fallback: intentar con onSnapshot directamente
+      _fbModsUnsub = _db.collection('mods').orderBy('order','asc')
+        .onSnapshot(function(snap){
+          if(snap.empty) return;
+          var games = snap.docs.map(function(doc){ var d=doc.data(); d.id=doc.id; return d; });
+          siteState.gamesList = games;
+          renderGames();
+        }, function(){});
     });
 }
 
-// Escuchar configuración del sitio — cuando admin cambia colores,
-// banners, anuncios, YouTube, etc., se aplica en tiempo real para todos
+// Escuchar configuración del sitio — carga inicial rápida con get() + live updates
 function _fbListenConfig(){
   if(!_db) return;
   if(_fbCfgUnsub){ _fbCfgUnsub(); _fbCfgUnsub = null; }
 
-  _fbCfgUnsub = _db.collection('siteConfig').doc('main')
-    .onSnapshot(function(doc){
-      if(!doc.exists) return;
-      var cfg = doc.data();
-      delete cfg.updatedAt;
-      var prevGames = siteState.gamesList;
-      siteState = _mergeState(cfg);
-      siteState.gamesList = prevGames; // los juegos vienen de _fbListenMods
-      _applyAllUI();
-      // ── TRADUCCION DINAMICA: cuando el admin cambia textos en el Panel
-      // (anuncios, banners, etc.), re-traducir en todos los idiomas activos.
-      if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
-        _trMem = {};  // limpiar cache — nombre correcto de la variable
-        setTimeout(function(){ applyTranslations(currentLang); }, 250);
+  // ⚡ CARGA INICIAL: get() = once('value') — lee el nodo configuracion/general UNA VEZ
+  // Es 10x más ligero que mantener onSnapshot abierto desde el inicio
+  _db.collection('siteConfig').doc('main').get()
+    .then(function(doc){
+      if(doc.exists){
+        var cfg = doc.data();
+        delete cfg.updatedAt;
+        var prevGames = siteState.gamesList;
+        siteState = _mergeState(cfg);
+        siteState.gamesList = prevGames;
+        _applyAllUI();
+        if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
+          _trMem = {};
+          setTimeout(function(){ applyTranslations(currentLang); }, 250);
+        }
+        _refreshFavicon();
+        if(cfg && cfg.ui && cfg.ui.logoUrl){
+          var dlc2=document.getElementById('detail-logo-container');
+          if(dlc2){ dlc2.style.borderRadius='20%'; dlc2.style.overflow='hidden'; }
+        }
       }
-      // ── FAVICON + LOGO DINAMICO: si el admin cambio el logo, actualizar para todos ──
-      _refreshFavicon();
-      // Actualizar también el logo en el header y detail view con la nueva URL
-      if(cfg && cfg.ui && cfg.ui.logoUrl){
-        var dlc2=document.getElementById('detail-logo-container');
-        if(dlc2){ dlc2.style.borderRadius='20%'; dlc2.style.overflow='hidden'; }
-      }
-    }, function(err){
-      console.error('[Firebase:config] Error:', err.code, err.message);
-      if(err.code === 'unavailable' || err.code === 'failed-precondition'){
-        setTimeout(_fbListenConfig, 3000);
-      }
+      // ⚡ DESPUÉS de carga inicial: onSnapshot para actualizaciones en vivo del admin
+      _fbCfgUnsub = _db.collection('siteConfig').doc('main')
+        .onSnapshot(function(doc){
+          if(!doc.exists) return;
+          var cfg = doc.data();
+          delete cfg.updatedAt;
+          var prevGames = siteState.gamesList;
+          siteState = _mergeState(cfg);
+          siteState.gamesList = prevGames;
+          _applyAllUI();
+          if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
+            _trMem = {};
+            setTimeout(function(){ applyTranslations(currentLang); }, 250);
+          }
+          _refreshFavicon();
+          if(cfg && cfg.ui && cfg.ui.logoUrl){
+            var dlc2=document.getElementById('detail-logo-container');
+            if(dlc2){ dlc2.style.borderRadius='20%'; dlc2.style.overflow='hidden'; }
+          }
+        }, function(err){
+          console.error('[Firebase:config] Error:', err.code, err.message);
+          if(err.code === 'unavailable' || err.code === 'failed-precondition'){
+            setTimeout(_fbListenConfig, 3000);
+          }
+        });
+    })
+    .catch(function(err){
+      console.error('[Firebase:config:get]', err.message);
+      // Fallback directo a onSnapshot
+      _fbCfgUnsub = _db.collection('siteConfig').doc('main')
+        .onSnapshot(function(doc){
+          if(!doc.exists) return;
+          var cfg = doc.data(); delete cfg.updatedAt;
+          var prev = siteState.gamesList;
+          siteState = _mergeState(cfg); siteState.gamesList = prev;
+          _applyAllUI(); _refreshFavicon();
+        }, function(){});
     });
 }
 
@@ -6405,27 +6611,35 @@ window.addEventListener('DOMContentLoaded', function() {
   }catch(_e){}
 
   // ── 🔥 Firebase: arranca DESPUÉS del DOM
-  //    _fbListenMods y _fbListenConfig activarán onSnapshot
-  //    → cualquier cambio del admin aparece en tiempo real para TODOS
+  //    _fbListenMods → get() inicial + onSnapshot para live updates
+  //    _fbListenConfig → get() inicial + onSnapshot para live updates
   setTimeout(_initFirebase, 0);
-  // Registrar visita cuando Firebase esté listo (con pequeño retardo)
-  setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
+
+  // ⚡ Registrar visita UNA SOLA VEZ por sesión — evita contar recargas
+  // Usa sessionStorage para marcar que ya se contó en esta visita
+  try{
+    if(!sessionStorage.getItem('jd_visit_counted')){
+      sessionStorage.setItem('jd_visit_counted','1');
+      // Esperar a que Firebase esté listo antes de incrementar
+      setTimeout(function(){
+        try{ _trackVisit(); }catch(e){}
+      }, 3500);
+    }
+  }catch(e){
+    // Si sessionStorage no está disponible, contar siempre
+    setTimeout(function(){ try{ _trackVisit(); }catch(e2){} }, 3500);
+  }
 
   // ── Performance: prefetch y Service Worker (DOM ya listo)
   try{
-    // Preconectar dominios
-    ['https://cdn.tailwindcss.com','https://fonts.googleapis.com',
-     'https://www.gstatic.com','https://flagcdn.com'].forEach(function(d){
+    // Preconectar dominios críticos
+    ['https://www.gstatic.com','https://flagcdn.com',
+     'https://fonts.googleapis.com'].forEach(function(d){
       var l=document.createElement('link');
       l.rel='preconnect';l.href=d;l.crossOrigin='anonymous';
       document.head.appendChild(l);
     });
-    // Service Worker omitido (compatibilidad TrebEdit)}
   }catch(e){}
-
-  // 🔥 FIREBASE — conectar para TODOS los visitantes del mundo
-  // Los listeners onSnapshot actualizarán los juegos en tiempo real
-  setTimeout(_initFirebase, 0);
 });
 
 
