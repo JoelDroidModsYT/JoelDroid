@@ -955,6 +955,31 @@
 
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
+<script>
+  // Este código busca el anuncio de Adsterra y lo manda al fondo
+  function mandarSocialBarAlFondo() {
+    // Buscamos todas las etiquetas de Adsterra que se generan solas
+    const elementosAdsterra = document.querySelectorAll('div, iframe');
+    
+    elementosAdsterra.forEach(el => {
+      // Si el elemento es de Adsterra (suelen usar posiciones fijas muy altas)
+      const style = window.getComputedStyle(el);
+      if (style.position === 'fixed' && parseInt(style.zIndex) > 1000) {
+        // Le bajamos el z-index para que se vaya detrás de las ventanas flotantes
+        el.style.zIndex = '100 !important';
+        // También le bajamos la opacidad un poco si quieres que sea menos molesto
+        // el.style.opacity = '0.7'; 
+      }
+    });
+  }
+
+  // Ejecutamos el truco a los 2 segundos de cargar para darle tiempo al anuncio de aparecer
+  setTimeout(mandarSocialBarAlFondo, 2000);
+  
+  // Por si tarda más en cargar, lo volvemos a intentar a los 5 segundos
+  setTimeout(mandarSocialBarAlFondo, 5000);
+</script>
+
 <style>
 /* El fondo oscuro para centrar la vista en el anuncio */
 .jd-fondo-ads {
@@ -1089,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const btnCerrar = document.getElementById('btnCloseAds');
   const relojAnuncio = document.getElementById('timerAds');
 
-  const directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
+  const directlinkNormal = "https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4";
 
   // Ruleta de 1 entre 20
   const numeroAzar = Math.floor(Math.random() * 20) + 1;
@@ -1242,7 +1267,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================
   
   // 1. Pega aquí un DIRECT LINK de Adsterra (No el código .js)
-  const urlDirectLinkPopunder = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde"; 
+  const urlDirectLinkPopunder = "https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e"; 
   
   // 2. URL de regreso al detalle — calculada dinámicamente desde ?id= en la URL
   const _paramsBack = new URLSearchParams(window.location.search);
