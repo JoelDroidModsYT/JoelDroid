@@ -866,7 +866,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
         <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── (HTML estático — editar link aquí) -->
         <div class="space-y-1.5 text-center" id="btn-descarga-1-wrapper">
-          <button id="btn-descarga-1" onclick="ejecutarDescarga(document.getElementById('btn-descarga-1').dataset.link||'#')" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
+          <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
             <span id="btn-descarga-1-texto">Descargar Mod 1</span>
           </button>
@@ -875,7 +875,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
         <!-- ── BOTÓN 2: DESCARGAR MOD 2 (Mediafire-Seguro) ── (HTML estático — editar link aquí) -->
         <div class="space-y-1.5 text-center" id="btn-descarga-2-wrapper">
-          <button id="btn-descarga-2" onclick="ejecutarDescarga(document.getElementById('btn-descarga-2').dataset.link||'#')" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
+          <button id="btn-descarga-2" onclick="irADescarga(currentDetailId,2)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span id="btn-descarga-2-texto">Descargar Mod 2</span>
           </button>
@@ -1648,6 +1648,38 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
           <input type="url" id="editor-download-link2" class="ged-input" placeholder="https://mediafire.com/..." style="margin-bottom:8px">
           <label class="ged-label">Color del botón</label>
           <div id="dl-btn-color-selector-2" class="color-selector" style="margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN: Pantalla de Descarga (descarga.html) ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">📥 Pantalla de Descarga</div>
+        <div style="font-size:8px;color:rgba(56,189,248,.5);margin-bottom:10px;padding:6px 8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.15);border-radius:8px">
+          Estos datos llenan la pantalla descarga.html (icono, título, versión, peso, botón). Si los dejas vacíos, se usa la info del juego por defecto.
+        </div>
+        <!-- Servidor 1 -->
+        <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-size:8px;font-weight:800;color:rgba(147,197,253,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🔵 Servidor 1</div>
+          <label class="ged-label">Nombre en pantalla de descarga</label>
+          <input type="text" id="editor-dlpage-name1" class="ged-input" placeholder="Global Truck Online MOD v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Versión (chip)</label>
+          <input type="text" id="editor-dlpage-ver1" class="ged-input" placeholder="v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Peso del archivo (chip)</label>
+          <input type="text" id="editor-dlpage-size1" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
+          <label class="ged-label">Texto del botón final</label>
+          <input type="text" id="editor-dlpage-btn1" class="ged-input" placeholder="¡Descargar Ahora!">
+        </div>
+        <!-- Servidor 2 -->
+        <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:10px;padding:12px">
+          <div style="font-size:8px;font-weight:800;color:rgba(196,181,253,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🟣 Servidor 2</div>
+          <label class="ged-label">Nombre en pantalla de descarga</label>
+          <input type="text" id="editor-dlpage-name2" class="ged-input" placeholder="Global Truck Online MOD · MediaFire" style="margin-bottom:8px">
+          <label class="ged-label">Versión (chip)</label>
+          <input type="text" id="editor-dlpage-ver2" class="ged-input" placeholder="v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Peso del archivo (chip)</label>
+          <input type="text" id="editor-dlpage-size2" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
+          <label class="ged-label">Texto del botón final</label>
+          <input type="text" id="editor-dlpage-btn2" class="ged-input" placeholder="¡Descargar en MediaFire!">
         </div>
       </div>
 
@@ -3853,6 +3885,14 @@ function openGameEditor(gameId){
     _es('editor-download-link1').value=g.downloadButtonLink1||'';
     _es('editor-download-text2').value=g.downloadButtonText2||'';
     _es('editor-download-link2').value=g.downloadButtonLink2||'';
+    _es('editor-dlpage-name1').value=g.dlPageName1||'';
+    _es('editor-dlpage-ver1').value=g.dlPageVer1||'';
+    _es('editor-dlpage-size1').value=g.dlPageSize1||'';
+    _es('editor-dlpage-btn1').value=g.dlPageBtn1||'';
+    _es('editor-dlpage-name2').value=g.dlPageName2||'';
+    _es('editor-dlpage-ver2').value=g.dlPageVer2||'';
+    _es('editor-dlpage-size2').value=g.dlPageSize2||'';
+    _es('editor-dlpage-btn2').value=g.dlPageBtn2||'';
     _es('editor-icon-url').value=g.thumb||'';
     _es('editor-visible').checked=g.visible;
     _es('editor-update-badge-visible').checked=g.updateBadgeVisible;
@@ -3902,6 +3942,14 @@ function saveGame(){
     modBadgeBgColorKey:document.getElementById('mod-badge-color-selector-ui').dataset.selectedColor||'red',
     downloadButtonColorKey1:(document.getElementById('dl-btn-color-selector-1')||{}).dataset&&document.getElementById('dl-btn-color-selector-1').dataset.selectedColor||'blue',
     downloadButtonColorKey2:(document.getElementById('dl-btn-color-selector-2')||{}).dataset&&document.getElementById('dl-btn-color-selector-2').dataset.selectedColor||'blue',
+    dlPageName1:(document.getElementById('editor-dlpage-name1')||{value:''}).value||'',
+    dlPageVer1: (document.getElementById('editor-dlpage-ver1') ||{value:''}).value||'',
+    dlPageSize1:(document.getElementById('editor-dlpage-size1')||{value:''}).value||'',
+    dlPageBtn1: (document.getElementById('editor-dlpage-btn1') ||{value:''}).value||'',
+    dlPageName2:(document.getElementById('editor-dlpage-name2')||{value:''}).value||'',
+    dlPageVer2: (document.getElementById('editor-dlpage-ver2') ||{value:''}).value||'',
+    dlPageSize2:(document.getElementById('editor-dlpage-size2')||{value:''}).value||'',
+    dlPageBtn2: (document.getElementById('editor-dlpage-btn2') ||{value:''}).value||'',
   };};
   if(fileInput.files.length>0){
     var r=new FileReader();
@@ -6257,51 +6305,72 @@ function _syncSave(msg){
 // porque el DOM ya existe cuando se ejecuta el código
 // ══════════════════════════════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
-// FUNCIÓN DE DESCARGA ESTÁNDAR
-// Abre el enlace de descarga en una pestaña nueva.
+// SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
+// Los botones NO llevan URLs directas.
+// irADescarga() cachea los datos del juego en sessionStorage y
+// navega a descarga.html instantáneamente (efecto SPA).
 // ════════════════════════════════════════════════════════════════
-// --- FUNCIÓN DE DESCARGA REPARADA JOELDROID ---
+
+// Prefetch silencioso de descarga.html en cuanto carga el index
+// (el navegador lo tendrá en caché cuando el usuario haga clic)
+(function _prefetchDescarga() {
+  try {
+    var link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = 'descarga.html';
+    link.as = 'document';
+    document.head.appendChild(link);
+  } catch(e) {}
+})();
+
+function irADescarga(gameId, modo) {
+  if (!gameId) return;
+
+  // Buscar el objeto completo del juego en la lista en memoria
+  var game = (typeof siteState !== 'undefined' && siteState.gamesList)
+    ? siteState.gamesList.find(function(g){ return String(g.id) === String(gameId); })
+    : null;
+
+  // Serializar TODOS los campos en sessionStorage →
+  // descarga.html los lee al instante sin esperar a Firebase
+  if (game) {
+    try {
+      // Slug para reconstruir la URL de retorno exacta (botón Atrás)
+      var _slug = (typeof slugifyTitle === 'function')
+        ? slugifyTitle(game.name || game.nombre || '')
+        : String(gameId);
+
+      var _name = game.name  || game.nombre  || '';
+      var _ver  = game.ver   || game.version || '';
+      var _size = game.size  || game.peso    || '';
+
+      var payload = {
+        id:    String(game.id),
+        modo:  String(modo || 1),
+        slug:  _slug,          // ← para botón Atrás inteligente
+        name:  _name,
+        thumb: game.thumb || game.imagen || game.icon || '',
+        ver:   _ver,
+        size:  _size,
+        // Modo 1
+        link1: game.downloadButtonLink1 || game.enlace || '#',
+        // Modo 2
+        link2: game.downloadButtonLink2 || game.downloadButtonLink1 || game.enlace || '#',
+        ts: Date.now()
+      };
+      sessionStorage.setItem('jd_dl_payload', JSON.stringify(payload));
+    } catch(e) {}
+  }
+
+  // Regla 2: los botones NO abren URLs directas — solo redirigen a descarga.html
+  // con el ID del juego y el modo en la URL. descarga.html hace todo lo demás.
+  var url = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  window.location.href = url;
+}
+
+// Alias de compatibilidad por si algún código antiguo llama a ejecutarDescarga
 function ejecutarDescarga(url) {
-    // 1. Enlaces (1 Direct Link y 1 de Adultos para monetizar)
-    const adLink = "https://www.profitablecpmratenetwork.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292";
-    const adBack = "https://www.profitablecpmratenetwork.com/xanm7dpbh?key=34d2718f09cf320fa1289460acb60323";
-
-    // Cobro en segundo plano
-    new Image().src = adBack;
-
-    // 2. CREAR EL OVERLAY AN1 (Degradado Real + Pantalla Completa)
-    const overlay = document.createElement('div');
-    overlay.id = 'an1-premium-overlay';
-    
-    // Fondo degradado sutil (transparente arriba, más oscuro abajo) para estética Premium
-    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8)); z-index:2147483647; display:flex; flex-direction:column; overflow:hidden;";
-
-    overlay.innerHTML = `
-        <div style="width:100%; height:55px; display:flex; justify-content:flex-end; align-items:center; padding:0 15px; box-sizing:border-box;">
-            <button id="an1-close-pro" style="background:#ffffff; color:#333; padding:4px 14px; border-radius:20px; font-family:sans-serif; font-size:12px; font-weight:bold; border:none; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.3);">Close</button>
-        </div>
-        
-        <div style="flex-grow:1; width:100%; height:100%;">
-            <iframe src="${adLink}" style="width:100%; height:100%; border:none; background:transparent;"></iframe>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden'; // Bloquea el scroll de JoelDroid
-
-    // 3. CIERRE Y DESCARGA (Sin preguntas, directo al mod)
-    document.getElementById('an1-close-pro').onclick = function() {
-        document.body.removeChild(overlay);
-        document.body.style.overflow = 'auto'; // Restaura el sitio
-        
-        // Empieza la descarga de Global Truck Online o el mod elegido
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    };
+  irADescarga(currentDetailId, 1);
 }
 
 var _appInited = false;

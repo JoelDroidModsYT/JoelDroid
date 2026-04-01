@@ -603,21 +603,20 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   JOELDROID MODS YT — descarga.html  (v3 — optimizado)
+   JOELDROID MODS YT — descarga.html  (v4 — reglas definitivas)
    ───────────────────────────────────────────────────────────────
-   FLUJO:
-   1. Lee datos del juego desde sessionStorage (instantáneo, sin red)
-   2. Si no hay caché → consulta Firebase /mods/{id} como fallback
-   3. Rellena TODOS los campos de UI: nombre, versión, peso, icono
-   4. Corre el temporizador de 15 s (anillo SVG + barra)
-   5. Al llegar a 0: muestra el botón con la URL real de descarga
-   6. Maneja el historial del navegador (botón Atrás Android)
-   7. Inyecta anuncios Adsterra de forma asíncrona sin bloquear
+   REGLA 1 — Anuncios intactos: NO se toca ningún script de ads.
+   REGLA 2 — Botones Modo1/Modo2 del index redirigen aquí con ?id=&modo=
+   REGLA 3 — Botón Atrás regresa al detalle exacto del juego en index.
+   REGLA 4 — Título héroe: "[Nombre] (Mod Dinero Infinito) [Ver].apk"
+   REGLA 5 — Botón final dinámico: "[Nombre] (Mod Dinero Infinito) v[Ver].apk - [Peso]"
+   REGLA 6 — Timer de 15 s arranca automáticamente; al llegar a 0
+             se habilita el botón con la URL real leída de Firebase.
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  /* ── Firebase config ─────────────────────────────────── */
+  /* ── Firebase config (idéntica a index.html) ──────────── */
   var FB_CFG = {
     apiKey:            "AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M",
     authDomain:        "joeldroid-mods.firebaseapp.com",
@@ -632,49 +631,59 @@
   var gameId  = (params.get('id')   || '').trim();
   var modoNum = params.get('modo') === '2' ? 2 : 1;
 
-  /* ── Estado global (declarado fuera del DOM-ready para que
-     left sea accesible desde los listeners de popstate) ──── */
+  /* ── Estado global — fuera de DOMContentLoaded para que
+     los listeners de popstate accedan a `left` en tiempo real ── */
   var realUrl      = '#';
-  var finalBtnText = '¡Descargar Ahora!';
   var timerRunning = false;
   var dataApplied  = false;
   var TOTAL  = 15;
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
-  /* ── Historial — pushState lo antes posible ────────────── */
+  /* ─────────────────────────────────────────────────────────
+     REGLA 3 — URL de retorno inteligente
+     Lee el slug desde sessionStorage (guardado por irADescarga).
+     Si no existe, usa el gameId directamente; checkDeepLink en
+     index.html soporta tanto ?mod=slug como ?mod=ID.
+  ───────────────────────────────────────────────────────── */
+  function _getBackUrl() {
+    if (!gameId) return 'index.html';
+    try {
+      var raw = sessionStorage.getItem('jd_dl_payload');
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (String(p.id) === String(gameId) && p.slug) {
+          return 'index.html?mod=' + encodeURIComponent(p.slug);
+        }
+      }
+    } catch(e) {}
+    return 'index.html?mod=' + encodeURIComponent(gameId);
+  }
+
+  /* ── Historial: pushState antes del paint para capturar Atrás ── */
   try {
     history.pushState({ jdDl: true }, '', window.location.href);
     window.addEventListener('popstate', function () {
-      /* Solo actúa si el timer TODAVÍA está corriendo (left > 0):
-         en ese caso el usuario quiere regresar al detalle del juego.
-         Si left <= 0 el timer ya terminó y el script del popunder
-         toma el control con su propio listener. */
+      /* Si el timer sigue corriendo → el usuario quiere ir atrás al
+         detalle del juego. Si ya terminó → el popunder toma el control. */
       if (left > 0) {
-        var dest = gameId
-          ? 'index.html?mod=' + encodeURIComponent(gameId)
-          : 'index.html';
-        window.location.replace(dest);
+        window.location.replace(_getBackUrl());
       }
     });
   } catch(e) {}
 
-  /* ── Botón Atrás del NAV (flecha en la barra superior) ── */
+  /* ── Botón ← del nav (flecha en la barra superior) ─────── */
   window.jdGoBack = function(ev) {
     if (ev) ev.preventDefault();
-    var dest = gameId
-      ? 'index.html?mod=' + encodeURIComponent(gameId)
-      : 'index.html';
-    window.location.href = dest;
+    window.location.href = _getBackUrl();
   };
 
   /* ══════════════════════════════════════════════════════════
-     Todo lo que necesita el DOM se envuelve en DOMContentLoaded
-     para que los getElementById no devuelvan null.
+     DOM — todo dentro de DOMContentLoaded para evitar null refs
   ══════════════════════════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', function () {
 
-    /* ── DOM refs ──────────────────────────────────────────── */
+    /* ── Refs del DOM ──────────────────────────────────────── */
     var numEl    = document.getElementById('dl-counter-num');
     var ringFg   = document.getElementById('dl-ring-fg');
     var barEl    = document.getElementById('dl-progress-bar');
@@ -690,26 +699,56 @@
     var btnTexto = document.getElementById('dl-btn-final-texto');
     var btnBadge = document.getElementById('dl-btn-size-badge');
 
-    /* Inicializar anillo en posición 0% */
+    /* Anillo en posición inicial (0% girado) — REGLA 6 */
     if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM);
 
-    /* ── TEMPORIZADOR ────────────────────────────────────── */
+    /* ── Helper: escapar HTML ────────────────────────────── */
+    function _esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       REGLA 4 — Título héroe automático
+       Línea 1 (negrita): "[Nombre] (Mod Dinero Infinito)"
+       Línea 2 (normal) : "[Versión].apk"
+       Max 2 líneas garantizado por -webkit-line-clamp:2 en CSS.
+    ───────────────────────────────────────────────────────── */
+    function _buildHeroTitle(name, ver) {
+      var line1 = _esc(name) + ' (Mod Dinero Infinito)';
+      var line2 = (ver ? _esc(ver) : '') + '.apk';
+      return '<strong>' + line1 + '</strong><br>' + line2;
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       REGLA 5 — Texto del botón final dinámico
+       Formato: "[Nombre] (Mod Dinero Infinito) v[Ver].apk - [Peso]"
+    ───────────────────────────────────────────────────────── */
+    function _buildBtnText(name, ver, size) {
+      var t = name + ' (Mod Dinero Infinito)';
+      if (ver)  t += ' v' + ver + '.apk';
+      if (size) t += ' - ' + size;
+      return t;
+    }
+
+    /* ── TEMPORIZADOR — REGLA 6 ──────────────────────────── */
     function _renderTimer() {
       var elapsed = TOTAL - left;
       var ratio   = Math.min(elapsed / TOTAL, 1);
       if (numEl)  numEl.textContent = String(Math.max(left, 0));
       if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM - CIRCUM * ratio);
       var pct = Math.round(ratio * 100);
-      if (barEl)  barEl.style.width = pct + '%';
-      if (pctEl)  pctEl.textContent = pct + '%';
+      if (barEl)  barEl.style.width  = pct + '%';
+      if (pctEl)  pctEl.textContent  = pct + '%';
     }
 
     function _finishTimer() {
+      /* Ocultar sección contador */
       if (waitTxt)  waitTxt.style.display  = 'none';
       if (ringWrap) ringWrap.style.display = 'none';
+      /* Mostrar botón final con URL real y texto dinámico — REGLAS 5 + 6 */
       if (btnFinal) {
         btnFinal.href = realUrl;
-        if (btnTexto) btnTexto.textContent = finalBtnText;
         btnFinal.classList.add('visible');
       }
     }
@@ -717,7 +756,7 @@
     function _startTimer() {
       if (timerRunning) return;
       timerRunning = true;
-      _renderTimer();
+      _renderTimer(); /* dibujar estado inicial del anillo */
       var iv = setInterval(function () {
         left--;
         if (left <= 0) { clearInterval(iv); _finishTimer(); }
@@ -725,55 +764,46 @@
       }, 1000);
     }
 
-    /* ── APLICAR DATOS A LA UI ───────────────────────────── */
-    /* FIX HERENCIA: name/ver/size/thumb SIEMPRE vienen del
-       campo principal del juego. dlPageBtn* solo sobreescribe
-       el texto del botón final si el admin lo personalizó.    */
+    /* ─────────────────────────────────────────────────────────
+       APLICAR DATOS A LA UI — REGLAS 4, 5, 6
+       Fuente: sessionStorage (cache inmediato) o Firebase (fallback).
+       name/ver/size/thumb vienen SIEMPRE del campo principal del juego.
+    ───────────────────────────────────────────────────────── */
     function _applyData(d) {
       if (dataApplied) return;
       dataApplied = true;
 
-      /* Datos base del juego (herencia automática) */
-      var name  = d.name  || d.nombre || 'MOD APK';
+      var name  = d.name  || d.nombre  || 'MOD APK';
       var ver   = d.ver   || d.version || '';
-      var size  = d.size  || d.peso   || '';
-      var thumb = d.thumb || d.imagen || d.icon || '';
+      var size  = d.size  || d.peso    || '';
+      var thumb = d.thumb || d.imagen  || d.icon || '';
 
-      /* URL de descarga según modo */
-      var url;
-      var btnTxt;
-      if (modoNum === 2) {
-        url    = d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '#';
-        btnTxt = d.dlPageBtn2 || d.dlPageBtn1 || '¡Descargar Ahora!';
-      } else {
-        url    = d.downloadButtonLink1 || d.link1 || '#';
-        btnTxt = d.dlPageBtn1 || '¡Descargar Ahora!';
-      }
+      /* URL de descarga según modo — REGLA 6 */
+      var url = modoNum === 2
+        ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '#')
+        : (d.downloadButtonLink1 || d.link1 || '#');
+      realUrl = url || '#';
 
-      realUrl      = url    || '#';
-      finalBtnText = btnTxt || '¡Descargar Ahora!';
+      /* ── REGLA 4: Título héroe ── */
+      if (nameEl) nameEl.innerHTML = _buildHeroTitle(name, ver);
 
-      /* Nombre */
-      if (nameEl && name) {
-        nameEl.innerHTML = '<strong>' + _esc(name) + '</strong>';
-      }
+      /* ── REGLA 5: Texto botón final dinámico ── */
+      var dynText = _buildBtnText(name, ver, size);
+      if (btnTexto) btnTexto.textContent = dynText;
+      if (btnBadge && size) btnBadge.textContent = size;
 
-      /* Chips: versión y peso */
+      /* ── Chips de stats ── */
       if (statVer  && ver)  statVer.textContent  = ver;
-      if (statSize && size) {
-        statSize.textContent = size;
-        if (btnBadge) btnBadge.textContent = size;
-      }
+      if (statSize && size) statSize.textContent = size;
 
-      /* Texto del botón final */
-      if (btnTexto) btnTexto.textContent = finalBtnText;
+      /* ── Tab del navegador ── */
+      try {
+        document.title = name + ' (Mod Dinero Infinito) ' + (ver ? ver + '.apk' : '.apk') + ' | JoelDroid Mods YT';
+      } catch(e) {}
 
-      /* Título del tab */
-      try { document.title = name + ' — Descarga | JoelDroid Mods YT'; } catch(e) {}
-
-      /* Ícono */
+      /* ── Ícono del juego ── */
       if (thumb && iconEl) {
-        iconEl.onload  = function(){ iconEl.style.display='';    if(iconPh) iconPh.style.display='none'; };
+        iconEl.onload  = function(){ iconEl.style.display=''; if(iconPh) iconPh.style.display='none'; };
         iconEl.onerror = function(){ iconEl.style.display='none'; if(iconPh) iconPh.style.display='flex'; };
         iconEl.src = thumb;
       } else {
@@ -782,47 +812,76 @@
       }
     }
 
-    function _esc(s) {
-      return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    }
-
-    /* ── FUENTE 1: sessionStorage (instantáneo) ──────────── */
+    /* ── FUENTE 1: sessionStorage — instantáneo, sin red ──── */
     function _trySessionStorage() {
       try {
         var raw = sessionStorage.getItem('jd_dl_payload');
         if (!raw) return false;
         var p = JSON.parse(raw);
         if (String(p.id) !== String(gameId)) return false;
-        if (Date.now() - (p.ts || 0) > 300000) return false;
+        if (Date.now() - (p.ts || 0) > 300000) return false; /* caché de 5 min */
         _applyData(p);
         return true;
       } catch(e) { return false; }
     }
 
-    /* ── FUENTE 2: Firebase Firestore (fallback) ─────────── */
+    /* ── FUENTE 2: Firebase Firestore — fallback + refresco ── */
     function _fetchFirebase() {
       try {
         if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
         var db = firebase.firestore();
         db.collection('mods').doc(String(gameId)).get()
-          .then(function (doc) {
+          .then(function(doc) {
             if (doc.exists) { var d = doc.data(); d.id = doc.id; _applyData(d); }
             _startTimer();
           })
-          .catch(function (err) {
-            console.warn('[descarga] Firestore:', err.message);
+          .catch(function(err) {
+            console.warn('[descarga] Firestore error:', err.message);
             _startTimer();
           });
-      } catch (e) {
-        console.warn('[descarga] Firebase init:', e.message);
+      } catch(e) {
+        console.warn('[descarga] Firebase init error:', e.message);
         _startTimer();
       }
     }
 
-    /* ── ANUNCIOS ADSTERRA — asíncronos ─────────────────── */
+    /* ── Refresco silencioso de URL desde Firebase ────────── */
+    /* Cuando hay caché, el timer arranca de inmediato.
+       En paralelo confirmamos que la URL de descarga sigue vigente. */
+    function _refreshUrlFromFirebase() {
+      setTimeout(function() {
+        if (typeof firebase === 'undefined') return;
+        try {
+          if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
+          firebase.firestore().collection('mods').doc(String(gameId)).get()
+            .then(function(doc) {
+              if (!doc.exists || !btnFinal) return;
+              var d = doc.data();
+              var freshUrl = modoNum === 2
+                ? (d.downloadButtonLink2 || d.downloadButtonLink1 || realUrl)
+                : (d.downloadButtonLink1 || realUrl);
+              /* También actualizar el texto dinámico con datos frescos */
+              var freshName = d.name  || d.nombre  || '';
+              var freshVer  = d.ver   || d.version || '';
+              var freshSize = d.size  || d.peso    || '';
+              if (freshUrl && freshUrl !== '#') {
+                realUrl = freshUrl;
+                btnFinal.href = freshUrl;
+              }
+              /* Actualizar título héroe y texto botón con datos frescos */
+              if (freshName) {
+                if (nameEl)   nameEl.innerHTML      = _buildHeroTitle(freshName, freshVer);
+                if (btnTexto) btnTexto.textContent  = _buildBtnText(freshName, freshVer, freshSize);
+                if (btnBadge && freshSize) btnBadge.textContent = freshSize;
+                if (statVer  && freshVer)  statVer.textContent  = freshVer;
+                if (statSize && freshSize) statSize.textContent = freshSize;
+              }
+            }).catch(function(){});
+        } catch(e) {}
+      }, 800);
+    }
+
+    /* ── REGLA 1: Anuncios Adsterra — asíncronos, sin bloquear ── */
     function _loadAds() {
       var ads = [
         { slot: 'jd-ad-banner-1', key: '13d51e2826afc9138cb8f865b0b8ea66' },
@@ -849,50 +908,40 @@
       });
     }
 
-    /* ── ARRANQUE ────────────────────────────────────────── */
-    var gotCache = gameId ? _trySessionStorage() : false;
-
-    if (gotCache) {
-      _startTimer();
-      /* Actualizar URL de descarga en background por si cambió en Firebase */
-      setTimeout(function() {
-        if (typeof firebase === 'undefined') return;
-        try {
-          if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
-          firebase.firestore().collection('mods').doc(String(gameId)).get()
-            .then(function(doc){
-              if (doc.exists && btnFinal) {
-                var d = doc.data();
-                var freshUrl = modoNum === 2
-                  ? (d.downloadButtonLink2 || d.downloadButtonLink1 || realUrl)
-                  : (d.downloadButtonLink1 || realUrl);
-                if (freshUrl && freshUrl !== '#') {
-                  realUrl = freshUrl;
-                  btnFinal.href = freshUrl;
-                }
-              }
-            }).catch(function(){});
-        } catch(e) {}
-      }, 800);
-
-    } else if (gameId) {
-      /* Sin caché → esperar Firebase SDK */
-      if (typeof firebase !== 'undefined') {
-        _fetchFirebase();
+    /* ═══════════════════════════════════════════════════════
+       ARRANQUE — REGLA 6: timer empieza automáticamente
+    ════════════════════════════════════════════════════════ */
+    if (gameId) {
+      var gotCache = _trySessionStorage();
+      if (gotCache) {
+        /* Datos disponibles al instante → timer arranca de inmediato */
+        _startTimer();
+        /* Refresco silencioso desde Firebase para tener datos siempre frescos */
+        _refreshUrlFromFirebase();
       } else {
-        var _w = setInterval(function () {
-          if (typeof firebase !== 'undefined') { clearInterval(_w); _fetchFirebase(); }
-        }, 80);
-        /* Timeout de seguridad: arrancar timer tras 2.5 s aunque Firebase no cargue */
-        setTimeout(function () { clearInterval(_w); if (!timerRunning) _startTimer(); }, 2500);
+        /* Sin caché → esperar al SDK de Firebase */
+        if (typeof firebase !== 'undefined') {
+          _fetchFirebase();
+        } else {
+          var _waitFb = setInterval(function() {
+            if (typeof firebase !== 'undefined') {
+              clearInterval(_waitFb);
+              _fetchFirebase();
+            }
+          }, 80);
+          /* Seguridad: si Firebase tarda más de 2.5 s, arrancar el timer de todos modos */
+          setTimeout(function() {
+            clearInterval(_waitFb);
+            if (!timerRunning) _startTimer();
+          }, 2500);
+        }
       }
-
     } else {
-      /* Sin ID en URL: arrancar timer directamente */
+      /* Sin ?id= en la URL: arrancar timer de todos modos */
       _startTimer();
     }
 
-    /* Anuncios diferidos */
+    /* Anuncios diferidos — REGLA 1: no bloquean el timer */
     if (window.requestIdleCallback) {
       requestIdleCallback(_loadAds, { timeout: 2000 });
     } else {
