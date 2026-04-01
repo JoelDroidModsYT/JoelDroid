@@ -625,19 +625,21 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
 <script>
-/* ═════════════════════════════════════════════════════════════════
-   JOELDROID — descarga.html
-   Lee ?id=GAME_ID&modo=1|2 de la URL,
-   consulta Firestore /mods/{id} y muestra los datos en la pantalla.
-   El temporizador de 15 segundos corre mientras tanto.
-   Al terminar, aparece el botón con el link REAL de descarga.
-═════════════════════════════════════════════════════════════════ */
-(function(){
+/* ═══════════════════════════════════════════════════════════════════
+   JOELDROID MODS YT — descarga.html v2
+   ───────────────────────────────────────────────────────────────────
+   1. Lee ?id=GAME_ID&modo=1|2 de la URL
+   2. Consulta Firestore /mods/{id} para obtener los datos
+      (nombre descarga, versión, peso, URL real, texto del botón)
+   3. Muestra esos datos en pantalla
+   4. Corre el temporizador de 15 s (el anillo SVG ya está en el HTML)
+   5. Al llegar a 0: asigna la URL real al botón y lo muestra
+═══════════════════════════════════════════════════════════════════ */
+(function () {
 
-  /* ── Config Firebase (mismo proyecto que index.html) ────────── */
-  var FIREBASE_CONFIG = {
+  /* ── Misma config Firebase que index.html ─────────────────── */
+  var FB_CFG = {
     apiKey:            "AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M",
     authDomain:        "joeldroid-mods.firebaseapp.com",
     projectId:         "joeldroid-mods",
@@ -646,166 +648,153 @@
     appId:             "1:308221632883:web:a50829da7b400d74f12506"
   };
 
-  /* ── Leer parámetros de la URL ──────────────────────────────── */
+  /* ── Parámetros de la URL ──────────────────────────────────── */
   var params  = new URLSearchParams(window.location.search);
-  var gameId  = params.get('id')   || '';
-  var modo    = params.get('modo') || '1';
-  var modoNum = (modo === '2') ? 2 : 1;
+  var gameId  = (params.get('id')   || '').trim();
+  var modoNum = params.get('modo') === '2' ? 2 : 1;
 
-  /* ── Referencias DOM ────────────────────────────────────────── */
-  var numEl      = document.getElementById('dl-counter-num');
-  var ringFg     = document.getElementById('dl-ring-fg');
-  var barEl      = document.getElementById('dl-progress-bar');
-  var pctEl      = document.getElementById('dl-progress-pct');
-  var waitTxt    = document.getElementById('dl-waiting-text');
-  var ringWrap   = document.getElementById('dl-ring-wrap');
-  var btnFinal   = document.getElementById('dl-btn-final');
-  var nameEl     = document.getElementById('dl-page-name');
-  var iconEl     = document.getElementById('dl-page-icon');
-  var iconPh     = document.getElementById('dl-icon-ph');
-  var statVer    = document.getElementById('dl-stat-ver');
-  var statSize   = document.getElementById('dl-stat-size');
-  var btnTexto   = document.getElementById('dl-btn-final-texto');
-  var btnBadge   = document.getElementById('dl-btn-size-badge');
+  /* ── Referencias DOM (elementos ya presentes en el HTML) ───── */
+  var numEl    = document.getElementById('dl-counter-num');
+  var ringFg   = document.getElementById('dl-ring-fg');
+  var barEl    = document.getElementById('dl-progress-bar');
+  var pctEl    = document.getElementById('dl-progress-pct');
+  var waitTxt  = document.getElementById('dl-waiting-text');
+  var ringWrap = document.getElementById('dl-ring-wrap');
+  var btnFinal = document.getElementById('dl-btn-final');
+  var nameEl   = document.getElementById('dl-page-name');
+  var iconEl   = document.getElementById('dl-page-icon');
+  var iconPh   = document.getElementById('dl-icon-ph');
+  var statVer  = document.getElementById('dl-stat-ver');
+  var statSize = document.getElementById('dl-stat-size');
+  var btnTexto = document.getElementById('dl-btn-final-texto');
+  var btnBadge = document.getElementById('dl-btn-size-badge');
 
-  /* ── Datos por defecto (se sobreescriben con Firebase) ──────── */
-  var dlRealUrl  = '#';
-  var dlBtnText  = '¡Descargar Ahora!';
+  /* ── Estado ────────────────────────────────────────────────── */
+  var realUrl      = '#';           // URL real de descarga (viene de Firebase)
+  var btnFinalText = '¡Descargar Ahora!';
+  var timerRunning = false;
 
-  /* ── Temporizador ───────────────────────────────────────────── */
+  /* ── TEMPORIZADOR (15 s) ───────────────────────────────────── */
   var TOTAL  = 15;
-  var CIRCUM = 238.8;
+  var CIRCUM = 238.8;   // 2 * π * r  (r = 38 según el SVG del HTML)
   var left   = TOTAL;
-  var timerStarted = false;
 
-  ringFg.style.strokeDashoffset = CIRCUM;
+  /* Anillo arranca vacío */
+  if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM);
 
-  function renderTimer(){
+  function _renderTimer() {
     var elapsed = TOTAL - left;
     var ratio   = elapsed / TOTAL;
-    numEl.textContent = left;
-    ringFg.style.strokeDashoffset = CIRCUM - (CIRCUM * ratio);
-    var pct = Math.round(ratio * 100);
-    barEl.style.width = pct + '%';
-    pctEl.textContent = pct + '%';
+    if (numEl)  numEl.textContent = String(left);
+    if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM - CIRCUM * ratio);
+    if (barEl)  barEl.style.width  = Math.round(ratio * 100) + '%';
+    if (pctEl)  pctEl.textContent  = Math.round(ratio * 100) + '%';
   }
 
-  function finishTimer(){
-    waitTxt.style.display  = 'none';
-    ringWrap.style.display = 'none';
-    /* Asignar URL real al botón final */
-    btnFinal.href = dlRealUrl;
-    /* Texto del botón personalizado */
-    if(btnTexto) btnTexto.textContent = dlBtnText;
-    btnFinal.classList.add('visible');
+  function _finishTimer() {
+    if (waitTxt)  waitTxt.style.display  = 'none';
+    if (ringWrap) ringWrap.style.display = 'none';
+    /* Asignar URL real al botón */
+    if (btnFinal) {
+      btnFinal.href = realUrl;
+      if (btnTexto) btnTexto.textContent = btnFinalText;
+      btnFinal.classList.add('visible');
+    }
   }
 
-  function startTimer(){
-    if(timerStarted) return;
-    timerStarted = true;
-    renderTimer();
-    var iv = setInterval(function(){
+  function _startTimer() {
+    if (timerRunning) return;
+    timerRunning = true;
+    _renderTimer();
+    var iv = setInterval(function () {
       left--;
-      if(left <= 0){
-        clearInterval(iv);
-        finishTimer();
-      } else {
-        renderTimer();
-      }
+      if (left <= 0) { clearInterval(iv); _finishTimer(); }
+      else { _renderTimer(); }
     }, 1000);
   }
 
-  /* ── Aplicar datos del juego a la UI ────────────────────────── */
-  function applyGameData(g){
-    /* Nombre en pantalla de descarga */
-    var name, ver, size, realUrl, btnTxt;
-    if(modoNum === 2){
-      name   = g.dlPageName2 || g.dlPageName1 || g.name || 'Juego MOD APK';
-      ver    = g.dlPageVer2  || g.dlPageVer1  || g.ver  || '';
-      size   = g.dlPageSize2 || g.dlPageSize1 || g.size || '';
-      realUrl= g.downloadButtonLink2 || g.downloadButtonLink1 || '#';
+  /* ── APLICAR DATOS DEL JUEGO A LA UI ──────────────────────── */
+  function _applyGame(g) {
+    var name, ver, size, url, btnTxt, thumb;
+
+    if (modoNum === 2) {
+      /* Modo 2 — con fallback a Modo 1 si los campos de descarga no existen */
+      name   = g.dlPageName2 || g.dlPageName1 || g.name  || 'MOD APK';
+      ver    = g.dlPageVer2  || g.dlPageVer1  || g.ver   || '';
+      size   = g.dlPageSize2 || g.dlPageSize1 || g.size  || '';
+      url    = g.downloadButtonLink2 || g.downloadButtonLink1 || '#';
       btnTxt = g.dlPageBtn2  || g.dlPageBtn1  || '¡Descargar Ahora!';
     } else {
-      name   = g.dlPageName1 || g.name || 'Juego MOD APK';
-      ver    = g.dlPageVer1  || g.ver  || '';
-      size   = g.dlPageSize1 || g.size || '';
-      realUrl= g.downloadButtonLink1 || '#';
+      /* Modo 1 */
+      name   = g.dlPageName1 || g.name  || 'MOD APK';
+      ver    = g.dlPageVer1  || g.ver   || '';
+      size   = g.dlPageSize1 || g.size  || '';
+      url    = g.downloadButtonLink1 || '#';
       btnTxt = g.dlPageBtn1  || '¡Descargar Ahora!';
     }
+    thumb = g.thumb || g.imagen || g.icon || '';
 
-    dlRealUrl = realUrl;
-    dlBtnText = btnTxt;
+    realUrl      = url;
+    btnFinalText = btnTxt;
 
-    /* Actualizar DOM */
-    if(nameEl) nameEl.innerHTML = '<strong>' + _esc(name) + '</strong>';
-    if(statVer && ver)  statVer.textContent  = ver;
-    if(statSize && size){ statSize.textContent = size; if(btnBadge) btnBadge.textContent = size; }
-    if(btnTexto) btnTexto.textContent = btnTxt;
+    /* Actualizar texto del nombre */
+    if (nameEl) nameEl.innerHTML = '<strong>' + _esc(name) + '</strong>';
 
-    /* Icono */
-    if(g.thumb && iconEl){
-      iconEl.src = g.thumb;
+    /* Stats chips */
+    if (statVer  && ver)  statVer.textContent  = ver;
+    if (statSize && size) { statSize.textContent = size; if (btnBadge) btnBadge.textContent = size; }
+
+    /* Texto en botón final (ya antes de que aparezca) */
+    if (btnTexto) btnTexto.textContent = btnTxt;
+
+    /* Icono del juego */
+    if (thumb && iconEl) {
+      iconEl.src = thumb;
       iconEl.style.display = '';
-      if(iconPh) iconPh.style.display = 'none';
+      if (iconPh) iconPh.style.display = 'none';
     } else {
-      if(iconEl)  iconEl.style.display = 'none';
-      if(iconPh)  iconPh.style.display = 'flex';
+      if (iconEl) iconEl.style.display = 'none';
+      if (iconPh) iconPh.style.display = 'flex';
     }
 
-    /* Título de la pestaña */
-    try{ document.title = name + ' — Descarga | JoelDroid Mods YT'; }catch(e){}
+    /* Título de la pestaña del navegador */
+    try { document.title = name + ' — Descarga | JoelDroid Mods YT'; } catch (e) {}
   }
 
-  function _esc(str){ return String(str).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  /* ── Fallback si no hay ID o falla Firebase ─────────────────── */
-  function useFallback(){
-    if(nameEl) nameEl.innerHTML = '<strong>Juego MOD APK</strong>';
-    startTimer();
-  }
-
-  /* ── Conectar Firebase y leer datos ────────────────────────── */
-  function fetchFromFirebase(){
-    try{
-      if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  /* ── FIREBASE — leer /mods/{gameId} ────────────────────────── */
+  function _fetchFirebase() {
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
       var db = firebase.firestore();
-      db.collection('mods').doc(String(gameId)).get()
-        .then(function(doc){
-          if(doc.exists){
-            var data = doc.data();
-            data.id = doc.id;
-            applyGameData(data);
-          }
-          /* Siempre iniciar el timer, haya o no datos */
-          startTimer();
+      db.collection('mods').doc(gameId).get()
+        .then(function (doc) {
+          if (doc.exists) { var d = doc.data(); d.id = doc.id; _applyGame(d); }
+          _startTimer();   /* ← timer arranca siempre, haya o no datos */
         })
-        .catch(function(err){
-          console.warn('[descarga] Firestore error:', err.message);
-          startTimer();
+        .catch(function (err) {
+          console.warn('[descarga] Firestore:', err.message);
+          _startTimer();
         });
-    } catch(e){
-      console.warn('[descarga] Firebase init error:', e.message);
-      startTimer();
+    } catch (e) {
+      console.warn('[descarga] Firebase init:', e.message);
+      _startTimer();
     }
   }
 
-  /* ── Arranque ───────────────────────────────────────────────── */
-  if(!gameId){
-    useFallback();
+  /* ── ARRANQUE ──────────────────────────────────────────────── */
+  if (!gameId) {
+    /* Sin ID → arrancar temporizador directamente */
+    _startTimer();
+  } else if (typeof firebase !== 'undefined') {
+    _fetchFirebase();
   } else {
-    /* Esperar al SDK si aún no cargó */
-    if(typeof firebase !== 'undefined'){
-      fetchFromFirebase();
-    } else {
-      var _waitFB = setInterval(function(){
-        if(typeof firebase !== 'undefined'){
-          clearInterval(_waitFB);
-          fetchFromFirebase();
-        }
-      }, 100);
-      /* Arrancar timer igual tras 2s máximo */
-      setTimeout(function(){ if(!timerStarted){ startTimer(); } }, 2000);
-    }
+    /* SDK aún cargando → esperar hasta 3 s y arrancar timer de todas formas */
+    var _w = setInterval(function () {
+      if (typeof firebase !== 'undefined') { clearInterval(_w); _fetchFirebase(); }
+    }, 80);
+    setTimeout(function () { clearInterval(_w); if (!timerRunning) _startTimer(); }, 3000);
   }
 
 })();
