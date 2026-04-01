@@ -955,34 +955,44 @@
 
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
+<div id="cerrar-social-bar" style="
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    background-color: #ff3333;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 9999999999 !important;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.5);
+">X</div>
+
 <script>
-  function enterrarSocialBar() {
-    // Buscamos todos los elementos de la página
-    const todosLosElementos = document.getElementsByTagName('*');
+  // Función para borrar el Social Bar cuando el usuario le dé clic a la X
+  document.getElementById('cerrar-social-bar').addEventListener('click', function() {
+    // Escondemos el botón rojo
+    this.style.display = 'none';
     
+    // Buscamos todos los elementos de Adsterra que estén flotando y los borramos
+    const todosLosElementos = document.getElementsByTagName('*');
     for (let i = 0; i < todosLosElementos.length; i++) {
       const el = todosLosElementos[i];
       const style = window.getComputedStyle(el);
       
-      // El Social Bar siempre usa posición fija y está arriba del todo
+      // Si el elemento está fijo arriba y tiene un z-index gigante, lo borramos
       if (style.position === 'fixed' && parseInt(style.zIndex) > 1000) {
-        // Forzamos que se vaya al fondo del todo
-        el.style.setProperty('z-index', '1', 'important');
-        
-        // OPCIONAL: Si quieres que se mueva hacia abajo de la pantalla para que no tape nada arriba:
-         el.style.setProperty('top', 'auto', 'important');
-         el.style.setProperty('bottom', '0px', 'important');
+        el.style.display = 'none';
       }
     }
-  }
-
-  // Ejecutamos el rastreador cada medio segundo para ganarle a Adsterra
-  const intervaloSocialBar = setInterval(enterrarSocialBar, 500);
-
-  // A los 10 segundos apagamos el rastreador para no gastar batería del celular
-  setTimeout(() => {
-    clearInterval(intervaloSocialBar);
-  }, 10000);
+  });
 </script>
 
 <style>
