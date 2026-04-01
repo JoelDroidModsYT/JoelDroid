@@ -313,30 +313,10 @@
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
-  function _getBackUrl() {
-    if (!gameId) return 'index.html';
-    try {
-      var raw = sessionStorage.getItem('jd_dl_payload');
-      if (raw) {
-        var p = JSON.parse(raw);
-        if (String(p.id) === String(gameId) && p.slug)
-          return 'index.html?mod=' + encodeURIComponent(p.slug);
-      }
-    } catch(e) {}
-    return 'index.html?mod=' + encodeURIComponent(gameId);
-  }
-
+  /* Navegación gestionada por el módulo del popunder */
   try {
     history.pushState({ jdDl: true }, '', window.location.href);
-    window.addEventListener('popstate', function () {
-      if (left > 0) window.location.replace(_getBackUrl());
-    });
   } catch(e) {}
-
-  window.jdGoBack = function(ev) {
-    if (ev) ev.preventDefault();
-    window.location.href = _getBackUrl();
-  };
 
   document.addEventListener('DOMContentLoaded', function () {
 
@@ -612,50 +592,124 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     POPUNDER (botón Atrás / logo) — INTACTO
+     POPUNDER — Intercepción del botón Atrás
+     • Siempre intercepta el popstate y muestra el anuncio
+     • La página queda congelada en segundo plano
+     • Solo navega al juego cuando el usuario cierra el anuncio
 ═══════════════════════════════════════════════════════════════ -->
 <style>
-.jd-fondo-popunder{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100010;display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.jd-fondo-popunder{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100010;display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .22s ease}
 .jd-fondo-popunder.activa{opacity:1;pointer-events:auto}
 .jd-blanco-pop{background:#fff;width:95%;max-width:440px;height:85vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column}
 .jd-barra-pop{background:#f1f3f4;height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 15px;border-bottom:1px solid #dadce0;font-family:sans-serif;flex-shrink:0}
 .jd-pop-titulo{color:#5f6368;font-size:15px;font-weight:bold}
-.jd-btn-close-pop{color:#1a73e8;font-size:14px;font-weight:bold;cursor:pointer}
+.jd-btn-close-pop{display:flex;align-items:center;gap:4px;color:#1a73e8;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;user-select:none;-webkit-tap-highlight-color:transparent}
 .jd-frame-pop{width:100%;flex:1;border:none;background:#fff}
 </style>
 <div class="jd-fondo-popunder" id="capaPopunder">
   <div class="jd-blanco-pop">
     <div class="jd-barra-pop">
       <span class="jd-pop-titulo">Anuncios+16</span>
-      <span class="jd-btn-close-pop" id="btnClosePopunder">Close ❯</span>
+      <span class="jd-btn-close-pop" id="btnClosePopunder">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        Close ✕
+      </span>
     </div>
     <iframe class="jd-frame-pop" id="iframePopunder" scrolling="yes"></iframe>
   </div>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var urlPop  = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
-  var _pid    = (new URLSearchParams(window.location.search).get('id') || '').trim();
-  var urlBack = _pid ? 'index.html?mod=' + encodeURIComponent(_pid) : 'index.html';
-  var capa    = document.getElementById('capaPopunder');
-  var iframe  = document.getElementById('iframePopunder');
-  var btnClose= document.getElementById('btnClosePopunder');
+(function () {
+  'use strict';
 
-  if (iframe) iframe.src = urlPop;
+  /* ── URLs del anuncio popunder ── */
+  var urlPop = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
 
-  window.addEventListener('popstate', function() {
-    if (typeof left !== 'undefined' && left > 0) return;
-    capa.classList.add('activa');
-    history.pushState(null, null, window.location.href);
+  /* ── Calcular URL de retorno al juego ── */
+  function _backUrl() {
+    var pid = (new URLSearchParams(window.location.search).get('id') || '').trim();
+    try {
+      var raw = sessionStorage.getItem('jd_dl_payload');
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (pid && String(p.id) === pid && p.slug)
+          return 'index.html?mod=' + encodeURIComponent(p.slug);
+      }
+    } catch(e) {}
+    return pid ? 'index.html?mod=' + encodeURIComponent(pid) : 'index.html';
+  }
+
+  var capa     = document.getElementById('capaPopunder');
+  var iframe   = document.getElementById('iframePopunder');
+  var btnClose = document.getElementById('btnClosePopunder');
+  var _adCargado = false;
+  var _popAbierto = false;
+
+  /* Precarga silenciosa del iframe para que el anuncio aparezca al instante */
+  function _precargarAd() {
+    if (_adCargado) return;
+    _adCargado = true;
+    if (iframe) iframe.src = urlPop;
+  }
+
+  /* Abrir el popunder — congela la página, muestra el anuncio */
+  function _abrirPopunder() {
+    if (_popAbierto) return;
+    _popAbierto = true;
+    _precargarAd();
+    /* Empujar estado para absorber futuros botones Atrás mientras el anuncio está abierto */
+    history.pushState({ jdPop: true }, '', window.location.href);
+    if (capa) capa.classList.add('activa');
+  }
+
+  /* Cerrar el popunder y navegar al juego */
+  function _cerrarYNavegar() {
+    if (capa) capa.classList.remove('activa');
+    _popAbierto = false;
+    /* Navegar a la info del juego solo cuando el usuario cierra el anuncio */
+    setTimeout(function () {
+      window.location.href = _backUrl();
+    }, 120); /* pequeño delay para que el fade-out sea visible */
+  }
+
+  /* ── Intercepción ÚNICA del botón Atrás ── */
+  window.addEventListener('popstate', function (e) {
+    /* Siempre reempujar el estado para mantener la pila y evitar recargas */
+    history.pushState(null, '', window.location.href);
+
+    if (_popAbierto) {
+      /* El usuario tocó Atrás con el anuncio ya abierto — ignorar, ya está mostrando */
+      return;
+    }
+    /* Primera vez que toca Atrás: mostrar el anuncio */
+    _abrirPopunder();
   });
 
-  document.querySelectorAll('a[href*="index"],.logo,img[src*="logo"],header img,.nombre-sitio,.titulo-web')
-    .forEach(function(el) { el.addEventListener('click', function(e) { e.preventDefault(); capa.classList.add('activa'); }); });
+  /* El botón Atrás del nav interno también dispara el popunder */
+  window.jdGoBack = function (ev) {
+    if (ev) ev.preventDefault();
+    _abrirPopunder();
+  };
 
-  if (btnClose) {
-    btnClose.addEventListener('click', function() { capa.classList.remove('activa'); window.location.href = urlBack; });
-  }
-});
+  /* Precarga del iframe después de 1.5s para que esté listo cuando se necesite */
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(_precargarAd, 1500);
+
+    /* Cerrar con el botón Close del popunder → navegar al juego */
+    if (btnClose) {
+      btnClose.addEventListener('click', _cerrarYNavegar);
+    }
+
+    /* Logo y enlaces internos también abren el popunder */
+    document.querySelectorAll('a[href*="index"],.logo,img[src*="logo"],header img,.nombre-sitio,.titulo-web')
+      .forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          _abrirPopunder();
+        });
+      });
+  });
+})();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════
