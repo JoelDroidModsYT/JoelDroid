@@ -1651,6 +1651,38 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         </div>
       </div>
 
+      <!-- ── SECCIÓN: Pantalla de Descarga (descarga.html) ── -->
+      <div class="ged-section">
+        <div class="ged-section-title">📥 Pantalla de Descarga</div>
+        <div style="font-size:8px;color:rgba(56,189,248,.5);margin-bottom:10px;padding:6px 8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.15);border-radius:8px">
+          Estos datos llenan la pantalla descarga.html (icono, título, versión, peso, botón). Si los dejas vacíos, se usa la info del juego por defecto.
+        </div>
+        <!-- Servidor 1 -->
+        <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-size:8px;font-weight:800;color:rgba(147,197,253,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🔵 Servidor 1</div>
+          <label class="ged-label">Nombre en pantalla de descarga</label>
+          <input type="text" id="editor-dlpage-name1" class="ged-input" placeholder="Global Truck Online MOD v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Versión (chip)</label>
+          <input type="text" id="editor-dlpage-ver1" class="ged-input" placeholder="v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Peso del archivo (chip)</label>
+          <input type="text" id="editor-dlpage-size1" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
+          <label class="ged-label">Texto del botón final</label>
+          <input type="text" id="editor-dlpage-btn1" class="ged-input" placeholder="¡Descargar Ahora!">
+        </div>
+        <!-- Servidor 2 -->
+        <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:10px;padding:12px">
+          <div style="font-size:8px;font-weight:800;color:rgba(196,181,253,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🟣 Servidor 2</div>
+          <label class="ged-label">Nombre en pantalla de descarga</label>
+          <input type="text" id="editor-dlpage-name2" class="ged-input" placeholder="Global Truck Online MOD · MediaFire" style="margin-bottom:8px">
+          <label class="ged-label">Versión (chip)</label>
+          <input type="text" id="editor-dlpage-ver2" class="ged-input" placeholder="v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Peso del archivo (chip)</label>
+          <input type="text" id="editor-dlpage-size2" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
+          <label class="ged-label">Texto del botón final</label>
+          <input type="text" id="editor-dlpage-btn2" class="ged-input" placeholder="¡Descargar en MediaFire!">
+        </div>
+      </div>
+
       <!-- ── SECCIÓN: Visibilidad ── -->
       <div class="ged-section">
         <div class="ged-section-title">Visibilidad en el Sitio</div>
@@ -3853,6 +3885,14 @@ function openGameEditor(gameId){
     _es('editor-download-link1').value=g.downloadButtonLink1||'';
     _es('editor-download-text2').value=g.downloadButtonText2||'';
     _es('editor-download-link2').value=g.downloadButtonLink2||'';
+    _es('editor-dlpage-name1').value=g.dlPageName1||'';
+    _es('editor-dlpage-ver1').value=g.dlPageVer1||'';
+    _es('editor-dlpage-size1').value=g.dlPageSize1||'';
+    _es('editor-dlpage-btn1').value=g.dlPageBtn1||'';
+    _es('editor-dlpage-name2').value=g.dlPageName2||'';
+    _es('editor-dlpage-ver2').value=g.dlPageVer2||'';
+    _es('editor-dlpage-size2').value=g.dlPageSize2||'';
+    _es('editor-dlpage-btn2').value=g.dlPageBtn2||'';
     _es('editor-icon-url').value=g.thumb||'';
     _es('editor-visible').checked=g.visible;
     _es('editor-update-badge-visible').checked=g.updateBadgeVisible;
@@ -3902,6 +3942,14 @@ function saveGame(){
     modBadgeBgColorKey:document.getElementById('mod-badge-color-selector-ui').dataset.selectedColor||'red',
     downloadButtonColorKey1:(document.getElementById('dl-btn-color-selector-1')||{}).dataset&&document.getElementById('dl-btn-color-selector-1').dataset.selectedColor||'blue',
     downloadButtonColorKey2:(document.getElementById('dl-btn-color-selector-2')||{}).dataset&&document.getElementById('dl-btn-color-selector-2').dataset.selectedColor||'blue',
+    dlPageName1:(document.getElementById('editor-dlpage-name1')||{value:''}).value||'',
+    dlPageVer1: (document.getElementById('editor-dlpage-ver1') ||{value:''}).value||'',
+    dlPageSize1:(document.getElementById('editor-dlpage-size1')||{value:''}).value||'',
+    dlPageBtn1: (document.getElementById('editor-dlpage-btn1') ||{value:''}).value||'',
+    dlPageName2:(document.getElementById('editor-dlpage-name2')||{value:''}).value||'',
+    dlPageVer2: (document.getElementById('editor-dlpage-ver2') ||{value:''}).value||'',
+    dlPageSize2:(document.getElementById('editor-dlpage-size2')||{value:''}).value||'',
+    dlPageBtn2: (document.getElementById('editor-dlpage-btn2') ||{value:''}).value||'',
   };};
   if(fileInput.files.length>0){
     var r=new FileReader();

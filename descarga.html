@@ -1220,14 +1220,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
-  history.pushState(null, null, window.location.href);
-  history.pushState(null, null, window.location.href);
-  
-  window.onpopstate = function(event) {
-    // Salta la ventana flotante al instante
+  // Se usa addEventListener para NO destruir el listener de navegación
+  // del IIFE principal (que regresa al index con el juego abierto).
+  // El popunder solo se activa cuando el timer ya terminó (left <= 0).
+  window.addEventListener('popstate', function(event) {
+    // Si el timer sigue corriendo, dejar que el IIFE maneje el Atrás
+    if (typeof left !== 'undefined' && left > 0) return;
     capaPopunder.classList.add('activa');
     history.pushState(null, null, window.location.href);
-  };
+  });
 
 
   // --- 🖱️ DISPARADOR 2: CLIC EN LOGO O NOMBRE ---
