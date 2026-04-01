@@ -6257,17 +6257,70 @@ function _syncSave(msg){
 // porque el DOM ya existe cuando se ejecuta el código
 // ══════════════════════════════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
-// FUNCIÓN DE DESCARGA — Redirige a descarga.html
-// NO hay links directos aquí. La URL real vive en Firebase
-// y solo se expone en descarga.html tras el temporizador.
+// SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
+// Los botones NO llevan URLs directas.
+// irADescarga() cachea los datos del juego en sessionStorage y
+// navega a descarga.html instantáneamente (efecto SPA).
 // ════════════════════════════════════════════════════════════════
+
+// Prefetch silencioso de descarga.html en cuanto carga el index
+// (el navegador lo tendrá en caché cuando el usuario haga clic)
+(function _prefetchDescarga() {
+  try {
+    var link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = 'descarga.html';
+    link.as = 'document';
+    document.head.appendChild(link);
+  } catch(e) {}
+})();
+
 function irADescarga(gameId, modo) {
-    if (!gameId) return;
-    window.location.href = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  if (!gameId) return;
+
+  // Buscar el objeto completo del juego en la lista en memoria
+  var game = (typeof siteState !== 'undefined' && siteState.gamesList)
+    ? siteState.gamesList.find(function(g){ return String(g.id) === String(gameId); })
+    : null;
+
+  // Serializar TODOS los campos necesarios en sessionStorage
+  // → descarga.html los lee al instante, sin esperar a Firebase
+  if (game) {
+    try {
+      var payload = {
+        id:    String(game.id),
+        modo:  String(modo || 1),
+        name:  game.name  || game.nombre || '',
+        thumb: game.thumb || game.imagen || game.icon || '',
+        ver:   game.ver   || game.version || '',
+        size:  game.size  || game.peso || '',
+        // Modo 1
+        dlPageName1: game.dlPageName1 || game.name || '',
+        dlPageVer1:  game.dlPageVer1  || game.ver  || '',
+        dlPageSize1: game.dlPageSize1 || game.size || '',
+        dlPageBtn1:  game.dlPageBtn1  || '¡Descargar Ahora!',
+        link1:       game.downloadButtonLink1 || game.enlace || '#',
+        // Modo 2
+        dlPageName2: game.dlPageName2 || game.dlPageName1 || game.name || '',
+        dlPageVer2:  game.dlPageVer2  || game.dlPageVer1  || game.ver  || '',
+        dlPageSize2: game.dlPageSize2 || game.dlPageSize1 || game.size || '',
+        dlPageBtn2:  game.dlPageBtn2  || game.dlPageBtn1  || '¡Descargar Ahora!',
+        link2:       game.downloadButtonLink2 || game.downloadButtonLink1 || '#',
+        ts: Date.now()
+      };
+      sessionStorage.setItem('jd_dl_payload', JSON.stringify(payload));
+    } catch(e) {}
+  }
+
+  // Navegar con URL limpia — descarga.html lee sessionStorage primero
+  // y solo consulta Firebase como fallback si no hay datos en caché
+  var url = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  window.location.href = url;
 }
-// Alias de compatibilidad por si algún botón antiguo llama a ejecutarDescarga
+
+// Alias de compatibilidad por si algún código antiguo llama a ejecutarDescarga
 function ejecutarDescarga(url) {
-    irADescarga(currentDetailId, 1);
+  irADescarga(currentDetailId, 1);
 }
 
 var _appInited = false;
