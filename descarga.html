@@ -574,7 +574,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnFinal = document.getElementById('dl-btn-final');
   var hint     = document.getElementById('jd-ads-hint');
 
-  /* Cargar el anuncio solo cuando el modal se abre (lazy) — menos carga inicial en Android */
+  /* ── PRECARGA: el iframe se carga en segundo plano desde el inicio del cronómetro ──
+     Así cuando el usuario hace clic, el anuncio ya está en memoria y aparece al instante. */
   var _frameLoaded = false;
 
   function _cargarFrame() {
@@ -583,9 +584,14 @@ document.addEventListener('DOMContentLoaded', function() {
     frame.src = (Math.floor(Math.random() * 20) + 1 === 10) ? dlAdulto : dlNormal;
   }
 
+  /* Iniciar precarga a los 2 segundos de cargar la página —
+     tiempo suficiente para que Firebase y el contador arranquen primero,
+     pero lo bastante temprano para que el anuncio esté listo antes del segundo 10. */
+  setTimeout(_cargarFrame, 2000);
+
   document.addEventListener('jd:btnFinalClick', function() {
     if (capa.classList.contains('activa')) return;
-    _cargarFrame();
+    /* El frame ya está cargado; solo mostramos el modal */
     capa.classList.add('activa');
     btnClose.style.display = 'none';
     if (hint) hint.classList.remove('visible');
@@ -611,9 +617,10 @@ document.addEventListener('DOMContentLoaded', function() {
     capa.classList.remove('activa');
     if (hint) hint.classList.remove('visible');
     btnClose.style.display = 'none';
-    /* Limpiar iframe al cerrar para liberar memoria en Android */
+    /* Limpiar iframe al cerrar y volver a precargar para la próxima vez */
     frame.src = 'about:blank';
     _frameLoaded = false;
+    setTimeout(_cargarFrame, 500);
     var url = btnFinal ? (btnFinal.getAttribute('data-real-url') || '') : '';
     if (!url) return;
     if (/\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url)) {
