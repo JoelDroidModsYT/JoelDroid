@@ -196,7 +196,7 @@
             <circle class="dl-ring-fg" id="dl-ring-fg" cx="45" cy="45" r="38" stroke-dasharray="238.8" stroke-dashoffset="0"/>
           </svg>
           <div class="dl-counter-inner">
-            <div id="dl-counter-num" class="dl-counter-num">10</div>
+            <div id="dl-counter-num" class="dl-counter-num">15</div>
             <div class="dl-counter-label">seg</div>
           </div>
         </div>
@@ -333,10 +333,9 @@
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
-  var TOTAL  = 10;
+  var TOTAL  = 15;
   var CIRCUM = 238.8;
   var left   = TOTAL;
-  // Nota: TOTAL cambiado de 15 a 10
 
   /* Navegación gestionada por el módulo del popunder */
   try {
@@ -562,7 +561,7 @@
       <div class="jd-barra-ads-top">
         <span class="jd-ads-titulo">Anuncios+16</span>
         <div class="jd-ads-controles">
-          <span class="jd-ads-reloj" id="timerAds">Wait 2s</span>
+          <span class="jd-ads-reloj" id="timerAds">Wait 5s</span>
           <span class="jd-ads-close" id="btnCloseAds">
             <span class="jd-ads-close-arrow">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -596,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btnClose.style.display = 'none';
     if (hint) hint.classList.remove('visible');
     reloj.style.display    = 'inline';
-    var s = 2;
+    var s = 5;
     reloj.textContent = 'Wait ' + s + 's';
     var iv = setInterval(function() {
       s--;
