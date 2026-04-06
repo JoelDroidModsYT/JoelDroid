@@ -15,6 +15,13 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
 
+<!-- ══ FIREBASE SDK — Motor principal de datos en tiempo real ════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<!-- ════════════════════════════════════════════════════════════════ -->
+
 <script>
 // ══════════════════════════════════════════════════════════════════
 // 🔥 FIREBASE — JoelDroid Mods YT — CONFIGURADO Y LISTO
@@ -198,13 +205,31 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 </head>
 <body class="no-scrollbar">
 
-<!-- ══ GUARDA DE AUTENTICACIÓN — timeout 3s, no bloquea indefinidamente ══ -->
+<!-- ══ GUARDA DE AUTENTICACIÓN — muestra login si no hay sesión activa ══ -->
 <script>
-// _resolveAuthGuard se llama desde onAuthStateChanged — SIN timers
-// Firebase.auth.setPersistence(LOCAL) garantiza que la sesión persiste entre páginas
+// Si no es admin: muestra pantalla login (NO redirige — el admin puede iniciar sesión aquí)
+// Si es admin: oculta login y deja entrar al panel
+window._authGuardResolved = false;
 window._resolveAuthGuard = function(isAdmin){
-  if(!isAdmin) window.location.replace('index.html');
+  window._authGuardResolved = true;
+  clearTimeout(window._authGuardTimeout);
+  if(isAdmin){
+    var ls = document.getElementById('login-screen');
+    if(ls) ls.style.display = 'none';
+    document.body.style.overflow = '';
+  } else {
+    var ls = document.getElementById('login-screen');
+    if(ls){ ls.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
 };
+// Timeout 5s: si Firebase no responde, mostrar login sin bloquear
+window._authGuardTimeout = setTimeout(function(){
+  if(!window._authGuardResolved){
+    window._authGuardResolved = true;
+    var ls = document.getElementById('login-screen');
+    if(ls){ ls.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+}, 5000);
 </script>
 
 <!-- TOAST -->
@@ -807,11 +832,7 @@ window._resolveAuthGuard = function(isAdmin){
   </div>
 </div>
 
-<!-- FIREBASE SDK -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<!-- Firebase SDK ya cargado en <head> -->
 
 <script>
 // ════════════════════════════════════════════════════════════════
