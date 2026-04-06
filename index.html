@@ -1044,7 +1044,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
       <p style="font-size:9px;color:rgba(0,212,255,.5);margin-top:4px">JoelDroid Mods YT</p>
     </div>
     <div style="margin-bottom:12px">
-      <input type="email" id="fb-login-email" class="admin-input" placeholder="gamerssimulacionjl@gmail.com"
+      <input type="email" id="fb-login-email" class="admin-input" placeholder="Correo electrónico"
         style="width:100%;margin-bottom:10px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
         autocomplete="email" value="">
       <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña de Firebase"
@@ -2619,7 +2619,9 @@ function handleAdminTrigger(){
       loginScreen.classList.remove('hidden');
       document.body.style.overflow='hidden';
       var emailInput=document.getElementById('fb-login-email');
-      if(emailInput&&!emailInput.value)emailInput.value=ADMIN_EMAIL||'';
+      if(emailInput){ emailInput.value=''; }
+      var passInput=document.getElementById('fb-login-pass');
+      if(passInput){ passInput.value=''; }
       var st=document.getElementById('fb-login-status');
       if(st)st.innerText='';
       setTimeout(function(){
@@ -2638,7 +2640,9 @@ function openLogin(){
     document.body.style.overflow='hidden';
     // Pre-rellenar email del admin
     var emailInput = document.getElementById('fb-login-email');
-    if(emailInput && !emailInput.value) emailInput.value = ADMIN_EMAIL||'';
+    if(emailInput){ emailInput.value=''; }
+    var passInput2 = document.getElementById('fb-login-pass');
+    if(passInput2){ passInput2.value=''; }
     // Limpiar status anterior
     var st = document.getElementById('fb-login-status');
     if(st) st.innerText='';
@@ -4928,18 +4932,25 @@ function _shareExecCopy(url){
 function _trackVisit(){
   try{
     if(!_db) return;
-    _db.collection('siteConfig').doc('stats').set({
+    var today = new Date().toISOString().split('T')[0];
+    var upd = {
       visits: firebase.firestore.FieldValue.increment(1),
       lastVisit: firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true}).catch(function(){});
+    };
+    upd['daily_'+today] = firebase.firestore.FieldValue.increment(1);
+    _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
   }catch(e){}
 }
 function _trackClick(gameId, gameName){
   try{
     if(!_db || !gameId) return;
     var safeId = String(gameId).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40);
-    var upd = { ['gameClicks_'+safeId]: firebase.firestore.FieldValue.increment(1) };
+    var today = new Date().toISOString().split('T')[0];
+    var upd = {};
+    upd['gameClicks_'+safeId] = firebase.firestore.FieldValue.increment(1);
+    upd['gameClicksToday_'+safeId] = firebase.firestore.FieldValue.increment(1);
     upd['gameName_'+safeId] = gameName||'';
+    upd['lastClick'] = firebase.firestore.FieldValue.serverTimestamp();
     _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
   }catch(e){}
 }
