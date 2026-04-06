@@ -198,14 +198,21 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 </head>
 <body class="no-scrollbar">
 
-<!-- ══ GUARDA DE AUTENTICACIÓN — bloquea panel hasta verificar sesión Firebase ══ -->
-<div id="auth-guard" style="position:fixed;inset:0;z-index:9999;background:#020408;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s ease">
-  <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" stroke="#3b82f6"><g fill="none" fill-rule="evenodd" stroke-width="3"><circle cx="22" cy="22" r="18" stroke-opacity=".25"/><path d="M40 22c0-9.94-8.06-18-18-18"><animateTransform attributeName="transform" type="rotate" from="0 22 22" to="360 22 22" dur="1s" repeatCount="indefinite"/></path></g></svg>
-  <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.12em;margin:0">Verificando sesión...</p>
-</div>
-<style>
-#auth-guard.hidden{opacity:0;pointer-events:none}
-</style>
+<!-- ══ GUARDA DE AUTENTICACIÓN — timeout 3s, no bloquea indefinidamente ══ -->
+<script>
+(function(){
+  var _authResolved = false;
+  // Si en 3 segundos onAuthStateChanged no confirma admin → redirigir
+  var _authTimeout = setTimeout(function(){
+    if(!_authResolved) window.location.replace('index.html');
+  }, 3000);
+  window._resolveAuthGuard = function(isAdmin){
+    _authResolved = true;
+    clearTimeout(_authTimeout);
+    if(!isAdmin) window.location.replace('index.html');
+  };
+})();
+</script>
 
 <!-- TOAST -->
 <div id="toast-notification"></div>
@@ -520,12 +527,12 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
       <p style="font-size:9px;color:rgba(0,212,255,.5);margin-top:4px">JoelDroid Mods YT</p>
     </div>
     <div style="margin-bottom:12px">
-      <input type="email" id="fb-login-email" class="admin-input" placeholder="gamerssimulacionjl@gmail.com"
+      <input type="email" id="fb-login-email" class="admin-input" placeholder="Correo electrónico"
         style="width:100%;margin-bottom:10px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
-        autocomplete="email" value="">
-      <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña de Firebase"
+        autocomplete="off">
+      <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña"
         style="width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
-        autocomplete="current-password">
+        autocomplete="off">
     </div>
     <div id="fb-login-status" style="font-size:10px;color:#f87171;min-height:20px;text-align:center;margin-bottom:12px"></div>
     <button onclick="doFirebaseLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#fb923c,#ef4444);color:white;border:none;border-radius:12px;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;margin-bottom:8px">
@@ -868,11 +875,9 @@ function _initFirebase(){
       if(lb)lb.classList.toggle('hidden',!!user);
       if(lo)lo.classList.toggle('hidden',!user);
 
-      // ── GUARDA DE AUTENTICACIÓN ──────────────────────────────────
-      var guard=document.getElementById('auth-guard');
       if(user&&ADMIN_UID&&user.uid===ADMIN_UID){
-        // Admin verificado → ocultar overlay y mostrar panel
-        if(guard)guard.classList.add('hidden');
+        // Admin verificado → cancelar timeout y permitir acceso
+        if(typeof window._resolveAuthGuard==='function') window._resolveAuthGuard(true);
         _updateSyncUI(true,'✅ Admin activo: '+user.email);
         setTimeout(function(){
           if(!_isAdmin())return;
@@ -881,12 +886,12 @@ function _initFirebase(){
             .catch(function(){});
         },800);
       }else if(user){
-        // Usuario autenticado pero NO es admin → redirigir
+        // UID no coincide → no es admin
+        if(typeof window._resolveAuthGuard==='function') window._resolveAuthGuard(false);
         _fbAuth.signOut();
-        window.location.replace('index.html');
       }else{
-        // Sin sesión → redirigir a index.html para que haga login
-        window.location.replace('index.html');
+        // Sin sesión → redirigir
+        if(typeof window._resolveAuthGuard==='function') window._resolveAuthGuard(false);
       }
     });
     _updateSyncUI(null,'✅ Firebase conectado — tiempo real activo para todos');
@@ -1440,10 +1445,13 @@ function openLogin(){
   if(s){
     s.style.display='flex';
     document.body.style.overflow='hidden';
+    // SEGURIDAD: campos SIEMPRE vacíos — el usuario debe escribir sus credenciales
     var emailInput=document.getElementById('fb-login-email');
-    if(emailInput&&!emailInput.value)emailInput.value=ADMIN_EMAIL||'';
+    if(emailInput){ emailInput.value=''; emailInput.removeAttribute('value'); }
+    var passInput=document.getElementById('fb-login-pass');
+    if(passInput){ passInput.value=''; passInput.removeAttribute('value'); }
     var st=document.getElementById('fb-login-status');if(st)st.innerText='';
-    setTimeout(function(){var p=document.getElementById('fb-login-pass');if(p)p.focus();},200);
+    setTimeout(function(){if(emailInput)emailInput.focus();},200);
   }
 }
 
@@ -1698,9 +1706,41 @@ function refreshStats(){
 // ════════════════════════════════════════════════════════════════
 function testJSONBin(){
   var jbEl=document.getElementById('jb-status');
-  if(jbEl)jbEl.textContent='Probando...';
-  if(!_fbReady){if(jbEl){jbEl.textContent='⚠️ Firebase no está conectado.';jbEl.style.color='#f59e0b';}}
-  else{if(jbEl){jbEl.textContent='✅ Firebase está activo — JSONBin es el método de respaldo.';jbEl.style.color='#10b981';}}
+  var fbBar=document.getElementById('fb-status-bar');
+  if(jbEl){jbEl.textContent='⏳ Probando conexión Firebase...';jbEl.style.color='#60a5fa';}
+  if(!_fbReady||!_db){
+    if(jbEl){jbEl.textContent='❌ Firebase no está listo. Espera 2s y vuelve a intentar.';jbEl.style.color='#ef4444';}
+    if(fbBar){fbBar.textContent='❌ Sin conexión Firebase';fbBar.style.color='#ef4444';}
+    // Reintentar init
+    _initFirebase();
+    return;
+  }
+  // Ping real: escritura + lectura a Firestore
+  var testRef=_db.collection('siteConfig').doc('connectionTest');
+  var ts=Date.now();
+  testRef.set({ping:ts,admin:_isAdmin(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})
+    .then(function(){
+      return testRef.get();
+    })
+    .then(function(doc){
+      var latency=Date.now()-ts;
+      var msg='✅ Firebase OK — '+latency+'ms — '+(doc.exists?'Lectura/Escritura OK':'Solo escritura OK');
+      if(jbEl){jbEl.textContent=msg;jbEl.style.color='#10b981';}
+      if(fbBar){fbBar.textContent=msg;fbBar.style.color='#10b981';}
+      // Forzar sincronización completa al panel
+      if(_isAdmin()){
+        _fbSaveSiteConfig(true);
+        showToast('✅ Conexión verificada — datos en sincronización global 🌍');
+      }else{
+        showToast('✅ Firebase conectado — inicia sesión admin para sincronizar');
+      }
+    })
+    .catch(function(e){
+      var msg='❌ Error: '+e.message+(e.code?' ('+e.code+')':'');
+      if(jbEl){jbEl.textContent=msg;jbEl.style.color='#ef4444';}
+      if(fbBar){fbBar.textContent=msg;fbBar.style.color='#ef4444';}
+      showToast('❌ '+msg);
+    });
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1871,7 +1911,7 @@ function showToast(message){
   }
 }
 
-// ════════════════════════════�
+// ════════════════════════════�
 <script>
 // ════════════════════════════════════════════════════════════════
 // ARRANQUE DEL PANEL — DOMContentLoaded
