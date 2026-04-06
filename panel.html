@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Control — JoelDroid Mods YT</title>
+<link id="favicon" rel="icon" type="image/png" href="logo.png?v=1.1">
+<script>
+if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// 🔥 FIREBASE — JoelDroid Mods YT — CONFIGURADO Y LISTO
+// ══════════════════════════════════════════════════════════════════
+var FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M",
+  authDomain:        "joeldroid-mods.firebaseapp.com",
+  projectId:         "joeldroid-mods",
+  storageBucket:     "joeldroid-mods.firebasestorage.app",
+  messagingSenderId: "308221632883",
+  appId:             "1:308221632883:web:a50829da7b400d74f12506"
+};
+var ADMIN_UID   = "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
+var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
+var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
+  gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
+};
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+:root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--gradient-end-color:#00d2ff;--admin-btn-color:#32CD32;}
+.light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);}
+body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:all .4s ease;overflow-x:hidden;position:relative;min-height:100vh;}
+
+/* ── PANEL PAGE ── */
+#panel-page{min-height:100vh;background:var(--bg-color);padding-bottom:60px}
+.panel-nav{background:var(--nav-bg);border-bottom:1px solid var(--border-color);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.panel-nav-logo{display:flex;align-items:center;gap:10px}
+.panel-nav-title{font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--text-main)}
+.panel-nav-subtitle{font-size:8px;font-weight:700;opacity:.5;text-transform:uppercase;letter-spacing:.15em}
+.back-btn{display:flex;align-items:center;gap:6px;color:#60a5fa;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:8px 14px;border:1px solid rgba(96,165,250,.3);border-radius:12px;background:rgba(96,165,250,.07);transition:all .2s}
+.back-btn:hover{background:rgba(96,165,250,.15);border-color:rgba(96,165,250,.6)}
+.back-btn:active{transform:scale(.96)}
+
+/* ── ADMIN INPUT ── */
+.admin-input{background:rgba(255,255,255,.05);border:1px solid var(--border-color);padding:12px;border-radius:12px;width:100%;color:inherit;font-family:inherit;font-size:10px}
+.light-mode .admin-input{background:rgba(0,0,0,.06);border-color:rgba(37,99,235,.3);color:#0f172a}
+.admin-label{font-size:9px;font-weight:700;opacity:.55;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:4px}
+.color-selector{display:flex;flex-wrap:wrap;gap:8px}
+.color-option{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.color-option.active{transform:scale(1.1);box-shadow:0 0 10px rgba(var(--brand-color-rgb),.8),inset 0 0 5px rgba(255,255,255,.5);border-color:white}
+
+/* ── TOAST ── */
+#toast-notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1000;display:none;background:var(--toast-bg);backdrop-filter:blur(10px);border:1px solid var(--toast-border);border-radius:12px;padding:12px 20px;box-shadow:var(--toast-neon-glow);color:var(--toast-text);font-size:14px;font-weight:600;transition:opacity .3s ease,transform .3s ease;opacity:0;white-space:nowrap}
+#toast-notification.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── GAME EDITOR MODAL ── */
+#game-editor-modal{background:rgba(0,0,0,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.ged-panel{width:100%;max-width:420px;max-height:92vh;overflow-y:auto;background:linear-gradient(160deg,#0a0e1a 0%,#060912 100%);border:1px solid rgba(0,212,255,.25);border-radius:20px;box-shadow:0 0 60px rgba(0,212,255,.12),0 0 120px rgba(139,92,246,.08),inset 0 1px 0 rgba(0,212,255,.1);position:relative;overflow:hidden;}
+.ged-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00d4ff,#8b5cf6,#00d4ff,transparent);animation:scanLine 3s linear infinite;}
+@keyframes scanLine{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+.ged-panel::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,212,255,.03),transparent);animation:shimmer 4s ease-in-out infinite;pointer-events:none;}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.ged-scrollbar::-webkit-scrollbar{width:4px}
+.ged-scrollbar::-webkit-scrollbar-track{background:rgba(0,212,255,.05)}
+.ged-scrollbar::-webkit-scrollbar-thumb{background:rgba(0,212,255,.3);border-radius:2px}
+.ged-header{padding:20px 20px 16px;position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a0e1a 80%,transparent);border-bottom:1px solid rgba(0,212,255,.1);}
+.ged-title{font-size:13px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;background:linear-gradient(90deg,#00d4ff,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ged-subtitle{font-size:9px;color:rgba(0,212,255,.5);font-weight:700;letter-spacing:.1em;margin-top:2px;text-transform:uppercase}
+.ged-body{padding:16px 20px 20px}
+.ged-section{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:12px;padding:14px;margin-bottom:12px;transition:border-color .2s;}
+.ged-section:focus-within{border-color:rgba(0,212,255,.35);background:rgba(0,212,255,.06)}
+.ged-section-title{font-size:8px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#00d4ff;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ged-section-title::before{content:'';width:3px;height:10px;background:#00d4ff;border-radius:2px;box-shadow:0 0 6px #00d4ff}
+.ged-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(180,200,255,.6);margin-bottom:4px;display:block;}
+.ged-input{width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:9px 12px;color:#e2e8f0;font-size:11px;font-weight:600;font-family:inherit;outline:none;transition:all .2s;}
+.ged-input:focus{border-color:rgba(0,212,255,.6);background:rgba(0,212,255,.06);box-shadow:0 0 12px rgba(0,212,255,.1)}
+.ged-input::placeholder{color:rgba(148,163,184,.35)}
+.ged-textarea{min-height:72px;resize:vertical}
+.ged-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ged-check-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(0,212,255,.08);cursor:pointer;transition:all .2s;margin-bottom:8px;}
+.ged-check-row:hover{border-color:rgba(0,212,255,.25);background:rgba(0,212,255,.05)}
+.ged-check-row input[type=checkbox]{width:16px;height:16px;accent-color:#00d4ff;cursor:pointer;flex-shrink:0;}
+.ged-check-label{font-size:10px;font-weight:700;color:rgba(200,220,255,.7);letter-spacing:.05em;cursor:pointer}
+.ged-file-btn{width:100%;padding:10px;border:1px dashed rgba(0,212,255,.25);border-radius:8px;background:rgba(0,212,255,.03);color:rgba(0,212,255,.6);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;text-align:center;}
+.ged-file-btn:hover{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.08)}
+.ged-actions{display:grid;grid-template-columns:1fr auto;gap:10px;padding:16px 20px;position:sticky;bottom:0;background:linear-gradient(0deg,#060912 70%,transparent);border-top:1px solid rgba(0,212,255,.08);}
+.ged-btn-save{padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#8b5cf6);color:#000;font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,.35);transition:all .2s;}
+.ged-btn-save:hover{box-shadow:0 0 30px rgba(0,212,255,.6);transform:translateY(-1px)}
+.ged-btn-save:active{transform:scale(.97)}
+.ged-btn-cancel{width:44px;padding:13px;border-radius:12px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);cursor:pointer;color:#f87171;font-size:16px;font-weight:900;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.ged-btn-cancel:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.6)}
+.ged-corner{position:absolute;width:12px;height:12px;border-color:rgba(0,212,255,.5);border-style:solid}
+.ged-corner-tl{top:8px;left:8px;border-width:1px 0 0 1px;border-top-left-radius:3px}
+.ged-corner-tr{top:8px;right:8px;border-width:1px 1px 0 0;border-top-right-radius:3px}
+.ged-corner-bl{bottom:8px;left:8px;border-width:0 0 1px 1px;border-bottom-left-radius:3px}
+.ged-corner-br{bottom:8px;right:8px;border-width:0 1px 1px 0;border-bottom-right-radius:3px}
+.ged-icon-preview{width:64px;height:64px;border-radius:16px;object-fit:cover;border:2px solid rgba(0,212,255,.3);background:rgba(0,0,0,.5);display:none;margin-bottom:8px;}
+.ged-icon-preview.show{display:block}
+
+/* ── BG THEMES SELECTOR ── */
+.bgt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.bgt-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:14px;border:1.5px solid var(--border-color);background:var(--search-bg);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden}
+.bgt-btn:active{transform:scale(.96)}
+.bgt-btn-icon{font-size:22px;line-height:1}
+.bgt-btn-label{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;opacity:.6;text-align:center;line-height:1.2}
+.bgt-active{border-color:var(--brand-color)!important;background:rgba(37,99,235,.14)!important;box-shadow:0 0 12px rgba(37,99,235,.3)}
+.bgt-active .bgt-btn-label{opacity:1;color:var(--brand-color)}
+.bgt-active::after{content:'✓';position:absolute;top:5px;right:7px;font-size:10px;font-weight:900;color:var(--brand-color)}
+
+/* ── ADMIN PANEL CARD ── */
+.admin-card{background:var(--card-bg);border:1.5px solid var(--border-color);border-radius:20px;padding:18px;margin-bottom:12px;box-shadow:var(--neon-border)}
+.light-mode .admin-card{color:#0f172a}
+.light-mode .admin-card h3{color:#1e40af}
+.light-mode .admin-card label{color:#334155}
+.light-mode .admin-card .text-gray-300{color:#475569!important}
+.light-mode .admin-card .text-gray-400{color:#64748b!important}
+.light-mode .admin-card .bg-gray-700\/50{background:rgba(203,213,225,.5)!important}
+.light-mode .admin-card .text-white{color:#0f172a!important}
+
+/* ── EP EMAIL PANEL ── */
+#email-panel{position:fixed;inset:0;z-index:150;background:var(--bg-color);overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+#email-panel.open{display:block}
+#email-panel::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2563eb,#06b6d4,#8b5cf6);z-index:2}
+.ep-page{max-width:480px;margin:0 auto;padding:16px 16px 60px}
+.ep-hdr{display:flex;align-items:center;gap:12px;padding:14px 0 16px;border-bottom:1px solid var(--border-color);margin-bottom:16px;position:sticky;top:0;background:var(--overlay-bg);z-index:10}
+.ep-hdr-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px rgba(37,99,235,.45)}
+.ep-title{font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.ep-sub{font-size:9px;opacity:.4;font-weight:600;margin-top:1px}
+.ep-card{background:var(--card-bg);border:1.5px solid var(--border-color);border-radius:20px;padding:18px 16px;margin-bottom:12px;box-shadow:var(--neon-border);transition:box-shadow .2s}
+.ep-card-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;opacity:.5;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.ep-label{font-size:10px;font-weight:700;opacity:.55;display:block;margin-bottom:4px;margin-top:10px}
+.ep-label:first-of-type{margin-top:0}
+.ep-input{width:100%;background:var(--search-bg);border:1.5px solid var(--border-color);border-radius:11px;padding:11px 13px;color:var(--text-main);font-size:12px;font-weight:600;outline:none;transition:border-color .2s;font-family:inherit;-webkit-appearance:none;box-sizing:border-box}
+.ep-input:focus{border-color:var(--brand-color);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.ep-input::placeholder{color:var(--text-secondary);font-weight:500}
+.ep-textarea{width:100%;background:var(--search-bg);border:1.5px solid var(--border-color);border-radius:11px;padding:11px 13px;color:var(--text-main);font-size:12px;font-weight:600;outline:none;transition:border-color .2s;font-family:inherit;resize:none;min-height:80px;-webkit-appearance:none;box-sizing:border-box}
+.ep-textarea:focus{border-color:var(--brand-color)}
+.ep-textarea::placeholder{color:var(--text-secondary);font-weight:500}
+.ep-tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border:1px solid var(--border-color);border-radius:14px;padding:3px;margin-bottom:14px}
+.ep-tab{flex:1;padding:8px 4px;border-radius:11px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;text-align:center;cursor:pointer;transition:all .2s;color:var(--text-secondary);border:none;background:transparent}
+.ep-tab.active{background:var(--brand-color);color:#fff;box-shadow:0 0 12px rgba(37,99,235,.5)}
+.ep-section{display:none}
+.ep-section.active{display:block}
+.ep-btn{width:100%;padding:13px;border-radius:14px;border:none;cursor:pointer;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;background:linear-gradient(135deg,var(--brand-color),#06b6d4);color:white;box-shadow:0 4px 16px rgba(37,99,235,.4);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.ep-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.ep-btn:active{transform:scale(.98)}
+.ep-btn.green{background:linear-gradient(135deg,#16a34a,#15803d)}
+.ep-btn.red{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+.ep-status{font-size:10px;font-weight:700;padding:8px 12px;border-radius:10px;margin-top:8px;display:none;line-height:1.4}
+.ep-status.ok{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#10b981}
+.ep-status.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#ef4444}
+.ep-status.info{background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);color:#60a5fa}
+.ep-progress{display:none;height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:10px;overflow:hidden}
+.ep-pbar{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#06b6d4);border-radius:2px;transition:width .3s ease}
+.ep-users{max-height:300px;overflow-y:auto}
+.ep-user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-color)}
+.ep-user-row:last-child{border-bottom:none}
+.ep-uav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:white;flex-shrink:0}
+.ep-uname{font-size:11px;font-weight:700;margin-bottom:1px}
+.ep-uemail{font-size:9px;opacity:.5}
+.ep-badge{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:6px;background:rgba(37,99,235,.15);color:#60a5fa;border:1px solid rgba(37,99,235,.3);margin-left:auto;flex-shrink:0}
+.ep-hint{font-size:9px;opacity:.35;line-height:1.5;margin-top:10px;text-align:center}
+
+/* ── LOGO ── */
+#logo-img,#logo-upload-preview,.admin-logo-preview{border-radius:20%!important;overflow:hidden;}
+
+/* ── ANIMACIONES ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.settings-content-anim{animation:fadeIn .4s ease-out}
+
+/* ── PENDING CHANGES BAR ── */
+#pending-changes-bar{background:linear-gradient(135deg,#1e3a1e,#14532d);border-bottom:2px solid #22c55e;padding:8px 16px;display:none;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:60}
+
+/* ── SCENE SELECTOR ── */
+#scene-selector .scene-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--search-bg);cursor:pointer;font-size:18px;transition:all .2s}
+#scene-selector .scene-btn.active{border-color:var(--brand-color);background:rgba(37,99,235,.14);box-shadow:0 0 10px rgba(37,99,235,.3)}
+#scene-selector .scene-btn span{font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;opacity:.6}
+
+/* LIGHT MODE ADMIN */
+.light-mode #panel-page{background:#f1f5f9;color:#0f172a}
+.light-mode .panel-nav{background:rgba(255,255,255,.98)}
+.light-mode .admin-input{background:rgba(0,0,0,.05);color:#0f172a}
+
+/* RESPONSIVE */
+@media(min-width:640px){
+  .max-panel{max-width:540px}
+}
+</style>
+</head>
+<body class="no-scrollbar">
+
+<!-- TOAST -->
+<div id="toast-notification"></div>
+
+<!-- PENDING CHANGES BAR -->
+<div id="pending-changes-bar">
+  <span style="color:#86efac;font-size:9px;font-weight:900;letter-spacing:.1em;flex:1">⚡ CAMBIOS PENDIENTES — Presiona GUARDAR para aplicar globalmente</span>
+  <button onclick="_flushPendingChanges()" style="background:#22c55e;color:#000;border:none;border-radius:8px;padding:7px 16px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.05em;text-transform:uppercase">💾 GUARDAR AHORA</button>
+</div>
+
+<!-- ═══ PANEL PAGE ═══════════════════════════════════════════════ -->
+<div id="panel-page">
+
+  <!-- NAV DEL PANEL -->
+  <nav class="panel-nav">
+    <div class="panel-nav-logo">
+      <div style="width:38px;height:38px;border-radius:20%;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(37,99,235,.6);flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 4L13 2L13 12L19 12L13 24L13 14L7 14L5 4Z" fill="white" opacity="0.95"/>
+          <path d="M13 2L21 4L19 12L13 12Z" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="panel-nav-title">Panel Admin</div>
+        <div class="panel-nav-subtitle">JoelDroid Mods YT</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="openEmailPanel()" style="display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;border:none;border-radius:10px;padding:8px 12px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 0 10px rgba(220,38,38,.4)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Gmail
+      </button>
+      <button onclick="_flushPendingChanges()" id="admin-save-all-btn" style="background:linear-gradient(135deg,#16a34a,#15803d);color:#ffffff;border:none;border-radius:10px;padding:8px 14px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 12px rgba(34,197,94,.4)">💾 GUARDAR</button>
+      <a href="index.html" class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Sitio
+      </a>
+    </div>
+  </nav>
+
+  <!-- ════ CUERPO DEL PANEL ═══════════════════════════════════════ -->
+  <div class="max-w-md mx-auto px-5 py-5 space-y-4 max-panel" style="max-width:520px;margin:0 auto">
+
+    <!-- BOTÓN DE EMERGENCIA -->
+    <div style="background:linear-gradient(135deg,#7f1d1d,#991b1b);border:2px solid #ef4444;border-radius:16px;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="color:#fca5a5;font-size:9px;font-weight:900;letter-spacing:.1em;flex:1">🔒 MODO VISITANTE / TOKEN INVÁLIDO?</span>
+      <button onclick="emergencyReset()" style="background:#ef4444;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:10px;font-weight:900;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap">⚡ FORZAR RESET</button>
+    </div>
+
+    <!-- ESTADÍSTICAS EN TIEMPO REAL -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;display:flex;align-items:center;gap:6px;color:#60a5fa;font-size:11px;margin-bottom:8px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Estadísticas en Tiempo Real
+      </h3>
+      <p style="font-size:9px;opacity:.5;line-height:1.5;margin-bottom:10px">Visitas al sitio y clicks por juego. Se actualiza automáticamente desde Firebase.</p>
+      <div id="stats-panel-content">
+        <p style="font-size:10px;opacity:.35;text-align:center;padding:16px">Presiona "Actualizar" para cargar estadísticas.</p>
+      </div>
+      <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Estadísticas</button>
+    </div>
+
+    <!-- GITHUB SYNC -->
+    <div style="background:rgba(34,197,94,.05);border:1.5px solid rgba(34,197,94,.4);border-radius:16px;padding:16px">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#4ade80;font-size:10px;margin-bottom:8px;display:flex;align-items:center;gap:6px">🌐 Sincronización Global (GitHub)</h3>
+      <p style="font-size:9px;color:rgba(134,239,172,.7);line-height:1.5;margin-bottom:10px">Conecta con un GitHub Gist para que los cambios del panel apliquen a TODOS los visitantes en tiempo real.<br><br><b>Pasos:</b> 1) Ve a github.com → Settings → Developer settings → Personal access tokens → New token (scope "gist"). 2) Crea un Gist público vacío en gist.github.com. 3) Pega el token y el ID del Gist aquí.</p>
+      <label class="admin-label">GitHub Token (Personal Access Token)</label>
+      <input type="password" id="gh-token-in" class="admin-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" style="margin-bottom:8px">
+      <label class="admin-label">Gist ID</label>
+      <input type="text" id="gh-gist-in" class="admin-input" placeholder="abc123def456..." autocomplete="off" style="margin-bottom:8px">
+      <div id="gh-sync-status" style="display:none;font-size:10px;font-weight:700;margin-bottom:6px;"></div>
+      <button onclick="saveGHConfig()" style="width:100%;padding:10px;background:#16a34a;color:white;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;margin-bottom:4px">🔗 Conectar y Sincronizar</button>
+      <button onclick="testGHSync()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;margin-bottom:4px">📡 Probar Conexión</button>
+      <button onclick="disconnectGH()" style="width:100%;padding:10px;background:rgba(100,116,139,.3);color:#94a3b8;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;opacity:.7">Desconectar GitHub</button>
+    </div>
+
+    <!-- SINCRONIZACIÓN GLOBAL — Firebase -->
+    <div style="background:rgba(249,115,22,.05);border:1.5px solid rgba(249,115,22,.4);border-radius:16px;padding:16px">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#fb923c;font-size:10px;margin-bottom:8px">🌐 Sincronización Global</h3>
+      <div id="fb-status-bar" style="font-size:10px;font-weight:800;padding:10px 12px;border-radius:10px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:#fb923c;line-height:1.5;margin-bottom:10px">⏳ Verificando conexión...</div>
+      <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px;margin-bottom:8px">
+        <p style="font-size:10px;font-weight:900;color:#fbbf24;text-transform:uppercase;margin-bottom:6px">📦 JSONBin.io (Recomendado — Gratis)</p>
+        <div id="jb-status" style="font-size:9px;font-weight:700;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.2);color:#94a3b8;margin-bottom:8px">Verificando JSONBin...</div>
+        <button onclick="testJSONBin()" style="width:100%;margin-bottom:4px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3);border-radius:8px;cursor:pointer">📡 Probar Conexión JSONBin</button>
+        <button onclick="fbMigrateLocalGames()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:8px;cursor:pointer">☁️ Publicar todo al servidor ahora</button>
+      </div>
+      <details style="margin-top:4px">
+        <summary style="font-size:9px;font-weight:900;color:#f97316;cursor:pointer;padding:6px 0;text-transform:uppercase;letter-spacing:.05em">🔥 Firebase (Opcional — Tiempo real instantáneo)</summary>
+        <div style="padding:8px 0;font-size:9px;opacity:.6;line-height:1.5">Si configuras Firebase, los cambios aparecen al instante (sin los 4s de JSONBin).<br>Agrega tus credenciales en FIREBASE_CONFIG al inicio del archivo.</div>
+        <button onclick="fbAdminLogin()" id="fb-login-btn" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:8px;cursor:pointer;margin-top:4px">🔑 Login Admin Firebase</button>
+        <button onclick="clearAdminSession()" style="width:100%;margin-top:4px;padding:8px 14px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:10px;font-size:9px;font-weight:900;letter-spacing:.08em;cursor:pointer;text-transform:uppercase">🧹 Limpiar Sesión / Modo Visitante</button>
+        <button onclick="fbAdminLogout()" id="fb-logout-btn" class="hidden" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3);border-radius:8px;cursor:pointer;margin-top:4px">Cerrar sesión Firebase</button>
+        <button onclick="fbMigrateLocalGames()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3);border-radius:8px;cursor:pointer;margin-top:4px">🌍 Publicar todos los juegos ahora</button>
+        <button onclick="fbDiagnostico()" style="width:100%;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(96,165,250,.1);color:#60a5fa;border:1px solid rgba(96,165,250,.25);border-radius:8px;cursor:pointer;margin-top:4px">🔍 Diagnóstico Firebase</button>
+      </details>
+    </div>
+
+    <!-- IDENTIDAD Y COLOR -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Configuración de Identidad y Color</h3>
+      <label class="admin-label">Título del Sitio</label>
+      <input type="text" id="site-title-in" class="admin-input" placeholder="JOELDROID" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Subtítulo</label>
+      <input type="text" id="site-subtitle-in" class="admin-input" placeholder="MODS YT" oninput="liveUpdate()" style="margin-bottom:10px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color de Marca (Neón)</h4><div id="color-selector-ui" class="color-selector"></div></div>
+      <div style="margin-top:10px"><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color de Texto del Título</h4><div id="title-color-selector-ui" class="color-selector"></div></div>
+      <div style="margin-top:10px"><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color de Texto del Subtítulo</h4><div id="subtitle-color-selector-ui" class="color-selector"></div></div>
+      <button onclick="updateSiteInfo()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px">Actualizar</button>
+    </div>
+
+    <!-- LOGO -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Logo del Sitio</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="logo-visibility-switch" style="width:16px;height:16px" onchange="updateSiteInfo()"><span style="font-size:11px">Ocultar Logo</span></div>
+      <label class="admin-label">URL de Imagen</label>
+      <input type="url" id="logo-url-in" class="admin-input" placeholder="https://ejemplo.com/logo.png" oninput="liveUpdate()" style="margin-bottom:6px">
+      <button onclick="resetLogoDefault()" style="font-size:9px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:8px;padding:6px 12px;cursor:pointer;margin-bottom:8px;width:100%">↩️ Restaurar logo original del sitio</button>
+      <label class="admin-label">Subir Archivo</label>
+      <input type="file" id="logo-file-in" class="admin-input" accept="image/*" onchange="handleLogoFileChange(this)" style="margin-bottom:8px">
+      <p style="font-size:9px;opacity:.45;margin-bottom:10px;line-height:1.4">La imagen se subirá a Firebase Storage y se guardará globalmente para todos los usuarios en tiempo real.</p>
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color del Icono</h4><div id="logo-color-selector-ui" class="color-selector"></div></div>
+      <button onclick="updateLogo()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px">Actualizar Logo</button>
+    </div>
+
+    <!-- ANUNCIO -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Anuncio / Alerta</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="announcement-visible-switch" style="width:16px;height:16px" onchange="updateAnnouncement()"><span style="font-size:11px">Mostrar Anuncio</span></div>
+      <label class="admin-label">Texto del Anuncio</label>
+      <input type="text" id="announcement-text-in" class="admin-input" placeholder="¡BIENVENIDOS A JOELDROID!" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">URL al hacer clic (opcional)</label>
+      <input type="url" id="announcement-url-in" class="admin-input" placeholder="https://youtube.com/@TuCanal" style="margin-bottom:10px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color del Anuncio</h4><div id="announcement-color-selector-ui" class="color-selector"></div></div>
+      <button onclick="updateAnnouncement()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px">Actualizar Anuncio</button>
+    </div>
+
+    <!-- BANNER PRINCIPAL -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Banner Principal</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="banner-visible-switch" style="width:16px;height:16px" onchange="updateBanner()"><span style="font-size:11px">Mostrar Banner</span></div>
+      <label class="admin-label">Título del Banner</label>
+      <input type="text" id="banner-title-in" class="admin-input" placeholder="MODS EXCLUSIVOS" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Subtítulo del Banner</label>
+      <input type="text" id="banner-subtitle-in" class="admin-input" placeholder="JOELDROID MODS YT • PREMIUM" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Color de Fondo del Banner</label>
+      <input type="color" id="banner-bg-color" value="#0f172a" style="width:100%;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.banner.bgColor=this.value;_markPendingChange('Color banner')">
+      <button onclick="updateBanner()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:4px">Actualizar Banner</button>
+    </div>
+
+    <!-- BANNER ACTUALIZADOS -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#fb923c;font-size:10px;margin-bottom:10px">Banner "Actualizados"</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="updated-banner-visible-switch" style="width:16px;height:16px" onchange="updateUpdatedBanner()"><span style="font-size:11px">Mostrar</span></div>
+      <label class="admin-label">Título</label>
+      <input type="text" id="updated-banner-title-in" class="admin-input" placeholder="MODS ACTUALIZADOS" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Subtítulo</label>
+      <input type="text" id="updated-banner-subtitle-in" class="admin-input" placeholder="Nuevas versiones disponibles" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Color de Fondo</label>
+      <input type="color" id="updated-banner-bg-color" value="#f97316" style="width:100%;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.updatedBanner.bgColor=this.value;_markPendingChange('Color banner actualizado')">
+      <button onclick="updateUpdatedBanner()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(249,115,22,.4);margin-top:4px">Actualizar Banner Actualizados</button>
+    </div>
+
+    <!-- BANNER POPULAR -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#f87171;font-size:10px;margin-bottom:10px">Banner "Popular"</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="popular-banner-visible-switch" style="width:16px;height:16px" onchange="updatePopularBanner()"><span style="font-size:11px">Mostrar</span></div>
+      <label class="admin-label">Título</label>
+      <input type="text" id="popular-banner-title-in" class="admin-input" placeholder="TOP DESCARGAS" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Subtítulo</label>
+      <input type="text" id="popular-banner-subtitle-in" class="admin-input" placeholder="Juegos más descargados" oninput="liveUpdate()" style="margin-bottom:6px">
+      <label class="admin-label">Color de Fondo</label>
+      <input type="color" id="popular-banner-bg-color" value="#ef4444" style="width:100%;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.popularBanner.bgColor=this.value;_markPendingChange('Color banner popular')">
+      <label class="admin-label" style="margin-top:8px">Badge Superior (texto)</label>
+      <input type="text" id="popular-top-badge-text-in" class="admin-input" placeholder="PREMIUM" oninput="liveUpdate()" style="margin-bottom:6px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color Badge Superior</h4><div id="popular-top-badge-color-ui" class="color-selector"></div></div>
+      <label class="admin-label" style="margin-top:8px">Badge Inferior (texto)</label>
+      <input type="text" id="popular-badge-text-in" class="admin-input" placeholder="TOP" oninput="liveUpdate()" style="margin-bottom:6px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color Badge Inferior</h4><div id="popular-badge-color-ui" class="color-selector"></div></div>
+      <button onclick="updatePopularBanner()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(239,68,68,.4);margin-top:10px">Actualizar Banner Popular</button>
+    </div>
+
+    <!-- BOTONES GLOBALES -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Botones Globales</h3>
+      <label class="admin-label">Texto Botón Home (lista de juegos)</label>
+      <input type="text" id="global-home-btn-text-in" class="admin-input" placeholder="Descargar APK" oninput="liveUpdate()" style="margin-bottom:6px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color Botón Home</h4><div id="home-btn-color-selector-ui" class="color-selector"></div></div>
+      <label class="admin-label" style="margin-top:10px">Texto Botón Detalle (pantalla de juego)</label>
+      <input type="text" id="global-detail-btn-text-in" class="admin-input" placeholder="Descargar Mod APK" oninput="liveUpdate()" style="margin-bottom:6px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color Botón Detalle</h4><div id="detail-btn-color-selector-ui" class="color-selector"></div></div>
+      <button onclick="updateButtonSettings()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px">Actualizar Botones</button>
+    </div>
+
+    <!-- VERIFICACIÓN -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Texto de Verificación</h3>
+      <label class="admin-label">Texto de Verificación</label>
+      <input type="text" id="verification-text-in" class="admin-input" placeholder="Verificado" oninput="liveUpdate()" style="margin-bottom:6px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color del Texto</h4><div id="verification-color-selector-ui" class="color-selector"></div></div>
+      <button onclick="updateVerification()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px">Actualizar</button>
+    </div>
+
+    <!-- COPYRIGHT -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Copyright</h3>
+      <label class="admin-label">Texto (usa {year} para el año automático)</label>
+      <input type="text" id="copyright-text-in" class="admin-input" placeholder="Copyright © {year} JoelDroid Mods YT." oninput="liveUpdate()" style="margin-bottom:6px">
+      <div><h4 style="font-size:9px;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:6px">Color del Texto</h4><div id="copyright-color-selector-ui" class="color-selector"></div></div>
+      <button onclick="updateCopyright()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px">Actualizar Copyright</button>
+    </div>
+
+    <!-- MODO CLARO — COLORES -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#fbbf24;font-size:10px;margin-bottom:10px">🌅 Colores Modo Claro</h3>
+      <label class="admin-label">Fondo claro</label>
+      <input type="color" id="lc-bg" value="#f0f4f8" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.bg=this.value;applyLightColors();_markPendingChange('Fondo modo claro')">
+      <label class="admin-label">Tarjeta/Card</label>
+      <input type="color" id="lc-card" value="#ffffff" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.card=this.value;applyLightColors();_markPendingChange('Card modo claro')">
+      <label class="admin-label">Texto</label>
+      <input type="color" id="lc-text" value="#0f172a" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.text=this.value;applyLightColors();_markPendingChange('Texto modo claro')">
+      <label class="admin-label">Texto Secundario</label>
+      <input type="color" id="lc-text2" value="#475569" style="width:100%;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.1);cursor:pointer;padding:2px;margin-bottom:6px" oninput="siteState.lightColors=siteState.lightColors||{};siteState.lightColors.textSecondary=this.value;applyLightColors();_markPendingChange('Texto sec modo claro')">
+      <button onclick="saveLightColors()" style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;margin-top:4px">Guardar Colores Modo Claro</button>
+    </div>
+
+    <!-- YOUTUBE -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#ef4444;font-size:10px;margin-bottom:8px">📺 Tutorial Principal (YouTube)</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="youtube-visible-switch" style="width:16px;height:16px" onchange="updateYoutubeVideo()"><span style="font-size:11px">Mostrar video tutorial</span></div>
+      <label class="admin-label">URL del Video de YouTube</label>
+      <input type="url" id="youtube-url-in" class="admin-input" placeholder="https://youtube.com/watch?v=..." oninput="liveUpdate()" style="margin-bottom:8px">
+      <button onclick="updateYoutubeVideo()" style="width:100%;padding:10px;background:#dc2626;color:white;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer">Guardar Tutorial</button>
+    </div>
+
+    <!-- TUTORIAL INSTALACIÓN -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#06b6d4;font-size:10px;margin-bottom:8px">📥 Tutorial de Instalación</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="install-visible-switch" style="width:16px;height:16px" onchange="updateInstallVideo()"><span style="font-size:11px">Mostrar tutorial de instalación</span></div>
+      <label class="admin-label">URL del Video de Instalación (YouTube)</label>
+      <input type="url" id="install-youtube-url-in" class="admin-input" placeholder="https://youtube.com/watch?v=..." oninput="liveUpdate()" style="margin-bottom:8px">
+      <button onclick="updateInstallVideo()" style="width:100%;padding:10px;background:linear-gradient(135deg,#06b6d4,#8b5cf6);color:white;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer">Guardar Tutorial Instalación</button>
+    </div>
+
+    <!-- CANAL YOUTUBE + ALERTAS -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#ef4444;font-size:10px;margin-bottom:8px">📺 Canal YouTube & Alertas</h3>
+      <p style="font-size:9px;color:#94a3b8;margin-bottom:8px">URL de tu canal de YouTube para enviar alertas de nuevos videos.</p>
+      <input type="url" id="yt-channel-url-in" class="admin-input" placeholder="https://youtube.com/@TuCanal" oninput="liveUpdate()" style="margin-bottom:6px">
+      <button onclick="saveYTChannel()" style="width:100%;padding:10px;background:#dc2626;color:white;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;margin-bottom:4px">Guardar Canal</button>
+      <button onclick="sendYTAlert()" style="width:100%;padding:10px;background:#ef4444;color:white;border:none;border-radius:10px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer">🔔 Enviar Alerta de Nuevo Video</button>
+    </div>
+
+    <!-- VISUALIZACIÓN & ESCENAS -->
+    <div class="admin-card" style="border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.04)">
+      <h3 style="font-weight:700;text-transform:uppercase;display:flex;align-items:center;gap:6px;color:#a78bfa;font-size:10px;margin-bottom:8px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Visualización & Escenas
+      </h3>
+      <p style="font-size:9px;opacity:.5;margin-bottom:10px">Activa o desactiva el fondo animado y las escenas estacionales globales en tiempo real.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:10px">
+        <div><p style="font-size:12px;font-weight:700">Figuras Geométricas (base)</p><p style="font-size:9px;opacity:.4">Círculos, hexágonos, anillos neon</p></div>
+        <label style="display:flex;align-items:center;cursor:pointer">
+          <input type="checkbox" id="scene-geo-toggle" class="sr-only peer" checked onchange="toggleSceneGeo(this.checked)" style="display:none">
+          <div onclick="this.previousElementSibling.click()" id="geo-toggle-visual" style="width:40px;height:20px;background:#4a5568;border-radius:10px;position:relative;cursor:pointer;transition:background .2s">
+            <div id="geo-toggle-knob" style="width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s"></div>
+          </div>
+        </label>
+      </div>
+      <p style="font-size:9px;font-weight:700;text-transform:uppercase;opacity:.5;margin-bottom:6px">Temas de Fondo Animado</p>
+      <div class="bgt-grid">
+        <button id="bgt-btn-none" class="bgt-btn" onclick="applyBgTheme('none')"><span class="bgt-btn-icon">⬛</span><span class="bgt-btn-label">Ninguno</span></button>
+        <button id="bgt-btn-neon" class="bgt-btn" onclick="applyBgTheme('neon')"><span class="bgt-btn-icon">⬡</span><span class="bgt-btn-label">Neón</span></button>
+        <button id="bgt-btn-snow" class="bgt-btn" onclick="applyBgTheme('snow')"><span class="bgt-btn-icon">❄️</span><span class="bgt-btn-label">Nieve</span></button>
+        <button id="bgt-btn-christmas" class="bgt-btn" onclick="applyBgTheme('christmas')"><span class="bgt-btn-icon">🎄</span><span class="bgt-btn-label">Navidad</span></button>
+        <button id="bgt-btn-newyear" class="bgt-btn" onclick="applyBgTheme('newyear')"><span class="bgt-btn-icon">🎆</span><span class="bgt-btn-label">Año Nuevo</span></button>
+        <button id="bgt-btn-easter" class="bgt-btn" onclick="applyBgTheme('easter')"><span class="bgt-btn-icon">🐣</span><span class="bgt-btn-label">Pascua</span></button>
+        <button id="bgt-btn-peru" class="bgt-btn" onclick="applyBgTheme('peru')"><span class="bgt-btn-icon">🇵🇪</span><span class="bgt-btn-label">Fiestas Patrias Perú</span></button>
+        <button id="bgt-btn-valentine" class="bgt-btn" onclick="applyBgTheme('valentine')"><span class="bgt-btn-icon">❤️</span><span class="bgt-btn-label">San Valentín</span></button>
+        <button id="bgt-btn-halloween" class="bgt-btn" onclick="applyBgTheme('halloween')"><span class="bgt-btn-icon">🎃</span><span class="bgt-btn-label">Halloween</span></button>
+        <button id="bgt-btn-spring" class="bgt-btn" onclick="applyBgTheme('spring')"><span class="bgt-btn-icon">🌸</span><span class="bgt-btn-label">Primavera</span></button>
+        <button id="bgt-btn-summer" class="bgt-btn" onclick="applyBgTheme('summer')"><span class="bgt-btn-icon">🌊</span><span class="bgt-btn-label">Verano</span></button>
+        <button id="bgt-btn-autumn" class="bgt-btn" onclick="applyBgTheme('autumn')"><span class="bgt-btn-icon">🍂</span><span class="bgt-btn-label">Otoño</span></button>
+        <button id="bgt-btn-galaxy" class="bgt-btn" onclick="applyBgTheme('galaxy')"><span class="bgt-btn-icon">🌌</span><span class="bgt-btn-label">Galaxia</span></button>
+      </div>
+      <p style="font-size:9px;font-weight:700;text-transform:uppercase;opacity:.5;margin-top:14px;margin-bottom:6px">Escena Estacional Activa</p>
+      <div id="scene-selector" class="grid grid-cols-2 gap-2"></div>
+      <p style="font-size:9px;opacity:.3;margin-top:6px">Solo una escena activa a la vez. Se aplica encima del fondo base.</p>
+    </div>
+
+    <!-- GESTIÓN DE JUEGOS -->
+    <div class="admin-card">
+      <h3 style="font-weight:700;text-transform:uppercase;color:#60a5fa;font-size:10px;margin-bottom:10px">Gestión de Juegos</h3>
+      <button onclick="openGameEditor()" style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5),0 4px 12px rgba(0,0,0,.3);margin-bottom:10px">Agregar Nuevo Juego</button>
+      <div id="game-list-editor" class="space-y-2"></div>
+    </div>
+
+    <!-- FOOTER PANEL -->
+    <div style="text-align:center;padding:20px 0;opacity:.3">
+      <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em">Panel de Control — JoelDroid Mods YT</p>
+      <p style="font-size:8px;margin-top:4px">Todos los cambios se sincronizan en tiempo real via Firebase</p>
+    </div>
+
+  </div><!-- end max-panel -->
+</div><!-- end panel-page -->
+
+<!-- LOGIN FIREBASE SCREEN -->
+<div id="login-screen" class="fixed inset-0 z-[200] hidden items-center justify-center" style="background:rgba(0,0,0,.85);backdrop-filter:blur(10px);display:none">
+  <div style="width:100%;max-width:340px;background:rgba(10,14,26,.97);border:1px solid rgba(0,212,255,.25);border-radius:20px;padding:28px 24px;box-shadow:0 0 60px rgba(0,212,255,.1);margin:16px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:28px;margin-bottom:8px">🔥</div>
+      <h2 style="font-size:16px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#00d4ff">Admin Firebase</h2>
+      <p style="font-size:9px;color:rgba(0,212,255,.5);margin-top:4px">JoelDroid Mods YT</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <input type="email" id="fb-login-email" class="admin-input" placeholder="gamerssimulacionjl@gmail.com"
+        style="width:100%;margin-bottom:10px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
+        autocomplete="email" value="">
+      <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña de Firebase"
+        style="width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
+        autocomplete="current-password">
+    </div>
+    <div id="fb-login-status" style="font-size:10px;color:#f87171;min-height:20px;text-align:center;margin-bottom:12px"></div>
+    <button onclick="doFirebaseLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#fb923c,#ef4444);color:white;border:none;border-radius:12px;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;margin-bottom:8px">
+      🔑 INICIAR SESIÓN
+    </button>
+    <button onclick="closeLogin()" style="width:100%;padding:10px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);border-radius:12px;font-size:10px;font-weight:700;cursor:pointer">
+      Cancelar
+    </button>
+  </div>
+</div>
+
+<!-- GAME EDITOR MODAL -->
+<div id="game-editor-modal" class="fixed inset-0 z-[120] hidden items-center justify-center px-4" style="display:none">
+  <div class="ged-panel ged-scrollbar" style="max-height:92vh;overflow-y:auto;position:relative">
+    <div class="ged-corner ged-corner-tl"></div>
+    <div class="ged-corner ged-corner-tr"></div>
+    <div class="ged-corner ged-corner-bl"></div>
+    <div class="ged-corner ged-corner-br"></div>
+    <div class="ged-header">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="ged-title" id="editor-title">Agregar Nuevo Juego</div>
+          <div class="ged-subtitle">⚡ JoelDroid Panel de Control</div>
+        </div>
+        <button onclick="closeGameEditor()" style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0">×</button>
+      </div>
+    </div>
+    <div class="ged-body">
+      <input type="hidden" id="editor-game-id">
+      <div class="ged-section">
+        <div class="ged-section-title">Información Principal</div>
+        <label class="ged-label">Título del Juego</label>
+        <input type="text" id="editor-name" class="ged-input" placeholder="Ej: Grand Theft Auto V MOD" style="margin-bottom:10px">
+        <label class="ged-label">Nombre de Descarga (Secundario)</label>
+        <input type="text" id="editor-download-name-secondary" class="ged-input" placeholder="Ej: GTA V MOD APP PREMIUM" style="margin-bottom:10px">
+        <label class="ged-label">Descripción</label>
+        <textarea id="editor-description" class="ged-input ged-textarea" placeholder="Describe las características y mejoras del mod..."></textarea>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Detalles Técnicos</div>
+        <div class="ged-row">
+          <div><label class="ged-label">Versión</label><input type="text" id="editor-version" class="ged-input" placeholder="v1.0.0"></div>
+          <div><label class="ged-label">Tamaño</label><input type="text" id="editor-size" class="ged-input" placeholder="400 MB"></div>
+        </div>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Características del MOD</div>
+        <label class="ged-label">Separar con comas</label>
+        <textarea id="editor-features" class="ged-input ged-textarea" placeholder="Monedas Infinitas, Sin Anuncios, Todo Desbloqueado, Sin Virus"></textarea>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Icono del Juego</div>
+        <img id="ged-icon-preview" class="ged-icon-preview" src="" alt="preview">
+        <label class="ged-label">URL de la imagen</label>
+        <input type="url" id="editor-icon-url" class="ged-input" placeholder="https://play-lh.googleusercontent.com/..." style="margin-bottom:10px"
+          oninput="(function(v){var p=document.getElementById('ged-icon-preview');if(v){p.src=v;p.className='ged-icon-preview show';}else{p.className='ged-icon-preview';}})(this.value)">
+        <label class="ged-label">— o sube desde tu dispositivo —</label>
+        <input type="file" id="editor-icon-file" accept="image/*" style="display:none" onchange="(function(f){if(f.files&&f.files[0]){var r=new FileReader();r.onload=function(e){var p=document.getElementById('ged-icon-preview');p.src=e.target.result;p.className='ged-icon-preview show';};r.readAsDataURL(f.files[0]);}})(this)">
+        <div class="ged-file-btn" onclick="document.getElementById('editor-icon-file').click()">📂 Seleccionar imagen local</div>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Advertencia al Usuario</div>
+        <label class="ged-check-row" for="editor-warning-visible">
+          <input type="checkbox" id="editor-warning-visible">
+          <span class="ged-check-label">Mostrar caja de advertencia en detalle</span>
+        </label>
+        <label class="ged-label">Mensaje de advertencia</label>
+        <textarea id="editor-warning-text" class="ged-input ged-textarea" placeholder="Ej: Desinstala la versión de Play Store antes de instalar este MOD..."></textarea>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Etiquetas (Badges)</div>
+        <div style="background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:12px;margin-bottom:10px">
+          <label class="ged-check-row" for="editor-update-badge-visible" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-update-badge-visible">
+            <span class="ged-check-label" style="color:rgba(52,211,153,.8)">🟢 Mostrar badge UPDATE</span>
+          </label>
+          <label class="ged-label">Texto del badge Update</label>
+          <input type="text" id="editor-update-badge-text" class="ged-input" placeholder="UPDATE" style="margin-bottom:8px">
+          <div style="font-size:8px;font-weight:700;color:rgba(52,211,153,.6);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Color del badge Update</div>
+          <div id="update-badge-color-selector-ui" class="color-selector"></div>
+        </div>
+        <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:10px;padding:12px">
+          <label class="ged-check-row" for="editor-mod-badge-visible" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-mod-badge-visible">
+            <span class="ged-check-label" style="color:rgba(252,165,165,.8)">🔴 Mostrar badge MOD</span>
+          </label>
+          <label class="ged-label">Texto del badge MOD</label>
+          <input type="text" id="editor-mod-badge-text" class="ged-input" placeholder="MOD APP" style="margin-bottom:8px">
+          <div style="font-size:8px;font-weight:700;color:rgba(252,165,165,.6);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Color del badge MOD</div>
+          <div id="mod-badge-color-selector-ui" class="color-selector"></div>
+        </div>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Botones de Descarga</div>
+        <div style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:10px;padding:12px;margin-bottom:10px">
+          <label class="ged-check-row" for="editor-download-visible1" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-download-visible1">
+            <span class="ged-check-label" style="color:rgba(147,197,253,.8)">🔵 Activar Botón Descarga 1</span>
+          </label>
+          <label class="ged-label">Texto del botón</label>
+          <input type="text" id="editor-download-text1" class="ged-input" placeholder="Descargar MOD v1" style="margin-bottom:8px">
+          <label class="ged-label">URL de descarga</label>
+          <input type="url" id="editor-download-link1" class="ged-input" placeholder="https://mediafire.com/..." style="margin-bottom:8px">
+          <label class="ged-label">Color del botón</label>
+          <div id="dl-btn-color-selector-1" class="color-selector" style="margin-top:4px"></div>
+        </div>
+        <div style="background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.15);border-radius:10px;padding:12px">
+          <label class="ged-check-row" for="editor-download-visible2" style="margin-bottom:8px">
+            <input type="checkbox" id="editor-download-visible2">
+            <span class="ged-check-label" style="color:rgba(196,181,253,.8)">🟣 Activar Botón Descarga 2</span>
+          </label>
+          <label class="ged-label">Texto del botón</label>
+          <input type="text" id="editor-download-text2" class="ged-input" placeholder="Descargar MOD v2" style="margin-bottom:8px">
+          <label class="ged-label">URL de descarga</label>
+          <input type="url" id="editor-download-link2" class="ged-input" placeholder="https://mediafire.com/..." style="margin-bottom:8px">
+          <label class="ged-label">Color del botón</label>
+          <div id="dl-btn-color-selector-2" class="color-selector" style="margin-top:4px"></div>
+        </div>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">📥 Pantalla de Descarga</div>
+        <div style="font-size:8px;color:rgba(56,189,248,.5);margin-bottom:10px;padding:6px 8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.15);border-radius:8px">Estos datos llenan la pantalla descarga.html. Si los dejas vacíos, se usa la info del juego por defecto.</div>
+        <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-size:8px;font-weight:800;color:rgba(147,197,253,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🔵 Servidor 1</div>
+          <label class="ged-label">Nombre en pantalla de descarga</label>
+          <input type="text" id="editor-dlpage-name1" class="ged-input" placeholder="Global Truck Online MOD v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Versión (chip)</label>
+          <input type="text" id="editor-dlpage-ver1" class="ged-input" placeholder="v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Peso del archivo (chip)</label>
+          <input type="text" id="editor-dlpage-size1" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
+          <label class="ged-label">Texto del botón final</label>
+          <input type="text" id="editor-dlpage-btn1" class="ged-input" placeholder="¡Descargar Ahora!">
+        </div>
+        <div style="background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.18);border-radius:10px;padding:12px">
+          <div style="font-size:8px;font-weight:800;color:rgba(196,181,253,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">🟣 Servidor 2</div>
+          <label class="ged-label">Nombre en pantalla de descarga</label>
+          <input type="text" id="editor-dlpage-name2" class="ged-input" placeholder="Global Truck Online MOD · MediaFire" style="margin-bottom:8px">
+          <label class="ged-label">Versión (chip)</label>
+          <input type="text" id="editor-dlpage-ver2" class="ged-input" placeholder="v1.5.2" style="margin-bottom:8px">
+          <label class="ged-label">Peso del archivo (chip)</label>
+          <input type="text" id="editor-dlpage-size2" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
+          <label class="ged-label">Texto del botón final</label>
+          <input type="text" id="editor-dlpage-btn2" class="ged-input" placeholder="¡Descargar en MediaFire!">
+        </div>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Visibilidad en el Sitio</div>
+        <label class="ged-check-row" for="editor-visible">
+          <input type="checkbox" id="editor-visible" checked>
+          <span class="ged-check-label">👁 Mostrar este juego en el sitio público</span>
+        </label>
+        <div style="font-size:9px;color:rgba(0,212,255,.4);margin-top:4px;padding-left:4px">Si está desactivado, el juego solo es visible para el admin</div>
+      </div>
+    </div>
+    <div class="ged-actions">
+      <button onclick="saveGame()" class="ged-btn-save">
+        <span style="display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar y Publicar Globalmente
+        </span>
+      </button>
+      <button onclick="closeGameEditor()" class="ged-btn-cancel" title="Cancelar">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL PANEL -->
+<div id="email-panel">
+  <div class="ep-page">
+    <div class="ep-hdr">
+      <div class="ep-hdr-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div style="flex:1">
+        <div class="ep-title">Panel Email</div>
+        <div class="ep-sub" id="ep-sub-text">serviciosjoeldroidmods@gmail.com</div>
+      </div>
+      <button onclick="closeEmailPanel()" style="width:32px;height:32px;border-radius:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900">×</button>
+    </div>
+    <div class="ep-tabs">
+      <button class="ep-tab active" id="ep-tab-config" onclick="epShowTab('config')">⚙️ Config</button>
+      <button class="ep-tab" id="ep-tab-users" onclick="epShowTab('users')">👥 Usuarios</button>
+      <button class="ep-tab" id="ep-tab-send" onclick="epShowTab('send')">📤 Enviar</button>
+      <button class="ep-tab" id="ep-tab-yt" onclick="epShowTab('yt')">📺 YT</button>
+    </div>
+    <div class="ep-section active" id="ep-sec-config">
+      <div id="ep-conn-status" style="margin-bottom:12px;padding:12px 14px;border-radius:14px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);font-size:11px;font-weight:700;color:var(--text-secondary);line-height:1.5">⚠️ Sin configurar — Completa los campos abajo</div>
+      <div class="ep-card">
+        <p class="ep-card-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          Configuración EmailJS
+        </p>
+        <p style="font-size:10px;opacity:.45;line-height:1.6;margin-bottom:14px">Regístrate gratis en <strong style="color:var(--brand-color)">emailjs.com</strong><br>Conecta <strong>serviciosjoeldroidmods@gmail.com</strong> como servicio Gmail.<br>Crea una plantilla con: <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">to_email</code> <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">subject</code> <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">message</code></p>
+        <span class="ep-label">Service ID</span>
+        <input id="ep-svc" class="ep-input" placeholder="service_xxxxxxx" autocomplete="off">
+        <span class="ep-label">Template ID</span>
+        <input id="ep-tpl" class="ep-input" placeholder="template_xxxxxxx" autocomplete="off">
+        <span class="ep-label">Public Key</span>
+        <input id="ep-key" class="ep-input" placeholder="AbcXXXXXXXXXX" autocomplete="off">
+        <div id="ep-status-config" class="ep-status"></div>
+        <button class="ep-btn green" onclick="epSaveConfig()" style="margin-top:12px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar y conectar
+        </button>
+        <p class="ep-hint">Autenticación OAuth — nadie más accede al correo. Los envíos no son detectados como spam.</p>
+      </div>
+    </div>
+    <div class="ep-section" id="ep-sec-users">
+      <div class="ep-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <p class="ep-card-title" style="margin-bottom:0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Usuarios vinculados
+          </p>
+          <span id="ep-user-count" style="font-size:10px;font-weight:900;color:var(--brand-color);background:rgba(37,99,235,.12);padding:3px 10px;border-radius:20px">0</span>
+        </div>
+        <div class="ep-users" id="ep-users-list">
+          <div style="text-align:center;padding:24px;opacity:.35;font-size:10px">No hay usuarios registrados aún</div>
+        </div>
+      </div>
+    </div>
+    <div class="ep-section" id="ep-sec-send">
+      <div class="ep-card">
+        <p class="ep-card-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Nuevo mensaje
+        </p>
+        <span class="ep-label">Asunto</span>
+        <input id="ep-subj" class="ep-input" placeholder="Ej: Actualización disponible en JoelDroid">
+        <span class="ep-label">Mensaje</span>
+        <textarea id="ep-body" class="ep-textarea" placeholder="Escribe tu mensaje...&#10;Se enviará a todos los usuarios registrados."></textarea>
+        <div class="ep-progress" id="ep-prog"><div class="ep-pbar" id="ep-pbar"></div></div>
+        <div id="ep-status-send" class="ep-status"></div>
+        <button class="ep-btn" onclick="epSendAll()" id="ep-send-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span id="ep-send-label">Enviar a todos los usuarios</span>
+        </button>
+        <p class="ep-hint">Correos enviados con autenticación desde serviciosjoeldroidmods@gmail.com.</p>
+      </div>
+    </div>
+    <div class="ep-section" id="ep-sec-yt">
+      <div class="ep-card">
+        <p class="ep-card-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white"/></svg>
+          Alerta de nuevo video
+        </p>
+        <span class="ep-label">URL del video</span>
+        <input id="ep-yt-url" class="ep-input" placeholder="https://youtube.com/watch?v=...">
+        <span class="ep-label">Mensaje extra (opcional)</span>
+        <input id="ep-yt-extra" class="ep-input" placeholder="Ej: Nuevo MOD de GTA disponible!">
+        <div id="ep-status-yt" class="ep-status"></div>
+        <button class="ep-btn red" onclick="epSendYT()" style="margin-top:12px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Enviar alerta de video
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// ESTADO Y CONFIGURACIÓN INICIAL
+// ════════════════════════════════════════════════════════════════
+var colorPalette={
+  electricBlue:{name:'Azul Eléctrico',hex:'#2563EB',rgb:'37,99,235'},
+  blue:{name:'Azul',hex:'#3b82f6',rgb:'59,130,246'},
+  red:{name:'Rojo',hex:'#ef4444',rgb:'239,68,68'},
+  green:{name:'Verde',hex:'#10b981',rgb:'16,185,129'},
+  limeGreen:{name:'Verde Lima',hex:'#32CD32',rgb:'50,205,50'},
+  yellow:{name:'Amarillo',hex:'#facc15',rgb:'250,204,21'},
+  orange:{name:'Naranja',hex:'#f97316',rgb:'249,115,22'},
+  purple:{name:'Morado',hex:'#8b5cf6',rgb:'139,92,246'},
+  cyan:{name:'Celeste',hex:'#06b6d4',rgb:'6,182,212'},
+  pink:{name:'Rosado',hex:'#ec4899',rgb:'236,72,153'},
+  white:{name:'Blanco',hex:'#f3f4f6',rgb:'243,244,246'},
+  black:{name:'Negro',hex:'#1f2937',rgb:'31,41,55'},
+  brown:{name:'Café',hex:'#a16207',rgb:'161,98,7'},
+  navyBlue:{name:'Azul Marino',hex:'#1e3a8a',rgb:'30,58,138'},
+  gray:{name:'Gris',hex:'#6b7280',rgb:'107,114,128'},
+  lightGray:{name:'Gris Claro',hex:'#9ca3af',rgb:'156,163,175'}
+};
+
+var initialGames=[
+  {id:1,name:"Global Truck Online",description:"Este juego fue desarrollado por JoelDroid Labs y modificado para ofrecer la mejor experiencia premium.",thumb:"https://play-lh.googleusercontent.com/JJiHxM3IMImgKaROZ3U6yivclo5jxepBfZRShfCoxij7SrY233VKi_sp0YoxiWyHSfttjrgfYAy2vDVtYiaU5dw=w240-h480-rw",size:"420 MB",ver:"v1.5.2",update:true,visits:1250,features:["Monedas Infinitas","Sin Anuncios","Todo Desbloqueado"],warningVisible:true,warningText:"Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.",downloadNameSecondary:"GLOBAL TRUCK ONLINE MOD APP",downloadButtonText1:"Descargar Mod 1",downloadButtonLink1:"#",downloadButtonText2:"Descargar Mod 2",downloadButtonLink2:"#",visible:true,homeButtonVisible:true,updateBadgeText:'UPDATE',updateBadgeVisible:true,modBadgeText:'MOD APP',modBadgeVisible:true,modBadgeBgColor:'#ef4444',updateBadgeBgColor:'#10b981',homeButtonText:'Descargar APK',homeButtonColor:'blue',homeButtonColorKey:'blue',downloadButtonVisible1:true,downloadButtonVisible2:true,downloadButtonColor1:'#3b82f6',downloadButtonColor2:'#3b82f6',updateBadgeBgColorKey:'green',modBadgeBgColorKey:'red'},
+  {id:2,name:"Trucker of Europe 3",description:"Una obra maestra de la conducción pesada. Modificado especialmente para entusiastas.",thumb:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1rjfLgFxiBAOozVIDrq0X6KmF92Wy56gGoj8e2ZM7Ocbw5_AQK4kpzgc&s=10",size:"315 MB",ver:"v0.40.1",update:false,visits:890,features:["Monedas Infinitas","Sin Anuncios","Sin Virus"],warningVisible:true,warningText:"Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.",downloadNameSecondary:"TRUCKER OF EUROPE MOD APP",downloadButtonText1:"Descargar Mod 1",downloadButtonLink1:"#",downloadButtonText2:"Descargar Mod 2",downloadButtonLink2:"#",visible:true,homeButtonVisible:true,updateBadgeText:'UPDATE',updateBadgeVisible:false,modBadgeText:'MOD APP',modBadgeVisible:true,modBadgeBgColor:'#ef4444',updateBadgeBgColor:'#10b981',homeButtonText:'Descargar APK',homeButtonColor:'blue',homeButtonColorKey:'blue',downloadButtonVisible1:true,downloadButtonVisible2:true,downloadButtonColor1:'#3b82f6',downloadButtonColor2:'#3b82f6',updateBadgeBgColorKey:'green',modBadgeBgColorKey:'red'}
+];
+
+var defaultSiteState={
+  ui:{title:"JOELDROID",subtitle:"MODS YT",logoVisible:true,selectedColor:'electricBlue',titleTextColor:'#ffffff',subtitleTextColor:'#ffffff',logoUrl:null,logoColor:'#ffffff'},
+  announcement:{visible:true,text:"¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.",url:"",bgColor:"#ef4444"},
+  banner:{visible:true,title:"MODS EXCLUSIVOS",subtitle:"JOELDROID MODS YT • PREMIUM",bgColor:"#0f172a"},
+  updatedBanner:{visible:true,title:"MODS ACTUALIZADOS",subtitle:"Nuevas versiones disponibles",bgColor:"#f97316"},
+  popularBanner:{visible:true,title:"TOP DESCARGAS",subtitle:"Juegos más descargados",bgColor:"#ef4444",popularTopBadgeText:'PREMIUM',popularTopBadgeColor:'blue',popularBadgeText:'TOP',popularBadgeColor:'red'},
+  copyright:{text:"Copyright © {year} JoelDroid Mods YT. All rights reserved.",textColor:'#ffffff'},
+  verification:{text:"Verificado",color:'#3b82f6'},
+  buttonSettings:{globalHomeButtonText:"Descargar APK",globalHomeButtonColor:'#3b82f6',globalDetailButtonText:"Descargar Mod APK",globalDetailButtonColor:'#3b82f6'},
+  youtubeUrl:"",installYoutubeUrl:"",youtubeVisible:true,installVisible:true,
+  showGeoShapes:true,activeScene:'none',bgTheme:'neon',
+  gamesList:[...initialGames]
+};
+
+var siteState=JSON.parse(JSON.stringify(defaultSiteState));
+
+// ════════════════════════════════════════════════════════════════
+// FIREBASE — Motor principal
+// ════════════════════════════════════════════════════════════════
+var _db=null,_fbAuth=null,_fbUser=null;
+var _fbReady=false,_fbInitDone=false;
+var _fbModsUnsub=null,_fbCfgUnsub=null;
+var _saveSettingsTimer=null;
+var _pendingChanges=false;
+var _ghCfg=null,_syncPending=false;
+
+function _isAdmin(){return _fbUser&&_fbUser.uid===ADMIN_UID;}
+
+function _initFirebase(){
+  if(_fbInitDone)return;
+  if(typeof firebase==='undefined'){setTimeout(_initFirebase,300);return;}
+  _fbInitDone=true;
+  var key=FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey;
+  if(!key||key.indexOf('PEGA_')===0){_updateSyncUI(false,'⚠️ Firebase no configurado.');return;}
+  try{
+    if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
+    _db=firebase.firestore();_fbAuth=firebase.auth();
+    _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
+    _fbReady=true;
+    _fbListenMods();_fbListenConfig();
+    window.addEventListener('online',function(){_fbListenMods();_fbListenConfig();});
+    _fbAuth.onAuthStateChanged(function(user){
+      _fbUser=user;
+      var lb=document.getElementById('fb-login-btn');
+      var lo=document.getElementById('fb-logout-btn');
+      if(lb)lb.classList.toggle('hidden',!!user);
+      if(lo)lo.classList.toggle('hidden',!user);
+      if(user&&ADMIN_UID&&user.uid===ADMIN_UID){
+        _updateSyncUI(true,'✅ Admin activo: '+user.email);
+        setTimeout(function(){
+          if(!_isAdmin())return;
+          _db.collection('mods').limit(1).get()
+            .then(function(snap){if(snap.empty&&siteState.gamesList&&siteState.gamesList.length>0)_autoMigrateToFirestore();})
+            .catch(function(){});
+        },800);
+      }else if(user){
+        _updateSyncUI(null,'⚠️ Sin permisos admin (UID: '+user.uid+')');
+      }else{
+        _updateSyncUI(null,'🔒 Modo visitante — tiempo real activo');
+      }
+    });
+    _updateSyncUI(null,'✅ Firebase conectado — tiempo real activo para todos');
+  }catch(e){
+    _updateSyncUI(false,'❌ Error Firebase: '+e.message);
+    _fbInitDone=false;setTimeout(_initFirebase,5000);
+  }
+}
+
+function _fbListenMods(){
+  if(!_db)return;
+  if(_fbModsUnsub){_fbModsUnsub();_fbModsUnsub=null;}
+  _fbModsUnsub=_db.collection('mods').orderBy('order','asc').onSnapshot(function(snap){
+    if(snap.empty){renderGameEditorList();return;}
+    var games=snap.docs.map(function(doc){
+      var d=doc.data();d.id=doc.id;
+      delete d.updatedAt;delete d.createdAt;
+      if(!d.name&&d.nombre)d.name=d.nombre;
+      if(!d.description&&d.descripcion)d.description=d.descripcion;
+      if(!d.thumb&&d.imagen)d.thumb=d.imagen;
+      if(!d.thumb&&d.icon)d.thumb=d.icon;
+      if(!d.ver&&d.version)d.ver=d.version;
+      if(!d.size&&d.peso)d.size=d.peso;
+      if(!d.downloadButtonLink1&&d.enlace)d.downloadButtonLink1=d.enlace;
+      if(!d.timestamp)d.timestamp=0;
+      return d;
+    });
+    games.sort(function(a,b){var ta=b.timestamp||0,tb=a.timestamp||0;if(ta!==tb)return ta-tb;return(a.order||0)-(b.order||0);});
+    siteState.gamesList=games;
+    renderGameEditorList();
+  },function(err){if(err.code==='unavailable'||err.code==='failed-precondition')setTimeout(_fbListenMods,3000);});
+}
+
+function _fbListenConfig(){
+  if(!_db)return;
+  if(_fbCfgUnsub){_fbCfgUnsub();_fbCfgUnsub=null;}
+  _fbCfgUnsub=_db.collection('siteConfig').doc('main').onSnapshot(function(doc){
+    if(!doc.exists)return;
+    var cfg=doc.data();delete cfg.updatedAt;
+    var prevGames=siteState.gamesList;
+    siteState=_mergeState(cfg);
+    siteState.gamesList=prevGames;
+    renderAdminUI();
+  },function(err){if(err.code==='unavailable'||err.code==='failed-precondition')setTimeout(_fbListenConfig,3000);});
+}
+
+function _fbSaveGame(gameData,editId){
+  if(!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin para guardar globalmente');return Promise.reject('not-admin');}
+  var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
+  var order=(editId&&idx>=0)?idx:siteState.gamesList.length;
+  var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc();
+  return ref.set(Object.assign({},gameData,{order:order,timestamp:Date.now(),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),createdAt:(editId&&gameData.createdAt)?gameData.createdAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true})
+    .then(function(){showToast('✅ Guardado — visible para todos al instante 🌍');})
+    .catch(function(e){showToast('❌ Error al guardar: '+e.message);throw e;});
+}
+
+function _fbDeleteGame(gameId){
+  if(!_db||!_isAdmin()){showToast('🔒 Sin permisos de admin');return Promise.reject('not-admin');}
+  return _db.collection('mods').doc(String(gameId)).delete()
+    .then(function(){showToast('🗑️ Eliminado para todos 🌍');})
+    .catch(function(e){showToast('❌ '+e.message);throw e;});
+}
+
+function _fbSaveSiteConfig(_silent){
+  if(!_db||!_isAdmin())return;
+  var cfg=Object.assign({},siteState);delete cfg.gamesList;
+  cfg.updatedAt=firebase.firestore.FieldValue.serverTimestamp();
+  _db.collection('siteConfig').doc('main').set(cfg,{merge:true})
+    .then(function(){if(!_silent)showToast('✅ Guardando cambios: Visualización global activa 🌍');_updateSyncUI(true,'✅ Cambios guardados — todos los usuarios los ven');})
+    .catch(function(e){showToast('❌ Error al guardar: '+e.message);_updateSyncUI(false,'❌ '+e.message);});
+}
+
+function _autoMigrateToFirestore(){
+  if(!_db||!_isAdmin())return;
+  var games=siteState.gamesList;if(!games||!games.length)return;
+  var batch=_db.batch();
+  games.forEach(function(g,i){
+    var ref=_db.collection('mods').doc(String(g.id));
+    batch.set(ref,Object.assign({},g,{order:i,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),createdAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});
+  });
+  batch.commit().then(function(){showToast('✅ '+games.length+' mods sincronizados con Firebase 🌍');_fbSaveSiteConfig();}).catch(function(){});
+}
+
+function fbMigrateLocalGames(){
+  if(!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin');return;}
+  var games=siteState.gamesList;if(!games.length){showToast('Sin juegos para migrar');return;}
+  var batch=_db.batch();
+  games.forEach(function(g,i){batch.set(_db.collection('mods').doc(String(g.id)),Object.assign({},g,{order:i,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),createdAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});});
+  batch.commit().then(function(){showToast('✅ '+games.length+' juegos publicados — visibles para todos 🌍');_fbSaveSiteConfig();}).catch(function(e){showToast('❌ '+e.message);});
+}
+
+function fbAdminLogin(){openLogin();}
+function fbAdminLogout(){if(_fbAuth)_fbAuth.signOut().then(function(){showToast('✅ Sesión Firebase cerrada');});}
+
+function fbDiagnostico(){
+  var msgs=[];
+  msgs.push('Firebase ready: '+_fbReady);
+  msgs.push('Firestore: '+(_db?'OK':'NO'));
+  msgs.push('Auth: '+(_fbAuth?'OK':'NO'));
+  msgs.push('User: '+(_fbUser?_fbUser.email:'NO'));
+  msgs.push('Is Admin: '+_isAdmin());
+  msgs.push('GamesList: '+(siteState.gamesList?siteState.gamesList.length:'0')+' juegos');
+  alert(msgs.join('\n'));
+}
+
+function _updateSyncUI(ok,msg){
+  var el=document.getElementById('fb-status-bar');if(!el)return;
+  el.textContent=msg||'';
+  if(ok===true){el.style.color='#10b981';el.style.background='rgba(16,185,129,.1)';el.style.borderColor='rgba(16,185,129,.3)';}
+  else if(ok===false){el.style.color='#ef4444';el.style.background='rgba(239,68,68,.1)';el.style.borderColor='rgba(239,68,68,.3)';}
+  else{el.style.color='#60a5fa';el.style.background='rgba(96,165,250,.1)';el.style.borderColor='rgba(96,165,250,.3)';}
+  var ghEl=document.getElementById('gh-sync-status');
+  if(ghEl){ghEl.textContent=msg;ghEl.style.color=ok===true?'#10b981':ok===false?'#ef4444':'#60a5fa';ghEl.style.display='block';setTimeout(function(){if(ghEl)ghEl.style.display='none';},5000);}
+}
+
+function _mergeState(remote){
+  return Object.assign({},defaultSiteState,remote,{
+    ui:Object.assign({},defaultSiteState.ui,remote.ui||{}),
+    announcement:Object.assign({},defaultSiteState.announcement,remote.announcement||{}),
+    banner:Object.assign({},defaultSiteState.banner,remote.banner||{}),
+    updatedBanner:Object.assign({},defaultSiteState.updatedBanner,remote.updatedBanner||{}),
+    popularBanner:Object.assign({},defaultSiteState.popularBanner,remote.popularBanner||{}),
+    copyright:Object.assign({},defaultSiteState.copyright,remote.copyright||{}),
+    verification:Object.assign({},defaultSiteState.verification,remote.verification||{}),
+    buttonSettings:Object.assign({},defaultSiteState.buttonSettings,remote.buttonSettings||{}),
+    bgTheme:remote.bgTheme||'neon',youtubeUrl:remote.youtubeUrl||'',
+    installYoutubeUrl:remote.installYoutubeUrl||'',
+    youtubeVisible:remote.youtubeVisible!==false,installVisible:remote.installVisible!==false,
+    showGeoShapes:remote.showGeoShapes!==false,activeScene:remote.activeScene||'none',
+    gamesList:siteState.gamesList||remote.gamesList||[]
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// GUARDAR / CARGAR SETTINGS
+// ════════════════════════════════════════════════════════════════
+function saveSettings(){
+  localStorage.setItem('siteState',JSON.stringify(siteState));
+  clearTimeout(_saveSettingsTimer);
+  _saveSettingsTimer=setTimeout(function(){
+    if(_fbReady&&_db&&_isAdmin())_fbSaveSiteConfig();
+    if(_ghCfg&&_ghCfg.token)_syncToGitHub();
+  },800);
+}
+
+function loadSettings(){
+  var saved=localStorage.getItem('siteState');
+  if(saved){
+    try{
+      var p=JSON.parse(saved);
+      siteState=Object.assign({},defaultSiteState,p,{
+        ui:Object.assign({},defaultSiteState.ui,p.ui||{}),
+        announcement:Object.assign({},defaultSiteState.announcement,p.announcement||{}),
+        banner:Object.assign({},defaultSiteState.banner,p.banner||{}),
+        updatedBanner:Object.assign({},defaultSiteState.updatedBanner,p.updatedBanner||{}),
+        popularBanner:Object.assign({},defaultSiteState.popularBanner,p.popularBanner||{}),
+        copyright:Object.assign({},defaultSiteState.copyright,p.copyright||{}),
+        verification:Object.assign({},defaultSiteState.verification,p.verification||{}),
+        buttonSettings:Object.assign({},defaultSiteState.buttonSettings,p.buttonSettings||{}),
+        bgTheme:p.bgTheme||'neon',youtubeUrl:p.youtubeUrl||'',
+        installYoutubeUrl:p.installYoutubeUrl||'',
+        youtubeVisible:p.youtubeVisible!==false,installVisible:p.installVisible!==false,
+        showGeoShapes:p.showGeoShapes!==false,activeScene:p.activeScene||'none',
+        gamesList:p.gamesList||[]
+      });
+    }catch(e){}
+  }
+  _ghCfg=_loadGHConfig();
+  if(_ghCfg&&_ghCfg.gistId){
+    _loadFromGitHub(function(ok){if(ok){renderAdminUI();renderGameEditorList();}});
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// GITHUB GIST SYNC
+// ════════════════════════════════════════════════════════════════
+function _loadGHConfig(){try{return JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');}catch(e){return null;}}
+function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(cfg));}catch(e){}_ghCfg=cfg;}
+
+function _syncToGitHub(){
+  var cfg=_ghCfg||_loadGHConfig();
+  if(!cfg||!cfg.gistId||!cfg.token)return;
+  if(_syncPending)return;
+  _syncPending=true;
+  var payload=JSON.stringify({files:{'joeldroid_state.json':{content:JSON.stringify(siteState)}}});
+  fetch('https://api.github.com/gists/'+cfg.gistId,{method:'PATCH',headers:{'Authorization':'token '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:payload})
+    .then(function(r){_syncPending=false;if(r.ok)_showGHStatus('✅ Cambios guardados globalmente','#10b981');else _showGHStatus('⚠️ Error al sincronizar ('+r.status+')','#f59e0b');})
+    .catch(function(){_syncPending=false;_showGHStatus('⚠️ Sin conexión — guardado local','#f59e0b');});
+}
+
+function _loadFromGitHub(cb){
+  var cfg=_ghCfg||_loadGHConfig();
+  if(!cfg||!cfg.gistId){if(cb)cb(false);return;}
+  fetch('https://api.github.com/gists/'+cfg.gistId+'?_='+Date.now(),{headers:{'Accept':'application/vnd.github.v3+json'}})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var file=data&&data.files&&data.files['joeldroid_state.json'];
+      if(file&&file.content){
+        try{var remote=JSON.parse(file.content);siteState=Object.assign({},defaultSiteState,remote,{gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:(remote.gamesList||[])});localStorage.setItem('siteState',JSON.stringify(siteState));if(cb)cb(true);}catch(e){if(cb)cb(false);}
+      }else{if(cb)cb(false);}
+    }).catch(function(){if(cb)cb(false);});
+}
+
+function _showGHStatus(msg,color){var el=document.getElementById('gh-sync-status');if(!el)return;el.textContent=msg;el.style.color=color;el.style.display='block';setTimeout(function(){if(el)el.style.display='none';},4000);}
+
+function saveGHConfig(){
+  var token=(document.getElementById('gh-token-in')||{}).value||'';
+  var gistId=(document.getElementById('gh-gist-in')||{}).value||'';
+  if(!token||!gistId){_showGHStatus('⚠️ Completa Token y Gist ID','#f59e0b');return;}
+  _saveGHConfig({token:token,gistId:gistId});
+  _syncToGitHub();
+  showToast('✅ GitHub Sync configurado');
+}
+
+function testGHSync(){
+  var cfg=_ghCfg||_loadGHConfig();
+  if(!cfg||!cfg.gistId){showToast('⚠️ Configura GitHub primero');return;}
+  _loadFromGitHub(function(ok){showToast(ok?'✅ GitHub Gist OK':'❌ Error al conectar con Gist');});
+}
+
+function disconnectGH(){_saveGHConfig(null);showToast('✅ GitHub desconectado');_showGHStatus('Desconectado','#94a3b8');}
+
+function _fillGHInputs(){
+  var cfg=_ghCfg||_loadGHConfig();
+  if(!cfg)return;
+  var ti=document.getElementById('gh-token-in');var gi=document.getElementById('gh-gist-in');
+  if(ti&&cfg.token)ti.value=cfg.token;
+  if(gi&&cfg.gistId)gi.value=cfg.gistId;
+}
+</script>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// RENDER ADMIN UI — Rellena todos los inputs del panel con siteState
+// ════════════════════════════════════════════════════════════════
+function renderAdminUI(){
+  var sv=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
+  var sc=function(id,v){var e=document.getElementById(id);if(e)e.checked=!!v;};
+  // Identidad
+  sv('site-title-in',siteState.ui.title);
+  sv('site-subtitle-in',siteState.ui.subtitle);
+  // Logo
+  sc('logo-visibility-switch',!siteState.ui.logoVisible);
+  sv('logo-url-in',siteState.ui.logoUrl);
+  // Anuncio
+  sc('announcement-visible-switch',siteState.announcement.visible);
+  sv('announcement-text-in',siteState.announcement.text);
+  sv('announcement-url-in',siteState.announcement.url);
+  // Banners
+  sc('banner-visible-switch',siteState.banner.visible);
+  sv('banner-title-in',siteState.banner.title);
+  sv('banner-subtitle-in',siteState.banner.subtitle);
+  var bbc=document.getElementById('banner-bg-color');if(bbc)bbc.value=siteState.banner.bgColor||'#0f172a';
+  sc('updated-banner-visible-switch',siteState.updatedBanner.visible);
+  sv('updated-banner-title-in',siteState.updatedBanner.title);
+  sv('updated-banner-subtitle-in',siteState.updatedBanner.subtitle);
+  var ubbc=document.getElementById('updated-banner-bg-color');if(ubbc)ubbc.value=siteState.updatedBanner.bgColor||'#f97316';
+  sc('popular-banner-visible-switch',siteState.popularBanner.visible);
+  sv('popular-banner-title-in',siteState.popularBanner.title);
+  sv('popular-banner-subtitle-in',siteState.popularBanner.subtitle);
+  sv('popular-top-badge-text-in',siteState.popularBanner.popularTopBadgeText);
+  sv('popular-badge-text-in',siteState.popularBanner.popularBadgeText);
+  var pbbc=document.getElementById('popular-banner-bg-color');if(pbbc)pbbc.value=siteState.popularBanner.bgColor||'#ef4444';
+  // Botones globales
+  sv('global-home-btn-text-in',siteState.buttonSettings.globalHomeButtonText);
+  sv('global-detail-btn-text-in',siteState.buttonSettings.globalDetailButtonText);
+  // Verificación
+  sv('verification-text-in',siteState.verification.text);
+  // Copyright
+  sv('copyright-text-in',siteState.copyright.text);
+  // YouTube
+  sc('youtube-visible-switch',siteState.youtubeVisible);
+  sv('youtube-url-in',siteState.youtubeUrl);
+  sc('install-visible-switch',siteState.installVisible);
+  sv('install-youtube-url-in',siteState.installYoutubeUrl);
+  sv('yt-channel-url-in',siteState.ytChannelUrl);
+  // GeoShapes toggle visual
+  var geoChk=document.getElementById('scene-geo-toggle');
+  var geoVis=document.getElementById('geo-toggle-visual');
+  var geoKnb=document.getElementById('geo-toggle-knob');
+  if(geoChk)geoChk.checked=siteState.showGeoShapes!==false;
+  if(geoVis)geoVis.style.background=siteState.showGeoShapes!==false?'#7c3aed':'#4a5568';
+  if(geoKnb)geoKnb.style.left=siteState.showGeoShapes!==false?'22px':'2px';
+  // Colores mode claro
+  if(siteState.lightColors){
+    var lc=siteState.lightColors;
+    var lcBg=document.getElementById('lc-bg');if(lcBg&&lc.bg)lcBg.value=lc.bg;
+    var lcCard=document.getElementById('lc-card');if(lcCard&&lc.card)lcCard.value=lc.card;
+    var lcText=document.getElementById('lc-text');if(lcText&&lc.text)lcText.value=lc.text;
+    var lcText2=document.getElementById('lc-text2');if(lcText2&&lc.textSecondary)lcText2.value=lc.textSecondary;
+  }
+  // Selectores de color
+  _buildColorSelector('color-selector-ui',siteState.ui.selectedColor,function(k){changeBrandColor(k,true);});
+  _buildColorSelector('title-color-selector-ui',null,function(k){siteState.ui.titleTextColor=colorPalette[k].hex;_markPendingChange('Color título');},siteState.ui.titleTextColor);
+  _buildColorSelector('subtitle-color-selector-ui',null,function(k){siteState.ui.subtitleTextColor=colorPalette[k].hex;_markPendingChange('Color subtítulo');},siteState.ui.subtitleTextColor);
+  _buildColorSelector('logo-color-selector-ui',null,function(k){siteState.ui.logoColor=colorPalette[k].hex;_markPendingChange('Color logo');},siteState.ui.logoColor);
+  _buildColorSelector('announcement-color-selector-ui',null,function(k){siteState.announcement.bgColor=colorPalette[k].hex;_markPendingChange('Color anuncio');},siteState.announcement.bgColor);
+  _buildColorSelector('verification-color-selector-ui',null,function(k){siteState.verification.color=colorPalette[k].hex;_markPendingChange('Color verificación');},siteState.verification.color);
+  _buildColorSelector('copyright-color-selector-ui',null,function(k){siteState.copyright.textColor=colorPalette[k].hex;_markPendingChange('Color copyright');},siteState.copyright.textColor);
+  _buildColorSelector('home-btn-color-selector-ui',null,function(k){siteState.buttonSettings.globalHomeButtonColor=colorPalette[k].hex;_markPendingChange('Color botón home');},siteState.buttonSettings.globalHomeButtonColor);
+  _buildColorSelector('detail-btn-color-selector-ui',null,function(k){siteState.buttonSettings.globalDetailButtonColor=colorPalette[k].hex;_markPendingChange('Color botón detalle');},siteState.buttonSettings.globalDetailButtonColor);
+  _buildColorSelector('popular-top-badge-color-ui',siteState.popularBanner.popularTopBadgeColor,function(k){siteState.popularBanner.popularTopBadgeColor=k;_markPendingChange('Color badge top');});
+  _buildColorSelector('popular-badge-color-ui',siteState.popularBanner.popularBadgeColor,function(k){siteState.popularBanner.popularBadgeColor=k;_markPendingChange('Color badge popular');});
+  // Scene selector
+  _buildSceneSelector();
+  // Bg theme
+  _refreshBgThemeUI();
+  // GH inputs
+  _fillGHInputs();
+}
+
+function _buildColorSelector(containerId,activeKey,onSelect,activeHex){
+  var c=document.getElementById(containerId);if(!c)return;
+  c.innerHTML='';
+  Object.keys(colorPalette).forEach(function(k){
+    var p=colorPalette[k];
+    var isActive=activeKey?k===activeKey:(activeHex&&p.hex.toLowerCase()===activeHex.toLowerCase());
+    var opt=document.createElement('div');
+    opt.className='color-option'+(isActive?' active':'');
+    opt.style.cssText='width:28px;height:28px;border-radius:50%;background:'+p.hex+';border:2px solid '+(isActive?'white':'transparent')+';cursor:pointer;transition:transform .2s,box-shadow .2s';
+    opt.title=p.name;
+    opt.onclick=function(){
+      c.querySelectorAll('.color-option').forEach(function(o){o.classList.remove('active');o.style.borderColor='transparent';});
+      opt.classList.add('active');opt.style.borderColor='white';
+      onSelect(k);
+    };
+    c.appendChild(opt);
+  });
+}
+
+function _buildSceneSelector(){
+  var SCENES={none:{label:'Ninguna',icon:'⬜'},navidad:{label:'Navidad',icon:'🎄'},anionuevo:{label:'Año Nuevo',icon:'🎆'},pascua:{label:'Pascua',icon:'🐣'},peru:{label:'Fiestas Perú',icon:'🇵🇪'},amor:{label:'San Valentín',icon:'❤️'},halloween:{label:'Halloween',icon:'🎃'},stpatrick:{label:'San Patricio',icon:'☘️'},independencia:{label:'4 de Julio',icon:'🇺🇸'},oktoberfest:{label:'Oktoberfest',icon:'🍺'},carnaval:{label:'Carnaval',icon:'🎭'},diwali:{label:'Diwali',icon:'🪔'}};
+  var sel=document.getElementById('scene-selector');if(!sel)return;
+  sel.innerHTML='';
+  Object.keys(SCENES).forEach(function(k){
+    var s=SCENES[k];
+    var btn=document.createElement('button');
+    btn.className='scene-btn'+(siteState.activeScene===k?' active':'');
+    btn.innerHTML='<span style="font-size:20px">'+s.icon+'</span><span style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;opacity:.6;text-align:center">'+s.label+'</span>';
+    btn.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--search-bg);cursor:pointer;font-size:18px;transition:all .2s'+(siteState.activeScene===k?';border-color:var(--brand-color);background:rgba(37,99,235,.14)':'');
+    btn.onclick=function(){
+      siteState.activeScene=k;
+      saveSettings();
+      _buildSceneSelector();
+      showToast('✅ Escena aplicada: '+s.label);
+    };
+    sel.appendChild(btn);
+  });
+}
+
+function _refreshBgThemeUI(){
+  var themes=['none','neon','snow','christmas','newyear','easter','peru','valentine','halloween','spring','summer','autumn','galaxy'];
+  themes.forEach(function(k){
+    var btn=document.getElementById('bgt-btn-'+k);
+    if(btn)btn.classList.toggle('bgt-active',k===(siteState.bgTheme||'neon'));
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// PENDING CHANGES
+// ════════════════════════════════════════════════════════════════
+function _markPendingChange(desc){
+  _pendingChanges=true;
+  var bar=document.getElementById('pending-changes-bar');
+  if(bar)bar.style.display='flex';
+  var btn=document.getElementById('admin-save-all-btn');
+  if(btn&&!btn.style.animation)btn.style.animation='pulse 1.2s ease-in-out infinite';
+}
+
+function _flushPendingChanges(){
+  if(_fbReady&&_db&&_isAdmin())_fbSaveSiteConfig();
+  if(_ghCfg&&_ghCfg.token&&_ghCfg.gistId)_syncToGitHub();
+  else showToast('✅ Guardado en Firebase — configura GitHub Gist para backup completo');
+  var btn=document.getElementById('admin-save-all-btn');if(btn){btn.style.background='';btn.style.animation='';}
+  _clearPendingChanges();
+  saveSettings();
+}
+
+function _clearPendingChanges(){
+  _pendingChanges=false;
+  var bar=document.getElementById('pending-changes-bar');if(bar)bar.style.display='none';
+}
+
+function liveUpdate(){_markPendingChange('Edición en vivo');}
+
+// ════════════════════════════════════════════════════════════════
+// FUNCIONES UPDATE DE CADA SECCIÓN
+// ════════════════════════════════════════════════════════════════
+function updateSiteInfo(){
+  siteState.ui.title=(document.getElementById('site-title-in')||{}).value||siteState.ui.title;
+  siteState.ui.subtitle=(document.getElementById('site-subtitle-in')||{}).value||siteState.ui.subtitle;
+  siteState.ui.logoVisible=!((document.getElementById('logo-visibility-switch')||{}).checked);
+  siteState.ui.logoUrl=(document.getElementById('logo-url-in')||{}).value||'';
+  saveSettings();showToast('✅ Identidad actualizada globalmente 🌍');
+}
+
+function updateLogo(){
+  siteState.ui.logoUrl=(document.getElementById('logo-url-in')||{}).value||'';
+  siteState.ui.logoVisible=!((document.getElementById('logo-visibility-switch')||{}).checked);
+  saveSettings();showToast('✅ Logo actualizado globalmente 🌍');
+}
+
+function resetLogoDefault(){
+  siteState.ui.logoUrl=null;
+  var logoIn=document.getElementById('logo-url-in');if(logoIn)logoIn.value='';
+  saveSettings();showToast('↩️ Logo restaurado al original');
+}
+
+function handleLogoFileChange(input){
+  if(!input.files||!input.files[0])return;
+  if(!_db||!_isAdmin()||typeof firebase==='undefined'||!firebase.storage){
+    showToast('⚠️ Firebase Storage requerido para subir imágenes');return;
+  }
+  var file=input.files[0];
+  var storageRef=firebase.storage().ref('logos/logo_'+Date.now()+'.'+file.name.split('.').pop());
+  showToast('⏳ Subiendo logo...');
+  storageRef.put(file).then(function(snap){
+    return snap.ref.getDownloadURL();
+  }).then(function(url){
+    siteState.ui.logoUrl=url;
+    var logoIn=document.getElementById('logo-url-in');if(logoIn)logoIn.value=url;
+    saveSettings();showToast('✅ Logo subido y aplicado globalmente 🌍');
+  }).catch(function(e){showToast('❌ Error al subir: '+e.message);});
+}
+
+function updateAnnouncement(){
+  siteState.announcement.visible=(document.getElementById('announcement-visible-switch')||{}).checked;
+  siteState.announcement.text=(document.getElementById('announcement-text-in')||{}).value||'';
+  siteState.announcement.url=(document.getElementById('announcement-url-in')||{}).value||'';
+  saveSettings();showToast('✅ Anuncio actualizado globalmente 🌍');
+}
+
+function updateBanner(){
+  siteState.banner.visible=(document.getElementById('banner-visible-switch')||{}).checked;
+  siteState.banner.title=(document.getElementById('banner-title-in')||{}).value||'';
+  siteState.banner.subtitle=(document.getElementById('banner-subtitle-in')||{}).value||'';
+  var bbc=document.getElementById('banner-bg-color');if(bbc)siteState.banner.bgColor=bbc.value;
+  saveSettings();showToast('✅ Banner actualizado globalmente 🌍');
+}
+
+function updateUpdatedBanner(){
+  siteState.updatedBanner.visible=(document.getElementById('updated-banner-visible-switch')||{}).checked;
+  siteState.updatedBanner.title=(document.getElementById('updated-banner-title-in')||{}).value||'';
+  siteState.updatedBanner.subtitle=(document.getElementById('updated-banner-subtitle-in')||{}).value||'';
+  var ubbc=document.getElementById('updated-banner-bg-color');if(ubbc)siteState.updatedBanner.bgColor=ubbc.value;
+  saveSettings();showToast('✅ Banner Actualizados guardado 🌍');
+}
+
+function updatePopularBanner(){
+  siteState.popularBanner.visible=(document.getElementById('popular-banner-visible-switch')||{}).checked;
+  siteState.popularBanner.title=(document.getElementById('popular-banner-title-in')||{}).value||'';
+  siteState.popularBanner.subtitle=(document.getElementById('popular-banner-subtitle-in')||{}).value||'';
+  siteState.popularBanner.popularTopBadgeText=(document.getElementById('popular-top-badge-text-in')||{}).value||'';
+  siteState.popularBanner.popularBadgeText=(document.getElementById('popular-badge-text-in')||{}).value||'';
+  var pbbc=document.getElementById('popular-banner-bg-color');if(pbbc)siteState.popularBanner.bgColor=pbbc.value;
+  saveSettings();showToast('✅ Banner Popular guardado 🌍');
+}
+
+function updateButtonSettings(){
+  siteState.buttonSettings.globalHomeButtonText=(document.getElementById('global-home-btn-text-in')||{}).value||'Descargar APK';
+  siteState.buttonSettings.globalDetailButtonText=(document.getElementById('global-detail-btn-text-in')||{}).value||'Descargar Mod APK';
+  saveSettings();showToast('✅ Botones actualizados globalmente 🌍');
+}
+
+function updateVerification(){
+  siteState.verification.text=(document.getElementById('verification-text-in')||{}).value||'Verificado';
+  saveSettings();showToast('✅ Verificación actualizada 🌍');
+}
+
+function updateCopyright(){
+  siteState.copyright.text=(document.getElementById('copyright-text-in')||{}).value||'';
+  saveSettings();showToast('✅ Copyright actualizado 🌍');
+}
+
+function saveLightColors(){
+  siteState.lightColors=siteState.lightColors||{};
+  var lc=siteState.lightColors;
+  var lcBg=document.getElementById('lc-bg');if(lcBg)lc.bg=lcBg.value;
+  var lcCard=document.getElementById('lc-card');if(lcCard)lc.card=lcCard.value;
+  var lcText=document.getElementById('lc-text');if(lcText)lc.text=lcText.value;
+  var lcText2=document.getElementById('lc-text2');if(lcText2)lc.textSecondary=lcText2.value;
+  saveSettings();showToast('✅ Colores modo claro guardados 🌍');
+}
+
+function applyLightColors(){
+  // No aplica en panel (solo en index), pero guardamos el state
+  _markPendingChange('Colores modo claro');
+}
+
+function changeBrandColor(color,_save){
+  var c=colorPalette[color];if(!c)return;
+  document.documentElement.style.setProperty('--brand-color',c.hex);
+  document.documentElement.style.setProperty('--border-color','rgba('+c.rgb+',.7)');
+  siteState.ui.selectedColor=color;
+  if(_save===true)saveSettings();
+}
+
+function updateYoutubeVideo(){
+  siteState.youtubeUrl=(document.getElementById('youtube-url-in')||{}).value||'';
+  var visEl=document.getElementById('youtube-visible-switch');
+  siteState.youtubeVisible=visEl?visEl.checked:true;
+  saveSettings();showToast('✅ Video tutorial guardado 🌍');
+}
+
+function updateInstallVideo(){
+  siteState.installYoutubeUrl=(document.getElementById('install-youtube-url-in')||{}).value||'';
+  var visEl=document.getElementById('install-visible-switch');
+  siteState.installVisible=visEl?visEl.checked:true;
+  saveSettings();showToast('✅ Tutorial instalación guardado 🌍');
+}
+
+function saveYTChannel(){
+  var url=document.getElementById('yt-channel-url-in');if(!url)return;
+  siteState.ytChannelUrl=url.value.trim();
+  saveSettings();showToast('✅ Canal guardado');
+}
+
+function sendYTAlert(){
+  var cfg=_getEmailJSConfig();
+  if(!cfg||!cfg.key){showToast('⚠️ Configura EmailJS primero en el Panel Email');return;}
+  var channelUrl=siteState.ytChannelUrl||'';
+  if(!channelUrl){showToast('⚠️ Guarda primero la URL de tu canal');return;}
+  var subj='📺 ¡Nuevo video en JoelDroid Mods YT!';
+  var msg='¡Hola! Hay un nuevo video esperándote en nuestro canal de YouTube.\n\n👉 Ver video: '+channelUrl+'\n\n¡No te lo pierdas y activa las notificaciones!';
+  _sendEmailToAll(subj,msg,cfg);
+  showToast('🔔 Alerta de video enviada a todos los usuarios');
+}
+
+function applyBgTheme(themeKey){
+  siteState.bgTheme=themeKey||'neon';
+  saveSettings();
+  _refreshBgThemeUI();
+  showToast('✅ Tema de fondo aplicado: '+(themeKey||'ninguno')+' 🌍');
+}
+
+function toggleSceneGeo(checked){
+  siteState.showGeoShapes=checked;
+  var geoVis=document.getElementById('geo-toggle-visual');
+  var geoKnb=document.getElementById('geo-toggle-knob');
+  if(geoVis)geoVis.style.background=checked?'#7c3aed':'#4a5568';
+  if(geoKnb)geoKnb.style.left=checked?'22px':'2px';
+  saveSettings();
+  showToast('✅ Figuras geométricas '+(checked?'activadas':'desactivadas')+' 🌍');
+}
+
+// ════════════════════════════════════════════════════════════════
+// LOGIN / LOGOUT ADMIN
+// ════════════════════════════════════════════════════════════════
+function openLogin(){
+  var s=document.getElementById('login-screen');
+  if(s){
+    s.style.display='flex';
+    document.body.style.overflow='hidden';
+    var emailInput=document.getElementById('fb-login-email');
+    if(emailInput&&!emailInput.value)emailInput.value=ADMIN_EMAIL||'';
+    var st=document.getElementById('fb-login-status');if(st)st.innerText='';
+    setTimeout(function(){var p=document.getElementById('fb-login-pass');if(p)p.focus();},200);
+  }
+}
+
+function closeLogin(){
+  var s=document.getElementById('login-screen');
+  if(s){s.style.display='none';document.body.style.overflow='';}
+}
+
+function doFirebaseLogin(){
+  var email=(document.getElementById('fb-login-email')||{}).value||'';
+  var pass=(document.getElementById('fb-login-pass')||{}).value||'';
+  var status=document.getElementById('fb-login-status');
+  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
+  if(status)status.innerText='⏳ Iniciando sesión...';
+  if(!_fbReady||!_fbAuth){if(status)status.innerText='⏳ Conectando Firebase...';_initFirebase();setTimeout(doFirebaseLogin,1500);return;}
+  _fbAuth.signInWithEmailAndPassword(email.trim(),pass)
+    .then(function(cred){
+      if(cred.user.uid===ADMIN_UID){
+        if(status)status.innerText='✅ Admin verificado';
+        setTimeout(function(){closeLogin();showToast('✅ Bienvenido, Admin 🔥');},500);
+      }else{
+        if(status)status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
+        _fbAuth.signOut();
+      }
+    })
+    .catch(function(err){
+      var msg=err.code==='auth/wrong-password'?'❌ Contraseña incorrecta':err.code==='auth/user-not-found'?'❌ Email no registrado':err.code==='auth/too-many-requests'?'❌ Demasiados intentos. Espera unos minutos':'❌ Error: '+err.message;
+      if(status)status.innerText=msg;
+    });
+}
+
+function clearAdminSession(){
+  if(_fbAuth&&_fbUser)_fbAuth.signOut();
+  showToast('🧹 Sesión limpiada');
+}
+
+function emergencyReset(){
+  if(confirm('¿Forzar reset de sesión? Se cerrará la sesión de Firebase.')){
+    if(_fbAuth)_fbAuth.signOut().catch(function(){});
+    try{localStorage.removeItem('jd_gh_cfg');localStorage.removeItem('siteState');}catch(e){}
+    showToast('⚡ Reset forzado');
+    setTimeout(function(){window.location.reload();},1000);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// GAME EDITOR
+// ════════════════════════════════════════════════════════════════
+var _editingGameId=null;
+
+function openGameEditor(gameId){
+  _editingGameId=gameId||null;
+  var modal=document.getElementById('game-editor-modal');
+  var title=document.getElementById('editor-title');
+  if(title)title.textContent=gameId?'Editar Juego':'Agregar Nuevo Juego';
+  if(modal)modal.style.display='flex';
+  document.body.style.overflow='hidden';
+  // Resetear form
+  var fields=['editor-game-id','editor-name','editor-download-name-secondary','editor-description','editor-version','editor-size','editor-features','editor-icon-url','editor-warning-text','editor-update-badge-text','editor-mod-badge-text','editor-download-text1','editor-download-link1','editor-download-text2','editor-download-link2','editor-dlpage-name1','editor-dlpage-ver1','editor-dlpage-size1','editor-dlpage-btn1','editor-dlpage-name2','editor-dlpage-ver2','editor-dlpage-size2','editor-dlpage-btn2'];
+  fields.forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  ['editor-warning-visible','editor-update-badge-visible','editor-mod-badge-visible','editor-download-visible1','editor-download-visible2'].forEach(function(id){var e=document.getElementById(id);if(e)e.checked=false;});
+  var visEl=document.getElementById('editor-visible');if(visEl)visEl.checked=true;
+  var prev=document.getElementById('ged-icon-preview');if(prev)prev.className='ged-icon-preview';
+  // Selectores color vacíos en editor
+  _buildColorSelector('update-badge-color-selector-ui','green',function(k){window._updateBadgeColorKey=k;});
+  _buildColorSelector('mod-badge-color-selector-ui','red',function(k){window._modBadgeColorKey=k;});
+  _buildColorSelector('dl-btn-color-selector-1','blue',function(k){window._dlColor1Key=k;});
+  _buildColorSelector('dl-btn-color-selector-2','blue',function(k){window._dlColor2Key=k;});
+  if(gameId){
+    var game=siteState.gamesList.find(function(g){return String(g.id)===String(gameId);});
+    if(game)_fillEditorFromGame(game);
+  }
+}
+
+function _fillEditorFromGame(g){
+  var sv=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
+  var sc=function(id,v){var e=document.getElementById(id);if(e)e.checked=!!v;};
+  sv('editor-game-id',g.id);
+  sv('editor-name',g.name||g.nombre);
+  sv('editor-download-name-secondary',g.downloadNameSecondary||g.subtitulo);
+  sv('editor-description',g.description||g.descripcion);
+  sv('editor-version',g.ver||g.version);
+  sv('editor-size',g.size||g.peso);
+  sv('editor-features',(g.features||g.caracteristicas||[]).join(', '));
+  sv('editor-icon-url',g.thumb||g.imagen||g.icon);
+  var prev=document.getElementById('ged-icon-preview');
+  if(prev&&(g.thumb||g.imagen||g.icon)){prev.src=g.thumb||g.imagen||g.icon;prev.className='ged-icon-preview show';}
+  sc('editor-warning-visible',g.warningVisible);
+  sv('editor-warning-text',g.warningText);
+  sc('editor-update-badge-visible',g.updateBadgeVisible);
+  sv('editor-update-badge-text',g.updateBadgeText||'UPDATE');
+  sc('editor-mod-badge-visible',g.modBadgeVisible);
+  sv('editor-mod-badge-text',g.modBadgeText||'MOD APP');
+  sc('editor-download-visible1',g.downloadButtonVisible1!==false);
+  sv('editor-download-text1',g.downloadButtonText1||'Descargar Mod 1');
+  sv('editor-download-link1',g.downloadButtonLink1||'#');
+  sc('editor-download-visible2',g.downloadButtonVisible2!==false);
+  sv('editor-download-text2',g.downloadButtonText2||'Descargar Mod 2');
+  sv('editor-download-link2',g.downloadButtonLink2||'#');
+  sv('editor-dlpage-name1',g.dlpageName1||'');
+  sv('editor-dlpage-ver1',g.dlpageVer1||'');
+  sv('editor-dlpage-size1',g.dlpageSize1||'');
+  sv('editor-dlpage-btn1',g.dlpageBtn1||'');
+  sv('editor-dlpage-name2',g.dlpageName2||'');
+  sv('editor-dlpage-ver2',g.dlpageVer2||'');
+  sv('editor-dlpage-size2',g.dlpageSize2||'');
+  sv('editor-dlpage-btn2',g.dlpageBtn2||'');
+  sc('editor-visible',g.visible!==false);
+}
+
+function closeGameEditor(){
+  var modal=document.getElementById('game-editor-modal');
+  if(modal)modal.style.display='none';
+  document.body.style.overflow='';
+  _editingGameId=null;
+}
+
+function saveGame(){
+  var name=(document.getElementById('editor-name')||{}).value||'';
+  if(!name.trim()){showToast('⚠️ El nombre es obligatorio');return;}
+  var editId=_editingGameId||(document.getElementById('editor-game-id')||{}).value||null;
+  var featuresRaw=(document.getElementById('editor-features')||{}).value||'';
+  var features=featuresRaw?featuresRaw.split(',').map(function(f){return f.trim();}).filter(Boolean):[];
+  var iconUrl=(document.getElementById('editor-icon-url')||{}).value||'';
+  var iconFile=document.getElementById('editor-icon-file');
+  // Si hay archivo local, convertir a dataURL primero
+  if(iconFile&&iconFile.files&&iconFile.files[0]){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      _doSaveGame(editId,name,features,e.target.result);
+    };
+    reader.readAsDataURL(iconFile.files[0]);
+  }else{
+    _doSaveGame(editId,name,features,iconUrl);
+  }
+}
+
+function _doSaveGame(editId,name,features,iconUrl){
+  var gv=function(id){return(document.getElementById(id)||{}).value||'';};
+  var gc=function(id){return !!(document.getElementById(id)||{}).checked;};
+  var newGame={
+    name:name,
+    downloadNameSecondary:gv('editor-download-name-secondary'),
+    description:gv('editor-description'),
+    ver:gv('editor-version'),
+    size:gv('editor-size'),
+    features:features,
+    thumb:iconUrl,
+    warningVisible:gc('editor-warning-visible'),
+    warningText:gv('editor-warning-text'),
+    updateBadgeVisible:gc('editor-update-badge-visible'),
+    updateBadgeText:gv('editor-update-badge-text')||'UPDATE',
+    updateBadgeBgColorKey:window._updateBadgeColorKey||'green',
+    updateBadgeBgColor:colorPalette[window._updateBadgeColorKey||'green']?colorPalette[window._updateBadgeColorKey||'green'].hex:'#10b981',
+    modBadgeVisible:gc('editor-mod-badge-visible'),
+    modBadgeText:gv('editor-mod-badge-text')||'MOD APP',
+    modBadgeBgColorKey:window._modBadgeColorKey||'red',
+    modBadgeBgColor:colorPalette[window._modBadgeColorKey||'red']?colorPalette[window._modBadgeColorKey||'red'].hex:'#ef4444',
+    downloadButtonVisible1:gc('editor-download-visible1'),
+    downloadButtonText1:gv('editor-download-text1')||'Descargar Mod 1',
+    downloadButtonLink1:gv('editor-download-link1')||'#',
+    downloadButtonColor1:colorPalette[window._dlColor1Key||'blue']?colorPalette[window._dlColor1Key||'blue'].hex:'#3b82f6',
+    downloadButtonVisible2:gc('editor-download-visible2'),
+    downloadButtonText2:gv('editor-download-text2')||'Descargar Mod 2',
+    downloadButtonLink2:gv('editor-download-link2')||'#',
+    downloadButtonColor2:colorPalette[window._dlColor2Key||'blue']?colorPalette[window._dlColor2Key||'blue'].hex:'#3b82f6',
+    dlpageName1:gv('editor-dlpage-name1'),dlpageVer1:gv('editor-dlpage-ver1'),dlpageSize1:gv('editor-dlpage-size1'),dlpageBtn1:gv('editor-dlpage-btn1'),
+    dlpageName2:gv('editor-dlpage-name2'),dlpageVer2:gv('editor-dlpage-ver2'),dlpageSize2:gv('editor-dlpage-size2'),dlpageBtn2:gv('editor-dlpage-btn2'),
+    visible:gc('editor-visible'),
+    timestamp:Date.now()
+  };
+  if(editId)newGame.id=editId;
+  else newGame.id='mod_'+Date.now();
+  if(_isAdmin()&&_db){
+    showToast('⏳ Guardando en Firebase...');
+    _fbSaveGame(newGame,editId||null).then(function(){
+      closeGameEditor();
+      try{_autoNotifyGameUpdate(!editId,name,newGame.ver||'');}catch(e){}
+    }).catch(function(){_saveGameLocal(editId,newGame);});
+  }else{
+    _saveGameLocal(editId,newGame);
+  }
+}
+
+function _saveGameLocal(editId,newGame){
+  if(editId){
+    var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
+    if(idx!==-1)siteState.gamesList[idx]=Object.assign({},siteState.gamesList[idx],newGame);
+    else siteState.gamesList.push(newGame);
+  }else{siteState.gamesList.push(newGame);}
+  saveSettings();renderGameEditorList();closeGameEditor();
+  try{_autoNotifyGameUpdate(!editId,newGame.name,newGame.ver||'');}catch(e){}
+}
+
+function renderGameEditorList(){
+  var list=document.getElementById('game-list-editor');if(!list)return;
+  list.innerHTML=(siteState.gamesList.length?siteState.gamesList.map(function(g){
+    return'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:4px;gap:8px">'+
+      '<span style="font-size:11px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+g.name+'</span>'+
+      '<button onclick="openGameEditor(\''+g.id+'\')" style="font-size:9px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:none;border-radius:6px;padding:4px 10px;cursor:pointer">Editar</button>'+
+      '<button onclick="deleteGameGlobal(\''+g.id+'\')" style="font-size:9px;font-weight:900;color:#ef4444;background:rgba(239,68,68,.1);border:none;border-radius:6px;padding:4px 8px;cursor:pointer">🗑️</button>'+
+    '</div>';
+  }).join(''):'<p style="font-size:10px;opacity:.4;text-align:center;padding:12px">Sin juegos. Agrega el primero.</p>')+
+  (_isAdmin()?'<button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:10px;cursor:pointer">🌍 Publicar todos los juegos para todos</button>':'');
+}
+
+function deleteGameGlobal(gameId){
+  if(!confirm('¿Eliminar este juego? Se eliminará para TODOS los usuarios.'))return;
+  if(_isAdmin()){
+    _fbDeleteGame(String(gameId)).then(function(){renderGameEditorList();});
+  }else{
+    siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});
+    saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// ESTADÍSTICAS
+// ════════════════════════════════════════════════════════════════
+function _trackVisit(){
+  if(!_db)return;
+  var today=new Date().toISOString().split('T')[0];
+  _db.collection('stats').doc('visits').set({[today]:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
+}
+
+function _listenStats(){
+  if(!_db)return;
+  var panel=document.getElementById('stats-panel-content');if(!panel)return;
+  panel.innerHTML='<p style="font-size:10px;opacity:.35;text-align:center;padding:8px">Cargando estadísticas...</p>';
+  _db.collection('stats').doc('visits').get().then(function(doc){
+    var visits=doc.exists?doc.data():{};
+    var total=Object.values(visits).reduce(function(a,b){return a+(b||0);},0);
+    var today=new Date().toISOString().split('T')[0];
+    var todayCount=visits[today]||0;
+    panel.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'
+      +'<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:12px;padding:12px;text-align:center">'
+        +'<p style="font-size:20px;font-weight:900;color:#60a5fa">'+total+'</p>'
+        +'<p style="font-size:8px;opacity:.5;text-transform:uppercase;letter-spacing:.1em">Visitas totales</p></div>'
+      +'<div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:12px;text-align:center">'
+        +'<p style="font-size:20px;font-weight:900;color:#10b981">'+todayCount+'</p>'
+        +'<p style="font-size:8px;opacity:.5;text-transform:uppercase;letter-spacing:.1em">Hoy</p></div></div>';
+  }).catch(function(){panel.innerHTML='<p style="font-size:10px;opacity:.35;text-align:center;padding:8px">Sin datos disponibles.</p>';});
+}
+
+function refreshStats(){
+  if(!_db){showToast('⚠️ Firebase no conectado');return;}
+  _listenStats();showToast('📊 Estadísticas actualizadas');
+}
+
+// ════════════════════════════════════════════════════════════════
+// JSONBIN — Fallback
+// ════════════════════════════════════════════════════════════════
+function testJSONBin(){
+  var jbEl=document.getElementById('jb-status');
+  if(jbEl)jbEl.textContent='Probando...';
+  if(!_fbReady){if(jbEl){jbEl.textContent='⚠️ Firebase no está conectado.';jbEl.style.color='#f59e0b';}}
+  else{if(jbEl){jbEl.textContent='✅ Firebase está activo — JSONBin es el método de respaldo.';jbEl.style.color='#10b981';}}
+}
+
+// ════════════════════════════════════════════════════════════════
+// EMAIL PANEL
+// ════════════════════════════════════════════════════════════════
+function openEmailPanel(){
+  var panel=document.getElementById('email-panel');if(!panel)return;
+  panel.classList.add('open');document.body.style.overflow='hidden';
+  epRefreshUsers();epLoadConfig();epUpdateSubText();
+}
+function closeEmailPanel(){var panel=document.getElementById('email-panel');if(!panel)return;panel.classList.remove('open');document.body.style.overflow='';}
+
+function epShowTab(tab){
+  ['config','users','send','yt'].forEach(function(t){
+    var sec=document.getElementById('ep-sec-'+t);var btn=document.getElementById('ep-tab-'+t);
+    if(sec)sec.classList.toggle('active',t===tab);
+    if(btn)btn.classList.toggle('active',t===tab);
+  });
+  if(tab==='users')epRefreshUsers();
+}
+
+function epUpdateSubText(){
+  var el=document.getElementById('ep-sub-text');var cfg=_getEmailJSConfig();
+  if(el){if(cfg&&cfg.key){el.textContent='✅ serviciosjoeldroidmods@gmail.com — Conectado';el.style.color='#10b981';}else{el.textContent='serviciosjoeldroidmods@gmail.com';el.style.color='';}}
+  var conn=document.getElementById('ep-conn-status');
+  if(conn){if(cfg&&cfg.key){conn.innerHTML='<span style="color:#10b981">✅ EmailJS configurado — Listo para enviar</span><br><span style="font-size:9px;opacity:.45">serviciosjoeldroidmods@gmail.com</span>';}else{conn.innerHTML='<span style="color:#f59e0b">⚠️ Sin configurar — Completa los campos</span>';}}
+}
+
+function epLoadConfig(){
+  var cfg=_getEmailJSConfig();if(!cfg)return;
+  var f=function(id,v){var e=document.getElementById(id);if(e)e.value=v||'';};
+  f('ep-svc',cfg.svc);f('ep-tpl',cfg.tpl);f('ep-key',cfg.key);epUpdateSubText();
+}
+
+function epSaveConfig(){
+  var svc=(document.getElementById('ep-svc')||{}).value||'';
+  var tpl=(document.getElementById('ep-tpl')||{}).value||'';
+  var key=(document.getElementById('ep-key')||{}).value||'';
+  if(!svc||!tpl||!key){epShowStatus('ep-status-config','err','Completa los 3 campos');return;}
+  localStorage.setItem('jd_emailjs',JSON.stringify({svc:svc,tpl:tpl,key:key}));
+  if(window.emailjs){try{emailjs.init(key);}catch(e){}}
+  epShowStatus('ep-status-config','ok','✅ Configuración guardada. EmailJS conectado.');
+  epUpdateSubText();
+}
+
+function epRefreshUsers(){
+  var users=_AUTH.getAllUsers();
+  var countEl=document.getElementById('ep-user-count');if(countEl)countEl.textContent=users.length+' '+(users.length===1?'usuario':'usuarios');
+  var list=document.getElementById('ep-users-list');if(!list)return;
+  var COLORS=['#3b82f6','#8b5cf6','#06b6d4','#ec4899','#10b981','#f59e0b'];
+  if(!users.length){list.innerHTML='<div style="text-align:center;padding:20px;opacity:.35;font-size:10px">No hay usuarios registrados aún</div>';return;}
+  list.innerHTML=users.map(function(u,i){
+    var bg=COLORS[i%COLORS.length];var init=(u.username||'?').slice(0,2).toUpperCase();
+    return'<div class="ep-user-row"><div class="ep-uav" style="background:linear-gradient(135deg,'+bg+','+bg+'88)">'+init+'</div><div style="flex:1;min-width:0"><p class="ep-uname">'+u.username+'</p><p class="ep-uemail">'+u.email+'</p></div><span class="ep-badge">Gmail</span></div>';
+  }).join('');
+  var sendBtn=document.getElementById('ep-send-btn');
+  if(sendBtn){var lbl=sendBtn.querySelector('#ep-send-label');if(lbl)lbl.textContent='Enviar a '+users.length+' usuario'+(users.length!==1?'s':'');}
+}
+
+function epSendAll(){
+  var subj=(document.getElementById('ep-subj')||{}).value||'';var body=(document.getElementById('ep-body')||{}).value||'';
+  if(!subj||!body){epShowStatus('ep-status-send','err','Completa el asunto y el mensaje');return;}
+  var cfg=_getEmailJSConfig();if(!cfg||!cfg.key){epShowStatus('ep-status-send','err','Configura EmailJS primero en la pestaña ⚙️ Config');return;}
+  epShowStatus('ep-status-send','info','Enviando...');
+  _epDoSend(subj,body,cfg,'ep-status-send','ep-prog','ep-pbar');
+}
+
+function epSendYT(){
+  var url=(document.getElementById('ep-yt-url')||{}).value||'';var extra=(document.getElementById('ep-yt-extra')||{}).value||'';
+  if(!url){epShowStatus('ep-status-yt','err','Ingresa la URL del video o canal');return;}
+  var cfg=_getEmailJSConfig();if(!cfg||!cfg.key){epShowStatus('ep-status-yt','err','Configura EmailJS primero');return;}
+  var subj='📺 ¡Nuevo video en JoelDroid Mods YT!';
+  var msg='¡Hola! Hay un nuevo video en JoelDroid Mods YT.'+(extra?'\n\n'+extra:'')+'\n\n👉 Ver ahora: '+url+'\n\n¡No olvides darle like y suscribirte!';
+  epShowStatus('ep-status-yt','info','Enviando...');
+  _epDoSend(subj,msg,cfg,'ep-status-yt',null,null);
+}
+
+function _epDoSend(subj,body,cfg,statusId,progId,pbarId){
+  var users=_AUTH.getAllUsers();if(!users.length){epShowStatus(statusId,'err','Sin usuarios para enviar');return;}
+  var prog=progId?document.getElementById(progId):null;var pbar=pbarId?document.getElementById(pbarId):null;
+  if(prog)prog.style.display='block';
+  var ok=0,fail=0,n=users.length;
+  var footer='\n\n— JoelDroid Mods YT\nserviciosjoeldroidmods@gmail.com';
+  _loadEmailJS(cfg,function(){
+    users.forEach(function(u){
+      emailjs.send(cfg.svc,cfg.tpl,{to_email:u.email,to_name:u.username,subject:subj,message:body+footer,app_name:'JoelDroid Mods YT',from_name:'JoelDroid Mods YT',reply_to:'serviciosjoeldroidmods@gmail.com'})
+        .then(function(){ok++;var pct=Math.round((ok+fail)/n*100);if(pbar)pbar.style.width=pct+'%';if(ok+fail===n){epShowStatus(statusId,'ok','✅ Enviado a '+ok+'/'+n+' usuarios'+(fail?' ('+fail+' fallaron)':''));if(prog)setTimeout(function(){if(prog)prog.style.display='none';if(pbar)pbar.style.width='0%';},3000);}})
+        .catch(function(){fail++;var pct=Math.round((ok+fail)/n*100);if(pbar)pbar.style.width=pct+'%';if(ok+fail===n)epShowStatus(statusId,fail===n?'err':'ok','✅ '+ok+'/'+n+(fail?' ('+fail+' errores)':''));});
+    });
+  });
+}
+
+function epShowStatus(id,type,msg){var el=document.getElementById(id);if(!el)return;el.textContent=msg;el.className='ep-status '+type;el.style.display='block';}
+
+function _getEmailJSConfig(){try{return JSON.parse(localStorage.getItem('jd_emailjs')||'null');}catch(e){return null;}}
+function _loadEmailJS(cfg,cb){if(window.emailjs){emailjs.init(cfg.key);cb();return;}var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';s.onload=function(){emailjs.init(cfg.key);cb();};document.head.appendChild(s);}
+function _sendEmailToAll(subj,body,cfg){var users=_AUTH.getAllUsers();if(!users.length)return;_loadEmailJS(cfg,function(){users.forEach(function(u){emailjs.send(cfg.svc,cfg.tpl,{to_email:u.email,to_name:u.username,subject:subj,message:body,app_name:'JoelDroid Mods YT'}).catch(function(){});});});}
+
+function _autoNotifyGameUpdate(isNew,gameName,gameVer){
+  var cfg=_getEmailJSConfig();if(!cfg||!cfg.key)return;
+  var users=_AUTH.getAllUsers();if(!users.length)return;
+  var subj=isNew?'🎮 Nuevo juego en JoelDroid: '+gameName:'🔄 Juego actualizado: '+gameName+' '+gameVer;
+  var msg=isNew?'¡Hola! Se ha agregado un nuevo juego premium: '+gameName+'. ¡Visita JoelDroid Mods YT para descargarlo!':'¡Hola! '+gameName+' ha sido actualizado a la versión '+gameVer+'. ¡Ingresa al sitio para obtener la última versión!';
+  _sendEmailToAll(subj,msg,cfg);
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTH SYSTEM (para gestión de usuarios del panel)
+// ════════════════════════════════════════════════════════════════
+var _AUTH=(function(){
+  function _getUsers(){try{return JSON.parse(localStorage.getItem('jd_users')||'[]');}catch(e){return[];}}
+  function _saveUsers(u){try{localStorage.setItem('jd_users',JSON.stringify(u));}catch(e){}}
+  function _getSession(){try{return JSON.parse(localStorage.getItem('jd_session')||'null');}catch(e){return null;}}
+  function _saveSession(s){try{localStorage.setItem('jd_session',s?JSON.stringify(s):'null');}catch(e){}}
+  function _hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h.toString(36);}
+  function register(username,email,pass){
+    email=email.trim().toLowerCase();username=username.trim();
+    if(!username||username.length<3)return{ok:false,msg:'El nombre debe tener al menos 3 caracteres'};
+    if(pass.length<6)return{ok:false,msg:'La contraseña debe tener al menos 6 caracteres'};
+    var users=_getUsers();
+    if(users.find(function(u){return u.email===email;}))return{ok:false,msg:'Este correo ya está registrado'};
+    var user={id:'jd_'+Date.now(),username:username,email:email,pass:_hash(pass),joined:Date.now(),verified:true};
+    users.push(user);_saveUsers(users);_saveSession({id:user.id,username:user.username,email:user.email});
+    return{ok:true,user:user};
+  }
+  function login(email,pass){
+    email=email.trim().toLowerCase();var users=_getUsers();var user=users.find(function(u){return u.email===email;});
+    if(!user)return{ok:false,msg:'Correo no registrado'};
+    if(user.pass!==_hash(pass))return{ok:false,msg:'Contraseña incorrecta'};
+    _saveSession({id:user.id,username:user.username,email:user.email});return{ok:true,user:user};
+  }
+  function logout(){_saveSession(null);}
+  function getSession(){return _getSession();}
+  function isLoggedIn(){var s=_getSession();return !!(s&&s.id);}
+  function sendResetCode(email){
+    email=email.trim().toLowerCase();var users=_getUsers();
+    if(!users.find(function(u){return u.email===email;}))return{ok:false,msg:'Correo no registrado'};
+    var code=String(100000+Math.floor(Math.random()*900000));
+    var codes={};try{codes=JSON.parse(localStorage.getItem('jd_rcodes')||'{}');}catch(e){}
+    codes[email]={code:code,ts:Date.now()};try{localStorage.setItem('jd_rcodes',JSON.stringify(codes));}catch(e){}
+    return{ok:true,code:code};
+  }
+  function verifyResetCode(email,code,newPass){
+    email=email.trim().toLowerCase();if(newPass.length<6)return{ok:false,msg:'La contraseña debe tener al menos 6 caracteres'};
+    var codes={};try{codes=JSON.parse(localStorage.getItem('jd_rcodes')||'{}');}catch(e){}
+    var entry=codes[email];
+    if(!entry)return{ok:false,msg:'No hay código activo'};
+    if(Date.now()-entry.ts>900000)return{ok:false,msg:'El código expiró (15 min). Solicita otro.'};
+    if(entry.code!==code.trim())return{ok:false,msg:'Código incorrecto'};
+    var users=_getUsers();var idx=users.findIndex(function(u){return u.email===email;});
+    if(idx<0)return{ok:false,msg:'Usuario no encontrado'};
+    users[idx].pass=_hash(newPass);_saveUsers(users);delete codes[email];try{localStorage.setItem('jd_rcodes',JSON.stringify(codes));}catch(e){}
+    return{ok:true};
+  }
+  function getAllUsers(){return _getUsers().map(function(u){return{id:u.id,username:u.username,email:u.email,joined:u.joined};});}
+  return{register:register,login:login,logout:logout,getSession:getSession,isLoggedIn:isLoggedIn,sendResetCode:sendResetCode,verifyResetCode:verifyResetCode,getAllUsers:getAllUsers};
+})();
+
+// ════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════
+function showToast(message){
+  var toast=document.getElementById('toast-notification');
+  if(toast){
+    toast.innerText=message;toast.style.display='block';
+    setTimeout(function(){toast.classList.add('show');},10);
+    setTimeout(function(){toast.classList.remove('show');setTimeout(function(){toast.style.display='none';},300);},3000);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// ARRANQUE
+// ════════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',function(){
+  loadSettings();
+  renderAdminUI();
+  renderGameEditorList();
+  setTimeout(_initFirebase,0);
+  _fillGHInputs();
+});
+</script>
+</body>
+</html>
