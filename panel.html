@@ -198,6 +198,15 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 </head>
 <body class="no-scrollbar">
 
+<!-- ══ GUARDA DE AUTENTICACIÓN — bloquea panel hasta verificar sesión Firebase ══ -->
+<div id="auth-guard" style="position:fixed;inset:0;z-index:9999;background:#020408;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s ease">
+  <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" stroke="#3b82f6"><g fill="none" fill-rule="evenodd" stroke-width="3"><circle cx="22" cy="22" r="18" stroke-opacity=".25"/><path d="M40 22c0-9.94-8.06-18-18-18"><animateTransform attributeName="transform" type="rotate" from="0 22 22" to="360 22 22" dur="1s" repeatCount="indefinite"/></path></g></svg>
+  <p style="font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.12em;margin:0">Verificando sesión...</p>
+</div>
+<style>
+#auth-guard.hidden{opacity:0;pointer-events:none}
+</style>
+
 <!-- TOAST -->
 <div id="toast-notification"></div>
 
@@ -692,7 +701,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
       </div>
       <div style="flex:1">
         <div class="ep-title">Panel Email</div>
-        <div class="ep-sub" id="ep-sub-text">serviciosjoeldroidmods@gmail.com</div>
+        <div class="ep-sub" id="ep-sub-text"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cebdabbcb8a7ada7a1bda4a1aba2aabca1a7aaa3a1aabd8ea9a3afa7a2e0ada1a3">[email&#160;protected]</a></div>
       </div>
       <button onclick="closeEmailPanel()" style="width:32px;height:32px;border-radius:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900">×</button>
     </div>
@@ -709,7 +718,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           Configuración EmailJS
         </p>
-        <p style="font-size:10px;opacity:.45;line-height:1.6;margin-bottom:14px">Regístrate gratis en <strong style="color:var(--brand-color)">emailjs.com</strong><br>Conecta <strong>serviciosjoeldroidmods@gmail.com</strong> como servicio Gmail.<br>Crea una plantilla con: <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">to_email</code> <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">subject</code> <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">message</code></p>
+        <p style="font-size:10px;opacity:.45;line-height:1.6;margin-bottom:14px">Regístrate gratis en <strong style="color:var(--brand-color)">emailjs.com</strong><br>Conecta <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5b283e292d323832342831343e373f2934323f36343f281b3c363a323775383436">[email&#160;protected]</a></strong> como servicio Gmail.<br>Crea una plantilla con: <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">to_email</code> <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">subject</code> <code style="background:var(--search-bg);padding:1px 5px;border-radius:4px;font-size:9px">message</code></p>
         <span class="ep-label">Service ID</span>
         <input id="ep-svc" class="ep-input" placeholder="service_xxxxxxx" autocomplete="off">
         <span class="ep-label">Template ID</span>
@@ -754,7 +763,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           <span id="ep-send-label">Enviar a todos los usuarios</span>
         </button>
-        <p class="ep-hint">Correos enviados con autenticación desde serviciosjoeldroidmods@gmail.com.</p>
+        <p class="ep-hint">Correos enviados con autenticación desde <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6e1d0b1c18070d07011d04010b020a1c01070a03010a1d2e09030f0702400d0103">[email&#160;protected]</a>.</p>
       </div>
     </div>
     <div class="ep-section" id="ep-sec-yt">
@@ -778,7 +787,7 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 </div>
 
 <!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
@@ -831,9 +840,9 @@ var siteState=JSON.parse(JSON.stringify(defaultSiteState));
 // FIREBASE — Motor principal
 // ════════════════════════════════════════════════════════════════
 var _db=null,_fbAuth=null,_fbUser=null;
+var _saveSettingsTimer=null; // timer para debounce de guardado
 var _fbReady=false,_fbInitDone=false;
 var _fbModsUnsub=null,_fbCfgUnsub=null;
-var _saveSettingsTimer=null;
 var _pendingChanges=false;
 var _ghCfg=null,_syncPending=false;
 
@@ -858,7 +867,12 @@ function _initFirebase(){
       var lo=document.getElementById('fb-logout-btn');
       if(lb)lb.classList.toggle('hidden',!!user);
       if(lo)lo.classList.toggle('hidden',!user);
+
+      // ── GUARDA DE AUTENTICACIÓN ──────────────────────────────────
+      var guard=document.getElementById('auth-guard');
       if(user&&ADMIN_UID&&user.uid===ADMIN_UID){
+        // Admin verificado → ocultar overlay y mostrar panel
+        if(guard)guard.classList.add('hidden');
         _updateSyncUI(true,'✅ Admin activo: '+user.email);
         setTimeout(function(){
           if(!_isAdmin())return;
@@ -867,9 +881,12 @@ function _initFirebase(){
             .catch(function(){});
         },800);
       }else if(user){
-        _updateSyncUI(null,'⚠️ Sin permisos admin (UID: '+user.uid+')');
+        // Usuario autenticado pero NO es admin → redirigir
+        _fbAuth.signOut();
+        window.location.replace('index.html');
       }else{
-        _updateSyncUI(null,'🔒 Modo visitante — tiempo real activo');
+        // Sin sesión → redirigir a index.html para que haga login
+        window.location.replace('index.html');
       }
     });
     _updateSyncUI(null,'✅ Firebase conectado — tiempo real activo para todos');
@@ -1854,16 +1871,47 @@ function showToast(message){
   }
 }
 
+// ════════════════════════════�
+<script>
 // ════════════════════════════════════════════════════════════════
-// ARRANQUE
+// ARRANQUE DEL PANEL — DOMContentLoaded
+// Inicia Firebase → onAuthStateChanged verifica si es admin
 // ════════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded',function(){
-  loadSettings();
-  renderAdminUI();
-  renderGameEditorList();
-  setTimeout(_initFirebase,0);
-  _fillGHInputs();
+document.addEventListener('DOMContentLoaded', function() {
+  // Cargar estado local (datos de UI)
+  try {
+    var saved = localStorage.getItem('siteState');
+    if (saved) {
+      var p = JSON.parse(saved);
+      siteState = Object.assign({}, defaultSiteState, p, {
+        ui:            Object.assign({}, defaultSiteState.ui,            p.ui||{}),
+        announcement:  Object.assign({}, defaultSiteState.announcement,  p.announcement||{}),
+        banner:        Object.assign({}, defaultSiteState.banner,        p.banner||{}),
+        updatedBanner: Object.assign({}, defaultSiteState.updatedBanner, p.updatedBanner||{}),
+        popularBanner: Object.assign({}, defaultSiteState.popularBanner, p.popularBanner||{}),
+        copyright:     Object.assign({}, defaultSiteState.copyright,     p.copyright||{}),
+        verification:  Object.assign({}, defaultSiteState.verification,  p.verification||{}),
+        buttonSettings:Object.assign({}, defaultSiteState.buttonSettings,p.buttonSettings||{}),
+        gamesList: p.gamesList || defaultSiteState.gamesList
+      });
+    }
+  } catch(e) {}
+
+  // Iniciar Firebase — onAuthStateChanged redirige si no es admin
+  setTimeout(_initFirebase, 0);
+
+  // Rellenar inputs del panel con el estado actual
+  setTimeout(function() {
+    if (typeof renderAdminUI === 'function') renderAdminUI();
+    if (typeof renderGameEditorList === 'function') renderGameEditorList();
+    if (typeof _fillGHInputs === 'function') _fillGHInputs();
+    if (typeof refreshIcons === 'function') refreshIcons();
+  }, 600);
 });
+
+function refreshIcons() {
+  if (window.lucide) window.lucide.createIcons();
+}
 </script>
 </body>
 </html>
