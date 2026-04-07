@@ -279,32 +279,21 @@
     var p = JSON.parse(raw);
     if (String(p.id) !== String(gid)) return;
     if (Date.now() - (p.ts || 0) > 300000) return;
-    /* Inyectar antes de DOMContentLoaded para cero FOUC */
-    var n = p.name || p.nombre || '';
-    var v = p.ver  || p.version || '';
-    var s = p.size || p.peso   || '';
+    /* Solo precargar el icono antes de DOMContentLoaded para evitar FOUC.
+       Los textos los aplica _applyData() del motor principal (más abajo),
+       que ya lee los campos dlPageName1/2, dlPageVer1/2, etc. correctamente.
+       NO renderizar textos aquí para evitar datos genéricos / duplicados. */
     var t = p.thumb || p.imagen || p.icon || '';
-    function _esc(x){ return String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    /* Precargar icono en caché anticipadamente */
-    if (t) { try { window._jdCacheImg(t); } catch(e){} }
+    if (t) { try { window._jdCacheImg && window._jdCacheImg(t); } catch(e){} }
+    /* Pre-cargar icono visualmente sin tocar los textos */
     document.addEventListener('DOMContentLoaded', function(){
       var el = document.getElementById('dl-page-icon');
       var ph = document.getElementById('dl-icon-ph');
-      /* Cargar icono desde caché (instantáneo en segunda visita) */
-      if (t) { try { window._jdGetCachedImg(t, el, ph); } catch(e){ if(el){el.src=t; el.onload=function(){el.style.display=''; if(ph) ph.style.display='none';}; el.onerror=function(){el.style.display='none'; if(ph) ph.style.display='flex';};} } }
-      /* Textos */
-      var nameEl = document.getElementById('dl-page-name');
-      var vc = String(v||'').replace(/^v+/i,'');
-      if (nameEl && n) nameEl.innerHTML = '<strong style="opacity:1;transition:opacity .2s">' + _esc(n) + ' (Mod Dinero Infinito)</strong><br><span style="font-weight:400;font-size:.9em;color:rgba(226,232,240,.7)">' + (vc ? 'v'+vc : '') + '.apk</span>';
-      var btnT = document.getElementById('dl-btn-final-texto');
-      if (btnT && n) { var bt = n+' (Mod Dinero Infinito)'+(vc?' v'+vc+'.apk':'')+(s?' · '+s:''); btnT.textContent = bt; }
-      var bdg = document.getElementById('dl-btn-size-badge');
-      if (bdg && s) bdg.textContent = s;
-      var sv = document.getElementById('dl-stat-ver');
-      if (sv) sv.textContent = vc || v || '—';
-      var ss = document.getElementById('dl-stat-size');
-      if (ss && s) ss.textContent = s;
-      if (n) try { document.title = n + ' (Mod Dinero Infinito) ' + (vc ? 'v'+vc+'.apk' : '.apk') + ' | JoelDroid Mods YT'; } catch(e){}
+      if (t) {
+        try { window._jdGetCachedImg ? window._jdGetCachedImg(t, el, ph)
+                                     : (el && (el.src=t)); }
+        catch(e){ if(el){ el.src=t; el.onload=function(){el.style.display=''; if(ph) ph.style.display='none';}; el.onerror=function(){el.style.display='none'; if(ph) ph.style.display='flex';}; } }
+      }
     }, { once: true });
   } catch(e){}
 })();
