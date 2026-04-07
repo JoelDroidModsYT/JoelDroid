@@ -14,13 +14,11 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
-
-<!-- ══ FIREBASE SDK — Motor principal de datos en tiempo real ════ -->
+<!-- ══ FIREBASE SDK — carga síncrona en head para que el motor arranque al instante ══ -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-<!-- ════════════════════════════════════════════════════════════════ -->
 
 <script>
 // ══════════════════════════════════════════════════════════════════
@@ -205,24 +203,23 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 </head>
 <body class="no-scrollbar">
 
-<!-- ══ GUARDA DE AUTENTICACIÓN — muestra login si no hay sesión activa ══ -->
+<!-- ══ GUARDA DE AUTENTICACIÓN — muestra login si no hay sesión, NO expulsa ══ -->
 <script>
-// Si no es admin: muestra pantalla login (NO redirige — el admin puede iniciar sesión aquí)
-// Si es admin: oculta login y deja entrar al panel
 window._authGuardResolved = false;
 window._resolveAuthGuard = function(isAdmin){
   window._authGuardResolved = true;
   clearTimeout(window._authGuardTimeout);
+  var ls = document.getElementById('login-screen');
   if(isAdmin){
-    var ls = document.getElementById('login-screen');
+    // Admin verificado: ocultar login y mostrar panel
     if(ls) ls.style.display = 'none';
     document.body.style.overflow = '';
   } else {
-    var ls = document.getElementById('login-screen');
+    // Sin sesión válida: mostrar pantalla de login (NO redirigir)
     if(ls){ ls.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   }
 };
-// Timeout 5s: si Firebase no responde, mostrar login sin bloquear
+// Timeout de seguridad: si Firebase tarda más de 5s, mostrar login
 window._authGuardTimeout = setTimeout(function(){
   if(!window._authGuardResolved){
     window._authGuardResolved = true;
@@ -832,7 +829,7 @@ window._authGuardTimeout = setTimeout(function(){
   </div>
 </div>
 
-<!-- Firebase SDK ya cargado en <head> -->
+<!-- Firebase SDK ya cargado en <head> — no duplicar -->
 
 <script>
 // ════════════════════════════════════════════════════════════════
@@ -902,7 +899,28 @@ function _initFirebase(){
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady=true;
     _fbListenMods();_fbListenConfig();
-    window.addEventListener('online',function(){_fbListenMods();_fbListenConfig();});
+    // ── Estadísticas autónomas ────────────────────────────────
+    setTimeout(function(){ try{ if(typeof _listenStats==='function') _listenStats(); }catch(e){} }, 1500);
+    // ── Recuperar GH config desde Firebase si no está local ──
+    setTimeout(function(){
+      var localCfg=_loadGHConfig();
+      if(!localCfg||!localCfg.token){
+        _db.collection('siteConfig').doc('admin').get()
+          .then(function(doc){
+            if(doc.exists){
+              var d=doc.data();
+              if(d.ghToken&&d.ghGistId){
+                var cfg={token:d.ghToken,gistId:d.ghGistId};
+                try{localStorage.setItem('jd_gh_cfg',JSON.stringify(cfg));}catch(e){}
+                _ghCfg=cfg;
+                _fillGHInputs();
+                showToast('🔗 Config GitHub restaurada desde la nube');
+              }
+            }
+          }).catch(function(){});
+      }
+    }, 2500);
+    window.addEventListener('online',function(){ _fbListenMods();_fbListenConfig(); try{_listenStats();}catch(e){} });
     _fbAuth.onAuthStateChanged(function(user){
       _fbUser=user;
       var lb=document.getElementById('fb-login-btn');
@@ -911,21 +929,27 @@ function _initFirebase(){
       if(lo)lo.classList.toggle('hidden',!user);
 
       if(user&&ADMIN_UID&&user.uid===ADMIN_UID){
-        // Admin verificado → cancelar timeout y permitir acceso
+        // Admin verificado → desbloquear panel inmediatamente
         if(typeof window._resolveAuthGuard==='function') window._resolveAuthGuard(true);
         _updateSyncUI(true,'✅ Admin activo: '+user.email);
+        // Asegurar que los listeners de datos están activos
+        if(!_fbModsUnsub) _fbListenMods();
+        if(!_fbCfgUnsub)  _fbListenConfig();
+        // Estadísticas en tiempo real — se activan solas
+        setTimeout(function(){ try{ if(typeof _listenStats==='function') _listenStats(); }catch(e){} }, 800);
+        // Auto-migrar si Firestore está vacío
         setTimeout(function(){
           if(!_isAdmin())return;
           _db.collection('mods').limit(1).get()
             .then(function(snap){if(snap.empty&&siteState.gamesList&&siteState.gamesList.length>0)_autoMigrateToFirestore();})
             .catch(function(){});
-        },800);
+        },1200);
       }else if(user){
-        // UID no coincide → no es admin
+        // UID no coincide → no es admin, cerrar sesión
         if(typeof window._resolveAuthGuard==='function') window._resolveAuthGuard(false);
         _fbAuth.signOut();
       }else{
-        // Sin sesión → redirigir
+        // Sin sesión → mostrar login (NO expulsar)
         if(typeof window._resolveAuthGuard==='function') window._resolveAuthGuard(false);
       }
     });
@@ -1104,7 +1128,18 @@ function loadSettings(){
 // GITHUB GIST SYNC
 // ════════════════════════════════════════════════════════════════
 function _loadGHConfig(){try{return JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');}catch(e){return null;}}
-function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(cfg));}catch(e){}_ghCfg=cfg;}
+function _saveGHConfig(cfg){
+  try{localStorage.setItem('jd_gh_cfg',JSON.stringify(cfg));}catch(e){}
+  _ghCfg=cfg;
+  // ── Guardar también en Firebase para acceso 24/7 desde cualquier dispositivo ──
+  if(cfg && _db && _isAdmin()){
+    _db.collection('siteConfig').doc('admin').set({
+      ghToken:  cfg.token||'',
+      ghGistId: cfg.gistId||'',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true}).catch(function(){});
+  }
+}
 
 function _syncToGitHub(){
   var cfg=_ghCfg||_loadGHConfig();
@@ -1136,9 +1171,28 @@ function saveGHConfig(){
   var token=(document.getElementById('gh-token-in')||{}).value||'';
   var gistId=(document.getElementById('gh-gist-in')||{}).value||'';
   if(!token||!gistId){_showGHStatus('⚠️ Completa Token y Gist ID','#f59e0b');return;}
-  _saveGHConfig({token:token,gistId:gistId});
-  _syncToGitHub();
-  showToast('✅ GitHub Sync configurado');
+  _showGHStatus('⏳ Verificando token...','#60a5fa');
+  // Validar token antes de guardar
+  fetch('https://api.github.com/gists/'+gistId+'?t='+Date.now(),{
+    headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){
+    if(r.status===200||r.status===201){
+      _saveGHConfig({token:token,gistId:gistId}); // guarda en localStorage + Firebase
+      _syncToGitHub();
+      _showGHStatus('✅ Token válido — guardado en la nube (Firebase + localStorage)','#10b981');
+      showToast('✅ GitHub Sync configurado y guardado en Firebase 🌍');
+    } else if(r.status===401){
+      _showGHStatus('❌ Token inválido (401) — genera uno nuevo en github.com/settings/tokens','#ef4444');
+    } else if(r.status===404){
+      _showGHStatus('❌ Gist ID no encontrado (404) — verifica el ID','#ef4444');
+    } else {
+      _saveGHConfig({token:token,gistId:gistId});
+      _showGHStatus('⚠️ Guardado sin verificar (error '+r.status+')','#f59e0b');
+    }
+  }).catch(function(){
+    _saveGHConfig({token:token,gistId:gistId});
+    _showGHStatus('⚠️ Sin conexión — guardado localmente','#f59e0b');
+  });
 }
 
 function testGHSync(){
@@ -1499,22 +1553,39 @@ function doFirebaseLogin(){
   var email=(document.getElementById('fb-login-email')||{}).value||'';
   var pass=(document.getElementById('fb-login-pass')||{}).value||'';
   var status=document.getElementById('fb-login-status');
-  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
-  if(status)status.innerText='⏳ Iniciando sesión...';
-  if(!_fbReady||!_fbAuth){if(status)status.innerText='⏳ Conectando Firebase...';_initFirebase();setTimeout(doFirebaseLogin,1500);return;}
-  _fbAuth.signInWithEmailAndPassword(email.trim(),pass)
+  if(!email||!pass){if(status){status.style.color='#f59e0b';status.innerText='⚠️ Ingresa email y contraseña';}return;}
+  if(status){status.style.color='#60a5fa';status.innerText='⏳ Conectando...';}
+  if(!_fbReady||!_fbAuth){
+    if(status){status.style.color='#60a5fa';status.innerText='⏳ Iniciando Firebase...';}
+    _initFirebase();setTimeout(doFirebaseLogin,1500);return;
+  }
+  // ── setPersistence LOCAL: sesión permanente, sobrevive a reinicios ─
+  _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(function(){ return _fbAuth.signInWithEmailAndPassword(email.trim(),pass); })
     .then(function(cred){
       if(cred.user.uid===ADMIN_UID){
-        if(status)status.innerText='✅ Admin verificado';
-        setTimeout(function(){closeLogin();showToast('✅ Bienvenido, Admin 🔥');},500);
+        if(status){status.style.color='#10b981';status.innerText='✅ Admin verificado — sesión permanente';}
+        setTimeout(function(){
+          closeLogin();
+          showToast('🔥 Bienvenido, Admin — sesión permanente activa');
+          // Cargar juegos de Firestore inmediatamente
+          if(_db && !_fbModsUnsub) _fbListenMods();
+          if(_db && !_fbCfgUnsub)  _fbListenConfig();
+          renderGameEditorList();
+          if(typeof _listenStats==='function') _listenStats();
+        },400);
       }else{
-        if(status)status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
+        if(status){status.style.color='#ef4444';status.innerText='❌ UID no coincide: '+cred.user.uid;}
         _fbAuth.signOut();
       }
     })
     .catch(function(err){
-      var msg=err.code==='auth/wrong-password'?'❌ Contraseña incorrecta':err.code==='auth/user-not-found'?'❌ Email no registrado':err.code==='auth/too-many-requests'?'❌ Demasiados intentos. Espera unos minutos':'❌ Error: '+err.message;
-      if(status)status.innerText=msg;
+      var msg=err.code==='auth/wrong-password'     ?'❌ Contraseña incorrecta':
+              err.code==='auth/user-not-found'     ?'❌ Email no registrado':
+              err.code==='auth/invalid-credential' ?'❌ Credenciales incorrectas':
+              err.code==='auth/too-many-requests'  ?'❌ Demasiados intentos. Espera unos minutos':
+              '❌ '+err.message;
+      if(status){status.style.color='#ef4444';status.innerText=msg;}
     });
 }
 
@@ -2092,7 +2163,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   } catch(e) {}
 
-  // Iniciar Firebase — onAuthStateChanged redirige si no es admin
+  // Iniciar Firebase — onAuthStateChanged verificará la sesión persistente
   setTimeout(_initFirebase, 0);
 
   // Rellenar inputs del panel con el estado actual
@@ -2102,6 +2173,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof _fillGHInputs === 'function') _fillGHInputs();
     if (typeof refreshIcons === 'function') refreshIcons();
   }, 600);
+
+  // Watchdog: si Firebase resuelve sesión activa, asegurar que stats arranquen
+  setTimeout(function(){
+    if(_fbReady && _isAdmin() && typeof _listenStats==='function'){
+      try{ _listenStats(); }catch(e){}
+    }
+  }, 3000);
 });
 
 function refreshIcons() {
