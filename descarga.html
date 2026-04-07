@@ -337,10 +337,8 @@
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
-  /* Navegación gestionada por el módulo del popunder */
-  try {
-    history.pushState({ jdDl: true }, '', window.location.href);
-  } catch(e) {}
+  /* Navegación: pushState diferido para no interferir con la carga inicial */
+  /* Se hace SOLO una vez y SOLO cuando el DOM esté listo */
 
   document.addEventListener('DOMContentLoaded', function () {
 
@@ -658,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
   /* ── URLs del anuncio popunder ── */
   var urlPop = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
 
-  /* ── Calcular URL de retorno al juego ── */
+  /* ── Calcular URL de retorno al índice ── */
   function _backUrl() {
     var pid = (new URLSearchParams(window.location.search).get('id') || '').trim();
     try {
@@ -666,10 +664,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (raw) {
         var p = JSON.parse(raw);
         if (pid && String(p.id) === pid && p.slug)
-          return '/?mod=' + encodeURIComponent(p.slug);
+          return 'index.html?mod=' + encodeURIComponent(p.slug);
       }
     } catch(e) {}
-    return pid ? '/?id=' + encodeURIComponent(pid) : '/';
+    return pid ? 'index.html?id=' + encodeURIComponent(pid) : 'index.html';
   }
 
   var capa     = document.getElementById('capaPopunder');
@@ -714,24 +712,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 120);
   }
 
-  /* ── Intercepción ÚNICA del botón Atrás — SIN recarga ni parpadeo ── */
-  window.addEventListener('popstate', function (e) {
-    /* Congelar scroll para que la página no parpadee */
-    var scrollY = window.scrollY || 0;
-    /* Siempre reempujar el estado para mantener la pila y evitar recargas */
-    history.pushState(null, '', window.location.href);
-    /* Restaurar scroll por si el navegador lo mueve */
-    window.scrollTo(0, scrollY);
+  /* ── Intercepción del botón Atrás — SIN bucle ni parpadeo ── */
+  var _pushStateDone = false;
 
-    if (_popAbierto) {
-      /* El usuario tocó Atrás con el anuncio ya abierto — ignorar, ya está mostrando */
-      return;
+  /* Empujar UNA sola entrada al historial para interceptar el "Atrás" */
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!_pushStateDone) {
+      _pushStateDone = true;
+      try { history.pushState({ jdDl: true }, '', window.location.href); } catch(e) {}
     }
-    /* Primera vez que toca Atrás: mostrar el anuncio */
-    _abrirPopunder();
   });
 
-  /* El botón Atrás del nav interno también dispara el popunder */
+  window.addEventListener('popstate', function (e) {
+    /* El usuario tocó Atrás — mostrar anuncio popunder */
+    if (_popAbierto) return; /* Ya está mostrando, ignorar */
+    _abrirPopunder();
+    /* NO hacer pushState aquí — eso crea el bucle infinito */
+  });
+
+  /* El botón Atrás del nav interno — muestra el anuncio popunder */
   window.jdGoBack = function (ev) {
     if (ev) ev.preventDefault();
     _abrirPopunder();

@@ -4621,30 +4621,15 @@ function irADescarga(gameId, modo) {
         thumb: game.thumb || game.imagen || game.icon || '',
         ver:   _ver,
         size:  _size,
-        // URLs de descarga — campos principales de Firestore
         link1: game.downloadButtonLink1 || game.enlace || '#',
         link2: game.downloadButtonLink2 || game.downloadButtonLink1 || game.enlace || '#',
-        // Campos de pantalla de descarga — Servidor 1
-        dlPageName1: game.dlPageName1 || '',
-        dlPageVer1:  game.dlPageVer1  || '',
-        dlPageSize1: game.dlPageSize1 || '',
-        dlPageBtn1:  game.dlPageBtn1  || '',
-        // Campos de pantalla de descarga — Servidor 2
-        dlPageName2: game.dlPageName2 || '',
-        dlPageVer2:  game.dlPageVer2  || '',
-        dlPageSize2: game.dlPageSize2 || '',
-        dlPageBtn2:  game.dlPageBtn2  || '',
-        // Textos de botón originales
-        downloadButtonText1: game.downloadButtonText1 || '',
-        downloadButtonText2: game.downloadButtonText2 || '',
         ts: Date.now()
       };
       sessionStorage.setItem('jd_dl_payload', JSON.stringify(payload));
     } catch(e) {}
   }
 
-  /* URL con ruta limpia — funciona en joeldroidmods.com/download/?id=X
-     Si el servidor NO tiene reescritura de rutas, usar: descarga.html?id=X */
+  // URL corregida: usar ruta relativa directa a descarga.html
   var destUrl = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
 
   // ── MODAL DE ANUNCIO antes de redirigir ──────────────────────
@@ -4656,7 +4641,7 @@ function irADescarga(gameId, modo) {
     // Contar regresiva 5s para habilitar el botón "Continuar"
     var btnCont = document.getElementById('jd-modal-ad-btn');
     var reloj   = document.getElementById('jd-modal-ad-timer');
-    var s = 3;
+    var s = 5;
     if (reloj) reloj.textContent = 'Espera ' + s + 's';
     if (btnCont) { btnCont.disabled = true; btnCont.style.opacity = '0.4'; }
     var iv = setInterval(function() {
@@ -5068,7 +5053,7 @@ window.onload=function(){
     <div class="jd-modal-ad-header">
       <span class="jd-modal-ad-titulo">Publicidad · Apoya el sitio</span>
       <div class="jd-modal-ad-controles">
-        <span id="jd-modal-ad-timer">Espera 3s</span>
+        <span id="jd-modal-ad-timer">Espera 5s</span>
         <button id="jd-modal-ad-btn" disabled onclick="jdCerrarModalAd()" style="opacity:0.4">Espera...</button>
       </div>
     </div>
