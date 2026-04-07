@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Descarga - JOELDROID MODS YT</title>
-  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" type="image/png" href="/logo.png">
   <meta name="theme-color" content="#007bff">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
@@ -666,10 +666,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (raw) {
         var p = JSON.parse(raw);
         if (pid && String(p.id) === pid && p.slug)
-          return 'index.html?mod=' + encodeURIComponent(p.slug);
+          return '/?mod=' + encodeURIComponent(p.slug);
       }
     } catch(e) {}
-    return pid ? 'index.html?mod=' + encodeURIComponent(pid) : 'index.html';
+    return pid ? '/?id=' + encodeURIComponent(pid) : '/';
   }
 
   var capa     = document.getElementById('capaPopunder');
