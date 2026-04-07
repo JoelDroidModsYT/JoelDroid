@@ -129,7 +129,7 @@
 
   <!-- ══ NAV ══ -->
   <nav class="dl-nav">
-    <a href="/" class="dl-back-btn" onclick="jdGoBack(event)">
+    <a href="index.html" class="dl-back-btn" onclick="jdGoBack(event)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
@@ -279,21 +279,32 @@
     var p = JSON.parse(raw);
     if (String(p.id) !== String(gid)) return;
     if (Date.now() - (p.ts || 0) > 300000) return;
-    /* Solo precargar el icono antes de DOMContentLoaded para evitar FOUC.
-       Los textos los aplica _applyData() del motor principal (más abajo),
-       que ya lee los campos dlPageName1/2, dlPageVer1/2, etc. correctamente.
-       NO renderizar textos aquí para evitar datos genéricos / duplicados. */
+    /* Inyectar antes de DOMContentLoaded para cero FOUC */
+    var n = p.name || p.nombre || '';
+    var v = p.ver  || p.version || '';
+    var s = p.size || p.peso   || '';
     var t = p.thumb || p.imagen || p.icon || '';
-    if (t) { try { window._jdCacheImg && window._jdCacheImg(t); } catch(e){} }
-    /* Pre-cargar icono visualmente sin tocar los textos */
+    function _esc(x){ return String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    /* Precargar icono en caché anticipadamente */
+    if (t) { try { window._jdCacheImg(t); } catch(e){} }
     document.addEventListener('DOMContentLoaded', function(){
       var el = document.getElementById('dl-page-icon');
       var ph = document.getElementById('dl-icon-ph');
-      if (t) {
-        try { window._jdGetCachedImg ? window._jdGetCachedImg(t, el, ph)
-                                     : (el && (el.src=t)); }
-        catch(e){ if(el){ el.src=t; el.onload=function(){el.style.display=''; if(ph) ph.style.display='none';}; el.onerror=function(){el.style.display='none'; if(ph) ph.style.display='flex';}; } }
-      }
+      /* Cargar icono desde caché (instantáneo en segunda visita) */
+      if (t) { try { window._jdGetCachedImg(t, el, ph); } catch(e){ if(el){el.src=t; el.onload=function(){el.style.display=''; if(ph) ph.style.display='none';}; el.onerror=function(){el.style.display='none'; if(ph) ph.style.display='flex';};} } }
+      /* Textos */
+      var nameEl = document.getElementById('dl-page-name');
+      var vc = String(v||'').replace(/^v+/i,'');
+      if (nameEl && n) nameEl.innerHTML = '<strong style="opacity:1;transition:opacity .2s">' + _esc(n) + ' (Mod Dinero Infinito)</strong><br><span style="font-weight:400;font-size:.9em;color:rgba(226,232,240,.7)">' + (vc ? 'v'+vc : '') + '.apk</span>';
+      var btnT = document.getElementById('dl-btn-final-texto');
+      if (btnT && n) { var bt = n+' (Mod Dinero Infinito)'+(vc?' v'+vc+'.apk':'')+(s?' · '+s:''); btnT.textContent = bt; }
+      var bdg = document.getElementById('dl-btn-size-badge');
+      if (bdg && s) bdg.textContent = s;
+      var sv = document.getElementById('dl-stat-ver');
+      if (sv) sv.textContent = vc || v || '—';
+      var ss = document.getElementById('dl-stat-size');
+      if (ss && s) ss.textContent = s;
+      if (n) try { document.title = n + ' (Mod Dinero Infinito) ' + (vc ? 'v'+vc+'.apk' : '.apk') + ' | JoelDroid Mods YT'; } catch(e){}
     }, { once: true });
   } catch(e){}
 })();
@@ -404,53 +415,23 @@
 
     /* PUNTO 3: Aplicar datos Firebase */
     function _applyData(d) {
-      /* ── Selección de campos según el modo (1 o 2) ─────────────
-         El panel guarda:
-           downloadButtonLink1 / downloadButtonLink2  → URL de descarga
-           dlPageName1 / dlPageName2  → Nombre en pantalla de descarga
-           dlPageVer1  / dlPageVer2   → Versión del chip
-           dlPageSize1 / dlPageSize2  → Peso del archivo
-           dlPageBtn1  / dlPageBtn2   → Texto del botón final
-         Estos campos se guardan desde panel.html → Firestore.
-      ──────────────────────────────────────────────────────────── */
-      var isModo2 = (modoNum === 2);
+      var n = d.name  || d.nombre  || 'MOD APK';
+      var v = d.ver   || d.version || '';
+      var s = d.size  || d.peso    || '';
+      var t = d.thumb || d.imagen  || d.icon || '';
 
-      /* URL de descarga — campo prioritario */
-      var url = isModo2
+      var url = modoNum === 2
         ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '')
         : (d.downloadButtonLink1 || d.link1 || '');
       realUrl = url || '';
       if (timerDone && btnFinal && realUrl) btnFinal.setAttribute('data-real-url', realUrl);
 
-      /* Nombre, versión y peso — usar dlPage* si existen, fallback a campos globales */
-      var n, v, s;
-      if (isModo2) {
-        n = d.dlPageName2 || d.name || d.nombre || 'MOD APK';
-        v = d.dlPageVer2  || d.ver  || d.version || '';
-        s = d.dlPageSize2 || d.size || d.peso    || '';
-      } else {
-        n = d.dlPageName1 || d.name || d.nombre || 'MOD APK';
-        v = d.dlPageVer1  || d.ver  || d.version || '';
-        s = d.dlPageSize1 || d.size || d.peso    || '';
-      }
-
-      /* Texto del botón final — usar dlPageBtn* si existe */
-      var btnTxt = isModo2
-        ? (d.dlPageBtn2 || d.downloadButtonText2 || '')
-        : (d.dlPageBtn1 || d.downloadButtonText1 || '');
-
-      var t = d.thumb || d.imagen || d.icon || '';
-
       if (nameEl)  nameEl.innerHTML    = _buildHeroTitle(n, v);
-
-      /* Botón final: usar texto del panel si existe, si no construirlo */
-      if (btnTexto) {
-        btnTexto.textContent = btnTxt || _buildBtnText(n, v, s);
-      }
+      if (btnTexto) btnTexto.textContent = _buildBtnText(n, v, s);
       if (btnBadge && s) btnBadge.textContent = s;
-      if (statVer  && v) statVer.textContent  = _cleanVer(v);
+      if (statVer  && v) statVer.textContent  = v;
       if (statSize && s) statSize.textContent = s;
-      try { document.title = n + ' | JoelDroid Mods YT'; } catch(e) {}
+      try { document.title = n + ' (Mod Dinero Infinito) ' + (v ? v + '.apk' : '.apk') + ' | JoelDroid Mods YT'; } catch(e) {}
 
       if (t && iconEl) {
         if (window._jdGetCachedImg) {
@@ -578,7 +559,7 @@
       <div class="jd-barra-ads-top">
         <span class="jd-ads-titulo">Anuncios+16</span>
         <div class="jd-ads-controles">
-          <span class="jd-ads-reloj" id="timerAds">Wait 3s</span>
+          <span class="jd-ads-reloj" id="timerAds">Wait 5s</span>
           <span class="jd-ads-close" id="btnCloseAds">
             <span class="jd-ads-close-arrow">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -612,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btnClose.style.display = 'none';
     if (hint) hint.classList.remove('visible');
     reloj.style.display    = 'inline';
-    var s = 3;
+    var s = 5;
     reloj.textContent = 'Wait ' + s + 's';
     var iv = setInterval(function() {
       s--;
@@ -631,9 +612,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (hint) hint.classList.remove('visible');
     btnClose.style.display = 'none';
     var url = btnFinal ? (btnFinal.getAttribute('data-real-url') || '') : '';
-    if (!url || url === '#') return;
-    /* Siempre abrir en pestaña nueva — funciona con Mediafire, acortadores y APKs directos */
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (!url) return;
+    if (/\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url)) {
+      var a = document.createElement('a'); a.href=url; a.download=''; a.style.display='none';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    } else { window.open(url, '_blank'); }
   }
   if (btnClose) btnClose.addEventListener('click', _cerrarYDescargar);
 });
@@ -681,10 +664,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (raw) {
         var p = JSON.parse(raw);
         if (pid && String(p.id) === pid && p.slug)
-          return '/?mod=' + encodeURIComponent(p.slug);
+          return 'index.html?mod=' + encodeURIComponent(p.slug);
       }
     } catch(e) {}
-    return pid ? '/?id=' + encodeURIComponent(pid) : '/';
+    return pid ? 'index.html?id=' + encodeURIComponent(pid) : 'index.html';
   }
 
   var capa     = document.getElementById('capaPopunder');
