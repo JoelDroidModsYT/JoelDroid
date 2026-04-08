@@ -337,10 +337,8 @@
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
-  /* Navegación gestionada por el módulo del popunder */
-  try {
-    history.pushState({ jdDl: true }, '', window.location.href);
-  } catch(e) {}
+  /* Navegación: pushState diferido para no interferir con la carga inicial */
+  /* Se hace SOLO una vez y SOLO cuando el DOM esté listo */
 
   document.addEventListener('DOMContentLoaded', function () {
 
@@ -492,25 +490,21 @@
       closeBtnNinos.addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') _cerrarBanner(); });
     }
 
-    /* Banners diferidos — método directo compatible con Chrome Android y conexiones lentas.
-       Se cargan a los 8s, cuando el usuario lleva 8s de los 15 del contador (ya casi terminó de cargar la página). */
+    /* Banners diferidos — PUNTO 6: no duplicados, no bloquean timer */
     function _loadAds() {
-      var banners = [
-        { slot: 'jd-ad-banner-1', key: '13d51e2826afc9138cb8f865b0b8ea66' },
-        { slot: 'jd-ad-banner-2', key: 'b9ef0affd856355663df505e4fbbca67' }
-      ];
-      banners.forEach(function(ad) {
+      [
+        { slot:'jd-ad-banner-1', key:'13d51e2826afc9138cb8f865b0b8ea66' },
+        { slot:'jd-ad-banner-2', key:'b9ef0affd856355663df505e4fbbca67' }
+      ].forEach(function(ad) {
         var c = document.getElementById(ad.slot);
-        if (!c || c.dataset.cargado) return;
-        c.dataset.cargado = '1';
-        c.style.minHeight = '50px';
-        /* atOptions debe estar en scope global antes del invoke.js */
-        var sOpts = document.createElement('script');
-        sOpts.textContent = "atOptions={'key':'" + ad.key + "','format':'iframe','height':50,'width':300,'params':{}};";
-        c.appendChild(sOpts);
-        var sInv = document.createElement('script');
-        sInv.src = 'https://www.highperformanceformat.com/' + ad.key + '/invoke.js';
-        c.appendChild(sInv);
+        if (!c) return;
+        var f = document.createElement('iframe');
+        f.style.cssText = 'width:320px;height:50px;border:none;overflow:hidden;display:block';
+        f.scrolling='no'; f.marginWidth='0'; f.marginHeight='0';
+        f.srcdoc = '<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden}</style></head><body>'
+          + '<script>var atOptions={\'key\':\'' + ad.key + '\',\'format\':\'iframe\',\'height\':50,\'width\':320,\'params\':{}};<\/script>'
+          + '<script src="https://www.highperformanceformat.com/' + ad.key + '/invoke.js"><\/script></body></html>';
+        c.appendChild(f);
       });
     }
 
@@ -526,8 +520,8 @@
       }
     } else { _startTimer(); }
 
-    /* Cargar banners inferiores a los 8s — en 5-50kbps el contador de 15s da tiempo suficiente */
-    setTimeout(_loadAds, 8000);
+    if (window.requestIdleCallback) requestIdleCallback(_loadAds, { timeout:2000 });
+    else setTimeout(_loadAds, 600);
 
   });
 })();
@@ -583,6 +577,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var dlNormal  = 'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
+  var dlAdulto  = 'TU_OTRO_DIRECLINK_DE_ADULTO';
   var capa      = document.getElementById('capaAnuncio');
   var frame     = document.getElementById('iframeAdsterra');
   var btnClose  = document.getElementById('btnCloseAds');
@@ -590,10 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnFinal  = document.getElementById('dl-btn-final');
   var hint      = document.getElementById('jd-ads-hint');
 
-  /* PRECARGA SILENCIOSA: cargar el anuncio del modal inmediatamente en background.
-     En conexiones de 5-50 kbps, los 15s del contador son suficientes para que
-     el iframe termine de cargar antes de que el usuario toque el botón de descarga. */
-  if (frame && !frame.src) frame.src = dlNormal;
+  frame.src = (Math.floor(Math.random() * 20) + 1 === 10) ? dlAdulto : dlNormal;
 
   document.addEventListener('jd:btnFinalClick', function() {
     if (capa.classList.contains('activa')) return;
@@ -664,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
   /* ── URLs del anuncio popunder ── */
   var urlPop = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
 
-  /* ── Calcular URL de retorno al juego ── */
+  /* ── Calcular URL de retorno al índice ── */
   function _backUrl() {
     var pid = (new URLSearchParams(window.location.search).get('id') || '').trim();
     try {
@@ -672,10 +664,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (raw) {
         var p = JSON.parse(raw);
         if (pid && String(p.id) === pid && p.slug)
-          return '/?mod=' + encodeURIComponent(p.slug);
+          return 'index.html?mod=' + encodeURIComponent(p.slug);
       }
     } catch(e) {}
-    return pid ? '/?id=' + encodeURIComponent(pid) : '/';
+    return pid ? 'index.html?id=' + encodeURIComponent(pid) : 'index.html';
   }
 
   var capa     = document.getElementById('capaPopunder');
@@ -720,24 +712,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 120);
   }
 
-  /* ── Intercepción ÚNICA del botón Atrás — SIN recarga ni parpadeo ── */
-  window.addEventListener('popstate', function (e) {
-    /* Congelar scroll para que la página no parpadee */
-    var scrollY = window.scrollY || 0;
-    /* Siempre reempujar el estado para mantener la pila y evitar recargas */
-    history.pushState(null, '', window.location.href);
-    /* Restaurar scroll por si el navegador lo mueve */
-    window.scrollTo(0, scrollY);
+  /* ── Intercepción del botón Atrás — SIN bucle ni parpadeo ── */
+  var _pushStateDone = false;
 
-    if (_popAbierto) {
-      /* El usuario tocó Atrás con el anuncio ya abierto — ignorar, ya está mostrando */
-      return;
+  /* Empujar UNA sola entrada al historial para interceptar el "Atrás" */
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!_pushStateDone) {
+      _pushStateDone = true;
+      try { history.pushState({ jdDl: true }, '', window.location.href); } catch(e) {}
     }
-    /* Primera vez que toca Atrás: mostrar el anuncio */
-    _abrirPopunder();
   });
 
-  /* El botón Atrás del nav interno también dispara el popunder */
+  window.addEventListener('popstate', function (e) {
+    /* El usuario tocó Atrás — mostrar anuncio popunder */
+    if (_popAbierto) return; /* Ya está mostrando, ignorar */
+    _abrirPopunder();
+    /* NO hacer pushState aquí — eso crea el bucle infinito */
+  });
+
+  /* El botón Atrás del nav interno — muestra el anuncio popunder */
   window.jdGoBack = function (ev) {
     if (ev) ev.preventDefault();
     _abrirPopunder();
@@ -745,9 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   /* Precarga del iframe después de 1.5s para que esté listo cuando se necesite */
   document.addEventListener('DOMContentLoaded', function () {
-    /* Precarga del popunder a 5s — el modal de descarga (iframe cargado al inicio) tiene prioridad.
-       En 5kbps: 5s ≈ ~3KB descargados, suficiente para que el modal ya esté en camino. */
-    setTimeout(_precargarAd, 5000);
+    setTimeout(_precargarAd, 1500);
 
     /* Cerrar con el botón Close del popunder → navegar al juego */
     if (btnClose) {
@@ -797,19 +788,13 @@ document.addEventListener('DOMContentLoaded', function() {
   var _bx  = document.getElementById('botonCerrarPlaymods');
   var _cur = '', _cls = false;
 
-  /* Diferir 4s: el iframe del modal (prioridad 1) ya tiene 4s de ventaja para cargar.
-     En conexiones de 5kbps esto evita que ambos iframes compitan por el ancho de banda. */
-  setTimeout(function() {
-    if (_mif && !_mif.src) {
-      _mif.src = Math.random() < 0.5 ? (_cur='smartlink',_sl) : (_cur='directlink',_dl);
-    }
-  }, 4000);
+  _mif.src = Math.random() < 0.5 ? (_cur='smartlink',_sl) : (_cur='directlink',_dl);
 
   _bx.addEventListener('click', function(e) { e.stopPropagation(); _esq.style.display='none'; _cls=true; });
 
   function _reap() {
     if (!_cls) return;
-    if (_mif) _mif.src = _cur==='smartlink' ? (_cur='directlink',_dl) : (_cur='smartlink',_sl);
+    _mif.src = _cur==='smartlink' ? (_cur='directlink',_dl) : (_cur='smartlink',_sl);
     _cls=false; _esq.style.display='flex';
     document.removeEventListener('click', _reap);
     window.removeEventListener('scroll', _reap);
