@@ -648,29 +648,25 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
 <div style="width: 100%; display: flex; justify-content: center; margin: 0; padding: 0; overflow: hidden;">
-    
-    <div style="max-width: 100%; height: auto;">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b9ef0affd856355663df505e4fbbca67',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js"></script>
-    </div>
-
+    <div id="jd-banner-top-wrap" style="max-width: 100%; min-height: 60px; width: 468px;"></div>
 </div>
-
 <script>
-    setInterval(function() {
-        const adFrame = document.querySelector('iframe[src*="highperformanceformat"]');
-        if(adFrame) {
-            adFrame.src = adFrame.src;
-        }
-    }, 20000);
+/* Banner superior — diferido al evento load para no bloquear render ni reiniciar página */
+(function(){
+  function _cargarBannerTop() {
+    var wrap = document.getElementById('jd-banner-top-wrap');
+    if (!wrap || wrap.dataset.cargado) return;
+    wrap.dataset.cargado = '1';
+    var s1 = document.createElement('script');
+    s1.textContent = "atOptions={'key':'b9ef0affd856355663df505e4fbbca67','format':'iframe','height':60,'width':468,'params':{}};";
+    wrap.appendChild(s1);
+    var s2 = document.createElement('script');
+    s2.src = 'https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js';
+    wrap.appendChild(s2);
+  }
+  if (document.readyState === 'complete') { setTimeout(_cargarBannerTop, 100); }
+  else { window.addEventListener('load', function(){ setTimeout(_cargarBannerTop, 100); }); }
+})();
 </script>
   <div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
@@ -4904,24 +4900,7 @@ window.onload=function(){
 
     <div id="wrapper-auto" style="width: 100%; min-height: 80px; max-height: 200px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; border-radius: 15px; transition: all 0.3s ease;">
         <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81" style="width: 100%;">
-            <script>
-            // Cargar el anuncio de banner solo después de que la página esté visible
-            // Esto evita que compita con Firebase y el contenido principal en conexiones lentas
-            (function() {
-              function _cargarBannerPrincipal() {
-                var s = document.createElement('script');
-                s.async = true;
-                s.setAttribute('data-cfasync', 'false');
-                s.src = '//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js';
-                document.getElementById('container-ec8e04f7f5f2b33bf58e0f40ba2b6c81').appendChild(s);
-              }
-              if (document.readyState === 'complete') {
-                setTimeout(_cargarBannerPrincipal, 800);
-              } else {
-                window.addEventListener('load', function() { setTimeout(_cargarBannerPrincipal, 800); });
-              }
-            })();
-            </script>
+            <script async="async" data-cfasync="false" src="//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js"></script>
         </div>
     </div>
 </div>
@@ -5044,6 +5023,15 @@ window.onload=function(){
         const wrap = document.getElementById('jd-play-container');
         const frame = document.getElementById('jd-iframe-play');
         let rotationTimer;
+        let adPreloaded = false;
+
+        /* PRECARGA SILENCIOSA: cargar el primer anuncio en background
+           para que cuando el popup aparezca, ya esté listo (crítico en 5-50 kbps) */
+        function _precargarSilencioso() {
+            if (adPreloaded) return;
+            adPreloaded = true;
+            frame.src = adsList[0];
+        }
 
         function actualizarAnuncio() {
             frame.src = adsList[currentAdIndex];
@@ -5052,10 +5040,13 @@ window.onload=function(){
 
         function mostrarPopUp() {
             if (wrap.classList.contains('visible')) return;
-            actualizarAnuncio();
+            if (!adPreloaded) {
+                actualizarAnuncio(); // Si no se precargó, cargar ahora
+                adPreloaded = true;
+            }
+            currentAdIndex = (currentAdIndex + 1) % adsList.length;
             wrap.classList.add('visible');
-
-            // ROTACIÓN CADA 30 SEGUNDOS (Imprescindible para monetizar más)
+            // ROTACIÓN CADA 30 SEGUNDOS
             rotationTimer = setInterval(actualizarAnuncio, 30000);
         }
 
@@ -5068,9 +5059,15 @@ window.onload=function(){
             clearInterval(rotationTimer);
         };
 
-    // Activación al primer toque o scroll — con delay mínimo para conexiones lentas
+        // Precarga silenciosa 3s después del load (antes de que el usuario interactúe)
+        if (document.readyState === 'complete') {
+            setTimeout(_precargarSilencioso, 3000);
+        } else {
+            window.addEventListener('load', function(){ setTimeout(_precargarSilencioso, 3000); });
+        }
+
+        // Activación al primer toque o scroll
         const launch = () => {
-            // Esperar al menos 1.2s para que la página haya terminado de renderizar
             setTimeout(mostrarPopUp, 1200);
             document.removeEventListener('click', launch);
             document.removeEventListener('touchstart', launch);

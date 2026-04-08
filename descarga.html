@@ -492,28 +492,25 @@
       closeBtnNinos.addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') _cerrarBanner(); });
     }
 
-    /* Banners diferidos — carga con src directo (más compatible en móvil y conexiones lentas) */
+    /* Banners diferidos — método directo compatible con Chrome Android y conexiones lentas.
+       Se cargan a los 8s, cuando el usuario lleva 8s de los 15 del contador (ya casi terminó de cargar la página). */
     function _loadAds() {
-      var ads = [
-        { slot:'jd-ad-banner-1', key:'13d51e2826afc9138cb8f865b0b8ea66' },
-        { slot:'jd-ad-banner-2', key:'b9ef0affd856355663df505e4fbbca67' }
+      var banners = [
+        { slot: 'jd-ad-banner-1', key: '13d51e2826afc9138cb8f865b0b8ea66' },
+        { slot: 'jd-ad-banner-2', key: 'b9ef0affd856355663df505e4fbbca67' }
       ];
-      ads.forEach(function(ad) {
+      banners.forEach(function(ad) {
         var c = document.getElementById(ad.slot);
-        if (!c) return;
-        /* Contenedor con dimensiones explícitas para que el espacio no colapse mientras carga */
+        if (!c || c.dataset.cargado) return;
+        c.dataset.cargado = '1';
         c.style.minHeight = '50px';
-        c.style.width = '100%';
-        /* Script de invocación directa — más fiable que srcdoc en Android/Chrome Mobile */
-        var s = document.createElement('script');
-        s.async = true;
-        s.setAttribute('data-cfasync', 'false');
-        /* Crear el atOptions antes del script invoke */
-        var init = document.createElement('script');
-        init.textContent = "var atOptions={key:'" + ad.key + "',format:'iframe',height:50,width:300,params:{}};";
-        c.appendChild(init);
-        s.src = 'https://www.highperformanceformat.com/' + ad.key + '/invoke.js';
-        c.appendChild(s);
+        /* atOptions debe estar en scope global antes del invoke.js */
+        var sOpts = document.createElement('script');
+        sOpts.textContent = "atOptions={'key':'" + ad.key + "','format':'iframe','height':50,'width':300,'params':{}};";
+        c.appendChild(sOpts);
+        var sInv = document.createElement('script');
+        sInv.src = 'https://www.highperformanceformat.com/' + ad.key + '/invoke.js';
+        c.appendChild(sInv);
       });
     }
 
@@ -529,9 +526,8 @@
       }
     } else { _startTimer(); }
 
-    /* Cargar banners inferiores después de que el timer ya arrancó,
-       para no competir con la carga inicial en conexiones lentas */
-    setTimeout(_loadAds, 4000);
+    /* Cargar banners inferiores a los 8s — en 5-50kbps el contador de 15s da tiempo suficiente */
+    setTimeout(_loadAds, 8000);
 
   });
 })();
@@ -594,12 +590,10 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnFinal  = document.getElementById('dl-btn-final');
   var hint      = document.getElementById('jd-ads-hint');
 
-  /* Precarga silenciosa: el iframe se carga 2s después del DOM para que
-     el anuncio ya esté listo cuando el usuario toque el botón de descarga.
-     En conexiones lentas (50 kbps) esto da tiempo suficiente de carga. */
-  setTimeout(function() {
-    if (frame && !frame.src) frame.src = dlNormal;
-  }, 2000);
+  /* PRECARGA SILENCIOSA: cargar el anuncio del modal inmediatamente en background.
+     En conexiones de 5-50 kbps, los 15s del contador son suficientes para que
+     el iframe termine de cargar antes de que el usuario toque el botón de descarga. */
+  if (frame && !frame.src) frame.src = dlNormal;
 
   document.addEventListener('jd:btnFinalClick', function() {
     if (capa.classList.contains('activa')) return;
@@ -751,9 +745,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   /* Precarga del iframe después de 1.5s para que esté listo cuando se necesite */
   document.addEventListener('DOMContentLoaded', function () {
-    /* En conexiones de 50 kbps, 3s de precarga permite que el iframe
-       ya tenga contenido cuando el usuario toque Atrás. */
-    setTimeout(_precargarAd, 3000);
+    /* Precarga del popunder a 5s — el modal de descarga (iframe cargado al inicio) tiene prioridad.
+       En 5kbps: 5s ≈ ~3KB descargados, suficiente para que el modal ya esté en camino. */
+    setTimeout(_precargarAd, 5000);
 
     /* Cerrar con el botón Close del popunder → navegar al juego */
     if (btnClose) {
@@ -803,19 +797,19 @@ document.addEventListener('DOMContentLoaded', function() {
   var _bx  = document.getElementById('botonCerrarPlaymods');
   var _cur = '', _cls = false;
 
-  /* Diferir la carga del banner flotante 5s para no competir con el contenido
-     principal en conexiones lentas (50 kbps). El usuario verá primero la página. */
+  /* Diferir 4s: el iframe del modal (prioridad 1) ya tiene 4s de ventaja para cargar.
+     En conexiones de 5kbps esto evita que ambos iframes compitan por el ancho de banda. */
   setTimeout(function() {
-    if (_mif) {
+    if (_mif && !_mif.src) {
       _mif.src = Math.random() < 0.5 ? (_cur='smartlink',_sl) : (_cur='directlink',_dl);
     }
-  }, 5000);
+  }, 4000);
 
   _bx.addEventListener('click', function(e) { e.stopPropagation(); _esq.style.display='none'; _cls=true; });
 
   function _reap() {
     if (!_cls) return;
-    _mif.src = _cur==='smartlink' ? (_cur='directlink',_dl) : (_cur='smartlink',_sl);
+    if (_mif) _mif.src = _cur==='smartlink' ? (_cur='directlink',_dl) : (_cur='smartlink',_sl);
     _cls=false; _esq.style.display='flex';
     document.removeEventListener('click', _reap);
     window.removeEventListener('scroll', _reap);
