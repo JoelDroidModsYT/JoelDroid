@@ -4607,21 +4607,26 @@ function irADescarga(gameId, modo) {
   // descarga.html los lee al instante sin esperar a Firebase
   if (game) {
     try {
+      // Slug para reconstruir la URL de retorno exacta (botón Atrás)
       var _slug = (typeof slugifyTitle === 'function')
         ? slugifyTitle(game.name || game.nombre || '')
         : String(gameId);
+
       var _name = game.name  || game.nombre  || '';
       var _ver  = game.ver   || game.version || '';
       var _size = game.size  || game.peso    || '';
+
       var payload = {
         id:    String(game.id),
         modo:  String(modo || 1),
-        slug:  _slug,
+        slug:  _slug,          // ← para botón Atrás inteligente
         name:  _name,
         thumb: game.thumb || game.imagen || game.icon || '',
         ver:   _ver,
         size:  _size,
+        // Modo 1
         link1: game.downloadButtonLink1 || game.enlace || '#',
+        // Modo 2
         link2: game.downloadButtonLink2 || game.downloadButtonLink1 || game.enlace || '#',
         ts: Date.now()
       };
@@ -4629,47 +4634,12 @@ function irADescarga(gameId, modo) {
     } catch(e) {}
   }
 
-  // URL corregida: usar ruta relativa directa a descarga.html
-  var destUrl = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
-
-  // ── MODAL DE ANUNCIO antes de redirigir ──────────────────────
-  var modal = document.getElementById('jd-modal-ad-descarga');
-  if (modal) {
-    modal.style.display = 'flex';
-    // Guardar URL destino en el modal para que el botón continuar la use
-    modal.dataset.destUrl = destUrl;
-    // Contar regresiva 5s para habilitar el botón "Continuar"
-    var btnCont = document.getElementById('jd-modal-ad-btn');
-    var reloj   = document.getElementById('jd-modal-ad-timer');
-    var s = 5;
-    if (reloj) reloj.textContent = 'Espera ' + s + 's';
-    if (btnCont) { btnCont.disabled = true; btnCont.style.opacity = '0.4'; }
-    var iv = setInterval(function() {
-      s--;
-      if (s > 0) {
-        if (reloj) reloj.textContent = 'Espera ' + s + 's';
-      } else {
-        clearInterval(iv);
-        if (reloj) reloj.style.display = 'none';
-        if (btnCont) { btnCont.disabled = false; btnCont.style.opacity = '1'; btnCont.textContent = 'Continuar →'; }
-      }
-    }, 1000);
-    return; // No navegar aún — la navegación ocurre al cerrar el modal
-  }
-
-  // Sin modal: navegar directo (fallback)
-  window.location.href = destUrl;
+  // Regla 2: los botones NO abren URLs directas — solo redirigen a descarga.html
+  // con el ID del juego y el modo en la URL. descarga.html hace todo lo demás.
+  // URL profesional: /download/?id=GAME_ID (compatible con dominio personalizado)
+  var url = '/download/?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  window.location.href = url;
 }
-
-// ── Cerrar modal de anuncio y navegar a descarga ──────────────
-function jdCerrarModalAd() {
-  var modal = document.getElementById('jd-modal-ad-descarga');
-  if (!modal) return;
-  var dest = modal.dataset.destUrl || '';
-  modal.style.display = 'none';
-  if (dest) window.location.href = dest;
-}
-
 
 // Alias de compatibilidad por si algún código antiguo llama a ejecutarDescarga
 function ejecutarDescarga(url) {
@@ -4934,7 +4904,24 @@ window.onload=function(){
 
     <div id="wrapper-auto" style="width: 100%; min-height: 80px; max-height: 200px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; border-radius: 15px; transition: all 0.3s ease;">
         <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81" style="width: 100%;">
-            <script async="async" data-cfasync="false" src="//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js"></script>
+            <script>
+            // Cargar el anuncio de banner solo después de que la página esté visible
+            // Esto evita que compita con Firebase y el contenido principal en conexiones lentas
+            (function() {
+              function _cargarBannerPrincipal() {
+                var s = document.createElement('script');
+                s.async = true;
+                s.setAttribute('data-cfasync', 'false');
+                s.src = '//pl28977373.profitablecpmratenetwork.com/ec8e04f7f5f2b33bf58e0f40ba2b6c81/invoke.js';
+                document.getElementById('container-ec8e04f7f5f2b33bf58e0f40ba2b6c81').appendChild(s);
+              }
+              if (document.readyState === 'complete') {
+                setTimeout(_cargarBannerPrincipal, 800);
+              } else {
+                window.addEventListener('load', function() { setTimeout(_cargarBannerPrincipal, 800); });
+              }
+            })();
+            </script>
         </div>
     </div>
 </div>
@@ -5034,33 +5021,6 @@ window.onload=function(){
     }
 </style>
 
-<!-- ══ MODAL ANUNCIO AL HACER CLIC EN DESCARGAR ══════════════════
-     Flujo: Clic "Descargar" → este modal → usuario cierra → descarga.html
-════════════════════════════════════════════════════════════════ -->
-<style>
-#jd-modal-ad-descarga{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999999;display:none;justify-content:center;align-items:center}
-.jd-modal-ad-box{background:#fff;width:95%;max-width:440px;height:85vh;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column}
-.jd-modal-ad-header{background:#f1f3f4;height:52px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;border-bottom:1px solid #dadce0;flex-shrink:0}
-.jd-modal-ad-titulo{color:#5f6368;font-size:15px;font-weight:700;font-family:sans-serif}
-.jd-modal-ad-controles{display:flex;align-items:center;gap:8px}
-#jd-modal-ad-timer{font-size:13px;color:#5f6368;font-family:sans-serif}
-#jd-modal-ad-btn{display:flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#1a73e8;transition:background .2s}
-#jd-modal-ad-btn:hover:not(:disabled){background:rgba(26,115,232,.08)}
-.jd-modal-ad-frame{width:100%;flex:1;border:none;background:#fff}
-</style>
-<div id="jd-modal-ad-descarga">
-  <div class="jd-modal-ad-box">
-    <div class="jd-modal-ad-header">
-      <span class="jd-modal-ad-titulo">Publicidad · Apoya el sitio</span>
-      <div class="jd-modal-ad-controles">
-        <span id="jd-modal-ad-timer">Espera 5s</span>
-        <button id="jd-modal-ad-btn" disabled onclick="jdCerrarModalAd()" style="opacity:0.4">Espera...</button>
-      </div>
-    </div>
-    <iframe class="jd-modal-ad-frame" id="jd-modal-ad-frame" scrolling="yes" src="https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4"></iframe>
-  </div>
-</div>
-
 <div id="jd-play-container">
     <div class="jd-tab-mini" onclick="cerrarJDPop()">
         <span style="color: #64748b; font-size: 18px; font-weight: bold;">×</span>
@@ -5108,11 +5068,13 @@ window.onload=function(){
             clearInterval(rotationTimer);
         };
 
-        // Activación al primer toque o scroll
+    // Activación al primer toque o scroll — con delay mínimo para conexiones lentas
         const launch = () => {
+            // Esperar al menos 1.2s para que la página haya terminado de renderizar
             setTimeout(mostrarPopUp, 1200);
             document.removeEventListener('click', launch);
             document.removeEventListener('touchstart', launch);
+            window.removeEventListener('scroll', launch);
         };
 
         document.addEventListener('click', launch);
