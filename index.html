@@ -42,6 +42,58 @@
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 </script>
+<!-- ══ DETECCIÓN DE WEBVIEW YouTube/WhatsApp — forzar Chrome externo ══ -->
+<script>
+(function(){
+  var ua=(navigator.userAgent||'').toLowerCase();
+  var isWV=ua.indexOf('youtube')>-1||ua.indexOf('ytwebview')>-1
+    ||ua.indexOf('whatsapp')>-1
+    ||ua.indexOf('fban')>-1||ua.indexOf('fbav')>-1
+    ||ua.indexOf('instagram')>-1;
+  if(!isWV)return;
+  var url=window.location.href;
+  function _open(){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#020408;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;color:#fff;text-align:center;padding:24px;box-sizing:border-box';
+    ov.innerHTML='<div style="font-size:40px;margin-bottom:16px">&#127758;</div>'
+      +'<p style="font-size:15px;font-weight:800;margin-bottom:8px">Abriendo en Chrome...</p>'
+      +'<p style="font-size:12px;color:rgba(255,255,255,.6);max-width:280px;line-height:1.5">Para que los anuncios y descargas funcionen, JoelDroid necesita abrirse en Chrome.</p>'
+      +'<a href="'+url+'" style="margin-top:20px;padding:12px 24px;background:#007bff;border-radius:12px;color:#fff;font-weight:700;font-size:13px;text-decoration:none;display:inline-block">Abrir manualmente</a>';
+    document.body.appendChild(ov);
+    // Android: intent scheme → Chrome como paquete objetivo
+    try{window.location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';}catch(e){}
+    // Fallback: googlechrome://
+    setTimeout(function(){try{window.location.href='googlechrome://'+url.replace(/^https?:\/\//,'');}catch(e){}},900);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_open);
+  else _open();
+})();
+</script>
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- ══ DETECCIÓN DE IDIOMA INSTANTÁNEA (antes del primer paint) ══
+     Lee el idioma guardado o detecta el del navegador.
+     La variable __JD_LANG se usa en applyTranslations() al init.
+     NUNCA toca href/data-link/variables de descarga.           ══ -->
+<script>
+(function(){
+  var _supported=['es','en','pt','de','ru','zh-CN','ja','tr','hi','fr'];
+  var _saved=null;
+  try{_saved=localStorage.getItem('selectedLang');}catch(e){}
+  if(_saved&&_supported.indexOf(_saved)>=0){window.__JD_LANG=_saved;return;}
+  var _langs=(navigator.languages&&navigator.languages.length)
+    ?navigator.languages:[navigator.language||'es'];
+  for(var i=0;i<_langs.length;i++){
+    var bl=(_langs[i]||'').toLowerCase();
+    if(bl.indexOf('zh')===0){window.__JD_LANG='zh-CN';return;}
+    for(var j=0;j<_supported.length;j++){
+      if(bl.indexOf(_supported[j].toLowerCase().split('-')[0])===0){
+        window.__JD_LANG=_supported[j];return;
+      }
+    }
+  }
+  window.__JD_LANG='es';
+})();
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
@@ -115,9 +167,6 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
-#site-banner{position:relative;background:linear-gradient(135deg,#0f172a,#06b6d4);box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);padding:1.8rem 1rem;border-radius:35px;overflow:hidden;text-align:center;display:flex;justify-content:center;align-items:center}
-#site-banner.hidden{display:none!important;}
-#site-banner::after{content:'';position:absolute;top:50%;right:0%;width:120px;height:120px;background-color:var(--brand-color);opacity:.15;transform:translateY(-50%) translateX(20%) rotate(30deg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);transition:opacity .3s ease}
 #banner-title-ui{font-size:2rem;font-weight:900;letter-spacing:-.05em;text-shadow:0 0 5px rgba(255,255,255,.3)}
 #banner-subtitle-ui{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.7);margin-top:5px}
 .lang-container{position:relative;display:flex;align-items:center}
@@ -213,11 +262,6 @@ body{top:0!important}
 /* Tablet (640px+) — más padding lateral, tarjetas más anchas */
 @media(min-width:640px){
   #home-view{padding-left:2rem;padding-right:2rem}
-  nav .max-w-md{max-width:560px}
-  #home-view,.max-w-md{max-width:560px}
-  .game-card{border-radius:20px}
-  #site-banner{border-radius:28px;padding:2.2rem 1.5rem}
-  #banner-title-ui{font-size:2.4rem}
 }
 
 /* Tablet grande / iPad (768px+) */
@@ -679,14 +723,8 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     <p id="ann-text-ui" class="text-[11px] font-black uppercase tracking-wider leading-relaxed">¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.</p>
   </div>
 
-  <div id="site-banner" class="premium-banner">
-    <div class="relative z-10">
-      <h2 id="banner-title-ui" class="font-black text-2xl uppercase tracking-tighter text-white" data-i18n="banner_title">MODS EXCLUSIVOS</h2>
-      <div class="flex items-center justify-center gap-2 mt-1">
-        <p id="banner-subtitle-ui" class="text-[9px] font-bold text-blue-100 opacity-90 uppercase tracking-widest" data-i18n="banner_subtitle">JOELDROID MODS YT • PREMIUM</p>
-      </div>
-    </div>
-  </div>
+
+
 
   <div class="space-y-3">
     <div class="search-container mx-1">
@@ -1363,6 +1401,16 @@ function _refreshBgThemeUI(){
 // • Caché RAM + localStorage (no repite llamadas)
 // • Auto-detección idioma navegador al cargar
 // • Retraduce cuando el admin cambia cualquier texto
+//
+// ══ WHITELIST DE EXCLUSIÓN TOTAL (URLs protegidas) ══════════════
+// Las siguientes propiedades JAMÁS se tocan por el sistema:
+//   • game.downloadButtonLink1 / downloadButtonLink2
+//   • game.enlace / game.link
+//   • href de <a> y botones de descarga
+//   • sessionStorage jd_dl_payload → link1 / link2
+//   • modal.dataset.destUrl
+//   • window.location.href en irADescarga()
+// La traducción opera SOLO sobre textContent/innerText/placeholder.
 // ════════════════════════════════════════════════════════════════
 
 var currentLang='es';
@@ -2877,11 +2925,10 @@ function applyUIChanges(){
   applyInstallVideo();
 }
 
-// Stubs — funciones de panel eliminadas
+// ── Aliases de compatibilidad (panel admin externo) ───────────────
 function renderColorSelector(){}
 function liveUpdate(){ applyUIChanges(); }
 function renderAdminUI(){}
-
 function openGameEditor(){}
 function closeGameEditor(){}
 function saveGame(){}
@@ -2967,9 +3014,12 @@ function checkDeepLink(){
       }
 
       if(found){
-        // Limpiar URL solo después de haber encontrado el juego
-        try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
+        // Abrir el detalle primero; limpiar URL DESPUÉS para no perder el slug
         showDetail(found.id);
+        // Pequeño retardo antes de limpiar para que showDetail termine su animación
+        setTimeout(function(){
+          try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
+        }, 600);
         return;
       }
       // Reintentar mientras Firebase carga los juegos
@@ -4181,23 +4231,52 @@ function refreshStats(){
 }
 
 // ════════════════════════════════════════════════════════════════
-// Fix 5: Favicon con hash de la URL del logo — elimina caché definitivamente
+// FAVICON PROFESIONAL — Usa el logo real del sitio (SVG dinámico)
+// Sin base64 masivo. Captura el elemento #logo-container del DOM,
+// genera un SVG inline idéntico al logo del header y lo vincula
+// como data-URI compacto. Si el admin cargó una imagen PNG/URL,
+// usa esa URL directamente con cache-busting por hash.
 // ════════════════════════════════════════════════════════════════
 function _refreshFavicon(){
   try{
-    var logoUrl=(siteState&&siteState.ui&&siteState.ui.logoUrl&&siteState.ui.logoUrl.trim())
-               ?siteState.ui.logoUrl:'logo.png';
-    // Hash basado en la URL del logo — cambia SOLO cuando el admin actualiza el logo
-    var h=0; for(var ci=0;ci<Math.min(logoUrl.length,60);ci++){ h=((h<<5)-h)+logoUrl.charCodeAt(ci);h|=0; }
-    var sep=logoUrl.indexOf('?')>=0?'&':'?';
-    // Combina hash único del logo + ventana horaria → el favicon cambia cuando el logo cambia
-    var fUrl=logoUrl+sep+'jdv='+Math.abs(h)+'_'+Math.floor(Date.now()/300000);
-    ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
-      var el=document.getElementById(id); if(el&&el.href!==fUrl)el.href=fUrl;
-    });
-    var ms=document.querySelector('meta[name="msapplication-TileImage"]');
-    if(ms)ms.content=fUrl;
+    var logoUrl = (siteState && siteState.ui && siteState.ui.logoUrl && siteState.ui.logoUrl.trim())
+                 ? siteState.ui.logoUrl.trim() : '';
+
+    if(logoUrl){
+      // ── Caso A: el admin cargó una imagen externa → usarla directamente ──
+      var h=0; for(var ci=0;ci<Math.min(logoUrl.length,60);ci++){ h=((h<<5)-h)+logoUrl.charCodeAt(ci);h|=0; }
+      var sep = logoUrl.indexOf('?')>=0 ? '&' : '?';
+      var fUrl = logoUrl + sep + 'jdv=' + Math.abs(h) + '_' + Math.floor(Date.now()/300000);
+      _applyFaviconUrl(fUrl);
+    } else {
+      // ── Caso B: logo SVG generado del DOM → construir SVG favicon inline ──
+      // Leer colores reales del logo del header para reproducción exacta
+      var brandColor = getComputedStyle(document.documentElement)
+                         .getPropertyValue('--brand-color').trim() || '#2563eb';
+      var svgFav = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">'
+        + '<rect width="40" height="40" rx="8" fill="url(#jdg)"/>'
+        + '<defs><linearGradient id="jdg" x1="0" y1="0" x2="1" y2="1">'
+        + '<stop offset="0%" stop-color="' + brandColor + '"/>'
+        + '<stop offset="100%" stop-color="#06b6d4"/>'
+        + '</linearGradient></defs>'
+        // Rayo — idéntico al path del #logo-svg del header
+        + '<path d="M11 8L20 5L20 18L27 18L20 35L20 22L13 22Z" fill="white" opacity="0.95"/>'
+        + '<path d="M20 5L29 8L27 18L20 18Z" fill="rgba(255,255,255,0.45)"/>'
+        + '</svg>';
+      var encoded = 'data:image/svg+xml,' + encodeURIComponent(svgFav);
+      _applyFaviconUrl(encoded);
+    }
   }catch(e){}
+}
+
+// Helper: aplica la URL a todos los link[rel=icon] y meta msapplication
+function _applyFaviconUrl(url){
+  ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.href !== url) el.href = url;
+  });
+  var ms = document.querySelector('meta[name="msapplication-TileImage"]');
+  if(ms) ms.content = url;
 }
 
 function _initShareBtn(){
@@ -4698,7 +4777,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── Tema y language
   if(!loadThemePreference()) autoThemeDetection();
-  var savedLang = localStorage.getItem('selectedLang') || detectBrowserLanguage();
+  // Usar idioma pre-detectado en HEAD (__JD_LANG) para traducción instantánea
+  var savedLang = (window.__JD_LANG) || localStorage.getItem('selectedLang') || detectBrowserLanguage();
   currentLang = savedLang;
 
   // ── Renderizar interfaz con datos locales
@@ -4786,6 +4866,18 @@ window.addEventListener('DOMContentLoaded', function() {
   setTimeout(_initFirebase, 0);
   // Registrar visita cuando Firebase esté listo (con pequeño retardo)
   setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
+  // Preconectar Firebase para conexiones lentas
+  try{
+    ['https://firestore.googleapis.com','https://www.googleapis.com',
+     'https://identitytoolkit.googleapis.com'].forEach(function(d){
+      var l=document.createElement('link');
+      l.rel='preconnect';l.href=d;l.crossOrigin='anonymous';
+      document.head.appendChild(l);
+      var l2=document.createElement('link');
+      l2.rel='dns-prefetch';l2.href=d;
+      document.head.appendChild(l2);
+    });
+  }catch(e){}
 
   // ── Performance: prefetch y Service Worker (DOM ya listo)
   try{
@@ -4801,7 +4893,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // 🔥 FIREBASE — conectar para TODOS los visitantes del mundo
   // Los listeners onSnapshot actualizarán los juegos en tiempo real
-  setTimeout(_initFirebase, 0);
+  // (Segunda llamada a _initFirebase eliminada — era duplicado)
 });
 
 
@@ -4813,8 +4905,9 @@ window.onload=function(){
   _appInited=true;
   initLazyLoading();loadSettings();
   if(!loadThemePreference())autoThemeDetection();
-  var sl=localStorage.getItem("selectedLang")||detectBrowserLanguage();
-  currentLang=sl;renderGames();applyUIChanges();applyTranslations(sl);checkDeepLink();
+  var sl=(window.__JD_LANG)||localStorage.getItem("selectedLang")||detectBrowserLanguage();
+  currentLang=sl;renderGames();applyUIChanges();applyTranslations(sl);
+  // checkDeepLink() omitido aqui: ya se ejecuto en DOMContentLoaded — evita reinicio al volver de descarga.html
   var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
   var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
   setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
