@@ -642,6 +642,9 @@
 
   /* ─────────────────────────────────────────────────────────
      REGLA 3 — URL de retorno inteligente
+     Lee el slug desde sessionStorage (guardado por irADescarga).
+     Si no existe, usa el gameId directamente; checkDeepLink en
+     index.html soporta tanto ?mod=slug como ?mod=ID.
   ───────────────────────────────────────────────────────── */
   function _getBackUrl() {
     if (!gameId) return 'index.html';
@@ -657,84 +660,23 @@
     return 'index.html?mod=' + encodeURIComponent(gameId);
   }
 
-  /* ─────────────────────────────────────────────────────────
-     SISTEMA PRECARGADO — index.html se carga en un iframe
-     invisible en segundo plano. Cuando el usuario cierra el
-     popunder, se hace un transición visual instantánea al
-     iframe (sin recarga, sin navegación real).
-  ───────────────────────────────────────────────────────── */
-  var _backIframe = null;
-  var _backReady  = false;
-
-  function _precargaIndex() {
-    if (_backIframe) return;
-    var url = _getBackUrl();
-    _backIframe = document.createElement('iframe');
-    _backIframe.style.cssText = [
-      'position:fixed', 'inset:0', 'width:100%', 'height:100%',
-      'border:none', 'z-index:0', 'opacity:0', 'pointer-events:none',
-      'background:#0c1425'
-    ].join(';');
-    _backIframe.src = url;
-    _backIframe.onload = function () { _backReady = true; };
-    document.body.appendChild(_backIframe);
-  }
-
-  // Revelar el iframe precargado — transición suave sin reload
-  function _mostrarIndexPrecargado() {
-    if (_backIframe) {
-      _backIframe.style.zIndex = '99999';
-      _backIframe.style.opacity = '1';
-      _backIframe.style.pointerEvents = 'auto';
-      // Reemplazar la URL del navegador sin recargar
-      try { history.replaceState(null, '', _getBackUrl()); } catch(e) {}
-    } else {
-      // Fallback: navegación normal
-      window.location.href = _getBackUrl();
-    }
-  }
-
-  /* ── Historial + listener popstate centralizado ─────────── */
+  /* ── Historial: pushState antes del paint para capturar Atrás ── */
   try {
     history.pushState({ jdDl: true }, '', window.location.href);
-
-    var _popHandled = false;
     window.addEventListener('popstate', function () {
-      if (_popHandled) return;
-      _popHandled = true;
-
-      var capa = document.getElementById('capaPopunder');
-      if (capa) {
-        capa.classList.add('activa');
-        history.pushState(null, null, window.location.href);
-
-        var btnClose = document.getElementById('btnClosePopunder');
-        if (btnClose && !btnClose._jdPatched) {
-          btnClose._jdPatched = true;
-          btnClose.addEventListener('click', function () {
-            capa.classList.remove('activa');
-            _mostrarIndexPrecargado();
-          }, { once: true });
-        }
-      } else {
-        _mostrarIndexPrecargado();
+      /* Si el timer sigue corriendo → el usuario quiere ir atrás al
+         detalle del juego. Si ya terminó → el popunder toma el control. */
+      if (left > 0) {
+        window.location.replace(_getBackUrl());
       }
-
-      setTimeout(function () { _popHandled = false; }, 800);
     });
   } catch(e) {}
 
-  /* ── Botón ← del nav — también usa el iframe precargado ─── */
+  /* ── Botón ← del nav (flecha en la barra superior) ─────── */
   window.jdGoBack = function(ev) {
     if (ev) ev.preventDefault();
-    _mostrarIndexPrecargado();
+    window.location.href = _getBackUrl();
   };
-
-  // Iniciar precarga del index en segundo plano cuando el DOM esté listo
-  document.addEventListener('DOMContentLoaded', function () {
-    // Dar 2 s de margen para que el timer y Firebase arranquen primero
-    setTimeout(_precargaIndex, 2000);
-  });
 
   /* ══════════════════════════════════════════════════════════
      DOM — todo dentro de DOMContentLoaded para evitar null refs
@@ -1003,12 +945,12 @@
       _startTimer();
     }
 
-    /* ── Anuncios: carga inmediata, nunca diferida ── */
-    // requestIdleCallback puede retrasarse hasta que el navegador esté
-    // "idle" — en móviles lentos esto puede no ocurrir nunca.
-    // Cargamos directamente con un setTimeout mínimo para no bloquear
-    // el paint inicial (16ms = un frame).
-    setTimeout(_loadAds, 16);
+    /* Anuncios diferidos — REGLA 1: no bloquean el timer */
+    if (window.requestIdleCallback) {
+      requestIdleCallback(_loadAds, { timeout: 2000 });
+    } else {
+      setTimeout(_loadAds, 600);
+    }
 
   }); /* fin DOMContentLoaded */
 
@@ -1018,39 +960,34 @@
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
 <style>
-/* ══ JERARQUÍA DE CAPAS — descarga.html ══════════════════════════
-   NIVEL 1 — Contenido normal del sitio        → default
-   NIVEL 2 — Banner inferior .jd-pm-esqueleto  → 100
-   NIVEL 3 — Social Bar Adsterra               → 9000  ← visible, pequeño
-   NIVEL 4 — Modal anuncio botón descarga      → 9100  ← ENCIMA del Social Bar
-   NIVEL 5 — Modal popunder / botón Atrás      → 9200  ← ENCIMA de todo
+/* ══ JERARQUÍA DE CAPAS DEFINITIVA — descarga.html ══════════════════
+   NIVEL 1 — Contenido normal del sitio
+   NIVEL 2 — Social Bar de Adsterra (siempre visible)
+             Elevamos su z-index a 99000 para que no lo tape nada del sitio.
+   NIVEL 3 — Modal anuncio-botón  (.jd-fondo-ads)    → 200000
+   NIVEL 4 — Modal popunder-atrás (.jd-fondo-popunder)→ 200010
 
-   Resultado: el Social Bar siempre visible EXCEPTO cuando un modal
-   de anuncio lo tapa — en ese momento el usuario ve el anuncio
-   completo con el botón "Close" accesible.
-════════════════════════════════════════════════════════════════ */
+   Así el Social Bar se ve SIEMPRE. Cuando un modal se activa sale al
+   frente (z-index mayor). Al cerrar el modal, el Social Bar queda visible.
+   Los Popunders y Direct Links salen al frente de todo incluyendo el Social Bar.
+════════════════════════════════════════════════════════════════════ */
 
-/* Social Bar — tamaño original del SDK, capa por debajo de los modales */
+/* Elevar Social Bar de Adsterra para que sea visible sobre el contenido */
 #adsterra-social-bar,
 [id*="adsterra"],
-[id*="social_bar"],
 [class*="social-bar"],
-[class*="socialBar"],
-#adsbar {
-  z-index: 9000 !important;
-  /* Restaurar tamaño original — no escalar ni agrandar */
-  transform: none !important;
-  width: auto !important;
-  height: auto !important;
-  max-width: 100% !important;
+[id*="social_bar"],
+iframe[src*="adsterra"],
+iframe[src*="social"] {
+  z-index: 99000 !important;
 }
 
-/* Modales de anuncio — SIEMPRE por encima del Social Bar */
-.jd-fondo-ads      { z-index: 9100 !important; }
-.jd-fondo-popunder { z-index: 9200 !important; }
+.jd-fondo-ads       { z-index: 200000 !important; }
+.jd-fondo-popunder  { z-index: 200010 !important; }
 
-/* Banner inferior propio — debajo del Social Bar */
-.jd-pm-esqueleto   { z-index: 100  !important; }
+/* Banner inferior propio (jd-pm-esqueleto) — visible sobre contenido,
+   debajo del Social Bar y modales */
+.jd-pm-esqueleto    { z-index: 100 !important; }
 </style>
 
 <style>
@@ -1059,7 +996,7 @@
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.75); 
-  z-index: 9100; 
+  z-index: 100000; 
   display: flex; justify-content: center; align-items: center;
   opacity: 0; pointer-events: none;
   transition: opacity 0.2s ease;
@@ -1283,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', function() {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.8); 
-  z-index: 9200; 
+  z-index: 100010; 
   display: flex; justify-content: center; align-items: center;
   opacity: 0; pointer-events: none;
   transition: opacity 0.2s ease;
@@ -1390,9 +1327,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
-  // El listener popstate está centralizado en el IIFE principal (arriba).
-  // Ese listener ya muestra el popunder y redirige al detalle correctamente.
-  // NO se duplica aquí para evitar el bucle de refresco.
+  // Se usa addEventListener para NO destruir el listener de navegación
+  // del IIFE principal (que regresa al index con el juego abierto).
+  // El popunder solo se activa cuando el timer ya terminó (left <= 0).
+  window.addEventListener('popstate', function(event) {
+    // Si el timer sigue corriendo, dejar que el IIFE maneje el Atrás
+    if (typeof left !== 'undefined' && left > 0) return;
+    capaPopunder.classList.add('activa');
+    history.pushState(null, null, window.location.href);
+  });
 
 
   // --- 🖱️ DISPARADOR 2: CLIC EN LOGO O NOMBRE ---
@@ -1407,16 +1350,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 🔴 ACCIÓN AL TOCAR "CLOSE" ---
-  // La navegación al detalle del juego está manejada por el listener
-  // central en el IIFE principal. Este handler solo cierra visualmente
-  // si el listener central no lo parchó primero (jdGoBack desde nav).
-  if (btnCerrarPopunder && !btnCerrarPopunder._jdPatched) {
+  if (btnCerrarPopunder) {
     btnCerrarPopunder.addEventListener('click', function() {
+      // Ocultamos el anuncio
       capaPopunder.classList.remove('activa');
-      // Solo navegar si el listener central no lo hizo ya
-      if (!btnCerrarPopunder._jdPatched) {
-        window.location.href = urlDetallesJuego;
-      }
+      
+      // RECIÉN AQUÍ lo mandamos a la información detallada del juego
+      window.location.href = urlDetallesJuego;
     });
   }
 });
