@@ -930,31 +930,76 @@
     }
 
     /* ── REGLA 1: Anuncios Adsterra — carga nativa sin sandbox ── */
-    function _loadAds() {
-      // Banner 1 — 320x50
+        function _loadAds() {
+      // ── TÉCNICA: cada banner vive en su propio <iframe srcdoc> ──
+      // Esto garantiza que atOptions sea una variable INDEPENDIENTE
+      // por banner (cada iframe tiene su propio window/scope).
+      // Sin esto, la segunda llamada a atOptions sobreescribe la primera
+      // y Adsterra solo sirve 1 de los 2 banners.
+
+      // Banner 1 — 320x50 — key: 13d51e2826afc9138cb8f865b0b8ea66
       var c1 = document.getElementById('jd-ad-banner-1');
       if (c1) {
-        var o1 = document.createElement('script');
-        o1.type = 'text/javascript';
-        o1.text = "atOptions={'key':'13d51e2826afc9138cb8f865b0b8ea66','format':'iframe','height':50,'width':320,'params':{}};";
-        c1.appendChild(o1);
-        var s1 = document.createElement('script');
-        s1.type = 'text/javascript';
-        s1.src = 'https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js';
-        c1.appendChild(s1);
+        var html1 = [
+          '<html><head>',
+          '<style>*{margin:0;padding:0;overflow:hidden;}</style>',
+          '</head><body>',
+          '<script>atOptions={',
+          '  key:"13d51e2826afc9138cb8f865b0b8ea66",',
+          '  format:"iframe",height:50,width:320,params:{}',
+          '};<\/script>',
+          '<script src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"><\/script>',
+          '</body></html>'
+        ].join('');
+        var f1 = document.createElement('iframe');
+        f1.style.cssText = 'width:320px;height:50px;border:none;display:block;';
+        f1.scrolling = 'no';
+        f1.setAttribute('frameborder', '0');
+        f1.setAttribute('marginwidth', '0');
+        f1.setAttribute('marginheight', '0');
+        c1.appendChild(f1);
+        try {
+          f1.contentDocument.open();
+          f1.contentDocument.write(html1);
+          f1.contentDocument.close();
+        } catch(e) {
+          f1.srcdoc = html1;
+        }
       }
-      // Banner 2 — 320x50 (formato móvil — igual que Banner 1 para máxima fill rate)
-      var c2 = document.getElementById('jd-ad-banner-2');
-      if (c2) {
-        var o2 = document.createElement('script');
-        o2.type = 'text/javascript';
-        o2.text = "atOptions={'key':'b9ef0affd856355663df505e4fbbca67','format':'iframe','height':50,'width':320,'params':{}};";
-        c2.appendChild(o2);
-        var s2 = document.createElement('script');
-        s2.type = 'text/javascript';
-        s2.src = 'https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js';
-        c2.appendChild(s2);
-      }
+
+      // Banner 2 — 320x50 — key: b9ef0affd856355663df505e4fbbca67
+      // Retardo de 300ms para que el invoke.js del banner 1 ya haya
+      // registrado su slot antes de que el banner 2 inicie.
+      setTimeout(function() {
+        var c2 = document.getElementById('jd-ad-banner-2');
+        if (c2) {
+          var html2 = [
+            '<html><head>',
+            '<style>*{margin:0;padding:0;overflow:hidden;}</style>',
+            '</head><body>',
+            '<script>atOptions={',
+            '  key:"b9ef0affd856355663df505e4fbbca67",',
+            '  format:"iframe",height:50,width:320,params:{}',
+            '};<\/script>',
+            '<script src="https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js"><\/script>',
+            '</body></html>'
+          ].join('');
+          var f2 = document.createElement('iframe');
+          f2.style.cssText = 'width:320px;height:50px;border:none;display:block;';
+          f2.scrolling = 'no';
+          f2.setAttribute('frameborder', '0');
+          f2.setAttribute('marginwidth', '0');
+          f2.setAttribute('marginheight', '0');
+          c2.appendChild(f2);
+          try {
+            f2.contentDocument.open();
+            f2.contentDocument.write(html2);
+            f2.contentDocument.close();
+          } catch(e) {
+            f2.srcdoc = html2;
+          }
+        }
+      }, 300);
     }
 
     /* ═══════════════════════════════════════════════════════
