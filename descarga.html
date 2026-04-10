@@ -607,42 +607,54 @@
 
 </div><!-- /dl-page -->
 
-<!-- Firebase SDK (solo Firestore, sin Auth para no añadir peso) -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     JOELDROID MODS YT — descarga.html  VERSIÓN LIMPIA DEFINITIVA
+     ─────────────────────────────────────────────────────────────
+     FLUJO COMPLETO:
+     1. Al cargar → timer 15s + banners Adsterra + banner flotante
+     2. Botón DESCARGAR → modal anuncio 5s → Close → descarga real
+     3. Botón ATRÁS (Android) → popunder anuncio → Close → index
+     4. Social Bar: siempre visible EXCEPTO cuando hay modal activo
+════════════════════════════════════════════════════════════════ -->
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   JOELDROID MODS YT — descarga.html  (v4 — reglas definitivas)
-   ───────────────────────────────────────────────────────────────
-   REGLA 1 — Anuncios intactos: NO se toca ningún script de ads.
-   REGLA 2 — Botones Modo1/Modo2 del index redirigen aquí con ?id=&modo=
-   REGLA 3 — Botón Atrás regresa al detalle exacto del juego en index.
-   REGLA 4 — Título héroe: "[Nombre] (Mod Dinero Infinito) [Ver].apk"
-   REGLA 5 — Botón final dinámico: "[Nombre] (Mod Dinero Infinito) v[Ver].apk - [Peso]"
-   REGLA 6 — Timer de 15 s arranca automáticamente; al llegar a 0
-             se habilita el botón con la URL real leída de Firebase.
-═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  /* ── Firebase config (idéntica a index.html) ──────────── */
+  /* ══ FIREBASE CONFIG ═══════════════════════════════════════ */
   var FB_CFG = {
-    apiKey:            "AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M",
-    authDomain:        "joeldroid-mods.firebaseapp.com",
-    projectId:         "joeldroid-mods",
-    storageBucket:     "joeldroid-mods.firebasestorage.app",
-    messagingSenderId: "308221632883",
-    appId:             "1:308221632883:web:a50829da7b400d74f12506"
+    apiKey:            'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M',
+    authDomain:        'joeldroid-mods.firebaseapp.com',
+    projectId:         'joeldroid-mods',
+    storageBucket:     'joeldroid-mods.firebasestorage.app',
+    messagingSenderId: '308221632883',
+    appId:             '1:308221632883:web:a50829da7b400d74f12506'
   };
 
-  /* ── Parámetros de la URL ──────────────────────────────── */
+  /* ══ URLS DE ANUNCIOS ══════════════════════════════════════ */
+  var ADS = {
+    // Direct Link para modal de descarga (rotación entre 2)
+    modalLinks: [
+      'https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde',
+      'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4'
+    ],
+    // Direct Link para popunder (botón Atrás)
+    popunderLink: 'https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde',
+    // Banner flotante (alternancia)
+    bannerSmartlink: 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d',
+    bannerDirectlink: 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e'
+  };
+  var _modalLinkIdx = 0; // índice rotatorio para el modal
+
+  /* ══ PARÁMETROS URL ════════════════════════════════════════ */
   var params  = new URLSearchParams(window.location.search);
-  var gameId  = (params.get('id')   || '').trim();
+  var gameId  = (params.get('id') || '').trim();
   var modoNum = params.get('modo') === '2' ? 2 : 1;
 
-  /* ── Estado global — fuera de DOMContentLoaded para que
-     los listeners de popstate accedan a `left` en tiempo real ── */
+  /* ══ ESTADO ════════════════════════════════════════════════ */
   var realUrl      = '#';
   var timerRunning = false;
   var dataApplied  = false;
@@ -650,114 +662,169 @@
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
-  /* ─────────────────────────────────────────────────────────
-     REGLA 3 — URL de retorno inteligente
-     Lee el slug desde sessionStorage (guardado por irADescarga).
-     Si no existe, usa el gameId directamente; checkDeepLink en
-     index.html soporta tanto ?mod=slug como ?mod=ID.
-  ───────────────────────────────────────────────────────── */
+  /* ══ SOCIAL BAR — control dinámico ════════════════════════
+     MutationObserver detecta el Social Bar sin importar qué
+     id/clase inyecte Adsterra. Lo bajamos de z-index y lo
+     ocultamos cuando hay un modal activo.
+  ══════════════════════════════════════════════════════════ */
+  var _sbEls = [];
+  var _sbHidden = false;
+
+  function _isSocialBar(el) {
+    if (!el || el.nodeType !== 1) return false;
+    if (el.id === 'esqueletoPublicidadPlaymods') return false;
+    var id  = (el.id  || '').toLowerCase();
+    var cls = (el.className && typeof el.className === 'string' ? el.className : '').toLowerCase();
+    var style = el.getAttribute('style') || '';
+    var cs = '';
+    try { cs = window.getComputedStyle(el).position; } catch(e) {}
+    var isFixed  = style.indexOf('fixed') !== -1 || cs === 'fixed';
+    var isBottom = style.indexOf('bottom:0') !== -1 || style.indexOf('bottom: 0') !== -1;
+    var hasAdId  = /adsterra|social.bar|adsbar|socialbar/.test(id);
+    var hasCls   = /adsterra|social.bar|socialbar/.test(cls);
+    return hasAdId || hasCls || (isFixed && isBottom);
+  }
+
+  function _registerSB(el) {
+    if (_sbEls.indexOf(el) !== -1) return;
+    _sbEls.push(el);
+    el.style.setProperty('z-index', '999', 'important');
+    if (_sbHidden) _applySBHide(el);
+  }
+
+  function _applySBHide(el) {
+    el.style.setProperty('opacity',          '0',      'important');
+    el.style.setProperty('pointer-events',   'none',   'important');
+    el.style.setProperty('visibility',       'hidden', 'important');
+  }
+  function _applySBShow(el) {
+    el.style.removeProperty('opacity');
+    el.style.removeProperty('pointer-events');
+    el.style.removeProperty('visibility');
+    el.style.setProperty('z-index', '999', 'important');
+  }
+
+  window._jdHideSB = function() {
+    _sbHidden = true;
+    // Escaneo fresco por si Adsterra añadió elementos nuevos
+    document.querySelectorAll('*').forEach(function(el) { if (_isSocialBar(el)) _registerSB(el); });
+    _sbEls.forEach(_applySBHide);
+  };
+  window._jdShowSB = function() {
+    _sbHidden = false;
+    _sbEls.forEach(_applySBShow);
+  };
+
+  var _sbObs = new MutationObserver(function(muts) {
+    muts.forEach(function(m) {
+      m.addedNodes.forEach(function(n) {
+        if (n.nodeType !== 1) return;
+        if (_isSocialBar(n)) _registerSB(n);
+        if (n.querySelectorAll) n.querySelectorAll('*').forEach(function(c) { if (_isSocialBar(c)) _registerSB(c); });
+      });
+    });
+  });
+  _sbObs.observe(document.documentElement, { childList: true, subtree: true });
+
+  /* ══ URL DE RETORNO ════════════════════════════════════════ */
   function _getBackUrl() {
     if (!gameId) return 'index.html';
     try {
       var raw = sessionStorage.getItem('jd_dl_payload');
       if (raw) {
         var p = JSON.parse(raw);
-        if (String(p.id) === String(gameId) && p.slug) {
+        if (String(p.id) === String(gameId) && p.slug)
           return 'index.html?mod=' + encodeURIComponent(p.slug);
-        }
       }
     } catch(e) {}
     return 'index.html?mod=' + encodeURIComponent(gameId);
   }
 
-  /* ── Historial: pushState antes del paint para capturar Atrás ── */
-  try {
-    history.pushState({ jdDl: true }, '', window.location.href);
-
-    // UN SOLO listener popstate centralizado — sin bucles, sin conflictos.
-    // Lógica:
-    //   • Timer en curso (left > 0) → mostrar popunder y navegar al detalle
-    //     en cuanto el usuario cierre el anuncio.
-    //   • Timer terminado (left <= 0) → mostrar popunder (el SDK lo maneja)
-    //     y navegar al detalle igualmente al cerrar.
-    // En AMBOS casos se hace history.pushState para que el botón Atrás no
-    // salga del sitio y no entre en bucle infinito.
-    var _popHandled = false;
-    // _popPendiente: si el popstate llega antes de que el DOM esté listo
-    var _popPendiente = false;
-    var _backUrlPendiente = '';
-
-    function _mostrarPopunder(backUrl) {
-      var capa    = document.getElementById('capaPopunder');
-      var btnClose = document.getElementById('btnClosePopunder');
-
-      if (!capa) {
-        // DOM aún no listo — marcar como pendiente
-        _popPendiente    = true;
-        _backUrlPendiente = backUrl;
-        return;
-      }
-
-      // Cargar iframe del anuncio (global, siempre disponible)
-      window._cargarPopIframe();
-
-      // Ocultar Social Bar para que no tape el botón Close
-      if (window._jdHideSB) window._jdHideSB();
-
-      // Mostrar capa
-      capa.classList.add('activa');
-
-      // Re-agregar entrada al historial para atrapar el siguiente Atrás
-      history.pushState(null, null, window.location.href);
-
-      // Botón Close — navega al detalle
-      if (btnClose && !btnClose._jdPatched) {
-        btnClose._jdPatched = true;
-        btnClose.addEventListener('click', function () {
-          capa.classList.remove('activa');
-          // Restaurar Social Bar al cerrar popunder
-          if (window._jdShowSB) window._jdShowSB();
-          window.location.href = backUrl;
-        }, { once: true });
-      }
-    }
-
-    window.addEventListener('popstate', function () {
-      if (_popHandled) return;
-      _popHandled = true;
-      _mostrarPopunder(_getBackUrl());
-      setTimeout(function () { _popHandled = false; }, 800);
-    });
-  } catch(e) {}
-
-  /* ── _cargarPopIframe global: disponible ANTES del DOMContentLoaded
-     del bloque de popunder — el listener popstate lo necesita ── */
-  window._cargarPopIframe = function() {
-    var iframe = document.getElementById('iframePopunder');
-    if (iframe && !iframe._cargado) {
-      iframe.src = 'https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde';
-      iframe._cargado = true;
-    }
-  };
-
-  /* ── Botón ← del nav (flecha en la barra superior) ─────── */
+  /* ══ BOTÓN ← NAV ═══════════════════════════════════════════ */
   window.jdGoBack = function(ev) {
     if (ev) ev.preventDefault();
     window.location.href = _getBackUrl();
   };
 
-  /* ══════════════════════════════════════════════════════════
-     DOM — todo dentro de DOMContentLoaded para evitar null refs
+  /* ══ POPUNDER — botón Atrás Android ═══════════════════════
+     Lógica DEFINITIVA:
+     - pushState al cargar para interceptar el Atrás
+     - Al detectar popstate → mostrar capaPopunder CON anuncio
+     - Usuario DEBE pulsar Close → ENTONCES navega al detalle
+     - Sin auto-cierre, sin redireccionamiento automático
   ══════════════════════════════════════════════════════════ */
+  var _popShown   = false;  // ¿popunder ya visible?
+  var _popPatched = false;  // ¿listener Close ya asignado?
+
+  // Cargar iframe del popunder (lazy, solo cuando se necesita)
+  window._cargarPopIframe = function() {
+    var iframe = document.getElementById('iframePopunder');
+    if (!iframe) return;
+    if (!iframe._cargado) {
+      iframe.src     = ADS.popunderLink;
+      iframe._cargado = true;
+    }
+  };
+
+  function _mostrarPopunder() {
+    if (_popShown) return; // ya visible, no duplicar
+    var capa     = document.getElementById('capaPopunder');
+    var btnClose = document.getElementById('btnClosePopunder');
+    if (!capa) return;
+
+    _popShown = true;
+
+    // Cargar anuncio
+    window._cargarPopIframe();
+
+    // Ocultar Social Bar
+    window._jdHideSB();
+
+    // Mostrar modal
+    capa.style.opacity        = '1';
+    capa.style.pointerEvents  = 'auto';
+
+    // Re-agregar entrada al historial — próximo Atrás vuelve a disparar
+    try { history.pushState(null, null, window.location.href); } catch(e) {}
+
+    // Asignar listener Close UNA SOLA VEZ
+    if (btnClose && !_popPatched) {
+      _popPatched = true;
+      var backUrl = _getBackUrl();
+      btnClose.addEventListener('click', function onClose() {
+        btnClose.removeEventListener('click', onClose);
+        capa.style.opacity       = '0';
+        capa.style.pointerEvents = 'none';
+        _popShown   = false;
+        _popPatched = false;
+        window._jdShowSB();
+        // Navegar al detalle — SIN auto-cierre, solo al pulsar Close
+        window.location.href = backUrl;
+      });
+    }
+  }
+
+  // Interceptar Atrás: pushState inicial
+  try { history.pushState({ jdDl: true }, '', window.location.href); } catch(e) {}
+
+  var _popHandled = false;
+  window.addEventListener('popstate', function() {
+    if (_popHandled) return;
+    _popHandled = true;
+    // Pequeño delay para asegurar que el DOM esté listo
+    setTimeout(function() {
+      _mostrarPopunder();
+      setTimeout(function() { _popHandled = false; }, 1000);
+    }, 80);
+  });
+
+  /* ══ DOMContentLoaded ══════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', function () {
 
-    /* ── Si popstate llegó ANTES del DOM, ejecutarlo ahora ── */
-    if (_popPendiente) {
-      _popPendiente = false;
-      setTimeout(function() { _mostrarPopunder(_backUrlPendiente); }, 50);
-    }
+    /* ── Escaneo inicial Social Bar ── */
+    document.querySelectorAll('*').forEach(function(el) { if (_isSocialBar(el)) _registerSB(el); });
 
-    /* ── Refs del DOM ──────────────────────────────────────── */
+    /* ── Refs DOM ── */
     var numEl    = document.getElementById('dl-counter-num');
     var ringFg   = document.getElementById('dl-ring-fg');
     var barEl    = document.getElementById('dl-progress-bar');
@@ -773,31 +840,14 @@
     var btnTexto = document.getElementById('dl-btn-final-texto');
     var btnBadge = document.getElementById('dl-btn-size-badge');
 
-    /* Anillo en posición inicial (0% girado) — REGLA 6 */
     if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM);
 
-    /* ── Helper: escapar HTML ────────────────────────────── */
     function _esc(s) {
-      return String(s || '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
-
-    /* ─────────────────────────────────────────────────────────
-       REGLA 4 — Título héroe automático
-       Línea 1 (negrita): "[Nombre] (Mod Dinero Infinito)"
-       Línea 2 (normal) : "[Versión].apk"
-       Max 2 líneas garantizado por -webkit-line-clamp:2 en CSS.
-    ───────────────────────────────────────────────────────── */
     function _buildHeroTitle(name, ver) {
-      var line1 = _esc(name) + ' (Mod Dinero Infinito)';
-      var line2 = (ver ? _esc(ver) : '') + '.apk';
-      return '<strong>' + line1 + '</strong><br>' + line2;
+      return '<strong>' + _esc(name) + ' (Mod Dinero Infinito)</strong><br>' + (ver ? _esc(ver) : '') + '.apk';
     }
-
-    /* ─────────────────────────────────────────────────────────
-       REGLA 5 — Texto del botón final dinámico
-       Formato: "[Nombre] (Mod Dinero Infinito) v[Ver].apk - [Peso]"
-    ───────────────────────────────────────────────────────── */
     function _buildBtnText(name, ver, size) {
       var t = name + ' (Mod Dinero Infinito)';
       if (ver)  t += ' v' + ver + '.apk';
@@ -805,82 +855,56 @@
       return t;
     }
 
-    /* ── TEMPORIZADOR — REGLA 6 ──────────────────────────── */
+    /* ── Timer ── */
     function _renderTimer() {
       var elapsed = TOTAL - left;
       var ratio   = Math.min(elapsed / TOTAL, 1);
       if (numEl)  numEl.textContent = String(Math.max(left, 0));
       if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM - CIRCUM * ratio);
       var pct = Math.round(ratio * 100);
-      if (barEl)  barEl.style.width  = pct + '%';
-      if (pctEl)  pctEl.textContent  = pct + '%';
+      if (barEl) barEl.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
     }
 
     function _finishTimer() {
-      /* Ocultar sección contador */
       if (waitTxt)  waitTxt.style.display  = 'none';
       if (ringWrap) ringWrap.style.display = 'none';
-      /* Mostrar botón final con URL real y texto dinámico — REGLAS 5 + 6 */
-      if (btnFinal) {
-        btnFinal.href = realUrl;
-        btnFinal.classList.add('visible');
-      }
+      if (btnFinal) { btnFinal.href = realUrl; btnFinal.classList.add('visible'); }
     }
 
     function _startTimer() {
       if (timerRunning) return;
       timerRunning = true;
-      _renderTimer(); /* dibujar estado inicial del anillo */
-      var iv = setInterval(function () {
+      _renderTimer();
+      var iv = setInterval(function() {
         left--;
         if (left <= 0) { clearInterval(iv); _finishTimer(); }
         else           { _renderTimer(); }
       }, 1000);
     }
 
-    /* ─────────────────────────────────────────────────────────
-       APLICAR DATOS A LA UI — REGLAS 4, 5, 6
-       Fuente: sessionStorage (cache inmediato) o Firebase (fallback).
-       name/ver/size/thumb vienen SIEMPRE del campo principal del juego.
-    ───────────────────────────────────────────────────────── */
+    /* ── Aplicar datos a la UI ── */
     function _applyData(d) {
       if (dataApplied) return;
       dataApplied = true;
-
       var name  = d.name  || d.nombre  || 'MOD APK';
       var ver   = d.ver   || d.version || '';
       var size  = d.size  || d.peso    || '';
       var thumb = d.thumb || d.imagen  || d.icon || '';
-
-      /* URL de descarga según modo — REGLA 6 */
-      var url = modoNum === 2
+      var url   = modoNum === 2
         ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '#')
         : (d.downloadButtonLink1 || d.link1 || '#');
       realUrl = url || '#';
-      /* Puente global → el modal de anuncio lo lee en el clic del usuario */
       window.__jdRealUrl = realUrl;
-
-      /* ── REGLA 4: Título héroe ── */
-      if (nameEl) nameEl.innerHTML = _buildHeroTitle(name, ver);
-
-      /* ── REGLA 5: Texto botón final dinámico ── */
-      var dynText = _buildBtnText(name, ver, size);
-      if (btnTexto) btnTexto.textContent = dynText;
+      if (nameEl)  nameEl.innerHTML     = _buildHeroTitle(name, ver);
+      if (btnTexto) btnTexto.textContent = _buildBtnText(name, ver, size);
       if (btnBadge && size) btnBadge.textContent = size;
-
-      /* ── Chips de stats ── */
       if (statVer  && ver)  statVer.textContent  = ver;
       if (statSize && size) statSize.textContent = size;
-
-      /* ── Tab del navegador ── */
-      try {
-        document.title = name + ' (Mod Dinero Infinito) ' + (ver ? ver + '.apk' : '.apk') + ' | JoelDroid Mods YT';
-      } catch(e) {}
-
-      /* ── Ícono del juego ── */
+      try { document.title = name + ' (Mod Dinero Infinito) ' + (ver ? ver+'.apk' : '.apk') + ' | JoelDroid Mods YT'; } catch(e) {}
       if (thumb && iconEl) {
-        iconEl.onload  = function(){ iconEl.style.display=''; if(iconPh) iconPh.style.display='none'; };
-        iconEl.onerror = function(){ iconEl.style.display='none'; if(iconPh) iconPh.style.display='flex'; };
+        iconEl.onload  = function() { iconEl.style.display=''; if(iconPh) iconPh.style.display='none'; };
+        iconEl.onerror = function() { iconEl.style.display='none'; if(iconPh) iconPh.style.display='flex'; };
         iconEl.src = thumb;
       } else {
         if (iconEl) iconEl.style.display = 'none';
@@ -888,42 +912,30 @@
       }
     }
 
-    /* ── FUENTE 1: sessionStorage — instantáneo, sin red ──── */
     function _trySessionStorage() {
       try {
         var raw = sessionStorage.getItem('jd_dl_payload');
         if (!raw) return false;
         var p = JSON.parse(raw);
         if (String(p.id) !== String(gameId)) return false;
-        if (Date.now() - (p.ts || 0) > 300000) return false; /* caché de 5 min */
+        if (Date.now() - (p.ts||0) > 300000) return false;
         _applyData(p);
         return true;
       } catch(e) { return false; }
     }
 
-    /* ── FUENTE 2: Firebase Firestore — fallback + refresco ── */
     function _fetchFirebase() {
       try {
         if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
-        var db = firebase.firestore();
-        db.collection('mods').doc(String(gameId)).get()
+        firebase.firestore().collection('mods').doc(String(gameId)).get()
           .then(function(doc) {
             if (doc.exists) { var d = doc.data(); d.id = doc.id; _applyData(d); }
             _startTimer();
           })
-          .catch(function(err) {
-            console.warn('[descarga] Firestore error:', err.message);
-            _startTimer();
-          });
-      } catch(e) {
-        console.warn('[descarga] Firebase init error:', e.message);
-        _startTimer();
-      }
+          .catch(function() { _startTimer(); });
+      } catch(e) { _startTimer(); }
     }
 
-    /* ── Refresco silencioso de URL desde Firebase ────────── */
-    /* Cuando hay caché, el timer arranca de inmediato.
-       En paralelo confirmamos que la URL de descarga sigue vigente. */
     function _refreshUrlFromFirebase() {
       setTimeout(function() {
         if (typeof firebase === 'undefined') return;
@@ -936,164 +948,241 @@
               var freshUrl = modoNum === 2
                 ? (d.downloadButtonLink2 || d.downloadButtonLink1 || realUrl)
                 : (d.downloadButtonLink1 || realUrl);
-              /* También actualizar el texto dinámico con datos frescos */
-              var freshName = d.name  || d.nombre  || '';
-              var freshVer  = d.ver   || d.version || '';
-              var freshSize = d.size  || d.peso    || '';
               if (freshUrl && freshUrl !== '#') {
                 realUrl = freshUrl;
                 window.__jdRealUrl = freshUrl;
-                btnFinal.href = freshUrl;
-              }
-              /* Actualizar título héroe y texto botón con datos frescos */
-              if (freshName) {
-                if (nameEl)   nameEl.innerHTML      = _buildHeroTitle(freshName, freshVer);
-                if (btnTexto) btnTexto.textContent  = _buildBtnText(freshName, freshVer, freshSize);
-                if (btnBadge && freshSize) btnBadge.textContent = freshSize;
-                if (statVer  && freshVer)  statVer.textContent  = freshVer;
-                if (statSize && freshSize) statSize.textContent = freshSize;
+                if (btnFinal) btnFinal.href = freshUrl;
               }
             }).catch(function(){});
         } catch(e) {}
       }, 800);
     }
 
-    /* ── REGLA 1: Anuncios Adsterra — carga nativa sin sandbox ── */
-        function _loadAds() {
-      // ── TÉCNICA: cada banner vive en su propio <iframe srcdoc> ──
-      // Esto garantiza que atOptions sea una variable INDEPENDIENTE
-      // por banner (cada iframe tiene su propio window/scope).
-      // Sin esto, la segunda llamada a atOptions sobreescribe la primera
-      // y Adsterra solo sirve 1 de los 2 banners.
-
-      // Banner 1 — 320x50 — key: 13d51e2826afc9138cb8f865b0b8ea66
-      var c1 = document.getElementById('jd-ad-banner-1');
-      if (c1) {
-        var html1 = [
-          '<html><head>',
-          '<style>*{margin:0;padding:0;overflow:hidden;}</style>',
-          '</head><body>',
-          '<script>atOptions={',
-          '  key:"13d51e2826afc9138cb8f865b0b8ea66",',
-          '  format:"iframe",height:50,width:320,params:{}',
-          '};<\/script>',
-          '<script src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"><\/script>',
-          '</body></html>'
-        ].join('');
-        var f1 = document.createElement('iframe');
-        f1.style.cssText = 'width:320px;height:50px;border:none;display:block;';
-        f1.scrolling = 'no';
-        f1.setAttribute('frameborder', '0');
-        f1.setAttribute('marginwidth', '0');
-        f1.setAttribute('marginheight', '0');
-        c1.appendChild(f1);
-        try {
-          f1.contentDocument.open();
-          f1.contentDocument.write(html1);
-          f1.contentDocument.close();
-        } catch(e) {
-          f1.srcdoc = html1;
-        }
-      }
-
-      // Banner 2 — 320x50 — key: b9ef0affd856355663df505e4fbbca67
-      // Retardo de 300ms para que el invoke.js del banner 1 ya haya
-      // registrado su slot antes de que el banner 2 inicie.
-      setTimeout(function() {
-        var c2 = document.getElementById('jd-ad-banner-2');
-        if (c2) {
-          var html2 = [
-            '<html><head>',
-            '<style>*{margin:0;padding:0;overflow:hidden;}</style>',
-            '</head><body>',
-            '<script>atOptions={',
-            '  key:"b9ef0affd856355663df505e4fbbca67",',
-            '  format:"iframe",height:50,width:320,params:{}',
-            '};<\/script>',
-            '<script src="https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js"><\/script>',
-            '</body></html>'
-          ].join('');
-          var f2 = document.createElement('iframe');
-          f2.style.cssText = 'width:320px;height:50px;border:none;display:block;';
-          f2.scrolling = 'no';
-          f2.setAttribute('frameborder', '0');
-          f2.setAttribute('marginwidth', '0');
-          f2.setAttribute('marginheight', '0');
-          c2.appendChild(f2);
-          try {
-            f2.contentDocument.open();
-            f2.contentDocument.write(html2);
-            f2.contentDocument.close();
-          } catch(e) {
-            f2.srcdoc = html2;
-          }
-        }
-      }, 300);
+    /* ── BANNERS ADSTERRA (scope aislado por iframe) ── */
+    function _inyectarBanner(containerId, key) {
+      var c = document.getElementById(containerId);
+      if (!c) return;
+      var html = [
+        '<html><head><style>*{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body>',
+        '<scr'+'ipt>atOptions={key:"'+key+'",format:"iframe",height:50,width:320,params:{}};<\/scr'+'ipt>',
+        '<scr'+'ipt src="https://www.highperformanceformat.com/'+key+'/invoke.js"><\/scr'+'ipt>',
+        '</body></html>'
+      ].join('');
+      var f = document.createElement('iframe');
+      f.style.cssText = 'width:320px;height:50px;border:none;display:block;';
+      f.scrolling = 'no'; f.frameBorder = '0';
+      c.appendChild(f);
+      try { f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close(); }
+      catch(e) { f.srcdoc = html; }
     }
 
-    /* ═══════════════════════════════════════════════════════
-       ARRANQUE — REGLA 6: timer empieza automáticamente
-    ════════════════════════════════════════════════════════ */
+    function _loadAds() {
+      _inyectarBanner('jd-ad-banner-1', '13d51e2826afc9138cb8f865b0b8ea66');
+      setTimeout(function() {
+        _inyectarBanner('jd-ad-banner-2', 'b9ef0affd856355663df505e4fbbca67');
+      }, 400);
+    }
+
+    /* ── MODAL ANUNCIO — clic en botón DESCARGAR ── */
+    var _modalAbierto = false;
+    var botonFinal = document.getElementById('dl-btn-final');
+    var capaAnuncio = document.getElementById('capaAnuncio');
+    var iframeAds   = document.getElementById('iframeAdsterra');
+    var btnCloseAds = document.getElementById('btnCloseAds');
+    var relojAds    = document.getElementById('timerAds');
+
+    if (botonFinal && capaAnuncio) {
+      botonFinal.addEventListener('click', function(e) {
+        if (_modalAbierto) return;
+        e.preventDefault();
+        _modalAbierto = true;
+
+        // Rotación de anuncios: alterna entre los 2 directlinks
+        if (iframeAds) {
+          iframeAds.src = ADS.modalLinks[_modalLinkIdx % ADS.modalLinks.length];
+          _modalLinkIdx++;
+        }
+
+        // Mostrar modal
+        capaAnuncio.style.opacity       = '1';
+        capaAnuncio.style.pointerEvents = 'auto';
+
+        // Ocultar Social Bar
+        window._jdHideSB();
+
+        // Countdown 5s → mostrar botón Close
+        if (btnCloseAds) btnCloseAds.style.display = 'none';
+        if (relojAds)    { relojAds.style.display = 'inline'; relojAds.innerText = 'Wait 5s'; }
+        var seg = 5;
+        var iv = setInterval(function() {
+          seg--;
+          if (seg > 0) {
+            if (relojAds) relojAds.innerText = 'Wait ' + seg + 's';
+          } else {
+            clearInterval(iv);
+            if (relojAds)    relojAds.style.display    = 'none';
+            if (btnCloseAds) btnCloseAds.style.display = 'inline';
+          }
+        }, 1000);
+      });
+    }
+
+    if (btnCloseAds) {
+      btnCloseAds.addEventListener('click', function() {
+        capaAnuncio.style.opacity       = '0';
+        capaAnuncio.style.pointerEvents = 'none';
+        _modalAbierto = false;
+        window._jdShowSB();
+
+        // Obtener URL real de descarga
+        var url = window.__jdRealUrl;
+        if (!url || url === '#') {
+          try {
+            var raw = sessionStorage.getItem('jd_dl_payload');
+            if (raw) {
+              var p = JSON.parse(raw);
+              url = modoNum===2 ? (p.downloadButtonLink2||p.link2||p.downloadButtonLink1||p.link1)
+                                : (p.downloadButtonLink1||p.link1);
+            }
+          } catch(e) {}
+        }
+        if (!url || url === '#') {
+          url = (btnFinal && btnFinal.href && !btnFinal.href.endsWith('#')) ? btnFinal.href : null;
+        }
+        if (url && url !== '#') {
+          var esDirect = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url);
+          if (esDirect) {
+            var a = document.createElement('a');
+            a.href=url; a.download=''; a.style.display='none';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          } else {
+            window.open(url, '_blank');
+          }
+        }
+      });
+    }
+
+    /* ── ARRANQUE ── */
     if (gameId) {
-      var gotCache = _trySessionStorage();
-      if (gotCache) {
-        /* Datos disponibles al instante → timer arranca de inmediato */
-        _startTimer();
-        /* Refresco silencioso desde Firebase para tener datos siempre frescos */
-        _refreshUrlFromFirebase();
-      } else {
-        /* Sin caché → esperar al SDK de Firebase */
+      var cached = _trySessionStorage();
+      if (cached) { _startTimer(); _refreshUrlFromFirebase(); }
+      else {
         if (typeof firebase !== 'undefined') {
           _fetchFirebase();
         } else {
-          var _waitFb = setInterval(function() {
-            if (typeof firebase !== 'undefined') {
-              clearInterval(_waitFb);
-              _fetchFirebase();
-            }
+          var _wFb = setInterval(function() {
+            if (typeof firebase !== 'undefined') { clearInterval(_wFb); _fetchFirebase(); }
           }, 80);
-          /* Seguridad: si Firebase tarda más de 2.5 s, arrancar el timer de todos modos */
-          setTimeout(function() {
-            clearInterval(_waitFb);
-            if (!timerRunning) _startTimer();
-          }, 2500);
+          setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startTimer(); }, 2500);
         }
       }
     } else {
-      /* Sin ?id= en la URL: arrancar timer de todos modos */
       _startTimer();
     }
 
-    /* Anuncios: cargar lo antes posible para maximizar ingresos.
-       En conexiones lentas, requestIdleCallback puede tardar 5+ segundos.
-       Se usa un timeout corto garantizado para que los banners aparezcan
-       incluso en dispositivos de gama baja o redes de 50kb/s. */
+    // Banners: carga prioritaria
     setTimeout(_loadAds, 200);
 
-  }); /* fin DOMContentLoaded */
+  }); // fin DOMContentLoaded
 
 })();
 </script>
 
+<!-- Social Bar Adsterra — script original intacto -->
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
+<!-- ══ CSS MODALES Y Z-INDEX ══════════════════════════════════ -->
 <style>
-/* ══ JERARQUÍA DE CAPAS — descarga.html ══════════════════════════
-   NIVEL 1 — Contenido normal              → default
-   NIVEL 2 — Banner flotante .jd-pm        → 500
-   NIVEL 3 — Social Bar Adsterra           → 1000  (JS lo controla)
-   NIVEL 4 — Modal anuncio botón descarga  → 2147483640
-   NIVEL 5 — Modal popunder / botón Atrás  → 2147483646
-════════════════════════════════════════════════════════════════ */
+/* Modales: z-index máximo absoluto — NADA puede taparlos */
+#capaAnuncio, #capaPopunder {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; justify-content: center; align-items: center;
+  background: rgba(0,0,0,0.82);
+  z-index: 2147483647 !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
 
-/* Modales SIEMPRE encima de absolutamente todo */
-.jd-fondo-ads      { z-index: 2147483640 !important; }
-.jd-fondo-popunder { z-index: 2147483646 !important; }
+/* Caja blanca interior — modal descarga */
+.jd-blanco-ads {
+  background: #fff;
+  width: 95%; max-width: 440px; height: 88vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
 
-/* Banner flotante propio */
-.jd-pm-esqueleto   { z-index: 500 !important; }
+/* Caja blanca interior — popunder */
+.jd-blanco-pop {
+  background: #fff;
+  width: 95%; max-width: 440px; height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
 
-/* Clase de ocultamiento del Social Bar cuando hay modal activo */
+/* Barra superior compartida */
+.jd-barra-superior {
+  background: #f1f3f4;
+  height: 50px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 15px;
+  border-bottom: 1px solid #dadce0;
+  font-family: sans-serif;
+  flex-shrink: 0;
+}
+.jd-titulo-sitio { color: #5f6368; font-size: 15px; font-weight: bold; }
+.jd-controles-superior { display: flex; align-items: center; gap: 10px; }
+.jd-reloj { font-size: 14px; color: #5f6368; font-family: sans-serif; }
+.jd-btn-close {
+  color: #1a73e8; font-size: 14px; font-weight: bold;
+  cursor: pointer; display: none;
+}
+.jd-btn-close-pop {
+  color: #1a73e8; font-size: 14px; font-weight: bold; cursor: pointer;
+}
+
+/* Iframe área anuncio */
+.jd-frame-anuncio, .jd-frame-popunder {
+  width: 100%; flex: 1; border: none; background: #fff;
+}
+
+/* Banner flotante */
+.jd-pm-esqueleto {
+  position: fixed; bottom: 0; left: 0; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500 !important;
+  font-family: Arial, sans-serif; padding-bottom: 20px;
+  background-color: transparent !important;
+}
+.jd-pm-tarjeta {
+  width: 90%; max-width: 440px; background: #fff;
+  border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: relative; overflow: visible;
+}
+.jd-pm-pestana-cerrar {
+  position: absolute; top: -24px; right: 15px;
+  background: #e3e8ec; border-radius: 8px 8px 0 0;
+  padding: 4px 12px; display: flex; align-items: center; gap: 5px;
+}
+.jd-pm-texto-ad { color: #757575; font-size: 11px; font-weight: bold; }
+.jd-pm-equis { color: #5f6368; font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1; }
+.jd-cuerpo-anuncio {
+  width: 100%; height: 130px; background: #fff;
+  border-radius: 16px; overflow: hidden; position: relative;
+}
+.jd-iframe-anuncio-real {
+  width: 300% !important; height: 300% !important;
+  border: none; display: block; background-color: transparent !important;
+  transform: scale(0.3333); transform-origin: 0 0;
+  position: absolute; top: 0; left: 0;
+}
+
+/* Clase ocultar Social Bar */
 .jd-sb-hidden {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -1101,627 +1190,81 @@
 }
 </style>
 
-<script>
-/* ══ CONTROL DINÁMICO DEL SOCIAL BAR ══════════════════════════
-   El Social Bar de Adsterra se inyecta dinámicamente con un id/clase
-   que puede variar. MutationObserver lo detecta en cuanto aparece
-   y lo controla con JS para que NUNCA tape el botón Close.
-════════════════════════════════════════════════════════════════ */
-(function() {
-  // Colección de todos los elementos Social Bar detectados
-  var _sbEls = [];
-
-  // Detecta si un elemento es el Social Bar de Adsterra
-  function _isSocialBar(el) {
-    if (!el || el.nodeType !== 1) return false;
-    var id  = (el.id  || '').toLowerCase();
-    var cls = (el.className || '').toLowerCase();
-    var style = el.getAttribute('style') || '';
-    // Adsterra suele usar position:fixed y bottom:0 para el social bar
-    var isFixed  = style.indexOf('fixed') !== -1 || window.getComputedStyle(el).position === 'fixed';
-    var isBottom = style.indexOf('bottom') !== -1;
-    var hasAdId  = id.indexOf('adsterra') !== -1 || id.indexOf('social') !== -1
-                || id.indexOf('adsbar') !== -1  || id.indexOf('ads_bar') !== -1;
-    var hasCls   = cls.indexOf('social') !== -1 || cls.indexOf('adsterra') !== -1
-                || cls.indexOf('sb-') !== -1;
-    return hasAdId || hasCls || (isFixed && isBottom && el !== document.getElementById('esqueletoPublicidadPlaymods'));
-  }
-
-  // Aplica z-index bajo al Social Bar para que quede detrás de modales
-  function _controlSB(el) {
-    if (_sbEls.indexOf(el) === -1) _sbEls.push(el);
-    el.style.setProperty('z-index', '1000', 'important');
-    el.style.setProperty('position', 'fixed', 'important');
-  }
-
-  // Oculta Social Bar cuando un modal está activo
-  function _hideSB() {
-    _sbEls.forEach(function(el) {
-      el.classList.add('jd-sb-hidden');
-    });
-    // También buscar elementos que pudieran haberse añadido después
-    document.querySelectorAll('[id*="adsterra"],[id*="social_bar"],[id*="adsbar"],[class*="socialBar"],[class*="social-bar"]').forEach(function(el) {
-      if (_sbEls.indexOf(el) === -1) { _sbEls.push(el); }
-      el.classList.add('jd-sb-hidden');
-    });
-  }
-
-  // Muestra Social Bar cuando el modal se cierra
-  function _showSB() {
-    _sbEls.forEach(function(el) {
-      el.classList.remove('jd-sb-hidden');
-    });
-  }
-
-  // MutationObserver: detecta el Social Bar cuando Adsterra lo inyecta
-  var obs = new MutationObserver(function(mutations) {
-    mutations.forEach(function(m) {
-      m.addedNodes.forEach(function(node) {
-        if (_isSocialBar(node)) _controlSB(node);
-        // Buscar también dentro del nodo añadido
-        if (node.querySelectorAll) {
-          node.querySelectorAll('*').forEach(function(child) {
-            if (_isSocialBar(child)) _controlSB(child);
-          });
-        }
-      });
-    });
-  });
-  obs.observe(document.documentElement, { childList: true, subtree: true });
-
-  // Exponer funciones para que los modales las llamen
-  window._jdHideSB  = _hideSB;
-  window._jdShowSB  = _showSB;
-
-  // Escaneo inicial por si el Social Bar ya está en el DOM
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('*').forEach(function(el) {
-      if (_isSocialBar(el)) _controlSB(el);
-    });
-  });
-})();
-</script>
-
-<style>
-/* El fondo oscuro para centrar la vista en el anuncio */
-.jd-fondo-ads {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.75); 
-  z-index: 100000; 
-  display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.jd-fondo-ads.activa {
-  opacity: 1; pointer-events: auto;
-}
-
-/* Cuadro blanco Gigante */
-.jd-blanco-ads {
-  background: #ffffff;
-  width: 95%; 
-  max-width: 440px; 
-  height: 88vh; 
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Barra superior gris */
-.jd-barra-superior {
-  background: #f1f3f4; 
-  height: 50px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 15px; 
-  border-bottom: 1px solid #dadce0;
-  font-family: sans-serif;
-  box-sizing: border-box;
-  flex-shrink: 0; 
-}
-
-/* Texto Anuncios+16 pegado a la izquierda */
-.jd-marca-texto {
-  display: flex;
-  align-items: center;
-}
-
-.jd-titulo-sitio {
-  color: #5f6368; 
-  font-size: 15px;
-  font-weight: bold;
-}
-
-/* Contenedor derecho para contador y botón */
-.jd-controles-superior {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* El contador de tiempo */
-.jd-reloj {
-  font-size: 14px;
-  color: #5f6368; 
-  font-family: sans-serif;
-}
-
-/* El texto "Close ❯" azul a la derecha */
-.jd-btn-close {
-  color: #1a73e8; 
-  font-size: 14px;
-  font-weight: bold;
-  text-decoration: none;
-  display: none; 
-  cursor: pointer;
-}
-
-/* ÁREA DEL ANUNCIO */
-.jd-frame-anuncio {
-  width: 100%;
-  flex: 1; 
-  border: none;
-  background: #ffffff;
-}
-
-#iframeAdsterra {
-  max-width: 100% !important;
-  max-height: 100% !important;
-  box-sizing: border-box !important;
-}
-</style>
-
-<div class="jd-fondo-ads" id="capaAnuncio">
+<!-- ══ MODAL ANUNCIO — clic DESCARGAR ══════════════════════ -->
+<div id="capaAnuncio">
   <div class="jd-blanco-ads">
-    
     <div class="jd-barra-superior">
-      <div class="jd-marca-texto">
-        <span class="jd-titulo-sitio">Anuncios+16</span>
-      </div>
-      
+      <span class="jd-titulo-sitio">Publicidad · Apoya el sitio</span>
       <div class="jd-controles-superior">
         <span class="jd-reloj" id="timerAds">Wait 5s</span>
         <span class="jd-btn-close" id="btnCloseAds">Close ❯</span>
       </div>
     </div>
-
     <iframe class="jd-frame-anuncio" id="iframeAdsterra" scrolling="yes"></iframe>
-
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-  // ═══════════════════════════════════════════════════════════════
-  // MODAL DE ANUNCIO — CONECTADO A FIREBASE
-  // Lee la URL real del juego desde window.__jdRealUrl (escrita por
-  // el IIFE de Firebase), del href del botón, o del sessionStorage.
-  // Nunca entrega un link hardcodeado ni roto.
-  // ═══════════════════════════════════════════════════════════════
-
-  var botonDescargaReal = document.getElementById('dl-btn-final') || document.querySelector('.dl-btn-final');
-  var capaFondo    = document.getElementById('capaAnuncio');
-  var frameAnuncio = document.getElementById('iframeAdsterra');
-  var btnCerrar    = document.getElementById('btnCloseAds');
-  var relojAnuncio = document.getElementById('timerAds');
-  var _modalCargado = false;
-
-  var directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
-
-  // ── Leer URL real de Firebase (3 fuentes por orden de prioridad) ──
-  function _getUrlFinal() {
-    // 1. Variable global escrita por el IIFE Firebase
-    if (window.__jdRealUrl && window.__jdRealUrl !== '#') return window.__jdRealUrl;
-    // 2. href del botón final (asignado por el IIFE al terminar el timer)
-    var btn = document.getElementById('dl-btn-final');
-    if (btn && btn.href && btn.href !== '#' && !btn.href.endsWith('#')) return btn.href;
-    // 3. sessionStorage (caché 5 min del payload de Firebase)
-    try {
-      var raw = sessionStorage.getItem('jd_dl_payload');
-      if (raw) {
-        var p = JSON.parse(raw);
-        var modo = new URLSearchParams(window.location.search).get('modo') === '2' ? 2 : 1;
-        var u = modo === 2
-          ? (p.downloadButtonLink2 || p.link2 || p.downloadButtonLink1 || p.link1)
-          : (p.downloadButtonLink1 || p.link1);
-        if (u && u !== '#') return u;
-      }
-    } catch(e) {}
-    return '#';
-  }
-
-  // ── Clic en botón de descarga → abrir modal de anuncio ───────────
-  if (botonDescargaReal) {
-    botonDescargaReal.addEventListener('click', function(e) {
-      if (capaFondo && !capaFondo.classList.contains('activa')) {
-        e.preventDefault();
-
-        // Cargar iframe solo en el clic (post-click, cumple política Chrome)
-        if (!_modalCargado && frameAnuncio) {
-          frameAnuncio.src = directlinkNormal;
-          _modalCargado = true;
-        }
-
-        capaFondo.classList.add('activa');
-        // Ocultar Social Bar para que no tape el botón Close
-        if (window._jdHideSB) window._jdHideSB();
-        if (btnCerrar)    btnCerrar.style.display    = 'none';
-        if (relojAnuncio) relojAnuncio.style.display = 'inline';
-
-        var seg = 5;
-        if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + seg + 's';
-        var iv = setInterval(function() {
-          seg--;
-          if (seg > 0) {
-            if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + seg + 's';
-          } else {
-            clearInterval(iv);
-            if (relojAnuncio) relojAnuncio.style.display = 'none';
-            if (btnCerrar)    btnCerrar.style.display    = 'inline';
-          }
-        }, 1000);
-      }
-    });
-  }
-
-  // ── Clic en "Close ❯" → entregar URL real de Firebase ────────────
-  if (btnCerrar) {
-    btnCerrar.addEventListener('click', function() {
-      if (capaFondo) capaFondo.classList.remove('activa');
-      // Restaurar Social Bar al cerrar modal
-      if (window._jdShowSB) window._jdShowSB();
-
-      var urlFinal = _getUrlFinal();
-
-      // Si Firebase aún no respondió, esperar hasta 3 s
-      if (!urlFinal || urlFinal === '#') {
-        var intentos = 0;
-        var poll = setInterval(function() {
-          intentos++;
-          var u = _getUrlFinal();
-          if ((u && u !== '#') || intentos >= 15) {
-            clearInterval(poll);
-            if (u && u !== '#') _navegar(u);
-          }
-        }, 200);
-        return;
-      }
-      _navegar(urlFinal);
-    });
-  }
-
-  // ── Navegar con detección de tipo de enlace ───────────────────────
-  function _navegar(url) {
-    var esDirect = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url);
-    if (esDirect) {
-      var a = document.createElement('a');
-      a.href = url; a.download = ''; a.style.display = 'none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    } else {
-      window.open(url, '_blank');
-    }
-  }
-});
-</script>
-
-<style>
-/* Capa oscura que bloquea la pantalla */
-.jd-fondo-popunder {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.8); 
-  z-index: 100010; 
-  display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.jd-fondo-popunder.activa {
-  opacity: 1; pointer-events: auto;
-}
-
-/* El cuadro blanco gigante */
-.jd-blanco-pop {
-  background: #ffffff;
-  width: 95%; 
-  max-width: 440px; 
-  height: 85vh; 
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Barra superior gris */
-.jd-barra-superior {
-  background: #f1f3f4; 
-  height: 50px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 15px; 
-  border-bottom: 1px solid #dadce0;
-  font-family: sans-serif;
-  box-sizing: border-box;
-  flex-shrink: 0; 
-}
-
-/* Texto arriba a la izquierda */
-.jd-titulo-sitio {
-  color: #5f6368; 
-  font-size: 15px;
-  font-weight: bold;
-}
-
-/* El texto "Close ❯" azul a la derecha para cerrar al momento */
-.jd-btn-close-pop {
-  color: #1a73e8; 
-  font-size: 14px;
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* ÁREA DEL ANUNCIO */
-.jd-frame-popunder {
-  width: 100%;
-  flex: 1; 
-  border: none;
-  background: #ffffff;
-}
-</style>
-
-<div class="jd-fondo-popunder" id="capaPopunder">
+<!-- ══ MODAL POPUNDER — botón Atrás ═══════════════════════ -->
+<div id="capaPopunder">
   <div class="jd-blanco-pop">
-    
     <div class="jd-barra-superior">
-      <div class="jd-marca-texto">
-        <span class="jd-titulo-sitio">Anuncios+16</span>
-      </div>
+      <span class="jd-titulo-sitio">Anuncios+16</span>
       <div class="jd-controles-superior">
         <span class="jd-btn-close-pop" id="btnClosePopunder">Close ❯</span>
       </div>
     </div>
-
     <iframe class="jd-frame-popunder" id="iframePopunder" scrolling="yes"></iframe>
-
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  
-  // =========================================================
-  // 🎛️ CONFIGURACIÓN DE URLS
-  // =========================================================
-  
-  // 1. Pega aquí un DIRECT LINK de Adsterra (No el código .js)
-  const urlDirectLinkPopunder = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde"; 
-  
-  // 2. URL de regreso al detalle — calculada dinámicamente desde ?id= en la URL
-  const _paramsBack = new URLSearchParams(window.location.search);
-  const _gameIdBack = (_paramsBack.get('id') || '').trim();
-  const urlDetallesJuego = _gameIdBack
-    ? 'index.html?mod=' + encodeURIComponent(_gameIdBack)
-    : 'index.html';
-
-  // =========================================================
-
-  const capaPopunder = document.getElementById('capaPopunder');
-  const iframePopunder = document.getElementById('iframePopunder');
-  const btnCerrarPopunder = document.getElementById('btnClosePopunder');
-  
-  // _cargarPopIframe ya definida globalmente en el IIFE principal
-  // (disponible antes del DOMContentLoaded — no duplicar aquí)
-
-
-  // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
-  // El listener popstate está centralizado en el IIFE principal (arriba).
-  // Ese listener ya muestra el popunder y redirige al detalle correctamente.
-  // NO se duplica aquí para evitar el bucle de refresco.
-
-
-  // --- 🖱️ DISPARADOR 2: CLIC EN LOGO O NOMBRE ---
-  const disparadoresLogo = document.querySelectorAll('a[href*="index"], .logo, img[src*="logo"], header img, .nombre-sitio, .titulo-web');
-
-  disparadoresLogo.forEach(elemento => {
-    elemento.addEventListener('click', function(e) {
-      e.preventDefault(); 
-      capaPopunder.classList.add('activa');
-    });
-  });
-
-
-  // --- 🔴 ACCIÓN AL TOCAR "CLOSE" ---
-  // La navegación al detalle del juego está manejada por el listener
-  // central en el IIFE principal. Este handler solo cierra visualmente
-  // si el listener central no lo parchó primero (jdGoBack desde nav).
-  // NOTA: La navegación al detalle la maneja SIEMPRE el IIFE principal
-  // (_mostrarPopunder → btnClose listener con _jdPatched=true).
-  // Este bloque solo cierra visualmente si el modal se abre por
-  // el disparador 2 (clic en logo), no por el botón Atrás.
-  if (btnCerrarPopunder) {
-    btnCerrarPopunder.addEventListener('click', function() {
-      if (!btnCerrarPopunder._jdPatched) {
-        // Abierto por clic en logo (no por Atrás) → cerrar y navegar
-        capaPopunder.classList.remove('activa');
-        if (window._jdShowSB) window._jdShowSB();
-        window.location.href = urlDetallesJuego;
-      }
-      // Si _jdPatched=true, el IIFE ya maneja la navegación
-    });
-  }
-});
-</script>
-
-<style>
-/* Contenedor que flota FIJO en la parte inferior de la pantalla */
-.jd-pm-esqueleto {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: transparent !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  /* 🛡️ CAPA BAJA: Si sale un anuncio gigante, este lo tapará 🛡️ */
-  z-index: 500; /* Subido: visible sobre el contenido, debajo de modales */ 
-  
-  font-family: Arial, sans-serif;
-  padding-bottom: 20px; 
-}
-
-/* La tarjeta que simula ser el navegador de PlayMods */
-.jd-pm-tarjeta {
-  width: 90%;
-  max-width: 440px;
-  background-color: #ffffff; 
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: visible; 
-}
-
-/* La pestaña gris de arriba con la 'X' para cerrar */
-.jd-pm-pestana-cerrar {
-  position: absolute;
-  top: -24px; 
-  right: 15px;
-  background-color: #e3e8ec; 
-  border-radius: 8px 8px 0 0;
-  padding: 4px 12px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.jd-pm-texto-ad {
-  color: #757575;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.jd-pm-equis {
-  color: #5f6368;
-  font-size: 18px; 
-  font-weight: bold;
-  cursor: pointer;
-  line-height: 1;
-}
-
-/* El cuerpo donde se recortará y mostrará el anuncio */
-.jd-cuerpo-anuncio {
-  width: 100%;
-  height: 130px; 
-  background-color: #ffffff; /* Fondo base blanco */
-  border-radius: 16px;
-  overflow: hidden; 
-  position: relative;
-}
-
-/* EL TRUCO DE ESCALA SIN FILTROS DE COLOR AGRESIVOS */
-.jd-iframe-anuncio-real {
-  width: 300% !important;
-  height: 300% !important;
-  border: none;
-  display: block;
-  
-  /* Quitamos el filtro invertido para que se carguen los colores reales de Adsterra */
-  background-color: transparent !important;
-  
-  transform: scale(0.3333);
-  transform-origin: 0 0; 
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-</style>
-
+<!-- ══ BANNER FLOTANTE ══════════════════════════════════════ -->
 <div class="jd-pm-esqueleto" id="esqueletoPublicidadPlaymods">
-
   <div class="jd-pm-tarjeta">
-
     <div class="jd-pm-pestana-cerrar">
       <span class="jd-pm-texto-ad">Anuncio +16</span>
       <span class="jd-pm-equis" id="botonCerrarPlaymods">×</span>
     </div>
-
-    <div class="jd-cuerpo-anuncio" id="contenedorFondoAnuncio">
-      <iframe 
-        id="iframeAnuncioCambiante"
-        src="" 
-        class="jd-iframe-anuncio-real">
-      </iframe>
+    <div class="jd-cuerpo-anuncio">
+      <iframe id="iframeAnuncioCambiante" src="" class="jd-iframe-anuncio-real"></iframe>
     </div>
-
   </div>
-
 </div>
 
 <script>
-// Banner flotante PlayMods — garantizado con DOMContentLoaded
+/* Banner flotante — DOMContentLoaded garantizado */
 (function() {
-  var smartlink   = 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d';
-  var directlink  = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
+  var smartlink  = 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d';
+  var directlink = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
 
-  function initBannerFlotante() {
-    var miIframe        = document.getElementById('iframeAnuncioCambiante');
-    var esqueletoFlotante = document.getElementById('esqueletoPublicidadPlaymods');
-    var botonX          = document.getElementById('botonCerrarPlaymods');
+  function init() {
+    var iframe    = document.getElementById('iframeAnuncioCambiante');
+    var esqueleto = document.getElementById('esqueletoPublicidadPlaymods');
+    var botonX    = document.getElementById('botonCerrarPlaymods');
+    if (!iframe || !esqueleto || !botonX) return;
 
-    if (!miIframe || !esqueletoFlotante || !botonX) return; // seguridad
+    var actual = Math.random() < 0.5 ? 'smart' : 'direct';
+    iframe.src = actual === 'smart' ? smartlink : directlink;
+    esqueleto.style.display = 'flex';
 
-    var anuncioActual    = '';
-    var cerradoPorUsuario = false;
-
-    // 1. CARGAR EL PRIMER ANUNCIO AL AZAR — garantizado porque DOM está listo
-    if (Math.random() < 0.5) {
-      miIframe.src  = smartlink;
-      anuncioActual = 'smartlink';
-    } else {
-      miIframe.src  = directlink;
-      anuncioActual = 'directlink';
-    }
-    // Asegurarse de que el banner flotante sea visible
-    esqueletoFlotante.style.display = 'flex';
-
-    // 2. CERRAR AL PULSAR X
     botonX.addEventListener('click', function(e) {
       e.stopPropagation();
-      esqueletoFlotante.style.display = 'none';
-      cerradoPorUsuario = true;
+      esqueleto.style.display = 'none';
+
+      // Reaparecer con el otro anuncio al siguiente toque
+      function reaparecer() {
+        actual = actual === 'smart' ? 'direct' : 'smart';
+        iframe.src = actual === 'smart' ? smartlink : directlink;
+        esqueleto.style.display = 'flex';
+        document.removeEventListener('click',  reaparecer);
+        document.removeEventListener('scroll', reaparecer);
+      }
+      document.addEventListener('click',  reaparecer);
+      document.addEventListener('scroll', reaparecer);
     });
-
-    // 3. REAPARECER CON EL OTRO ANUNCIO AL SIGUIENTE CLIC O SCROLL
-    function reaparecerAnuncio() {
-      if (!cerradoPorUsuario) return;
-      anuncioActual = (anuncioActual === 'smartlink') ? 'directlink' : 'smartlink';
-      miIframe.src  = (anuncioActual === 'smartlink') ? smartlink : directlink;
-      cerradoPorUsuario = false;
-      esqueletoFlotante.style.display = 'flex';
-      document.removeEventListener('click',  reaparecerAnuncio);
-      window.removeEventListener('scroll', reaparecerAnuncio);
-    }
-
-    document.addEventListener('click',  reaparecerAnuncio);
-    window.addEventListener('scroll', reaparecerAnuncio);
   }
 
-  // Ejecutar cuando el DOM esté listo (siempre seguro)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBannerFlotante);
-  } else {
-    initBannerFlotante();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script>
 
