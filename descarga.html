@@ -683,39 +683,57 @@
     // En AMBOS casos se hace history.pushState para que el botón Atrás no
     // salga del sitio y no entre en bucle infinito.
     var _popHandled = false;
+    // _popPendiente: si el popstate llega antes de que el DOM esté listo
+    var _popPendiente = false;
+    var _backUrlPendiente = '';
+
+    function _mostrarPopunder(backUrl) {
+      var capa    = document.getElementById('capaPopunder');
+      var btnClose = document.getElementById('btnClosePopunder');
+
+      if (!capa) {
+        // DOM aún no listo — marcar como pendiente
+        _popPendiente    = true;
+        _backUrlPendiente = backUrl;
+        return;
+      }
+
+      // Cargar iframe del anuncio (global, siempre disponible)
+      window._cargarPopIframe();
+
+      // Mostrar capa
+      capa.classList.add('activa');
+
+      // Re-agregar entrada al historial para atrapar el siguiente Atrás
+      history.pushState(null, null, window.location.href);
+
+      // Botón Close — navega al detalle
+      if (btnClose && !btnClose._jdPatched) {
+        btnClose._jdPatched = true;
+        btnClose.addEventListener('click', function () {
+          capa.classList.remove('activa');
+          window.location.href = backUrl;
+        }, { once: true });
+      }
+    }
+
     window.addEventListener('popstate', function () {
       if (_popHandled) return;
       _popHandled = true;
-
-      var backUrl = _getBackUrl();
-      var capa = document.getElementById('capaPopunder');
-
-      if (capa) {
-        // Cargar iframe del anuncio (lazy, solo la primera vez)
-        _cargarPopIframe();
-        // Mostrar popunder
-        capa.classList.add('activa');
-        // Re-agregar entrada al historial para atrapar el siguiente Atrás
-        history.pushState(null, null, window.location.href);
-        // Al cerrar el popunder → ir al detalle del juego
-        var btnClose = document.getElementById('btnClosePopunder');
-        if (btnClose && !btnClose._jdPatched) {
-          btnClose._jdPatched = true;
-          btnClose.addEventListener('click', function () {
-            capa.classList.remove('activa');
-            window.location.href = backUrl;
-          }, { once: true });
-        }
-      } else {
-        // Sin popunder disponible → ir directo al detalle
-        window.location.href = backUrl;
-      }
-
-      // Permitir que el siguiente Atrás vuelva a disparar (en caso de que
-      // el usuario cierre el popunder y presione Atrás de nuevo)
+      _mostrarPopunder(_getBackUrl());
       setTimeout(function () { _popHandled = false; }, 800);
     });
   } catch(e) {}
+
+  /* ── _cargarPopIframe global: disponible ANTES del DOMContentLoaded
+     del bloque de popunder — el listener popstate lo necesita ── */
+  window._cargarPopIframe = function() {
+    var iframe = document.getElementById('iframePopunder');
+    if (iframe && !iframe._cargado) {
+      iframe.src = 'https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde';
+      iframe._cargado = true;
+    }
+  };
 
   /* ── Botón ← del nav (flecha en la barra superior) ─────── */
   window.jdGoBack = function(ev) {
@@ -727,6 +745,12 @@
      DOM — todo dentro de DOMContentLoaded para evitar null refs
   ══════════════════════════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', function () {
+
+    /* ── Si popstate llegó ANTES del DOM, ejecutarlo ahora ── */
+    if (_popPendiente) {
+      _popPendiente = false;
+      setTimeout(function() { _mostrarPopunder(_backUrlPendiente); }, 50);
+    }
 
     /* ── Refs del DOM ──────────────────────────────────────── */
     var numEl    = document.getElementById('dl-counter-num');
@@ -1413,15 +1437,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const iframePopunder = document.getElementById('iframePopunder');
   const btnCerrarPopunder = document.getElementById('btnClosePopunder');
   
-  // Carga del anuncio en el primer disparo del popunder (lazy)
-  // Evita cargar el iframe si el usuario nunca presiona Atrás
-  var _popIframeCargado = false;
-  function _cargarPopIframe() {
-    if (!_popIframeCargado && iframePopunder) {
-      iframePopunder.src = urlDirectLinkPopunder;
-      _popIframeCargado = true;
-    }
-  }
+  // _cargarPopIframe ya definida globalmente en el IIFE principal
+  // (disponible antes del DOMContentLoaded — no duplicar aquí)
 
 
   // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
@@ -1470,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', function() {
   justify-content: center;
   
   /* 🛡️ CAPA BAJA: Si sale un anuncio gigante, este lo tapará 🛡️ */
-  z-index: 10; 
+  z-index: 500; /* Subido: visible sobre el contenido, debajo de modales */ 
   
   font-family: Arial, sans-serif;
   padding-bottom: 20px; 
@@ -1564,52 +1581,61 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
-  const smartlink = "https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d";
-  const directlink = "https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e";
-  
-  const miIframe = document.getElementById('iframeAnuncioCambiante');
-  const esqueletoFlotante = document.getElementById('esqueletoPublicidadPlaymods');
-  const botonX = document.getElementById('botonCerrarPlaymods');
-  
-  let anuncioActual = '';
-  let cerradoPorUsuario = false;
+// Banner flotante PlayMods — garantizado con DOMContentLoaded
+(function() {
+  var smartlink   = 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d';
+  var directlink  = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
 
-  // 1. ELECCIÓN AL AZAR PARA EL PRIMER ANUNCIO
-  if (Math.random() < 0.5) {
-    miIframe.src = smartlink;
-    anuncioActual = 'smartlink';
-  } else {
-    miIframe.src = directlink;
-    anuncioActual = 'directlink';
-  }
+  function initBannerFlotante() {
+    var miIframe        = document.getElementById('iframeAnuncioCambiante');
+    var esqueletoFlotante = document.getElementById('esqueletoPublicidadPlaymods');
+    var botonX          = document.getElementById('botonCerrarPlaymods');
 
-  // 2. FUNCIÓN PARA CERRAR EL ANUNCIO
-  botonX.addEventListener('click', function(e) {
-    e.stopPropagation();
-    esqueletoFlotante.style.display = 'none';
-    cerradoPorUsuario = true;
-  });
+    if (!miIframe || !esqueletoFlotante || !botonX) return; // seguridad
 
-  // 3. FUNCIÓN PARA REAPARECER CON EL OTRO ANUNCIO
-  function reaparecerAnuncio() {
-    if (cerradoPorUsuario) {
-      if (anuncioActual === 'smartlink') {
-        miIframe.src = directlink;
-        anuncioActual = 'directlink';
-      } else {
-        miIframe.src = smartlink;
-        anuncioActual = 'smartlink';
-      }
-      cerradoPorUsuario = false; 
+    var anuncioActual    = '';
+    var cerradoPorUsuario = false;
+
+    // 1. CARGAR EL PRIMER ANUNCIO AL AZAR — garantizado porque DOM está listo
+    if (Math.random() < 0.5) {
+      miIframe.src  = smartlink;
+      anuncioActual = 'smartlink';
+    } else {
+      miIframe.src  = directlink;
+      anuncioActual = 'directlink';
+    }
+    // Asegurarse de que el banner flotante sea visible
+    esqueletoFlotante.style.display = 'flex';
+
+    // 2. CERRAR AL PULSAR X
+    botonX.addEventListener('click', function(e) {
+      e.stopPropagation();
+      esqueletoFlotante.style.display = 'none';
+      cerradoPorUsuario = true;
+    });
+
+    // 3. REAPARECER CON EL OTRO ANUNCIO AL SIGUIENTE CLIC O SCROLL
+    function reaparecerAnuncio() {
+      if (!cerradoPorUsuario) return;
+      anuncioActual = (anuncioActual === 'smartlink') ? 'directlink' : 'smartlink';
+      miIframe.src  = (anuncioActual === 'smartlink') ? smartlink : directlink;
+      cerradoPorUsuario = false;
       esqueletoFlotante.style.display = 'flex';
-      
-      document.removeEventListener('click', reaparecerAnuncio);
+      document.removeEventListener('click',  reaparecerAnuncio);
       window.removeEventListener('scroll', reaparecerAnuncio);
     }
+
+    document.addEventListener('click',  reaparecerAnuncio);
+    window.addEventListener('scroll', reaparecerAnuncio);
   }
 
-  document.addEventListener('click', reaparecerAnuncio);
-  window.addEventListener('scroll', reaparecerAnuncio);
+  // Ejecutar cuando el DOM esté listo (siempre seguro)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBannerFlotante);
+  } else {
+    initBannerFlotante();
+  }
+})();
 </script>
 
 </body>
