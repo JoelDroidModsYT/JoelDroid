@@ -783,7 +783,7 @@
         ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '#')
         : (d.downloadButtonLink1 || d.link1 || '#');
       realUrl = url || '#';
-      /* ── Exponer globalmente para que el modal de anuncio la lea ── */
+      /* Puente global → el modal de anuncio lo lee en el clic del usuario */
       window.__jdRealUrl = realUrl;
 
       /* ── REGLA 4: Título héroe ── */
@@ -896,9 +896,6 @@
         var iframe = document.createElement('iframe');
         iframe.style.cssText = 'width:320px;height:50px;border:none;overflow:hidden;display:block;';
         iframe.scrolling = 'no'; iframe.marginWidth = '0'; iframe.marginHeight = '0';
-        /* sandbox estándar: permite scripts y navegación a nueva ventana,
-           bloquea acceso al DOM padre y popups automáticos sin clic */
-        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
         iframe.srcdoc = '<!DOCTYPE html><html><head>'
           + '<style>*{margin:0;padding:0;overflow:hidden}</style></head><body>'
           + '<script>var atOptions={'
@@ -962,31 +959,23 @@
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
 <style>
-/* ══ JERARQUÍA DE CAPAS — JoelDroid Mods YT ══════════════════════
-   Escala de z-index definitiva para descarga.html:
-     Social Bar (Adsterra)  →  z-index: 99000  (visible, pero al fondo)
-     Modal anuncio botón    →  z-index: 100000 (sobre Social Bar)
-     Modal popunder Atrás   →  z-index: 100010 (capa máxima)
-   Se aplica a los contenedores que inyecta el SDK de Adsterra
-   sin modificar ni eliminar ningún script de anuncios.
-════════════════════════════════════════════════════════════════ */
+/* ══ JERARQUÍA DE CAPAS DEFINITIVA — descarga.html ══════════════════
+   NIVEL 1 — Social Bar de Adsterra (siempre visible, base del stack)
+             z-index nativo del SDK (~9999). Lo respetamos: NO lo pisamos
+             hacia abajo. Solo elevamos los modales por encima.
+   NIVEL 2 — Modal anuncio-botón  (.jd-fondo-ads)    → 200000
+   NIVEL 3 — Modal popunder-atrás (.jd-fondo-popunder)→ 200010
 
-/* Contenedor principal del Social Bar de Adsterra */
-#aso-container,
-div[id^="aso-"],
-div[class*="social-bar"],
-div[class*="socialbar"],
-div[id*="social-bar"],
-div[id*="socialbar"],
-iframe[src*="profitablecpmratenetwork"][style*="position:fixed"],
-iframe[src*="profitablecpmratenetwork"][style*="position: fixed"] {
-  z-index: 99000 !important;
-}
+   Así el Social Bar se ve siempre, y cuando un modal se activa
+   sale al frente tapándolo. Al cerrar el modal, el Social Bar
+   vuelve a ser visible automáticamente.
+════════════════════════════════════════════════════════════════════ */
+.jd-fondo-ads       { z-index: 200000 !important; }
+.jd-fondo-popunder  { z-index: 200010 !important; }
 
-/* Los modales propios tienen prioridad máxima — ya definidos arriba,
-   este bloque los refuerza explícitamente para prevenir conflictos */
-.jd-fondo-ads          { z-index: 100000 !important; }
-.jd-fondo-popunder     { z-index: 100010 !important; }
+/* Banner inferior propio (jd-pm-esqueleto) — encima del contenido
+   pero debajo de los modales */
+.jd-pm-esqueleto    { z-index: 100 !important; }
 </style>
 
 <style>
@@ -1104,84 +1093,69 @@ iframe[src*="profitablecpmratenetwork"][style*="position: fixed"] {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  
-  // =========================================================
-  // 🎛️ MODAL DE ANUNCIO — CONECTADO A FIREBASE (REGLA 6)
-  // =========================================================
-  // urlDestinoFinal lee la URL real que el IIFE principal obtuvo
-  // de Firebase (variable global window.__jdRealUrl).
-  // Si Firebase aún no respondió cuando el usuario toca el botón,
-  // el listener de 'jd:realurl' la captura en tiempo real.
-  // Así NUNCA se entrega un enlace roto o de ejemplo.
-  // =========================================================
 
-  const botonDescargaReal = document.getElementById('dl-btn-final') || document.querySelector('.dl-btn-final');
-  const capaFondo    = document.getElementById('capaAnuncio');
-  const frameAnuncio = document.getElementById('iframeAdsterra');
-  const btnCerrar    = document.getElementById('btnCloseAds');
-  const relojAnuncio = document.getElementById('timerAds');
+  // ═══════════════════════════════════════════════════════════════
+  // MODAL DE ANUNCIO — CONECTADO A FIREBASE
+  // Lee la URL real del juego desde window.__jdRealUrl (escrita por
+  // el IIFE de Firebase), del href del botón, o del sessionStorage.
+  // Nunca entrega un link hardcodeado ni roto.
+  // ═══════════════════════════════════════════════════════════════
 
-  // ── URL dinámica: se sincroniza con el IIFE de Firebase ──────────
-  // El IIFE escribe window.__jdRealUrl cuando aplica datos de Firebase.
-  // Este módulo lo lee en el momento del clic → siempre fresco.
+  var botonDescargaReal = document.getElementById('dl-btn-final') || document.querySelector('.dl-btn-final');
+  var capaFondo    = document.getElementById('capaAnuncio');
+  var frameAnuncio = document.getElementById('iframeAdsterra');
+  var btnCerrar    = document.getElementById('btnCloseAds');
+  var relojAnuncio = document.getElementById('timerAds');
+  var _modalCargado = false;
+
+  var directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
+
+  // ── Leer URL real de Firebase (3 fuentes por orden de prioridad) ──
   function _getUrlFinal() {
-    // 1. Variable global escrita por el IIFE Firebase (fuente primaria)
-    if (window.__jdRealUrl && window.__jdRealUrl !== '#') {
-      return window.__jdRealUrl;
-    }
-    // 2. Leer href del botón final (ya lo tiene el IIFE al terminar el timer)
+    // 1. Variable global escrita por el IIFE Firebase
+    if (window.__jdRealUrl && window.__jdRealUrl !== '#') return window.__jdRealUrl;
+    // 2. href del botón final (asignado por el IIFE al terminar el timer)
     var btn = document.getElementById('dl-btn-final');
-    if (btn && btn.href && btn.href !== '#' && !btn.href.endsWith('#')) {
-      return btn.href;
-    }
-    // 3. sessionStorage como respaldo (mismo payload que usa el IIFE)
+    if (btn && btn.href && btn.href !== '#' && !btn.href.endsWith('#')) return btn.href;
+    // 3. sessionStorage (caché 5 min del payload de Firebase)
     try {
       var raw = sessionStorage.getItem('jd_dl_payload');
       if (raw) {
         var p = JSON.parse(raw);
-        var params = new URLSearchParams(window.location.search);
-        var modo   = params.get('modo') === '2' ? 2 : 1;
-        var url = modo === 2
+        var modo = new URLSearchParams(window.location.search).get('modo') === '2' ? 2 : 1;
+        var u = modo === 2
           ? (p.downloadButtonLink2 || p.link2 || p.downloadButtonLink1 || p.link1)
           : (p.downloadButtonLink1 || p.link1);
-        if (url && url !== '#') return url;
+        if (u && u !== '#') return u;
       }
     } catch(e) {}
     return '#';
   }
 
-  // ── Direct link para el iframe del modal ─────────────────────────
-  const directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
-
-  // El iframe del modal NO se pre-carga automáticamente (Chrome bloquea popups sin clic).
-  // Se asigna el src solo en el momento exacto del clic del usuario → cumple política de Chrome.
-  var _modalAdCargado = false;
-
-  // ── Clic en el botón de descarga → mostrar modal de anuncio ──────
+  // ── Clic en botón de descarga → abrir modal de anuncio ───────────
   if (botonDescargaReal) {
     botonDescargaReal.addEventListener('click', function(e) {
       if (capaFondo && !capaFondo.classList.contains('activa')) {
         e.preventDefault();
-        
-        // Cargar el iframe del anuncio solo en el clic del usuario (no automático → política Chrome)
-        if (!_modalAdCargado && frameAnuncio) {
+
+        // Cargar iframe solo en el clic (post-click, cumple política Chrome)
+        if (!_modalCargado && frameAnuncio) {
           frameAnuncio.src = directlinkNormal;
-          _modalAdCargado = true;
+          _modalCargado = true;
         }
 
         capaFondo.classList.add('activa');
         if (btnCerrar)    btnCerrar.style.display    = 'none';
         if (relojAnuncio) relojAnuncio.style.display = 'inline';
-        
-        var segundos = 5;
-        if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + segundos + 's';
-        
-        var cuentaRegresiva = setInterval(function() {
-          segundos--;
-          if (segundos > 0) {
-            if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + segundos + 's';
+
+        var seg = 5;
+        if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + seg + 's';
+        var iv = setInterval(function() {
+          seg--;
+          if (seg > 0) {
+            if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + seg + 's';
           } else {
-            clearInterval(cuentaRegresiva);
+            clearInterval(iv);
             if (relojAnuncio) relojAnuncio.style.display = 'none';
             if (btnCerrar)    btnCerrar.style.display    = 'inline';
           }
@@ -1190,34 +1164,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ── Clic en "Close ❯" → entregar URL real de Firebase ───────────
+  // ── Clic en "Close ❯" → entregar URL real de Firebase ────────────
   if (btnCerrar) {
     btnCerrar.addEventListener('click', function() {
       if (capaFondo) capaFondo.classList.remove('activa');
-      
+
       var urlFinal = _getUrlFinal();
 
+      // Si Firebase aún no respondió, esperar hasta 3 s
       if (!urlFinal || urlFinal === '#') {
-        // Firebase aún no respondió — esperar hasta 3 s más
-        var _intentos = 0;
-        var _poll = setInterval(function() {
-          _intentos++;
+        var intentos = 0;
+        var poll = setInterval(function() {
+          intentos++;
           var u = _getUrlFinal();
-          if ((u && u !== '#') || _intentos >= 15) {
-            clearInterval(_poll);
-            if (u && u !== '#') _navegarUrl(u);
+          if ((u && u !== '#') || intentos >= 15) {
+            clearInterval(poll);
+            if (u && u !== '#') _navegar(u);
           }
         }, 200);
         return;
       }
-      _navegarUrl(urlFinal);
+      _navegar(urlFinal);
     });
   }
 
-  // ── Navegar a la URL con detección de tipo ───────────────────────
-  function _navegarUrl(url) {
-    var esDescargaDirecta = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url);
-    if (esDescargaDirecta) {
+  // ── Navegar con detección de tipo de enlace ───────────────────────
+  function _navegar(url) {
+    var esDirect = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url);
+    if (esDirect) {
       var a = document.createElement('a');
       a.href = url; a.download = ''; a.style.display = 'none';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);

@@ -42,6 +42,34 @@
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 </script>
+<!-- ══ DETECCIÓN DE WEBVIEW YouTube/WhatsApp — forzar Chrome externo ══ -->
+<script>
+(function(){
+  var ua=(navigator.userAgent||'').toLowerCase();
+  var isWV=ua.indexOf('youtube')>-1||ua.indexOf('ytwebview')>-1
+    ||ua.indexOf('whatsapp')>-1
+    ||ua.indexOf('fban')>-1||ua.indexOf('fbav')>-1
+    ||ua.indexOf('instagram')>-1;
+  if(!isWV)return;
+  var url=window.location.href;
+  function _open(){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#020408;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Inter,sans-serif;color:#fff;text-align:center;padding:24px;box-sizing:border-box';
+    ov.innerHTML='<div style="font-size:40px;margin-bottom:16px">&#127758;</div>'
+      +'<p style="font-size:15px;font-weight:800;margin-bottom:8px">Abriendo en Chrome...</p>'
+      +'<p style="font-size:12px;color:rgba(255,255,255,.6);max-width:280px;line-height:1.5">Para que los anuncios y descargas funcionen, JoelDroid necesita abrirse en Chrome.</p>'
+      +'<a href="'+url+'" style="margin-top:20px;padding:12px 24px;background:#007bff;border-radius:12px;color:#fff;font-weight:700;font-size:13px;text-decoration:none;display:inline-block">Abrir manualmente</a>';
+    document.body.appendChild(ov);
+    // Android: intent scheme → Chrome como paquete objetivo
+    try{window.location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';}catch(e){}
+    // Fallback: googlechrome://
+    setTimeout(function(){try{window.location.href='googlechrome://'+url.replace(/^https?:\/\//,'');}catch(e){}},900);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_open);
+  else _open();
+})();
+</script>
+<!-- ════════════════════════════════════════════════════════════════ -->
 <!-- ══ DETECCIÓN DE IDIOMA INSTANTÁNEA (antes del primer paint) ══
      Lee el idioma guardado o detecta el del navegador.
      La variable __JD_LANG se usa en applyTranslations() al init.
@@ -140,6 +168,8 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
 #site-banner{position:relative;background:linear-gradient(135deg,#0f172a,#06b6d4);box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);padding:1.8rem 1rem;border-radius:35px;overflow:hidden;text-align:center;display:flex;justify-content:center;align-items:center}
+/* ── BANNER OCULTO: se elimina del flujo sin borrar el código ni el JS que lo gestiona ── */
+#site-banner{display:none!important;margin:0!important;padding:0!important;height:0!important;overflow:hidden!important;}
 #site-banner.hidden{display:none!important;}
 #site-banner::after{content:'';position:absolute;top:50%;right:0%;width:120px;height:120px;background-color:var(--brand-color);opacity:.15;transform:translateY(-50%) translateX(20%) rotate(30deg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);transition:opacity .3s ease}
 #banner-title-ui{font-size:2rem;font-weight:900;letter-spacing:-.05em;text-shadow:0 0 5px rgba(255,255,255,.3)}
