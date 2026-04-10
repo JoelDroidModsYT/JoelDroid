@@ -2,34 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<!-- ══ PRECARGA DE DOMINIOS — ANUNCIOS Y RECURSOS CRÍTICOS ══════
-     dns-prefetch: resuelve DNS en paralelo desde el segundo 0.
-     preconnect:   establece TCP+TLS antes de que el JS los pida.
-     Orden: anuncios primero → fuentes → Firebase → CDNs UI.
-════════════════════════════════════════════════════════════════ -->
-<!-- Adsterra / profitablecpmratenetwork — Popunder + Direct Link -->
-<link rel="dns-prefetch" href="//www.profitablecpmratenetwork.com">
-<link rel="preconnect"   href="https://www.profitablecpmratenetwork.com" crossorigin>
-<!-- Adsterra CDN de scripts -->
-<link rel="dns-prefetch" href="//a.adtng.com">
-<link rel="preconnect"   href="https://a.adtng.com" crossorigin>
-<link rel="dns-prefetch" href="//static.a.adtng.com">
-<!-- Firebase (Firestore + Auth) -->
-<link rel="dns-prefetch" href="//firestore.googleapis.com">
-<link rel="preconnect"   href="https://firestore.googleapis.com" crossorigin>
-<link rel="dns-prefetch" href="//identitytoolkit.googleapis.com">
-<link rel="preconnect"   href="https://identitytoolkit.googleapis.com" crossorigin>
-<link rel="dns-prefetch" href="//joeldroid-mods.firebaseapp.com">
-<!-- Fuentes Google -->
-<link rel="dns-prefetch" href="//fonts.googleapis.com">
-<link rel="preconnect"   href="https://fonts.googleapis.com" crossorigin>
-<link rel="dns-prefetch" href="//fonts.gstatic.com">
-<link rel="preconnect"   href="https://fonts.gstatic.com" crossorigin>
-<!-- CDNs UI (Tailwind, Lucide) -->
-<link rel="dns-prefetch" href="//cdn.tailwindcss.com">
-<link rel="dns-prefetch" href="//unpkg.com">
-<link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-<!-- ════════════════════════════════════════════════════════════ -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -145,11 +117,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
 };
 </script>
-<!-- ══ FUENTE INTER — carga paralela, no bloquea el render ══ -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap"></noscript>
-<!-- ══════════════════════════════════════════════════════════ -->
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
 .light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:all .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
