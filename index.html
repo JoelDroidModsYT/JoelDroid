@@ -167,11 +167,6 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
-#site-banner{position:relative;background:linear-gradient(135deg,#0f172a,#06b6d4);box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);padding:1.8rem 1rem;border-radius:35px;overflow:hidden;text-align:center;display:flex;justify-content:center;align-items:center}
-/* ── BANNER OCULTO: se elimina del flujo sin borrar el código ni el JS que lo gestiona ── */
-#site-banner{display:none!important;margin:0!important;padding:0!important;height:0!important;overflow:hidden!important;}
-#site-banner.hidden{display:none!important;}
-#site-banner::after{content:'';position:absolute;top:50%;right:0%;width:120px;height:120px;background-color:var(--brand-color);opacity:.15;transform:translateY(-50%) translateX(20%) rotate(30deg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);transition:opacity .3s ease}
 #banner-title-ui{font-size:2rem;font-weight:900;letter-spacing:-.05em;text-shadow:0 0 5px rgba(255,255,255,.3)}
 #banner-subtitle-ui{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.7);margin-top:5px}
 .lang-container{position:relative;display:flex;align-items:center}
@@ -267,11 +262,6 @@ body{top:0!important}
 /* Tablet (640px+) — más padding lateral, tarjetas más anchas */
 @media(min-width:640px){
   #home-view{padding-left:2rem;padding-right:2rem}
-  nav .max-w-md{max-width:560px}
-  #home-view,.max-w-md{max-width:560px}
-  .game-card{border-radius:20px}
-  #site-banner{border-radius:28px;padding:2.2rem 1.5rem}
-  #banner-title-ui{font-size:2.4rem}
 }
 
 /* Tablet grande / iPad (768px+) */
@@ -733,14 +723,8 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     <p id="ann-text-ui" class="text-[11px] font-black uppercase tracking-wider leading-relaxed">¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.</p>
   </div>
 
-  <div id="site-banner" class="premium-banner">
-    <div class="relative z-10">
-      <h2 id="banner-title-ui" class="font-black text-2xl uppercase tracking-tighter text-white" data-i18n="banner_title">MODS EXCLUSIVOS</h2>
-      <div class="flex items-center justify-center gap-2 mt-1">
-        <p id="banner-subtitle-ui" class="text-[9px] font-bold text-blue-100 opacity-90 uppercase tracking-widest" data-i18n="banner_subtitle">JOELDROID MODS YT • PREMIUM</p>
-      </div>
-    </div>
-  </div>
+
+
 
   <div class="space-y-3">
     <div class="search-container mx-1">

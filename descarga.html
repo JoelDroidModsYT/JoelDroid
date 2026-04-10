@@ -884,31 +884,32 @@
       }, 800);
     }
 
-    /* ── REGLA 1: Anuncios Adsterra — asíncronos, sin bloquear ── */
+    /* ── REGLA 1: Anuncios Adsterra — carga nativa sin sandbox ── */
     function _loadAds() {
-      var ads = [
-        { slot: 'jd-ad-banner-1', key: '13d51e2826afc9138cb8f865b0b8ea66' },
-        { slot: 'jd-ad-banner-2', key: 'b9ef0affd856355663df505e4fbbca67' }
-      ];
-      ads.forEach(function(ad) {
-        var container = document.getElementById(ad.slot);
-        if (!container) return;
-        var iframe = document.createElement('iframe');
-        iframe.style.cssText = 'width:320px;height:50px;border:none;overflow:hidden;display:block;';
-        iframe.scrolling = 'no'; iframe.marginWidth = '0'; iframe.marginHeight = '0';
-        iframe.srcdoc = '<!DOCTYPE html><html><head>'
-          + '<style>*{margin:0;padding:0;overflow:hidden}</style></head><body>'
-          + '<script>var atOptions={'
-          + '\'key\':\'' + ad.key + '\','
-          + '\'format\':\'iframe\','
-          + '\'height\':50,'
-          + '\'width\':320,'
-          + '\'params\':{}'
-          + '};<\/script>'
-          + '<script src="https://www.highperformanceformat.com/' + ad.key + '/invoke.js"><\/script>'
-          + '</body></html>';
-        container.appendChild(iframe);
-      });
+      // Banner 1 — 320x50
+      var c1 = document.getElementById('jd-ad-banner-1');
+      if (c1) {
+        var o1 = document.createElement('script');
+        o1.type = 'text/javascript';
+        o1.text = "atOptions={'key':'13d51e2826afc9138cb8f865b0b8ea66','format':'iframe','height':50,'width':320,'params':{}};";
+        c1.appendChild(o1);
+        var s1 = document.createElement('script');
+        s1.type = 'text/javascript';
+        s1.src = 'https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js';
+        c1.appendChild(s1);
+      }
+      // Banner 2 — 468x60
+      var c2 = document.getElementById('jd-ad-banner-2');
+      if (c2) {
+        var o2 = document.createElement('script');
+        o2.type = 'text/javascript';
+        o2.text = "atOptions={'key':'b9ef0affd856355663df505e4fbbca67','format':'iframe','height':60,'width':468,'params':{}};";
+        c2.appendChild(o2);
+        var s2 = document.createElement('script');
+        s2.type = 'text/javascript';
+        s2.src = 'https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js';
+        c2.appendChild(s2);
+      }
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -960,21 +961,32 @@
 
 <style>
 /* ══ JERARQUÍA DE CAPAS DEFINITIVA — descarga.html ══════════════════
-   NIVEL 1 — Social Bar de Adsterra (siempre visible, base del stack)
-             z-index nativo del SDK (~9999). Lo respetamos: NO lo pisamos
-             hacia abajo. Solo elevamos los modales por encima.
-   NIVEL 2 — Modal anuncio-botón  (.jd-fondo-ads)    → 200000
-   NIVEL 3 — Modal popunder-atrás (.jd-fondo-popunder)→ 200010
+   NIVEL 1 — Contenido normal del sitio
+   NIVEL 2 — Social Bar de Adsterra (siempre visible)
+             Elevamos su z-index a 99000 para que no lo tape nada del sitio.
+   NIVEL 3 — Modal anuncio-botón  (.jd-fondo-ads)    → 200000
+   NIVEL 4 — Modal popunder-atrás (.jd-fondo-popunder)→ 200010
 
-   Así el Social Bar se ve siempre, y cuando un modal se activa
-   sale al frente tapándolo. Al cerrar el modal, el Social Bar
-   vuelve a ser visible automáticamente.
+   Así el Social Bar se ve SIEMPRE. Cuando un modal se activa sale al
+   frente (z-index mayor). Al cerrar el modal, el Social Bar queda visible.
+   Los Popunders y Direct Links salen al frente de todo incluyendo el Social Bar.
 ════════════════════════════════════════════════════════════════════ */
+
+/* Elevar Social Bar de Adsterra para que sea visible sobre el contenido */
+#adsterra-social-bar,
+[id*="adsterra"],
+[class*="social-bar"],
+[id*="social_bar"],
+iframe[src*="adsterra"],
+iframe[src*="social"] {
+  z-index: 99000 !important;
+}
+
 .jd-fondo-ads       { z-index: 200000 !important; }
 .jd-fondo-popunder  { z-index: 200010 !important; }
 
-/* Banner inferior propio (jd-pm-esqueleto) — encima del contenido
-   pero debajo de los modales */
+/* Banner inferior propio (jd-pm-esqueleto) — visible sobre contenido,
+   debajo del Social Bar y modales */
 .jd-pm-esqueleto    { z-index: 100 !important; }
 </style>
 
