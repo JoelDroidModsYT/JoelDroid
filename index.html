@@ -39,9 +39,7 @@
 })();
 </script>
 <!-- ════════════════════════════════════════════════════════════════ -->
-<script>
-if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
-</script>
+
 <!-- ══ DETECCIÓN DE WEBVIEW YouTube/WhatsApp — forzar Chrome externo ══ -->
 <script>
 (function(){
@@ -141,10 +139,8 @@ var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 //   }
 // }
 var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
-  // Gist de respaldo para sincronización
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
-};
-</script>
+};</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
@@ -708,14 +704,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 </div>
 
-<script>
-    setInterval(function() {
-        const adFrame = document.querySelector('iframe[src*="highperformanceformat"]');
-        if(adFrame) {
-            adFrame.src = adFrame.src;
-        }
-    }, 20000);
-</script>
+
   <div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
       <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
@@ -2151,7 +2140,7 @@ function renderRecommendedGames(currentId){
       '</div>'+
     '</div>';
   }).join('');
-  observeLazyImages();
+  initLazyLoading();
   refreshIcons();
   if(currentLang!=='es'){
     shuffled.forEach(function(g){
@@ -2390,7 +2379,6 @@ function _initLazyImages(){
   imgs.forEach(function(img){ _lazyIO.observe(img); });
 }
 function initLazyLoading(){ _initLazyImages(); }
-function observeLazyImages(){ _initLazyImages(); }
 
 function updateBannerBasedOnFilter(){
   var bannerTitle=document.getElementById('banner-title-ui');
@@ -3665,8 +3653,7 @@ function initDetRatingsComments(gameId){
   _updateDetCommentUI();
 }
 
-function openEmailPanel(){}
-function closeEmailPanel(){}
+
 
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE ESCENAS ESTACIONALES — Tiempo real, panel de control
@@ -4290,38 +4277,6 @@ function _initShareBtn(){
 }
 
 // ════════════════════════════════════════════════════════════════
-// 🔥 MOTOR FIREBASE — Firestore + Auth en tiempo real
-// ════════════════════════════════════════════════════════════════
-//
-// REGLAS DE FIRESTORE (pega esto en Firebase Console → Firestore → Reglas):
-// ─────────────────────────────────────────────────────────────────
-// rules_version = '2';
-// service cloud.firestore {
-//   match /databases/{database}/documents {
-//     // Cualquier usuario puede LEER los mods
-//     match /mods/{modId} {
-//       allow read: if true;
-//       allow write: if request.auth != null && request.auth.uid == "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
-//     }
-//     // Configuración del sitio — solo admin
-//     match /siteConfig/{docId} {
-//       allow read: if true;
-//       allow write: if request.auth != null && request.auth.uid == "TU_ADMIN_UID_AQUI";
-//     }
-//     // Ratings y comentarios — cualquier usuario autenticado
-//     match /ratings/{docId} {
-//       allow read: if true;
-//       allow write: if request.auth != null;
-//     }
-//     match /comments/{docId} {
-//       allow read: if true;
-//       allow write: if request.auth != null;
-//     }
-//   }
-// }
-// ─────────────────────────────────────────────────────────────────
-
-// ════════════════════════════════════════════════════════════════
 // 🔥 MOTOR FIREBASE — Sincronización global en tiempo real
 // Todos los visitantes ven los cambios del panel al instante.
 // El admin hace un cambio → Firestore → onSnapshot → todos los usuarios.
@@ -4330,7 +4285,6 @@ function _initShareBtn(){
 var _db = null, _fbAuth = null, _fbUser = null;
 var _fbReady = false, _fbInitDone = false;
 var _fbModsUnsub = null, _fbCfgUnsub = null;
-var _syncPollTimer = null, _lastSyncHash = '';
 
 // ── Inicializar Firebase ──────────────────────────────────────
 function _initFirebase(){
@@ -4641,8 +4595,6 @@ function _updateAdminBtns(user){
 // Funciones de compatibilidad (usadas en el código existente)
 function _jbConfigured(){ return _fbReady; }
 function _showSyncStatus(m,c){ _updateSyncUI(c==='#10b981'?true:c==='#ef4444'?false:null, m); }
-function _startPolling(){ /* Firebase usa onSnapshot — no necesita polling */ }
-function _applyRemoteData(){ /* Firebase maneja esto con onSnapshot */ }
 function _syncSave(msg){
   localStorage.setItem('siteState', JSON.stringify(siteState));
   if(_isAdmin()) _fbSaveSiteConfig();
@@ -4655,15 +4607,7 @@ function _syncSave(msg){
 // Elimina el error "Cannot set properties of null"
 // porque el DOM ya existe cuando se ejecuta el código
 // ══════════════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════════
-// SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
-// Los botones NO llevan URLs directas.
-// irADescarga() cachea los datos del juego en sessionStorage y
-// navega a descarga.html instantáneamente (efecto SPA).
-// ════════════════════════════════════════════════════════════════
-
 // Prefetch silencioso de descarga.html en cuanto carga el index
-// (el navegador lo tendrá en caché cuando el usuario haga clic)
 (function _prefetchDescarga() {
   try {
     var link = document.createElement('link');
@@ -4749,11 +4693,6 @@ function jdCerrarModalAd() {
   if (dest) window.location.href = dest;
 }
 
-
-// Alias de compatibilidad por si algún código antiguo llama a ejecutarDescarga
-function ejecutarDescarga(url) {
-  irADescarga(currentDetailId, 1);
-}
 
 
 var _appInited = false;
@@ -4860,11 +4799,9 @@ window.addEventListener('DOMContentLoaded', function() {
     })();
   }catch(_e){}
 
-  // ── 🔥 Firebase: arranca DESPUÉS del DOM
-  //    _fbListenMods y _fbListenConfig activarán onSnapshot
-  //    → cualquier cambio del admin aparece en tiempo real para TODOS
+  // 🔥 Firebase: arranca DESPUÉS del DOM
   setTimeout(_initFirebase, 0);
-  // Registrar visita cuando Firebase esté listo (con pequeño retardo)
+  // Registrar visita cuando Firebase esté listo
   setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
   // Preconectar Firebase para conexiones lentas
   try{
@@ -4891,28 +4828,14 @@ window.addEventListener('DOMContentLoaded', function() {
     // Service Worker omitido (compatibilidad TrebEdit)}
   }catch(e){}
 
-  // 🔥 FIREBASE — conectar para TODOS los visitantes del mundo
-  // Los listeners onSnapshot actualizarán los juegos en tiempo real
-  // (Segunda llamada a _initFirebase eliminada — era duplicado)
 });
 
 
 // Fallback por si DOMContentLoaded ya disparó antes de que se registrara
-// window.onload handles late init
-
 window.onload=function(){
-  if(typeof _appInited!=="undefined"&&_appInited)return;
-  _appInited=true;
-  initLazyLoading();loadSettings();
-  if(!loadThemePreference())autoThemeDetection();
-  var sl=(window.__JD_LANG)||localStorage.getItem("selectedLang")||detectBrowserLanguage();
-  currentLang=sl;renderGames();applyUIChanges();applyTranslations(sl);
-  // checkDeepLink() omitido aqui: ya se ejecuto en DOMContentLoaded — evita reinicio al volver de descarga.html
-  var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
-  var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
-  setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
-  _updateFAB();_restoreScene();setTimeout(_fillGHInputs,500);_initShareBtn();
-  setTimeout(_initFirebase,0);
+  if(_appInited)return;
+  // DOMContentLoaded no disparó — inicializar ahora
+  document.dispatchEvent(new Event('DOMContentLoaded'));
 };
 
 </script>

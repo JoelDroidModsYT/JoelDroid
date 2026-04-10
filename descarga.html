@@ -577,7 +577,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var dlNormal  = 'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
-  var dlAdulto  = 'TU_OTRO_DIRECLINK_DE_ADULTO';
   var capa      = document.getElementById('capaAnuncio');
   var frame     = document.getElementById('iframeAdsterra');
   var btnClose  = document.getElementById('btnCloseAds');
@@ -585,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnFinal  = document.getElementById('dl-btn-final');
   var hint      = document.getElementById('jd-ads-hint');
 
-  frame.src = (Math.floor(Math.random() * 20) + 1 === 10) ? dlAdulto : dlNormal;
+  frame.src = dlNormal;
 
   document.addEventListener('jd:btnFinalClick', function() {
     if (capa.classList.contains('activa')) return;
