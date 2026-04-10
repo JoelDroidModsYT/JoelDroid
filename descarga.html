@@ -10,10 +10,6 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Preconexión Firebase para carga más rápida -->
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
-  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 
   <style>
     /* ═══════════════════════════════════════════════════════════════
@@ -667,71 +663,19 @@
   /* ── Historial: pushState antes del paint para capturar Atrás ── */
   try {
     history.pushState({ jdDl: true }, '', window.location.href);
-
-    // UN SOLO listener popstate centralizado — sin bucles, sin conflictos.
-    // Lógica:
-    //   • Timer en curso (left > 0) → mostrar popunder y navegar al detalle
-    //     en cuanto el usuario cierre el anuncio.
-    //   • Timer terminado (left <= 0) → mostrar popunder (el SDK lo maneja)
-    //     y navegar al detalle igualmente al cerrar.
-    // En AMBOS casos se hace history.pushState para que el botón Atrás no
-    // salga del sitio y no entre en bucle infinito.
-    var _popHandled = false;
     window.addEventListener('popstate', function () {
-      if (_popHandled) return;
-      _popHandled = true;
-
-      var backUrl = _getBackUrl();
-      var capa = document.getElementById('capaPopunder');
-
-      if (capa) {
-        // Mostrar popunder
-        capa.classList.add('activa');
-        // Re-agregar entrada al historial para atrapar el siguiente Atrás
-        history.pushState(null, null, window.location.href);
-        // Al cerrar el popunder → ir al detalle del juego
-        var btnClose = document.getElementById('btnClosePopunder');
-        if (btnClose && !btnClose._jdPatched) {
-          btnClose._jdPatched = true;
-          btnClose.addEventListener('click', function () {
-            capa.classList.remove('activa');
-            window.location.href = backUrl;
-          }, { once: true });
-        }
-      } else {
-        // Sin popunder disponible → ir directo al detalle
-        window.location.href = backUrl;
+      /* Si el timer sigue corriendo → el usuario quiere ir atrás al
+         detalle del juego. Si ya terminó → el popunder toma el control. */
+      if (left > 0) {
+        window.location.replace(_getBackUrl());
       }
-
-      // Permitir que el siguiente Atrás vuelva a disparar (en caso de que
-      // el usuario cierre el popunder y presione Atrás de nuevo)
-      setTimeout(function () { _popHandled = false; }, 800);
     });
   } catch(e) {}
 
   /* ── Botón ← del nav (flecha en la barra superior) ─────── */
   window.jdGoBack = function(ev) {
     if (ev) ev.preventDefault();
-    var backUrl = _getBackUrl();
-    var capa = document.getElementById('capaPopunder');
-
-    if (capa) {
-      // Mostrar el popunder primero
-      capa.classList.add('activa');
-      // Parchear el botón Close para navegar al detalle al cerrarse
-      var btnClose = document.getElementById('btnClosePopunder');
-      if (btnClose && !btnClose._jdPatched) {
-        btnClose._jdPatched = true;
-        btnClose.addEventListener('click', function() {
-          capa.classList.remove('activa');
-          // Navegar usando replaceState+location para NO añadir entrada extra
-          // al historial — el usuario ve el detalle al instante sin refresco
-          window.location.href = backUrl;
-        }, { once: true });
-      }
-    } else {
-      window.location.href = backUrl;
-    }
+    window.location.href = _getBackUrl();
   };
 
   /* ══════════════════════════════════════════════════════════
@@ -839,8 +783,6 @@
         ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '#')
         : (d.downloadButtonLink1 || d.link1 || '#');
       realUrl = url || '#';
-      /* Puente global → el modal de anuncio lo lee en el clic del usuario */
-      window.__jdRealUrl = realUrl;
 
       /* ── REGLA 4: Título héroe ── */
       if (nameEl) nameEl.innerHTML = _buildHeroTitle(name, ver);
@@ -924,7 +866,6 @@
               var freshSize = d.size  || d.peso    || '';
               if (freshUrl && freshUrl !== '#') {
                 realUrl = freshUrl;
-                window.__jdRealUrl = freshUrl;
                 btnFinal.href = freshUrl;
               }
               /* Actualizar título héroe y texto botón con datos frescos */
@@ -940,32 +881,31 @@
       }, 800);
     }
 
-    /* ── REGLA 1: Anuncios Adsterra — carga nativa sin sandbox ── */
+    /* ── REGLA 1: Anuncios Adsterra — asíncronos, sin bloquear ── */
     function _loadAds() {
-      // Banner 1 — 320x50
-      var c1 = document.getElementById('jd-ad-banner-1');
-      if (c1) {
-        var o1 = document.createElement('script');
-        o1.type = 'text/javascript';
-        o1.text = "atOptions={'key':'13d51e2826afc9138cb8f865b0b8ea66','format':'iframe','height':50,'width':320,'params':{}};";
-        c1.appendChild(o1);
-        var s1 = document.createElement('script');
-        s1.type = 'text/javascript';
-        s1.src = 'https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js';
-        c1.appendChild(s1);
-      }
-      // Banner 2 — 468x60
-      var c2 = document.getElementById('jd-ad-banner-2');
-      if (c2) {
-        var o2 = document.createElement('script');
-        o2.type = 'text/javascript';
-        o2.text = "atOptions={'key':'b9ef0affd856355663df505e4fbbca67','format':'iframe','height':60,'width':468,'params':{}};";
-        c2.appendChild(o2);
-        var s2 = document.createElement('script');
-        s2.type = 'text/javascript';
-        s2.src = 'https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js';
-        c2.appendChild(s2);
-      }
+      var ads = [
+        { slot: 'jd-ad-banner-1', key: '13d51e2826afc9138cb8f865b0b8ea66' },
+        { slot: 'jd-ad-banner-2', key: 'b9ef0affd856355663df505e4fbbca67' }
+      ];
+      ads.forEach(function(ad) {
+        var container = document.getElementById(ad.slot);
+        if (!container) return;
+        var iframe = document.createElement('iframe');
+        iframe.style.cssText = 'width:320px;height:50px;border:none;overflow:hidden;display:block;';
+        iframe.scrolling = 'no'; iframe.marginWidth = '0'; iframe.marginHeight = '0';
+        iframe.srcdoc = '<!DOCTYPE html><html><head>'
+          + '<style>*{margin:0;padding:0;overflow:hidden}</style></head><body>'
+          + '<script>var atOptions={'
+          + '\'key\':\'' + ad.key + '\','
+          + '\'format\':\'iframe\','
+          + '\'height\':50,'
+          + '\'width\':320,'
+          + '\'params\':{}'
+          + '};<\/script>'
+          + '<script src="https://www.highperformanceformat.com/' + ad.key + '/invoke.js"><\/script>'
+          + '</body></html>';
+        container.appendChild(iframe);
+      });
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -979,7 +919,7 @@
         /* Refresco silencioso desde Firebase para tener datos siempre frescos */
         _refreshUrlFromFirebase();
       } else {
-        /* Sin caché → esperar al SDK de Firebase — polling cada 40ms */
+        /* Sin caché → esperar al SDK de Firebase */
         if (typeof firebase !== 'undefined') {
           _fetchFirebase();
         } else {
@@ -988,12 +928,12 @@
               clearInterval(_waitFb);
               _fetchFirebase();
             }
-          }, 40);
-          /* Seguridad: si Firebase tarda más de 2 s, arrancar el timer de todos modos */
+          }, 80);
+          /* Seguridad: si Firebase tarda más de 2.5 s, arrancar el timer de todos modos */
           setTimeout(function() {
             clearInterval(_waitFb);
             if (!timerRunning) _startTimer();
-          }, 2000);
+          }, 2500);
         }
       }
     } else {
@@ -1001,9 +941,12 @@
       _startTimer();
     }
 
-    /* Anuncios — carga inmediata tras primer paint (no bloquean el timer)
-       Se llaman a los 300ms para asegurar que el DOM está pintado */
-    setTimeout(_loadAds, 300);
+    /* Anuncios diferidos — REGLA 1: no bloquean el timer */
+    if (window.requestIdleCallback) {
+      requestIdleCallback(_loadAds, { timeout: 2000 });
+    } else {
+      setTimeout(_loadAds, 600);
+    }
 
   }); /* fin DOMContentLoaded */
 
@@ -1011,43 +954,6 @@
 </script>
 
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
-
-<style>
-/* ══ JERARQUÍA DE CAPAS — descarga.html ══════════════════════════
-   REGLA: Los modales de anuncio deben salir POR ENCIMA del Social Bar
-   para que el usuario vea el anuncio completo y pueda cerrarlo (X).
-
-   NIVEL 1 — Contenido normal              → default
-   NIVEL 2 — Banner inferior .jd-pm        → 100
-   NIVEL 3 — Social Bar Adsterra (forzado) → 2000   ← REDUCIDO para no tapar X de popups
-   NIVEL 4 — Modal anuncio botón descarga  → 9100
-   NIVEL 5 — Modal popunder / botón Atrás  → 9200
-════════════════════════════════════════════════════════════════ */
-
-/* Forzar Social Bar a z-index controlado — queda DETRÁS de los modales y popups de ads */
-#adsterra-social-bar,
-[id*="adsterra"],
-[id*="social_bar"],
-[id*="socialBar"],
-[class*="social-bar"],
-[class*="socialBar"],
-[class*="social_bar"],
-#adsbar,
-div[style*="position: fixed"][style*="bottom: 0"],
-div[style*="position:fixed"][style*="bottom:0"] {
-  z-index: 2000 !important;
-  position: fixed !important;
-}
-
-/* Modal anuncio (clic botón descarga) — por encima del Social Bar */
-.jd-fondo-ads      { z-index: 9100 !important; }
-
-/* Modal popunder (botón Atrás) — por encima de todo */
-.jd-fondo-popunder { z-index: 9200 !important; }
-
-/* Banner inferior propio — debajo del Social Bar */
-.jd-pm-esqueleto   { z-index: 100  !important; }
-</style>
 
 <style>
 /* El fondo oscuro para centrar la vista en el anuncio */
@@ -1164,112 +1070,82 @@ div[style*="position:fixed"][style*="bottom:0"] {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  
+  // =========================================================
+  // 🎛️ CONFIGURACIÓN DESDE TU PANEL DE CONTROL
+  // =========================================================
+  
+  // Pon aquí la URL que guardes en el panel (Ya sea descarga directa o link externo)
+  const urlDestinoFinal = "https://www.mediafire.com/file/ejemplo/mod.zip"; 
+  
+  // Tu link de Adsterra de Adulto
+  const directlinkAdulto = "TU_OTRO_DIRECLINK_DE_ADULTO"; 
+  
+  // =========================================================
 
-  // ═══════════════════════════════════════════════════════════════
-  // MODAL DE ANUNCIO — CONECTADO A FIREBASE
-  // Lee la URL real del juego desde window.__jdRealUrl (escrita por
-  // el IIFE de Firebase), del href del botón, o del sessionStorage.
-  // Nunca entrega un link hardcodeado ni roto.
-  // ═══════════════════════════════════════════════════════════════
+  const botonDescargaReal = document.getElementById('dl-btn-final') || document.querySelector('.dl-btn-final');
+  const capaFondo = document.getElementById('capaAnuncio');
+  const frameAnuncio = document.getElementById('iframeAdsterra');
+  const btnCerrar = document.getElementById('btnCloseAds');
+  const relojAnuncio = document.getElementById('timerAds');
 
-  var botonDescargaReal = document.getElementById('dl-btn-final') || document.querySelector('.dl-btn-final');
-  var capaFondo    = document.getElementById('capaAnuncio');
-  var frameAnuncio = document.getElementById('iframeAdsterra');
-  var btnCerrar    = document.getElementById('btnCloseAds');
-  var relojAnuncio = document.getElementById('timerAds');
-  var _modalCargado = false;
+  const directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
 
-  var directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
+  // Ruleta de 1 entre 20
+  const numeroAzar = Math.floor(Math.random() * 20) + 1;
+  const linkElegido = (numeroAzar === 10) ? directlinkAdulto : directlinkNormal;
 
-  // ── Leer URL real de Firebase (3 fuentes por orden de prioridad) ──
-  function _getUrlFinal() {
-    // 1. Variable global escrita por el IIFE Firebase
-    if (window.__jdRealUrl && window.__jdRealUrl !== '#') return window.__jdRealUrl;
-    // 2. href del botón final (asignado por el IIFE al terminar el timer)
-    var btn = document.getElementById('dl-btn-final');
-    if (btn && btn.href && btn.href !== '#' && !btn.href.endsWith('#')) return btn.href;
-    // 3. sessionStorage (caché 5 min del payload de Firebase)
-    try {
-      var raw = sessionStorage.getItem('jd_dl_payload');
-      if (raw) {
-        var p = JSON.parse(raw);
-        var modo = new URLSearchParams(window.location.search).get('modo') === '2' ? 2 : 1;
-        var u = modo === 2
-          ? (p.downloadButtonLink2 || p.link2 || p.downloadButtonLink1 || p.link1)
-          : (p.downloadButtonLink1 || p.link1);
-        if (u && u !== '#') return u;
-      }
-    } catch(e) {}
-    return '#';
-  }
+  frameAnuncio.src = linkElegido;
 
-  // ── Clic en botón de descarga → abrir modal de anuncio ───────────
+  // Evento al dar clic al botón de la web
   if (botonDescargaReal) {
     botonDescargaReal.addEventListener('click', function(e) {
-      if (capaFondo && !capaFondo.classList.contains('activa')) {
-        e.preventDefault();
-
-        // Cargar iframe solo en el clic (post-click, cumple política Chrome)
-        if (!_modalCargado && frameAnuncio) {
-          frameAnuncio.src = directlinkNormal;
-          _modalCargado = true;
-        }
-
+      if (!capaFondo.classList.contains('activa')) {
+        e.preventDefault(); 
+        
         capaFondo.classList.add('activa');
-        if (btnCerrar)    btnCerrar.style.display    = 'none';
-        if (relojAnuncio) relojAnuncio.style.display = 'inline';
-
-        var seg = 5;
-        if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + seg + 's';
-        var iv = setInterval(function() {
-          seg--;
-          if (seg > 0) {
-            if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + seg + 's';
+        btnCerrar.style.display = 'none';
+        relojAnuncio.style.display = 'inline';
+        
+        let segundos = 5;
+        relojAnuncio.innerText = "Wait " + segundos + "s";
+        
+        const cuentaRegresiva = setInterval(() => {
+          segundos--;
+          
+          if (segundos > 0) {
+            relojAnuncio.innerText = "Wait " + segundos + "s";
           } else {
-            clearInterval(iv);
-            if (relojAnuncio) relojAnuncio.style.display = 'none';
-            if (btnCerrar)    btnCerrar.style.display    = 'inline';
+            clearInterval(cuentaRegresiva);
+            relojAnuncio.style.display = 'none'; 
+            btnCerrar.style.display = 'inline'; 
           }
         }, 1000);
       }
     });
   }
 
-  // ── Clic en "Close ❯" → entregar URL real de Firebase ────────────
-  if (btnCerrar) {
-    btnCerrar.addEventListener('click', function() {
-      if (capaFondo) capaFondo.classList.remove('activa');
-
-      var urlFinal = _getUrlFinal();
-
-      // Si Firebase aún no respondió, esperar hasta 3 s
-      if (!urlFinal || urlFinal === '#') {
-        var intentos = 0;
-        var poll = setInterval(function() {
-          intentos++;
-          var u = _getUrlFinal();
-          if ((u && u !== '#') || intentos >= 15) {
-            clearInterval(poll);
-            if (u && u !== '#') _navegar(u);
-          }
-        }, 200);
-        return;
-      }
-      _navegar(urlFinal);
-    });
-  }
-
-  // ── Navegar con detección de tipo de enlace ───────────────────────
-  function _navegar(url) {
-    var esDirect = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url);
-    if (esDirect) {
-      var a = document.createElement('a');
-      a.href = url; a.download = ''; a.style.display = 'none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  // AL DAR CLIC EN CLOSE: Lógica inteligente de comportamiento
+  btnCerrar.addEventListener('click', function() {
+    capaFondo.classList.remove('activa');
+    
+    // 1. Detectamos si la URL termina en un archivo de descarga directa (.zip, .apk, .rar, .mp3, etc.)
+    const esDescargaDirecta = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(urlDestinoFinal);
+    
+    if (esDescargaDirecta) {
+      // SI ES DESCARGA DIRECTA: Creamos un enlace invisible para descargar sin salir de tu web
+      const descargaInvisible = document.createElement('a');
+      descargaInvisible.href = urlDestinoFinal;
+      descargaInvisible.download = ''; 
+      descargaInvisible.style.display = 'none';
+      document.body.appendChild(descargaInvisible);
+      descargaInvisible.click();
+      document.body.removeChild(descargaInvisible);
     } else {
-      window.open(url, '_blank');
+      // SI ES URL EXTERNA (Mediafire, Mega, otra ventana): Se abre en pestaña nueva
+      window.open(urlDestinoFinal, '_blank');
     }
-  }
+  });
 });
 </script>
 
@@ -1386,9 +1262,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
-  // El listener popstate está centralizado en el IIFE principal (arriba).
-  // Ese listener ya muestra el popunder y redirige al detalle correctamente.
-  // NO se duplica aquí para evitar el bucle de refresco.
+  // Se usa addEventListener para NO destruir el listener de navegación
+  // del IIFE principal (que regresa al index con el juego abierto).
+  // El popunder solo se activa cuando el timer ya terminó (left <= 0).
+  window.addEventListener('popstate', function(event) {
+    // Si el timer sigue corriendo, dejar que el IIFE maneje el Atrás
+    if (typeof left !== 'undefined' && left > 0) return;
+    capaPopunder.classList.add('activa');
+    history.pushState(null, null, window.location.href);
+  });
 
 
   // --- 🖱️ DISPARADOR 2: CLIC EN LOGO O NOMBRE ---
@@ -1403,16 +1285,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 🔴 ACCIÓN AL TOCAR "CLOSE" ---
-  // La navegación al detalle del juego está manejada por el listener
-  // central en el IIFE principal. Este handler solo cierra visualmente
-  // si el listener central no lo parchó primero (jdGoBack desde nav).
-  if (btnCerrarPopunder && !btnCerrarPopunder._jdPatched) {
+  if (btnCerrarPopunder) {
     btnCerrarPopunder.addEventListener('click', function() {
+      // Ocultamos el anuncio
       capaPopunder.classList.remove('activa');
-      // Solo navegar si el listener central no lo hizo ya
-      if (!btnCerrarPopunder._jdPatched) {
-        window.location.href = urlDetallesJuego;
-      }
+      
+      // RECIÉN AQUÍ lo mandamos a la información detallada del juego
+      window.location.href = urlDetallesJuego;
     });
   }
 });

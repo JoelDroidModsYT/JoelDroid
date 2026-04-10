@@ -98,12 +98,6 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
 
-<!-- ══ PRECONEXIÓN FIREBASE — carga prioritaria antes del primer paint ══ -->
-<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
-<link rel="dns-prefetch" href="https://firestore.googleapis.com">
-<link rel="dns-prefetch" href="https://www.gstatic.com">
-
 
 <script>
 // ══════════════════════════════════════════════════════════════════
@@ -1082,11 +1076,11 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <!-- ══ FIREBASE SDK — carga async para no bloquear el render ══ -->
 
 
-<!-- Firebase SDK — async para no bloquear el primer paint; _initFirebase espera con polling -->
-<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<!-- Firebase SDK — síncrono, debe cargar antes del JS principal -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 
 <script>
@@ -2524,13 +2518,6 @@ function showDetail(id){
   if(dv)dv.classList.remove('hidden');
   document.body.style.overflow='hidden';
 
-  // ── Capturar botón Atrás del sistema (Android) ──────────────────
-  // Añade una entrada al historial para que popstate dispare cuando
-  // el usuario presiona Atrás, mostrando el modal de anuncio antes de cerrar.
-  try{
-    window.history.pushState({ jdDetail: true, gameId: id }, '', window.location.href);
-  }catch(e){}
-
   renderRecommendedGames(id);
   applyTranslations(currentLang);
   refreshIcons();
@@ -2543,8 +2530,6 @@ function closeDetail(){
   document.body.style.overflow='';
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods YT | Premium Platform'; }catch(e){}
-  // Usar replaceState para limpiar la URL SIN añadir entrada al historial,
-  // evitando que F5 recargue la página con parámetros del juego anterior.
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
 }
 
@@ -4347,8 +4332,8 @@ var _syncPollTimer = null, _lastSyncHash = '';
 // ── Inicializar Firebase ──────────────────────────────────────
 function _initFirebase(){
   if(_fbInitDone) return;
-  // Esperar al SDK de Firebase si aún no cargó — polling cada 50ms (antes 300ms)
-  if(typeof firebase==='undefined'){setTimeout(_initFirebase,50);return;}
+  // Esperar al SDK de Firebase si aún no cargó
+  if(typeof firebase==='undefined'){setTimeout(_initFirebase,300);return;}
   _fbInitDone = true;
 
   var key = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey;
@@ -4758,26 +4743,7 @@ function jdCerrarModalAd() {
   if (!modal) return;
   var dest = modal.dataset.destUrl || '';
   modal.style.display = 'none';
-  // Resetear estado del botón para próximo uso
-  var btnCont = document.getElementById('jd-modal-ad-btn');
-  var reloj   = document.getElementById('jd-modal-ad-timer');
-  if(btnCont){ btnCont.disabled = true; btnCont.style.opacity = '0.4'; btnCont.textContent = 'Espera...'; }
-  if(reloj){ reloj.textContent = 'Espera 5s'; reloj.style.display = ''; }
-
-  if (dest) {
-    // Flujo normal: navegar a descarga.html
-    window.location.href = dest;
-  } else {
-    // Flujo botón Atrás: mostrar info del juego al instante (sin refresco)
-    // El detail-view ya está en el DOM, solo hay que asegurarse de que esté visible.
-    var dv = document.getElementById('detail-view');
-    if(dv && !dv.classList.contains('hidden')){
-      // El detalle ya está visible — no hacer nada, el usuario lo ve al instante
-    } else if(currentDetailId) {
-      // Por seguridad: re-abrir el detalle
-      showDetail(currentDetailId);
-    }
-  }
+  if (dest) window.location.href = dest;
 }
 
 
@@ -4891,56 +4857,14 @@ window.addEventListener('DOMContentLoaded', function() {
     })();
   }catch(_e){}
 
-  // ── 🔥 Firebase: arranca INMEDIATAMENTE — carga asíncrona prioritaria
-  //    Sin setTimeout(0): se llama directo para máxima velocidad en 50kb/s
-  //    _fbListenMods y _fbListenConfig activarán onSnapshot en cuanto
-  //    el SDK compat esté disponible (el script es síncrono/defer).
-  _initFirebase();
+  // ── 🔥 Firebase: arranca DESPUÉS del DOM
+  //    _fbListenMods y _fbListenConfig activarán onSnapshot
+  //    → cualquier cambio del admin aparece en tiempo real para TODOS
+  setTimeout(_initFirebase, 0);
   // Registrar visita cuando Firebase esté listo (con pequeño retardo)
   setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
 
-  // ── Botón Atrás del sistema: Dispara anuncio → al cerrar muestra el juego ──
-  // Flujo: Atrás → modal anuncio → usuario cierra → closeDetail() limpio
-  // history.replaceState en closeDetail() evita refresco con F5.
-  window.addEventListener('popstate', function(ev) {
-    var state = ev.state || {};
-    // Solo interceptar si hay un detail abierto
-    if(!state.jdDetail) return;
-    var detailView = document.getElementById('detail-view');
-    if(!detailView || detailView.classList.contains('hidden')) return;
-
-    // Volver a empujar el estado para que el Atrás no salga del sitio
-    try{ window.history.pushState({ jdDetail: true }, '', window.location.href); }catch(e){}
-
-    // Mostrar modal de anuncio
-    var modal = document.getElementById('jd-modal-ad-descarga');
-    if(modal) {
-      modal.style.display = 'flex';
-      // Al cerrar el modal → cerrar el detalle (sin navegar a otra página)
-      modal.dataset.destUrl = ''; // vacío = no navegar, solo cerrar
-      var btnCont = document.getElementById('jd-modal-ad-btn');
-      var reloj   = document.getElementById('jd-modal-ad-timer');
-      var s = 5;
-      if(reloj) reloj.textContent = 'Espera ' + s + 's';
-      if(reloj) reloj.style.display = '';
-      if(btnCont){ btnCont.disabled = true; btnCont.style.opacity = '0.4'; btnCont.textContent = 'Espera...'; }
-      var iv = setInterval(function(){
-        s--;
-        if(s > 0){
-          if(reloj) reloj.textContent = 'Espera ' + s + 's';
-        } else {
-          clearInterval(iv);
-          if(reloj) reloj.style.display = 'none';
-          if(btnCont){ btnCont.disabled = false; btnCont.style.opacity = '1'; btnCont.textContent = 'Ver info ›'; }
-        }
-      }, 1000);
-    } else {
-      // Sin modal disponible: cerrar directamente
-      closeDetail();
-    }
-  });
-
-
+  // ── Performance: prefetch y Service Worker (DOM ya listo)
   try{
     // Preconectar dominios
     ['https://cdn.tailwindcss.com','https://fonts.googleapis.com',
@@ -4952,6 +4876,9 @@ window.addEventListener('DOMContentLoaded', function() {
     // Service Worker omitido (compatibilidad TrebEdit)}
   }catch(e){}
 
+  // 🔥 FIREBASE — conectar para TODOS los visitantes del mundo
+  // Los listeners onSnapshot actualizarán los juegos en tiempo real
+  setTimeout(_initFirebase, 0);
 });
 
 
@@ -4969,7 +4896,7 @@ window.onload=function(){
   var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
   setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
   _updateFAB();_restoreScene();setTimeout(_fillGHInputs,500);_initShareBtn();
-  _initFirebase();
+  setTimeout(_initFirebase,0);
 };
 
 </script>
@@ -5184,32 +5111,7 @@ window.onload=function(){
     }
 </style>
 
-<style>
-/* ══ CONTROL Z-INDEX SOCIAL BAR — index.html ══════════════════
-   El Social Bar de Adsterra debe quedar DETRÁS del modal de anuncio
-   para que el usuario pueda ver el botón X y cerrarlo sin obstrucción.
-   Modal de anuncio descarga: z-index 999999 (ya definido abajo).
-════════════════════════════════════════════════════════════════ */
-#adsterra-social-bar,
-[id*="adsterra"],
-[id*="social_bar"],
-[id*="socialBar"],
-[class*="social-bar"],
-[class*="socialBar"],
-[class*="social_bar"],
-#adsbar {
-  z-index: 2000 !important;
-  position: fixed !important;
-}
-/* Cuando el modal de anuncio está activo, asegurar que el Social Bar quede detrás */
-body:has(#jd-modal-ad-descarga[style*="flex"]) #adsterra-social-bar,
-body:has(#jd-modal-ad-descarga[style*="flex"]) [id*="social_bar"],
-body:has(#jd-modal-ad-descarga[style*="flex"]) [class*="social-bar"] {
-  z-index: 1 !important;
-}
-</style>
-
-
+<!-- ══ MODAL ANUNCIO AL HACER CLIC EN DESCARGAR ══════════════════
      Flujo: Clic "Descargar" → este modal → usuario cierra → descarga.html
 ════════════════════════════════════════════════════════════════ -->
 <style>
