@@ -10,6 +10,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Preconexión Firebase para carga más rápida -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 
   <style>
     /* ═══════════════════════════════════════════════════════════════
@@ -663,19 +667,71 @@
   /* ── Historial: pushState antes del paint para capturar Atrás ── */
   try {
     history.pushState({ jdDl: true }, '', window.location.href);
+
+    // UN SOLO listener popstate centralizado — sin bucles, sin conflictos.
+    // Lógica:
+    //   • Timer en curso (left > 0) → mostrar popunder y navegar al detalle
+    //     en cuanto el usuario cierre el anuncio.
+    //   • Timer terminado (left <= 0) → mostrar popunder (el SDK lo maneja)
+    //     y navegar al detalle igualmente al cerrar.
+    // En AMBOS casos se hace history.pushState para que el botón Atrás no
+    // salga del sitio y no entre en bucle infinito.
+    var _popHandled = false;
     window.addEventListener('popstate', function () {
-      /* Si el timer sigue corriendo → el usuario quiere ir atrás al
-         detalle del juego. Si ya terminó → el popunder toma el control. */
-      if (left > 0) {
-        window.location.replace(_getBackUrl());
+      if (_popHandled) return;
+      _popHandled = true;
+
+      var backUrl = _getBackUrl();
+      var capa = document.getElementById('capaPopunder');
+
+      if (capa) {
+        // Mostrar popunder
+        capa.classList.add('activa');
+        // Re-agregar entrada al historial para atrapar el siguiente Atrás
+        history.pushState(null, null, window.location.href);
+        // Al cerrar el popunder → ir al detalle del juego
+        var btnClose = document.getElementById('btnClosePopunder');
+        if (btnClose && !btnClose._jdPatched) {
+          btnClose._jdPatched = true;
+          btnClose.addEventListener('click', function () {
+            capa.classList.remove('activa');
+            window.location.href = backUrl;
+          }, { once: true });
+        }
+      } else {
+        // Sin popunder disponible → ir directo al detalle
+        window.location.href = backUrl;
       }
+
+      // Permitir que el siguiente Atrás vuelva a disparar (en caso de que
+      // el usuario cierre el popunder y presione Atrás de nuevo)
+      setTimeout(function () { _popHandled = false; }, 800);
     });
   } catch(e) {}
 
   /* ── Botón ← del nav (flecha en la barra superior) ─────── */
   window.jdGoBack = function(ev) {
     if (ev) ev.preventDefault();
-    window.location.href = _getBackUrl();
+    var backUrl = _getBackUrl();
+    var capa = document.getElementById('capaPopunder');
+
+    if (capa) {
+      // Mostrar el popunder primero
+      capa.classList.add('activa');
+      // Parchear el botón Close para navegar al detalle al cerrarse
+      var btnClose = document.getElementById('btnClosePopunder');
+      if (btnClose && !btnClose._jdPatched) {
+        btnClose._jdPatched = true;
+        btnClose.addEventListener('click', function() {
+          capa.classList.remove('activa');
+          // Navegar usando replaceState+location para NO añadir entrada extra
+          // al historial — el usuario ve el detalle al instante sin refresco
+          window.location.href = backUrl;
+        }, { once: true });
+      }
+    } else {
+      window.location.href = backUrl;
+    }
   };
 
   /* ══════════════════════════════════════════════════════════
@@ -923,7 +979,7 @@
         /* Refresco silencioso desde Firebase para tener datos siempre frescos */
         _refreshUrlFromFirebase();
       } else {
-        /* Sin caché → esperar al SDK de Firebase */
+        /* Sin caché → esperar al SDK de Firebase — polling cada 40ms */
         if (typeof firebase !== 'undefined') {
           _fetchFirebase();
         } else {
@@ -932,12 +988,12 @@
               clearInterval(_waitFb);
               _fetchFirebase();
             }
-          }, 80);
-          /* Seguridad: si Firebase tarda más de 2.5 s, arrancar el timer de todos modos */
+          }, 40);
+          /* Seguridad: si Firebase tarda más de 2 s, arrancar el timer de todos modos */
           setTimeout(function() {
             clearInterval(_waitFb);
             if (!timerRunning) _startTimer();
-          }, 2500);
+          }, 2000);
         }
       }
     } else {
@@ -945,12 +1001,9 @@
       _startTimer();
     }
 
-    /* Anuncios diferidos — REGLA 1: no bloquean el timer */
-    if (window.requestIdleCallback) {
-      requestIdleCallback(_loadAds, { timeout: 2000 });
-    } else {
-      setTimeout(_loadAds, 600);
-    }
+    /* Anuncios — carga inmediata tras primer paint (no bloquean el timer)
+       Se llaman a los 300ms para asegurar que el DOM está pintado */
+    setTimeout(_loadAds, 300);
 
   }); /* fin DOMContentLoaded */
 
@@ -960,34 +1013,40 @@
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
 <style>
-/* ══ JERARQUÍA DE CAPAS DEFINITIVA — descarga.html ══════════════════
-   NIVEL 1 — Contenido normal del sitio
-   NIVEL 2 — Social Bar de Adsterra (siempre visible)
-             Elevamos su z-index a 99000 para que no lo tape nada del sitio.
-   NIVEL 3 — Modal anuncio-botón  (.jd-fondo-ads)    → 200000
-   NIVEL 4 — Modal popunder-atrás (.jd-fondo-popunder)→ 200010
+/* ══ JERARQUÍA DE CAPAS — descarga.html ══════════════════════════
+   REGLA: Los modales de anuncio deben salir POR ENCIMA del Social Bar
+   para que el usuario vea el anuncio completo y pueda cerrarlo (X).
 
-   Así el Social Bar se ve SIEMPRE. Cuando un modal se activa sale al
-   frente (z-index mayor). Al cerrar el modal, el Social Bar queda visible.
-   Los Popunders y Direct Links salen al frente de todo incluyendo el Social Bar.
-════════════════════════════════════════════════════════════════════ */
+   NIVEL 1 — Contenido normal              → default
+   NIVEL 2 — Banner inferior .jd-pm        → 100
+   NIVEL 3 — Social Bar Adsterra (forzado) → 2000   ← REDUCIDO para no tapar X de popups
+   NIVEL 4 — Modal anuncio botón descarga  → 9100
+   NIVEL 5 — Modal popunder / botón Atrás  → 9200
+════════════════════════════════════════════════════════════════ */
 
-/* Elevar Social Bar de Adsterra para que sea visible sobre el contenido */
+/* Forzar Social Bar a z-index controlado — queda DETRÁS de los modales y popups de ads */
 #adsterra-social-bar,
 [id*="adsterra"],
-[class*="social-bar"],
 [id*="social_bar"],
-iframe[src*="adsterra"],
-iframe[src*="social"] {
-  z-index: 99000 !important;
+[id*="socialBar"],
+[class*="social-bar"],
+[class*="socialBar"],
+[class*="social_bar"],
+#adsbar,
+div[style*="position: fixed"][style*="bottom: 0"],
+div[style*="position:fixed"][style*="bottom:0"] {
+  z-index: 2000 !important;
+  position: fixed !important;
 }
 
-.jd-fondo-ads       { z-index: 200000 !important; }
-.jd-fondo-popunder  { z-index: 200010 !important; }
+/* Modal anuncio (clic botón descarga) — por encima del Social Bar */
+.jd-fondo-ads      { z-index: 9100 !important; }
 
-/* Banner inferior propio (jd-pm-esqueleto) — visible sobre contenido,
-   debajo del Social Bar y modales */
-.jd-pm-esqueleto    { z-index: 100 !important; }
+/* Modal popunder (botón Atrás) — por encima de todo */
+.jd-fondo-popunder { z-index: 9200 !important; }
+
+/* Banner inferior propio — debajo del Social Bar */
+.jd-pm-esqueleto   { z-index: 100  !important; }
 </style>
 
 <style>
@@ -1327,15 +1386,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
-  // Se usa addEventListener para NO destruir el listener de navegación
-  // del IIFE principal (que regresa al index con el juego abierto).
-  // El popunder solo se activa cuando el timer ya terminó (left <= 0).
-  window.addEventListener('popstate', function(event) {
-    // Si el timer sigue corriendo, dejar que el IIFE maneje el Atrás
-    if (typeof left !== 'undefined' && left > 0) return;
-    capaPopunder.classList.add('activa');
-    history.pushState(null, null, window.location.href);
-  });
+  // El listener popstate está centralizado en el IIFE principal (arriba).
+  // Ese listener ya muestra el popunder y redirige al detalle correctamente.
+  // NO se duplica aquí para evitar el bucle de refresco.
 
 
   // --- 🖱️ DISPARADOR 2: CLIC EN LOGO O NOMBRE ---
@@ -1350,13 +1403,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // --- 🔴 ACCIÓN AL TOCAR "CLOSE" ---
-  if (btnCerrarPopunder) {
+  // La navegación al detalle del juego está manejada por el listener
+  // central en el IIFE principal. Este handler solo cierra visualmente
+  // si el listener central no lo parchó primero (jdGoBack desde nav).
+  if (btnCerrarPopunder && !btnCerrarPopunder._jdPatched) {
     btnCerrarPopunder.addEventListener('click', function() {
-      // Ocultamos el anuncio
       capaPopunder.classList.remove('activa');
-      
-      // RECIÉN AQUÍ lo mandamos a la información detallada del juego
-      window.location.href = urlDetallesJuego;
+      // Solo navegar si el listener central no lo hizo ya
+      if (!btnCerrarPopunder._jdPatched) {
+        window.location.href = urlDetallesJuego;
+      }
     });
   }
 });
