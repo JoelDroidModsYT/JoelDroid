@@ -8,24 +8,6 @@
   <link rel="icon" type="image/png" href="logo.png">
   <meta name="theme-color" content="#007bff">
 
-  <!-- ══ PRECARGA DE DOMINIOS — ANUNCIOS Y RECURSOS CRÍTICOS ════
-       Resuelve DNS y establece conexiones desde el segundo 0,
-       antes de que cualquier iframe o script los solicite.
-  ════════════════════════════════════════════════════════════ -->
-  <!-- Adsterra / profitablecpmratenetwork — todos los Direct Links -->
-  <link rel="dns-prefetch" href="//www.profitablecpmratenetwork.com">
-  <link rel="preconnect"   href="https://www.profitablecpmratenetwork.com" crossorigin>
-  <!-- Adsterra CDN scripts/assets -->
-  <link rel="dns-prefetch" href="//a.adtng.com">
-  <link rel="preconnect"   href="https://a.adtng.com" crossorigin>
-  <link rel="dns-prefetch" href="//static.a.adtng.com">
-  <!-- Fuentes Google -->
-  <link rel="dns-prefetch" href="//fonts.googleapis.com">
-  <link rel="preconnect"   href="https://fonts.googleapis.com" crossorigin>
-  <link rel="dns-prefetch" href="//fonts.gstatic.com">
-  <link rel="preconnect"   href="https://fonts.gstatic.com" crossorigin>
-  <!-- ══════════════════════════════════════════════════════════ -->
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -1253,18 +1235,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
-// ── PRECARGA INMEDIATA DEL POPUNDER ─────────────────────────────────
-// Se ejecuta en el momento en que el parser llega a este script,
-// sin esperar DOMContentLoaded. El iframe ya está en el DOM arriba,
-// así que podemos asignar su src al instante → anuncio listo al 1er toque.
-(function(){
-  var _urlPop = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
-  var _f = document.getElementById('iframePopunder');
-  if(_f && !_f.src) _f.src = _urlPop;
-})();
-</script>
-
-<script>
 document.addEventListener('DOMContentLoaded', function() {
   
   // =========================================================
@@ -1287,8 +1257,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const iframePopunder = document.getElementById('iframePopunder');
   const btnCerrarPopunder = document.getElementById('btnClosePopunder');
   
-  // Carga inmediata del anuncio (ya iniciada arriba, esto la garantiza)
-  if (iframePopunder && !iframePopunder.src) iframePopunder.src = urlDirectLinkPopunder;
+  // Carga inmediata del anuncio
+  if (iframePopunder) iframePopunder.src = urlDirectLinkPopunder;
 
 
   // --- 📱 DISPARADOR 1: BOTÓN ATRÁS DE ANDROID ---
