@@ -783,6 +783,8 @@
         ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '#')
         : (d.downloadButtonLink1 || d.link1 || '#');
       realUrl = url || '#';
+      /* ── Exponer globalmente para que el modal de anuncio la lea ── */
+      window.__jdRealUrl = realUrl;
 
       /* ── REGLA 4: Título héroe ── */
       if (nameEl) nameEl.innerHTML = _buildHeroTitle(name, ver);
@@ -866,6 +868,7 @@
               var freshSize = d.size  || d.peso    || '';
               if (freshUrl && freshUrl !== '#') {
                 realUrl = freshUrl;
+                window.__jdRealUrl = freshUrl;
                 btnFinal.href = freshUrl;
               }
               /* Actualizar título héroe y texto botón con datos frescos */
@@ -893,6 +896,9 @@
         var iframe = document.createElement('iframe');
         iframe.style.cssText = 'width:320px;height:50px;border:none;overflow:hidden;display:block;';
         iframe.scrolling = 'no'; iframe.marginWidth = '0'; iframe.marginHeight = '0';
+        /* sandbox estándar: permite scripts y navegación a nueva ventana,
+           bloquea acceso al DOM padre y popups automáticos sin clic */
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation');
         iframe.srcdoc = '<!DOCTYPE html><html><head>'
           + '<style>*{margin:0;padding:0;overflow:hidden}</style></head><body>'
           + '<script>var atOptions={'
@@ -954,6 +960,34 @@
 </script>
 
 <script src="https://pl28956566.profitablecpmratenetwork.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
+
+<style>
+/* ══ JERARQUÍA DE CAPAS — JoelDroid Mods YT ══════════════════════
+   Escala de z-index definitiva para descarga.html:
+     Social Bar (Adsterra)  →  z-index: 99000  (visible, pero al fondo)
+     Modal anuncio botón    →  z-index: 100000 (sobre Social Bar)
+     Modal popunder Atrás   →  z-index: 100010 (capa máxima)
+   Se aplica a los contenedores que inyecta el SDK de Adsterra
+   sin modificar ni eliminar ningún script de anuncios.
+════════════════════════════════════════════════════════════════ */
+
+/* Contenedor principal del Social Bar de Adsterra */
+#aso-container,
+div[id^="aso-"],
+div[class*="social-bar"],
+div[class*="socialbar"],
+div[id*="social-bar"],
+div[id*="socialbar"],
+iframe[src*="profitablecpmratenetwork"][style*="position:fixed"],
+iframe[src*="profitablecpmratenetwork"][style*="position: fixed"] {
+  z-index: 99000 !important;
+}
+
+/* Los modales propios tienen prioridad máxima — ya definidos arriba,
+   este bloque los refuerza explícitamente para prevenir conflictos */
+.jd-fondo-ads          { z-index: 100000 !important; }
+.jd-fondo-popunder     { z-index: 100010 !important; }
+</style>
 
 <style>
 /* El fondo oscuro para centrar la vista en el anuncio */
@@ -1072,80 +1106,125 @@
 document.addEventListener('DOMContentLoaded', function() {
   
   // =========================================================
-  // 🎛️ CONFIGURACIÓN DESDE TU PANEL DE CONTROL
+  // 🎛️ MODAL DE ANUNCIO — CONECTADO A FIREBASE (REGLA 6)
   // =========================================================
-  
-  // Pon aquí la URL que guardes en el panel (Ya sea descarga directa o link externo)
-  const urlDestinoFinal = "https://www.mediafire.com/file/ejemplo/mod.zip"; 
-  
-  // Tu link de Adsterra de Adulto
-  const directlinkAdulto = "TU_OTRO_DIRECLINK_DE_ADULTO"; 
-  
+  // urlDestinoFinal lee la URL real que el IIFE principal obtuvo
+  // de Firebase (variable global window.__jdRealUrl).
+  // Si Firebase aún no respondió cuando el usuario toca el botón,
+  // el listener de 'jd:realurl' la captura en tiempo real.
+  // Así NUNCA se entrega un enlace roto o de ejemplo.
   // =========================================================
 
   const botonDescargaReal = document.getElementById('dl-btn-final') || document.querySelector('.dl-btn-final');
-  const capaFondo = document.getElementById('capaAnuncio');
+  const capaFondo    = document.getElementById('capaAnuncio');
   const frameAnuncio = document.getElementById('iframeAdsterra');
-  const btnCerrar = document.getElementById('btnCloseAds');
+  const btnCerrar    = document.getElementById('btnCloseAds');
   const relojAnuncio = document.getElementById('timerAds');
 
+  // ── URL dinámica: se sincroniza con el IIFE de Firebase ──────────
+  // El IIFE escribe window.__jdRealUrl cuando aplica datos de Firebase.
+  // Este módulo lo lee en el momento del clic → siempre fresco.
+  function _getUrlFinal() {
+    // 1. Variable global escrita por el IIFE Firebase (fuente primaria)
+    if (window.__jdRealUrl && window.__jdRealUrl !== '#') {
+      return window.__jdRealUrl;
+    }
+    // 2. Leer href del botón final (ya lo tiene el IIFE al terminar el timer)
+    var btn = document.getElementById('dl-btn-final');
+    if (btn && btn.href && btn.href !== '#' && !btn.href.endsWith('#')) {
+      return btn.href;
+    }
+    // 3. sessionStorage como respaldo (mismo payload que usa el IIFE)
+    try {
+      var raw = sessionStorage.getItem('jd_dl_payload');
+      if (raw) {
+        var p = JSON.parse(raw);
+        var params = new URLSearchParams(window.location.search);
+        var modo   = params.get('modo') === '2' ? 2 : 1;
+        var url = modo === 2
+          ? (p.downloadButtonLink2 || p.link2 || p.downloadButtonLink1 || p.link1)
+          : (p.downloadButtonLink1 || p.link1);
+        if (url && url !== '#') return url;
+      }
+    } catch(e) {}
+    return '#';
+  }
+
+  // ── Direct link para el iframe del modal ─────────────────────────
   const directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
 
-  // Ruleta de 1 entre 20
-  const numeroAzar = Math.floor(Math.random() * 20) + 1;
-  const linkElegido = (numeroAzar === 10) ? directlinkAdulto : directlinkNormal;
+  // El iframe del modal NO se pre-carga automáticamente (Chrome bloquea popups sin clic).
+  // Se asigna el src solo en el momento exacto del clic del usuario → cumple política de Chrome.
+  var _modalAdCargado = false;
 
-  frameAnuncio.src = linkElegido;
-
-  // Evento al dar clic al botón de la web
+  // ── Clic en el botón de descarga → mostrar modal de anuncio ──────
   if (botonDescargaReal) {
     botonDescargaReal.addEventListener('click', function(e) {
-      if (!capaFondo.classList.contains('activa')) {
-        e.preventDefault(); 
+      if (capaFondo && !capaFondo.classList.contains('activa')) {
+        e.preventDefault();
         
+        // Cargar el iframe del anuncio solo en el clic del usuario (no automático → política Chrome)
+        if (!_modalAdCargado && frameAnuncio) {
+          frameAnuncio.src = directlinkNormal;
+          _modalAdCargado = true;
+        }
+
         capaFondo.classList.add('activa');
-        btnCerrar.style.display = 'none';
-        relojAnuncio.style.display = 'inline';
+        if (btnCerrar)    btnCerrar.style.display    = 'none';
+        if (relojAnuncio) relojAnuncio.style.display = 'inline';
         
-        let segundos = 5;
-        relojAnuncio.innerText = "Wait " + segundos + "s";
+        var segundos = 5;
+        if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + segundos + 's';
         
-        const cuentaRegresiva = setInterval(() => {
+        var cuentaRegresiva = setInterval(function() {
           segundos--;
-          
           if (segundos > 0) {
-            relojAnuncio.innerText = "Wait " + segundos + "s";
+            if (relojAnuncio) relojAnuncio.innerText = 'Wait ' + segundos + 's';
           } else {
             clearInterval(cuentaRegresiva);
-            relojAnuncio.style.display = 'none'; 
-            btnCerrar.style.display = 'inline'; 
+            if (relojAnuncio) relojAnuncio.style.display = 'none';
+            if (btnCerrar)    btnCerrar.style.display    = 'inline';
           }
         }, 1000);
       }
     });
   }
 
-  // AL DAR CLIC EN CLOSE: Lógica inteligente de comportamiento
-  btnCerrar.addEventListener('click', function() {
-    capaFondo.classList.remove('activa');
-    
-    // 1. Detectamos si la URL termina en un archivo de descarga directa (.zip, .apk, .rar, .mp3, etc.)
-    const esDescargaDirecta = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(urlDestinoFinal);
-    
+  // ── Clic en "Close ❯" → entregar URL real de Firebase ───────────
+  if (btnCerrar) {
+    btnCerrar.addEventListener('click', function() {
+      if (capaFondo) capaFondo.classList.remove('activa');
+      
+      var urlFinal = _getUrlFinal();
+
+      if (!urlFinal || urlFinal === '#') {
+        // Firebase aún no respondió — esperar hasta 3 s más
+        var _intentos = 0;
+        var _poll = setInterval(function() {
+          _intentos++;
+          var u = _getUrlFinal();
+          if ((u && u !== '#') || _intentos >= 15) {
+            clearInterval(_poll);
+            if (u && u !== '#') _navegarUrl(u);
+          }
+        }, 200);
+        return;
+      }
+      _navegarUrl(urlFinal);
+    });
+  }
+
+  // ── Navegar a la URL con detección de tipo ───────────────────────
+  function _navegarUrl(url) {
+    var esDescargaDirecta = /\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url);
     if (esDescargaDirecta) {
-      // SI ES DESCARGA DIRECTA: Creamos un enlace invisible para descargar sin salir de tu web
-      const descargaInvisible = document.createElement('a');
-      descargaInvisible.href = urlDestinoFinal;
-      descargaInvisible.download = ''; 
-      descargaInvisible.style.display = 'none';
-      document.body.appendChild(descargaInvisible);
-      descargaInvisible.click();
-      document.body.removeChild(descargaInvisible);
+      var a = document.createElement('a');
+      a.href = url; a.download = ''; a.style.display = 'none';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
     } else {
-      // SI ES URL EXTERNA (Mediafire, Mega, otra ventana): Se abre en pestaña nueva
-      window.open(urlDestinoFinal, '_blank');
+      window.open(url, '_blank');
     }
-  });
+  }
 });
 </script>
 
