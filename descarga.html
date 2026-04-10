@@ -701,6 +701,9 @@
       // Cargar iframe del anuncio (global, siempre disponible)
       window._cargarPopIframe();
 
+      // Ocultar Social Bar para que no tape el botón Close
+      if (window._jdHideSB) window._jdHideSB();
+
       // Mostrar capa
       capa.classList.add('activa');
 
@@ -712,6 +715,8 @@
         btnClose._jdPatched = true;
         btnClose.addEventListener('click', function () {
           capa.classList.remove('activa');
+          // Restaurar Social Bar al cerrar popunder
+          if (window._jdShowSB) window._jdShowSB();
           window.location.href = backUrl;
         }, { once: true });
       }
@@ -1074,36 +1079,108 @@
 
 <style>
 /* ══ JERARQUÍA DE CAPAS — descarga.html ══════════════════════════
-   REGLA: Los modales de anuncio deben salir POR ENCIMA del Social Bar
-   para que el usuario vea el anuncio completo y pueda cerrarlo.
-
    NIVEL 1 — Contenido normal              → default
-   NIVEL 2 — Banner inferior .jd-pm        → 100
-   NIVEL 3 — Social Bar Adsterra (forzado) → 9000
-   NIVEL 4 — Modal anuncio botón descarga  → 9100
-   NIVEL 5 — Modal popunder / botón Atrás  → 9200
+   NIVEL 2 — Banner flotante .jd-pm        → 500
+   NIVEL 3 — Social Bar Adsterra           → 1000  (JS lo controla)
+   NIVEL 4 — Modal anuncio botón descarga  → 2147483640
+   NIVEL 5 — Modal popunder / botón Atrás  → 2147483646
 ════════════════════════════════════════════════════════════════ */
 
-/* Forzar Social Bar a z-index controlado — queda DETRÁS de los modales */
-#adsterra-social-bar,
-[id*="adsterra"],
-[id*="social_bar"],
-[class*="social-bar"],
-[class*="socialBar"],
-#adsbar {
-  z-index: 9000 !important;
-  position: fixed !important;
+/* Modales SIEMPRE encima de absolutamente todo */
+.jd-fondo-ads      { z-index: 2147483640 !important; }
+.jd-fondo-popunder { z-index: 2147483646 !important; }
+
+/* Banner flotante propio */
+.jd-pm-esqueleto   { z-index: 500 !important; }
+
+/* Clase de ocultamiento del Social Bar cuando hay modal activo */
+.jd-sb-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
-
-/* Modal anuncio (clic botón descarga) — por encima del Social Bar */
-.jd-fondo-ads      { z-index: 9100 !important; }
-
-/* Modal popunder (botón Atrás) — por encima de todo */
-.jd-fondo-popunder { z-index: 9200 !important; }
-
-/* Banner inferior propio — debajo del Social Bar */
-.jd-pm-esqueleto   { z-index: 100  !important; }
 </style>
+
+<script>
+/* ══ CONTROL DINÁMICO DEL SOCIAL BAR ══════════════════════════
+   El Social Bar de Adsterra se inyecta dinámicamente con un id/clase
+   que puede variar. MutationObserver lo detecta en cuanto aparece
+   y lo controla con JS para que NUNCA tape el botón Close.
+════════════════════════════════════════════════════════════════ */
+(function() {
+  // Colección de todos los elementos Social Bar detectados
+  var _sbEls = [];
+
+  // Detecta si un elemento es el Social Bar de Adsterra
+  function _isSocialBar(el) {
+    if (!el || el.nodeType !== 1) return false;
+    var id  = (el.id  || '').toLowerCase();
+    var cls = (el.className || '').toLowerCase();
+    var style = el.getAttribute('style') || '';
+    // Adsterra suele usar position:fixed y bottom:0 para el social bar
+    var isFixed  = style.indexOf('fixed') !== -1 || window.getComputedStyle(el).position === 'fixed';
+    var isBottom = style.indexOf('bottom') !== -1;
+    var hasAdId  = id.indexOf('adsterra') !== -1 || id.indexOf('social') !== -1
+                || id.indexOf('adsbar') !== -1  || id.indexOf('ads_bar') !== -1;
+    var hasCls   = cls.indexOf('social') !== -1 || cls.indexOf('adsterra') !== -1
+                || cls.indexOf('sb-') !== -1;
+    return hasAdId || hasCls || (isFixed && isBottom && el !== document.getElementById('esqueletoPublicidadPlaymods'));
+  }
+
+  // Aplica z-index bajo al Social Bar para que quede detrás de modales
+  function _controlSB(el) {
+    if (_sbEls.indexOf(el) === -1) _sbEls.push(el);
+    el.style.setProperty('z-index', '1000', 'important');
+    el.style.setProperty('position', 'fixed', 'important');
+  }
+
+  // Oculta Social Bar cuando un modal está activo
+  function _hideSB() {
+    _sbEls.forEach(function(el) {
+      el.classList.add('jd-sb-hidden');
+    });
+    // También buscar elementos que pudieran haberse añadido después
+    document.querySelectorAll('[id*="adsterra"],[id*="social_bar"],[id*="adsbar"],[class*="socialBar"],[class*="social-bar"]').forEach(function(el) {
+      if (_sbEls.indexOf(el) === -1) { _sbEls.push(el); }
+      el.classList.add('jd-sb-hidden');
+    });
+  }
+
+  // Muestra Social Bar cuando el modal se cierra
+  function _showSB() {
+    _sbEls.forEach(function(el) {
+      el.classList.remove('jd-sb-hidden');
+    });
+  }
+
+  // MutationObserver: detecta el Social Bar cuando Adsterra lo inyecta
+  var obs = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.addedNodes.forEach(function(node) {
+        if (_isSocialBar(node)) _controlSB(node);
+        // Buscar también dentro del nodo añadido
+        if (node.querySelectorAll) {
+          node.querySelectorAll('*').forEach(function(child) {
+            if (_isSocialBar(child)) _controlSB(child);
+          });
+        }
+      });
+    });
+  });
+  obs.observe(document.documentElement, { childList: true, subtree: true });
+
+  // Exponer funciones para que los modales las llamen
+  window._jdHideSB  = _hideSB;
+  window._jdShowSB  = _showSB;
+
+  // Escaneo inicial por si el Social Bar ya está en el DOM
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('*').forEach(function(el) {
+      if (_isSocialBar(el)) _controlSB(el);
+    });
+  });
+})();
+</script>
 
 <style>
 /* El fondo oscuro para centrar la vista en el anuncio */
@@ -1272,6 +1349,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         capaFondo.classList.add('activa');
+        // Ocultar Social Bar para que no tape el botón Close
+        if (window._jdHideSB) window._jdHideSB();
         if (btnCerrar)    btnCerrar.style.display    = 'none';
         if (relojAnuncio) relojAnuncio.style.display = 'inline';
 
@@ -1295,6 +1374,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (btnCerrar) {
     btnCerrar.addEventListener('click', function() {
       if (capaFondo) capaFondo.classList.remove('activa');
+      // Restaurar Social Bar al cerrar modal
+      if (window._jdShowSB) window._jdShowSB();
 
       var urlFinal = _getUrlFinal();
 
@@ -1462,13 +1543,19 @@ document.addEventListener('DOMContentLoaded', function() {
   // La navegación al detalle del juego está manejada por el listener
   // central en el IIFE principal. Este handler solo cierra visualmente
   // si el listener central no lo parchó primero (jdGoBack desde nav).
-  if (btnCerrarPopunder && !btnCerrarPopunder._jdPatched) {
+  // NOTA: La navegación al detalle la maneja SIEMPRE el IIFE principal
+  // (_mostrarPopunder → btnClose listener con _jdPatched=true).
+  // Este bloque solo cierra visualmente si el modal se abre por
+  // el disparador 2 (clic en logo), no por el botón Atrás.
+  if (btnCerrarPopunder) {
     btnCerrarPopunder.addEventListener('click', function() {
-      capaPopunder.classList.remove('activa');
-      // Solo navegar si el listener central no lo hizo ya
       if (!btnCerrarPopunder._jdPatched) {
+        // Abierto por clic en logo (no por Atrás) → cerrar y navegar
+        capaPopunder.classList.remove('activa');
+        if (window._jdShowSB) window._jdShowSB();
         window.location.href = urlDetallesJuego;
       }
+      // Si _jdPatched=true, el IIFE ya maneja la navegación
     });
   }
 });
