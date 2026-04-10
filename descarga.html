@@ -718,9 +718,37 @@
   } catch(e) {}
 
   /* ── Botón ← del nav (flecha en la barra superior) ─────── */
+  /* FIX: Dispara el mismo popunder que el botón físico Android.
+     El usuario debe ver el anuncio completo; solo al cerrar se navega al detalle. */
   window.jdGoBack = function(ev) {
     if (ev) ev.preventDefault();
-    window.location.href = _getBackUrl();
+    var backUrl = _getBackUrl();
+    var capa = document.getElementById('capaPopunder');
+    if (capa) {
+      _cargarPopIframe();
+      capa.classList.add('activa');
+      /* Re-insertar estado en historial para que el físico Atrás no salga del sitio */
+      try { history.pushState(null, null, window.location.href); } catch(e) {}
+      var btnClose = document.getElementById('btnClosePopunder');
+      if (btnClose && !btnClose._jdPatched) {
+        btnClose._jdPatched = true;
+        btnClose.addEventListener('click', function () {
+          capa.classList.remove('activa');
+          window.location.href = backUrl;
+        }, { once: true });
+      } else if (btnClose && btnClose._jdPatched) {
+        /* Si ya estaba parchado por popstate, reemplazar handler para esta URL */
+        var old = btnClose.cloneNode(true);
+        btnClose.parentNode.replaceChild(old, btnClose);
+        old._jdPatched = true;
+        old.addEventListener('click', function () {
+          capa.classList.remove('activa');
+          window.location.href = backUrl;
+        }, { once: true });
+      }
+    } else {
+      window.location.href = backUrl;
+    }
   };
 
   /* ══════════════════════════════════════════════════════════
@@ -930,31 +958,39 @@
     }
 
     /* ── REGLA 1: Anuncios Adsterra — carga nativa sin sandbox ── */
+    /* FIX BANNERS: Cada banner se inyecta en iframe aislado para que
+       atOptions de Banner 1 y Banner 2 no se sobreescriban mutuamente. */
+    function _crearIframeBanner(contenedor, key, w, h) {
+      if (!contenedor) return;
+      var fi = document.createElement('iframe');
+      fi.style.cssText = 'border:none;width:' + w + 'px;height:' + h + 'px;overflow:hidden;display:block;';
+      fi.scrolling = 'no';
+      fi.setAttribute('frameborder', '0');
+      contenedor.appendChild(fi);
+      try {
+        var doc = fi.contentDocument || fi.contentWindow.document;
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;overflow:hidden;">'
+          + '<scr'+'ipt>atOptions={"key":"' + key + '","format":"iframe","height":' + h + ',"width":' + w + ',"params":{}};' + '<\/scr'+'ipt>'
+          + '<scr'+'ipt src="https://www.highperformanceformat.com/' + key + '/invoke.js"><\/scr'+'ipt>'
+          + '</body></html>');
+        doc.close();
+      } catch(e) {
+        /* Fallback directo al contenedor si el iframe falla */
+        var o = document.createElement('script');
+        o.text = 'atOptions={"key":"' + key + '","format":"iframe","height":' + h + ',"width":' + w + ',"params":{}};';
+        contenedor.appendChild(o);
+        var s = document.createElement('script');
+        s.src = 'https://www.highperformanceformat.com/' + key + '/invoke.js';
+        contenedor.appendChild(s);
+      }
+    }
+
     function _loadAds() {
-      // Banner 1 — 320x50
       var c1 = document.getElementById('jd-ad-banner-1');
-      if (c1) {
-        var o1 = document.createElement('script');
-        o1.type = 'text/javascript';
-        o1.text = "atOptions={'key':'13d51e2826afc9138cb8f865b0b8ea66','format':'iframe','height':50,'width':320,'params':{}};";
-        c1.appendChild(o1);
-        var s1 = document.createElement('script');
-        s1.type = 'text/javascript';
-        s1.src = 'https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js';
-        c1.appendChild(s1);
-      }
-      // Banner 2 — 320x50 (formato móvil — igual que Banner 1 para máxima fill rate)
       var c2 = document.getElementById('jd-ad-banner-2');
-      if (c2) {
-        var o2 = document.createElement('script');
-        o2.type = 'text/javascript';
-        o2.text = "atOptions={'key':'b9ef0affd856355663df505e4fbbca67','format':'iframe','height':50,'width':320,'params':{}};";
-        c2.appendChild(o2);
-        var s2 = document.createElement('script');
-        s2.type = 'text/javascript';
-        s2.src = 'https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js';
-        c2.appendChild(s2);
-      }
+      _crearIframeBanner(c1, '13d51e2826afc9138cb8f865b0b8ea66', 320, 50);
+      _crearIframeBanner(c2, 'b9ef0affd856355663df505e4fbbca67', 320, 50);
     }
 
     /* ═══════════════════════════════════════════════════════
@@ -1005,32 +1041,39 @@
 
 <style>
 /* ══ JERARQUÍA DE CAPAS — descarga.html ══════════════════════════
-   REGLA: Los modales de anuncio deben salir POR ENCIMA del Social Bar
-   para que el usuario vea el anuncio completo y pueda cerrarlo.
-
    NIVEL 1 — Contenido normal              → default
    NIVEL 2 — Banner inferior .jd-pm        → 100
-   NIVEL 3 — Social Bar Adsterra (forzado) → 9000
+   NIVEL 3 — Social Bar Adsterra (forzado) → 8000   ← DEBAJO de modales
    NIVEL 4 — Modal anuncio botón descarga  → 9100
    NIVEL 5 — Modal popunder / botón Atrás  → 9200
+   NIVEL 6 — Botón CLOSE de cualquier modal→ 9300   ← SIEMPRE ARRIBA
 ════════════════════════════════════════════════════════════════ */
 
-/* Forzar Social Bar a z-index controlado — queda DETRÁS de los modales */
+/* Social Bar: z-index reducido para que NUNCA tape los modales ni su botón X */
 #adsterra-social-bar,
 [id*="adsterra"],
 [id*="social_bar"],
 [class*="social-bar"],
 [class*="socialBar"],
 #adsbar {
-  z-index: 9000 !important;
+  z-index: 8000 !important;
   position: fixed !important;
 }
 
-/* Modal anuncio (clic botón descarga) — por encima del Social Bar */
+/* Modal anuncio (clic botón descarga) */
 .jd-fondo-ads      { z-index: 9100 !important; }
 
 /* Modal popunder (botón Atrás) — por encima de todo */
 .jd-fondo-popunder { z-index: 9200 !important; }
+
+/* Botones Close dentro de cualquier modal — siempre por encima del Social Bar */
+#btnCloseAds,
+#btnClosePopunder,
+.jd-btn-close,
+.jd-btn-close-pop {
+  position: relative;
+  z-index: 9300 !important;
+}
 
 /* Banner inferior propio — debajo del Social Bar */
 .jd-pm-esqueleto   { z-index: 100  !important; }
@@ -1164,9 +1207,22 @@ document.addEventListener('DOMContentLoaded', function() {
   var frameAnuncio = document.getElementById('iframeAdsterra');
   var btnCerrar    = document.getElementById('btnCloseAds');
   var relojAnuncio = document.getElementById('timerAds');
-  var _modalCargado = false;
 
-  var directlinkNormal = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde";
+  /* FIX ROTACIÓN: Pool de Direct Links — rota en cada apertura del modal.
+     Se elige un link distinto cada vez para maximizar eCPM y variedad de categorías. */
+  var _adPool = [
+    "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde",
+    "https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d",
+    "https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e"
+  ];
+  var _adIdx = Math.floor(Math.random() * _adPool.length);
+  function _nextAdUrl() {
+    var url = _adPool[_adIdx % _adPool.length];
+    _adIdx++;
+    return url;
+  }
+
+  var directlinkNormal = _adPool[0]; /* compatibilidad con referencias anteriores */
 
   // ── Leer URL real de Firebase (3 fuentes por orden de prioridad) ──
   function _getUrlFinal() {
@@ -1196,10 +1252,11 @@ document.addEventListener('DOMContentLoaded', function() {
       if (capaFondo && !capaFondo.classList.contains('activa')) {
         e.preventDefault();
 
-        // Cargar iframe solo en el clic (post-click, cumple política Chrome)
-        if (!_modalCargado && frameAnuncio) {
-          frameAnuncio.src = directlinkNormal;
-          _modalCargado = true;
+        /* FIX ROTACIÓN: Cargar un anuncio nuevo en cada apertura (no solo la primera vez).
+           Esto maximiza el eCPM porque cada clic solicita una impresión fresca. */
+        if (frameAnuncio) {
+          frameAnuncio.src = 'about:blank'; /* forzar reset antes de cargar nuevo */
+          setTimeout(function() { frameAnuncio.src = _nextAdUrl(); }, 30);
         }
 
         capaFondo.classList.add('activa');
@@ -1353,6 +1410,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================
   
   // 1. Pega aquí un DIRECT LINK de Adsterra (No el código .js)
+  // FIX ROTACIÓN POPUNDER: Se usa un pool de URLs compartido con el modal principal.
+  // _cargarPopIframe() se llama en cada disparo, cargando siempre un anuncio nuevo.
   const urlDirectLinkPopunder = "https://www.profitablecpmratenetwork.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde"; 
   
   // 2. URL de regreso al detalle — calculada dinámicamente desde ?id= en la URL
@@ -1368,12 +1427,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const iframePopunder = document.getElementById('iframePopunder');
   const btnCerrarPopunder = document.getElementById('btnClosePopunder');
   
-  // Carga del anuncio en el primer disparo del popunder (lazy)
-  // Evita cargar el iframe si el usuario nunca presiona Atrás
+  // Carga del anuncio en cada disparo del popunder (rotación agresiva)
+  // Se resetea el iframe antes de cargar para garantizar impresión nueva.
   var _popIframeCargado = false;
   function _cargarPopIframe() {
-    if (!_popIframeCargado && iframePopunder) {
-      iframePopunder.src = urlDirectLinkPopunder;
+    if (iframePopunder) {
+      /* FIX ROTACIÓN: siempre recargar — cada disparo = impresión nueva */
+      iframePopunder.src = 'about:blank';
+      var urls = [
+        urlDirectLinkPopunder,
+        "https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d",
+        "https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e"
+      ];
+      var u = urls[Math.floor(Math.random() * urls.length)];
+      setTimeout(function() { iframePopunder.src = u; }, 30);
       _popIframeCargado = true;
     }
   }
