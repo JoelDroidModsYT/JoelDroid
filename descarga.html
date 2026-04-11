@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="author" href="ads.txt">
-<meta name="referrer" content="always">
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Descarga - JOELDROID MODS YT</title>
@@ -580,6 +577,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var dlNormal  = 'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
+  var dlAdulto  = 'TU_OTRO_DIRECLINK_DE_ADULTO';
   var capa      = document.getElementById('capaAnuncio');
   var frame     = document.getElementById('iframeAdsterra');
   var btnClose  = document.getElementById('btnCloseAds');
@@ -587,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnFinal  = document.getElementById('dl-btn-final');
   var hint      = document.getElementById('jd-ads-hint');
 
-  frame.src = dlNormal;
+  frame.src = (Math.floor(Math.random() * 20) + 1 === 10) ? dlAdulto : dlNormal;
 
   document.addEventListener('jd:btnFinalClick', function() {
     if (capa.classList.contains('activa')) return;
