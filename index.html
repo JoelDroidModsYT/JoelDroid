@@ -2,9 +2,6 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
 
@@ -115,16 +112,8 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
-#site-banner{position:relative;background:linear-gradient(135deg,#0f172a,#06b6d4);box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);padding:1.8rem 1rem;border-radius:35px;overflow:hidden;text-align:center;display:flex;justify-content:center;align-items:center}
-#site-banner.hidden{display:none!important;}
 #site-banner::after{content:'';position:absolute;top:50%;right:0%;width:120px;height:120px;background-color:var(--brand-color);opacity:.15;transform:translateY(-50%) translateX(20%) rotate(30deg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);transition:opacity .3s ease}
-#banner-title-ui{font-size:2rem;font-weight:900;letter-spacing:-.05em;text-shadow:0 0 5px rgba(255,255,255,.3)}
-#banner-subtitle-ui{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.7);margin-top:5px}
 .lang-container{position:relative;display:flex;align-items:center}
-.lang-dropdown{position:absolute;top:110%;right:0;background:var(--nav-bg);border:1px solid var(--border-color);border-radius:12px;padding:8px;display:none;flex-direction:column;gap:4px;z-index:100;width:140px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
-.lang-dropdown.active{display:flex}
-.lang-option{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background .2s;font-size:11px;font-weight:700;text-transform:uppercase}
-.lang-option:hover{background:rgba(59,130,246,.1)}
 .flag-icon{width:18px;height:14px;border-radius:2px;object-fit:cover}
 .search-container{background:var(--search-bg);border:1px solid var(--border-color);border-radius:20px;padding:2px 14px;display:flex;align-items:center;gap:10px;transition:all .3s ease}
 .search-input{background:transparent;border:none;outline:none;color:var(--text-main);font-size:12px;font-weight:600;width:100%;padding:8px 0}
@@ -216,9 +205,7 @@ body{top:0!important}
   nav .max-w-md{max-width:560px}
   #home-view,.max-w-md{max-width:560px}
   .game-card{border-radius:20px}
-  #site-banner{border-radius:28px;padding:2.2rem 1.5rem}
-  #banner-title-ui{font-size:2.4rem}
-}
+  }
 
 /* Tablet grande / iPad (768px+) */
 @media(min-width:768px){
@@ -263,7 +250,6 @@ body{top:0!important}
 /* Pantallas muy pequeñas (360px y menos) */
 @media(max-width:360px){
   #home-view{padding-left:0.8rem;padding-right:0.8rem}
-  #banner-title-ui{font-size:1.5rem}
   .filter-chip{font-size:8px;padding:5px 10px}
   .ios-icon-large{width:76px;height:76px}
   nav{padding-left:1rem;padding-right:1rem}
@@ -273,7 +259,6 @@ body{top:0!important}
 @media(pointer:coarse){
   .ps-star-btn{width:40px;height:40px}
   .filter-chip{min-height:38px}
-  .lang-option{padding:10px 14px}
   .btn-download-main{padding-top:14px;padding-bottom:14px}
 }
 .icon-anim-filter-pulse{animation:pulseIconSmall 1s infinite alternate}
@@ -594,7 +579,298 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .light-mode #share-fab svg{stroke:#2563eb}
 .light-mode #share-fab::before{background:rgba(255,255,255,.95);color:#0f172a}
 
+/* ══ AN1 GRID LAYOUT ══════════════════════════════════════════ */
+.an1-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:2px 0;
+}
+@media(min-width:480px){.an1-grid{grid-template-columns:repeat(3,1fr);gap:12px;}}
+@media(min-width:768px){.an1-grid{grid-template-columns:repeat(4,1fr);gap:14px;}}
+@media(min-width:1024px){.an1-grid{grid-template-columns:repeat(5,1fr);gap:16px;}}
+
+/* ══ AN1 CARD ══════════════════════════════════════════════════ */
+.an1-card{
+  background:var(--card-bg);
+  border:1px solid var(--border-color);
+  border-radius:14px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .2s ease,box-shadow .2s ease;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+.an1-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(37,99,235,.35);}
+.an1-card:active{transform:scale(.97);}
+
+/* Imagen cuadrada superior */
+.an1-img-wrap{
+  position:relative;
+  width:100%;
+  padding-top:100%;
+  overflow:hidden;
+  background:rgba(255,255,255,.03);
+}
+.an1-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:0;
+  transition:transform .3s ease;
+}
+.an1-card:hover .an1-img{transform:scale(1.05);}
+
+/* Etiqueta MOD esquina superior izquierda */
+.an1-mod-tag{
+  position:absolute;
+  top:6px;
+  left:6px;
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;
+  font-size:8px;
+  font-weight:900;
+  padding:2px 6px;
+  border-radius:5px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  box-shadow:0 2px 6px rgba(239,68,68,.5);
+  z-index:2;
+}
+/* Badge UPDATE */
+.an1-update-tag{
+  position:absolute;
+  top:6px;
+  right:6px;
+  background:linear-gradient(135deg,#10b981,#059669);
+  color:#fff;
+  font-size:7px;
+  font-weight:900;
+  padding:2px 5px;
+  border-radius:4px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  box-shadow:0 2px 6px rgba(16,185,129,.5);
+  z-index:2;
+}
+
+/* Área de texto bajo la imagen */
+.an1-info{
+  padding:8px 8px 6px;
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  gap:3px;
+}
+.an1-name{
+  font-size:11px;
+  font-weight:800;
+  line-height:1.25;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  color:var(--text-main);
+}
+.an1-mod-label{
+  font-size:9px;
+  font-weight:700;
+  color:var(--brand-color);
+  opacity:.8;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+/* Estrellas fijas 5 */
+.an1-stars{
+  display:flex;
+  gap:1px;
+  align-items:center;
+  margin:1px 0;
+}
+.an1-star{font-size:10px;line-height:1;}
+.an1-star.on{color:#f59e0b;}
+.an1-star.off{color:rgba(255,255,255,.18);}
+.light-mode .an1-star.off{color:rgba(0,0,0,.15);}
+
+/* Botón descargar compacto */
+.an1-btn{
+  margin-top:auto;
+  width:100%;
+  padding:5px 4px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-size:8px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  transition:filter .2s,transform .2s;
+  background:var(--btn-gradient);
+}
+.an1-btn:hover{filter:brightness(1.1);}
+.an1-btn:active{transform:scale(.96);}
+
+/* Glassmorphism lang selector */
+.lang-glass-panel{
+  position:absolute;
+  top:110%;
+  right:0;
+  background:rgba(13,17,23,.82);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(37,99,235,.35);
+  border-radius:16px;
+  padding:10px;
+  display:none;
+  flex-direction:column;
+  gap:3px;
+  z-index:200;
+  width:158px;
+  box-shadow:0 12px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04);
+}
+.lang-glass-panel.active{display:flex;}
+.lang-glass-option{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:background .15s;
+  font-size:11px;
+  font-weight:700;
+}
+.lang-glass-option:hover{background:rgba(37,99,235,.18);}
+.light-mode .lang-glass-panel{
+  background:rgba(255,255,255,.88);
+  border-color:rgba(37,99,235,.25);
+  box-shadow:0 12px 40px rgba(0,0,0,.18);
+}
+.light-mode .lang-glass-option:hover{background:rgba(37,99,235,.1);}
+
 </style>
+
+<!-- ══ TRADUCTOR AUTOMÁTICO SILENCIOSO — Google Translate nativo ══ -->
+<style>
+/* Ocultar completamente la barra de herramientas de Google Translate */
+.goog-te-banner-frame,.goog-te-balloon-frame{display:none!important;}
+body{top:0!important;position:static!important;}
+.goog-te-gadget{display:none!important;}
+.skiptranslate{display:none!important;}
+#google_translate_element{display:none!important;}
+.goog-tooltip,.goog-tooltip:hover{display:none!important;}
+.goog-text-highlight{background:none!important;box-shadow:none!important;}
+</style>
+<div id="google_translate_element" style="display:none;visibility:hidden;"></div>
+<script type="text/javascript">
+(function(){
+  // Mapa idioma navegador → código Google Translate
+  var GT_MAP = {
+    'es':'es','en':'en','pt':'pt','de':'de','ru':'ru',
+    'zh':'zh-CN','ja':'ja','tr':'tr','hi':'hi','fr':'fr',
+    'it':'it','ar':'ar','ko':'ko','nl':'nl','pl':'pl'
+  };
+
+  function _getCookieLang(){
+    try{
+      var m = document.cookie.match(/googtrans=\/[a-z-]+\/([a-z-]+)/i);
+      return m ? m[1] : null;
+    }catch(e){return null;}
+  }
+
+  function _getUserLang(){
+    // 1) Preferencia guardada por el selector manual
+    var saved = localStorage.getItem('jd_gt_lang');
+    if(saved) return saved;
+    // 2) Idioma del navegador
+    var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'es';
+    var code = nav.toLowerCase().split('-')[0];
+    return GT_MAP[code] || 'es';
+  }
+
+  function _setGoogleLang(lang){
+    if(!lang || lang === 'es') return; // Español = idioma original, no traducir
+    try{
+      // Limpiar cookies previas
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=/es/'+lang+'; path=/;';
+      // Usar el elemento de traducción de Google
+      var sel = document.querySelector('.goog-te-combo');
+      if(sel){
+        sel.value = lang;
+        sel.dispatchEvent(new Event('change'));
+      }
+    }catch(e){}
+  }
+
+  function _autoTranslate(){
+    var lang = _getUserLang();
+    if(!lang || lang === 'es') return;
+    // Esperar a que Google Translate esté listo
+    var tries = 0;
+    var iv = setInterval(function(){
+      tries++;
+      var sel = document.querySelector('.goog-te-combo');
+      if(sel){
+        clearInterval(iv);
+        sel.value = lang;
+        sel.dispatchEvent(new Event('change'));
+      }
+      if(tries > 30) clearInterval(iv);
+    }, 200);
+  }
+
+  // Función global para que el selector manual cambie idioma
+  window.jdSetLang = function(lang){
+    localStorage.setItem('jd_gt_lang', lang);
+    if(lang === 'es'){
+      // Restaurar original
+      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie = 'googtrans=/es/es; path=/;';
+      location.reload();
+      return;
+    }
+    _setGoogleLang(lang);
+    // Actualizar bandera
+    var flags = {
+      es:'https://flagcdn.com/w40/es.png',en:'https://flagcdn.com/w40/us.png',
+      pt:'https://flagcdn.com/w40/br.png',de:'https://flagcdn.com/w40/de.png',
+      ru:'https://flagcdn.com/w40/ru.png','zh-CN':'https://flagcdn.com/w40/cn.png',
+      ja:'https://flagcdn.com/w40/jp.png',tr:'https://flagcdn.com/w40/tr.png',
+      hi:'https://flagcdn.com/w40/in.png',fr:'https://flagcdn.com/w40/fr.png'
+    };
+    var fg = document.getElementById('current-flag');
+    if(fg && flags[lang]) fg.src = flags[lang];
+  };
+
+  // Inicializar Google Translate Widget
+  window.googleTranslateElementInit = function(){
+    new google.translate.TranslateElement({
+      pageLanguage:'es',
+      autoDisplay:false,
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    },'google_translate_element');
+    // Auto-detectar y aplicar al cargar
+    setTimeout(_autoTranslate, 400);
+  };
+
+  // Cargar script de Google Translate de forma diferida
+  var s = document.createElement('script');
+  s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  s.async = true;
+  s.defer = true;
+  document.head.appendChild(s);
+})();
+</script>
 </head>
 <body class="no-scrollbar">
 
@@ -622,17 +898,17 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         <button onclick="toggleLangDropdown()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center border border-blue-500/30 overflow-hidden">
           <img id="current-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon">
         </button>
-        <div id="lang-menu" class="lang-dropdown">
-          <div class="lang-option" onclick="selectLanguage('es','https://flagcdn.com/w40/es.png')"><img src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
-          <div class="lang-option" onclick="selectLanguage('en','https://flagcdn.com/w40/us.png')"><img src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
-          <div class="lang-option" onclick="selectLanguage('pt','https://flagcdn.com/w40/br.png')"><img src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
-          <div class="lang-option" onclick="selectLanguage('ru','https://flagcdn.com/w40/ru.png')"><img src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
-          <div class="lang-option" onclick="selectLanguage('de','https://flagcdn.com/w40/de.png')"><img src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
-          <div class="lang-option" onclick="selectLanguage('zh-CN','https://flagcdn.com/w40/cn.png')"><img src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
-          <div class="lang-option" onclick="selectLanguage('ja','https://flagcdn.com/w40/jp.png')"><img src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
-          <div class="lang-option" onclick="selectLanguage('tr','https://flagcdn.com/w40/tr.png')"><img src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
-          <div class="lang-option" onclick="selectLanguage('hi','https://flagcdn.com/w40/in.png')"><img src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
-          <div class="lang-option" onclick="selectLanguage('fr','https://flagcdn.com/w40/fr.png')"><img src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
+        <div id="lang-menu" class="lang-glass-panel">
+          <div class="lang-glass-option" onclick="jdSetLang('es')"><img src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('en')"><img src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('pt')"><img src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('ru')"><img src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('de')"><img src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('zh-CN')"><img src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('ja')"><img src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('tr')"><img src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('hi')"><img src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
+          <div class="lang-glass-option" onclick="jdSetLang('fr')"><img src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
         </div>
       </div>
       <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
@@ -678,13 +954,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
     <p id="ann-text-ui" class="text-[11px] font-black uppercase tracking-wider leading-relaxed">¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.</p>
   </div>
-
-  <div id="site-banner" class="premium-banner">
-    <div class="relative z-10">
-      <h2 id="banner-title-ui" class="font-black text-2xl uppercase tracking-tighter text-white" data-i18n="banner_title">MODS EXCLUSIVOS</h2>
-      <div class="flex items-center justify-center gap-2 mt-1">
-        <p id="banner-subtitle-ui" class="text-[9px] font-bold text-blue-100 opacity-90 uppercase tracking-widest" data-i18n="banner_subtitle">JOELDROID MODS YT • PREMIUM</p>
-      </div>
     </div>
   </div>
 
@@ -752,7 +1021,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     </div>
   </div>
 
-  <div id="game-list" class="space-y-6"></div>
+  <div id="game-list" class="an1-grid"></div>
 
   <footer class="pt-10 pb-10 text-center">
     <p id="copyright-text-ui" class="copyright-text">Copyright © <span id="current-year"></span> JoelDroid Mods YT. All rights reserved.</p>
@@ -1035,9 +1304,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <div id="toast-notification" aria-live="polite" aria-atomic="true"></div>
 
 
-<!-- ══ FIREBASE SDK — carga async para no bloquear el render ══ -->
-
-
 <!-- Firebase SDK — síncrono, debe cargar antes del JS principal -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -1046,10 +1312,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 
 <script>
-// [login antiguo eliminado]
-
-// [updateSecurityCredentials eliminada]
-
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE TEMAS DE FONDO — 12 temas, tiempo real, panel admin
 // ════════════════════════════════════════════════════════════════
@@ -2206,51 +2468,45 @@ function _renderGamesBatch(list, start, count){
   }
   var _adminBtn = siteState.buttonSettings.globalHomeButtonText || '';
   var _defaults = ['Descargar APK','Download APK','Baixar APK','APK Herunterladen',
-    'Скачать APK','下载 APK','APKをダウンロード','APK İndir','APK डाउनलोड करें','Télécharger APK',''];
-  var dlBtnText = (_defaults.indexOf(_adminBtn)>=0) ? tStr('Descargar APK') : _adminBtn;
-  var verText = siteState.verification.text || tStr('Verificado');
+    '\u0421\u043a\u0430\u0447\u0430\u0442\u044c APK','\u4e0b\u8f7d APK','APK\u3092\u30c0\u30a6\u30f3\u30ed\u30fc\u30c9','APK \u0130ndir','APK \u0921\u093e\u0909\u0928\u0932\u094b\u0921 \u0915\u0930\u0947\u0902','T\u00e9l\u00e9charger APK',''];
+  var dlBtnText = (_defaults.indexOf(_adminBtn)>=0) ? 'Descargar' : _adminBtn;
 
   var frag = document.createDocumentFragment();
   games.forEach(function(g){
-    var updateBadgeHtml='', modBadgeHtml='';
-    if(currentFilter==='popular'){
-      if(siteState.popularBanner.popularTopBadgeText){
-        var c1=colorPalette[siteState.popularBanner.popularTopBadgeColor]?colorPalette[siteState.popularBanner.popularTopBadgeColor].hex:'#3b82f6';
-        updateBadgeHtml='<div class="popular-top-badge" style="background-color:'+c1+';box-shadow:0 0 12px '+c1+';">'+siteState.popularBanner.popularTopBadgeText+'</div>';
-      }
-      if(siteState.popularBanner.popularBadgeText){
-        var c2=colorPalette[siteState.popularBanner.popularBadgeColor]?colorPalette[siteState.popularBanner.popularBadgeColor].hex:'#ef4444';
-        modBadgeHtml='<div class="mod-badge-neon" style="background-color:'+c2+';box-shadow:0 0 12px '+c2+';">'+siteState.popularBanner.popularBadgeText+'</div>';
-      }
-    }else{
-      if(g.updateBadgeVisible)updateBadgeHtml='<div class="update-badge" style="background-color:'+g.updateBadgeBgColor+';box-shadow:0 0 12px '+g.updateBadgeBgColor+';">'+g.updateBadgeText+'</div>';
-      if(g.modBadgeVisible)modBadgeHtml='<div class="mod-badge-neon" style="background-color:'+g.modBadgeBgColor+';box-shadow:0 0 12px '+g.modBadgeBgColor+';">'+g.modBadgeText+'</div>';
-    }
-    var miniR=_loadGameRatings(g.id);
-    var miniAvg=miniR.total>0?(miniR.sum/miniR.total):0;
-    var miniStarsHtml='';
+    /* Etiqueta MOD */
+    var modLabel = (g.modBadgeText && g.modBadgeVisible!==false) ? g.modBadgeText : 'MOD';
+    var modColor = g.modBadgeBgColor || '#ef4444';
+    /* Etiqueta UPDATE */
+    var updateTag = (g.updateBadgeVisible && g.updateBadgeText)
+      ? '<span class="an1-update-tag">'+g.updateBadgeText+'</span>' : '';
+    /* Estrellas: doradas si hay rating, grises si no */
+    var miniR = _loadGameRatings(g.id);
+    var miniAvg = miniR.total > 0 ? (miniR.sum / miniR.total) : 0;
+    var starsHtml = '';
     for(var si=1;si<=5;si++){
-      miniStarsHtml+='<span style="color:'+(si<=Math.round(miniAvg)?'#f59e0b':'rgba(255,255,255,.2)')+';font-size:9px;">★</span>';
+      starsHtml += '<span class="an1-star '+(si<=Math.round(miniAvg)?'on':'off')+'">&#9733;</span>';
     }
-    var miniRatingLine=miniR.total>0
-      ?('<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;">'+miniStarsHtml+'<span style="font-size:8px;font-weight:800;color:#f59e0b;margin-left:2px;opacity:.85;">'+miniAvg.toFixed(1)+'</span><span style="font-size:8px;opacity:.3;margin-left:1px;">('+miniR.total+')</span></div>')
-      :'';
+    /* Nombre estilo AN1: "Juego (Mod Dinero)" */
+    var features = g.features || [];
+    var modSuffix = features.length > 0
+      ? ' ('+features[0]+')'
+      : (g.modBadgeText && g.modBadgeVisible!==false ? ' ('+g.modBadgeText+')' : ' (MOD)');
+    var displayName = g.name + modSuffix;
 
     var card = document.createElement('div');
-    card.className = 'game-card flex gap-4 p-4 rounded-[30px]';
-    card.setAttribute('onclick', 'showDetail(\''+g.id+'\')');
+    card.className = 'an1-card';
+    card.setAttribute('onclick', "showDetail('"+g.id+"')");
     card.innerHTML =
-      '<div class="icon-container">'+
-        '<img data-src="'+(g.thumb||'')+'" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="icon-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
-        updateBadgeHtml+modBadgeHtml+
+      '<div class="an1-img-wrap">'+
+        '<img data-src="'+(g.thumb||'')+'" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="an1-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
+        '<span class="an1-mod-tag" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
+        updateTag+
       '</div>'+
-      '<div class="flex flex-col justify-center min-w-0 flex-grow">'+
-        '<h3 class="font-black uppercase tracking-tighter truncate text-[13px] notranslate">'+g.name+'</h3>'+
-        '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-70 font-medium line-clamp-2 mt-0.5 leading-tight">'+g.description+'</p>'+
-        '<p class="text-[9px] font-black uppercase tracking-tighter mt-1 mb-1 card-ver-txt" style="color:'+siteState.verification.color+';">JoelDroid Mods YT \u2022 '+verText+'</p>'+
-        miniRatingLine+
-        '<button class="btn-download-main w-full py-2.5 rounded-xl text-white font-black text-[9px] uppercase tracking-widest" style="'+(g.homeButtonVisible?'':'display:none;')+'background:'+siteState.buttonSettings.globalHomeButtonColor+';" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
-          '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+      '<div class="an1-info">'+
+        '<p class="an1-name notranslate">'+displayName+'</p>'+
+        '<div class="an1-stars">'+starsHtml+'</div>'+
+        '<button class="an1-btn" style="'+(g.homeButtonVisible!==false?'':'display:none;')+'background:'+siteState.buttonSettings.globalHomeButtonColor+';" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
+          '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
           '<span class="global-dl-btn-text">'+dlBtnText+'</span>'+
         '</button>'+
       '</div>';
@@ -2259,7 +2515,6 @@ function _renderGamesBatch(list, start, count){
   list.appendChild(frag);
   _initLazyImages();
 }
-
 function _setupLoadMoreSentinel(list){
   // Eliminar sentinel anterior
   var old = document.getElementById('load-more-sentinel');
@@ -2344,19 +2599,7 @@ function _initLazyImages(){
 function initLazyLoading(){ _initLazyImages(); }
 function observeLazyImages(){ _initLazyImages(); }
 
-function updateBannerBasedOnFilter(){
-  var bannerTitle=document.getElementById('banner-title-ui');
-  var bannerSub=document.getElementById('banner-subtitle-ui');
-  var banner=document.getElementById('site-banner');
-  if(!banner||!bannerTitle||!bannerSub)return;
-  var d=siteState.banner;
-  if(currentFilter==='updated')d=siteState.updatedBanner;
-  else if(currentFilter==='popular')d=siteState.popularBanner;
-  banner.style.background='linear-gradient(135deg,'+d.bgColor+' 0%,'+colorPalette.cyan.hex+' 100%)';
-  bannerTitle.innerText=d.title;
-  bannerSub.innerText=d.subtitle;
-  banner.style.display=d.visible?'flex':'none';
-}
+function updateBannerBasedOnFilter(){}
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
