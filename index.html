@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="referrer" content="no-referrer-when-downgrade">
-<link rel="dns-prefetch" href="//www.highperformanceformat.com">
-<link rel="dns-prefetch" href="//pl28977373.profitablecpmratenetwork.com">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
@@ -115,7 +112,6 @@ body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(-
 .ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
-#site-banner::after{content:'';position:absolute;top:50%;right:0%;width:120px;height:120px;background-color:var(--brand-color);opacity:.15;transform:translateY(-50%) translateX(20%) rotate(30deg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);transition:opacity .3s ease}
 .lang-container{position:relative;display:flex;align-items:center}
 .flag-icon{width:18px;height:14px;border-radius:2px;object-fit:cover}
 .search-container{background:var(--search-bg);border:1px solid var(--border-color);border-radius:20px;padding:2px 14px;display:flex;align-items:center;gap:10px;transition:all .3s ease}
@@ -582,298 +578,188 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .light-mode #share-fab svg{stroke:#2563eb}
 .light-mode #share-fab::before{background:rgba(255,255,255,.95);color:#0f172a}
 
-/* ══ AN1 GRID LAYOUT ══════════════════════════════════════════ */
-.an1-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:2px 0;
+/* ── JD COMPACT GRID ─────────────────────────────────────────────
+   2 columns mobile → 3 tablet → 4 PC → 5 desktop
+   Cards are compact: fixed-height image, tight text, slim button
+   ──────────────────────────────────────────────────────────────── */
+.jd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 2px 0 16px;
 }
-@media(min-width:480px){.an1-grid{grid-template-columns:repeat(3,1fr);gap:12px;}}
-@media(min-width:768px){.an1-grid{grid-template-columns:repeat(4,1fr);gap:14px;}}
-@media(min-width:1024px){.an1-grid{grid-template-columns:repeat(5,1fr);gap:16px;}}
+@media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:10px; } }
+@media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:12px; } }
+@media(min-width:1024px) { .jd-grid { grid-template-columns: repeat(5,1fr); gap:14px; } }
 
-/* ══ AN1 CARD ══════════════════════════════════════════════════ */
-.an1-card{
-  background:var(--card-bg);
-  border:1px solid var(--border-color);
-  border-radius:14px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:transform .2s ease,box-shadow .2s ease;
-  display:flex;
-  flex-direction:column;
-  position:relative;
+/* ── CARD ────────────────────────────────────────────────────────*/
+.jd-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform .18s, box-shadow .18s;
 }
-.an1-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(37,99,235,.35);}
-.an1-card:active{transform:scale(.97);}
+.jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
+.jd-card:active { transform: scale(.97); }
 
-/* Imagen cuadrada superior */
-.an1-img-wrap{
-  position:relative;
-  width:100%;
-  padding-top:100%;
-  overflow:hidden;
-  background:rgba(255,255,255,.03);
+/* ── IMAGE BOX: max-height 130px, never crops, adapts ───────────*/
+.jd-img-box {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: rgba(255,255,255,.03);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 130px;
 }
-.an1-img{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  border-radius:0;
-  transition:transform .3s ease;
+.jd-img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+  transition: transform .28s;
 }
-.an1-card:hover .an1-img{transform:scale(1.05);}
+.jd-card:hover .jd-img { transform: scale(1.05); }
 
-/* Etiqueta MOD esquina superior izquierda */
-.an1-mod-tag{
-  position:absolute;
-  top:6px;
-  left:6px;
-  background:linear-gradient(135deg,#ef4444,#dc2626);
-  color:#fff;
-  font-size:8px;
-  font-weight:900;
-  padding:2px 6px;
-  border-radius:5px;
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  box-shadow:0 2px 6px rgba(239,68,68,.5);
-  z-index:2;
+/* ── MOD badge top-left ──────────────────────────────────────────*/
+.jd-mod-badge {
+  position: absolute;
+  top: 4px; left: 4px;
+  background: linear-gradient(135deg,#ef4444,#dc2626);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 900;
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  box-shadow: 0 2px 6px rgba(239,68,68,.55);
+  z-index: 2;
+  line-height: 1.3;
 }
-/* Badge UPDATE */
-.an1-update-tag{
-  position:absolute;
-  top:6px;
-  right:6px;
-  background:linear-gradient(135deg,#10b981,#059669);
-  color:#fff;
-  font-size:7px;
-  font-weight:900;
-  padding:2px 5px;
-  border-radius:4px;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-  box-shadow:0 2px 6px rgba(16,185,129,.5);
-  z-index:2;
+/* ── UPDATE badge top-right ──────────────────────────────────────*/
+.jd-upd-badge {
+  position: absolute;
+  top: 4px; right: 4px;
+  background: linear-gradient(135deg,#10b981,#059669);
+  color: #fff;
+  font-size: 6.5px;
+  font-weight: 900;
+  padding: 2px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  z-index: 2;
+  line-height: 1.3;
 }
 
-/* Área de texto bajo la imagen */
-.an1-info{
-  padding:8px 8px 6px;
-  display:flex;
-  flex-direction:column;
-  flex:1;
-  gap:3px;
+/* ── TEXT AREA ───────────────────────────────────────────────────*/
+.jd-info {
+  padding: 5px 6px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
 }
-.an1-name{
-  font-size:11px;
-  font-weight:800;
-  line-height:1.25;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-  color:var(--text-main);
+/* Game name — NEVER translated (notranslate) */
+.jd-name {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text-main);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
 }
-.an1-mod-label{
-  font-size:9px;
-  font-weight:700;
-  color:var(--brand-color);
-  opacity:.8;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+/* Mod-type label: small coloured text, CAN be translated */
+.jd-mod-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--brand-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: .85;
 }
-/* Estrellas fijas 5 */
-.an1-stars{
-  display:flex;
-  gap:1px;
-  align-items:center;
-  margin:1px 0;
-}
-.an1-star{font-size:10px;line-height:1;}
-.an1-star.on{color:#f59e0b;}
-.an1-star.off{color:rgba(255,255,255,.18);}
-.light-mode .an1-star.off{color:rgba(0,0,0,.15);}
+/* ── STARS: always 5, gold when rated, dim when not ─────────────*/
+.jd-stars { display:flex; gap:1px; align-items:center; }
+.jd-star  { font-size:9px; line-height:1; }
+.jd-star.on  { color:#f59e0b; }
+.jd-star.off { color:rgba(255,255,255,.18); }
+.light-mode .jd-star.off { color:rgba(0,0,0,.15); }
 
-/* Botón descargar compacto */
-.an1-btn{
-  margin-top:auto;
-  width:100%;
-  padding:5px 4px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  font-size:8px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  transition:filter .2s,transform .2s;
-  background:var(--btn-gradient);
+/* ── DOWNLOAD BUTTON: slim ───────────────────────────────────────*/
+.jd-btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 4px 4px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  font-size: 7.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 22px;
+  white-space: nowrap;
+  transition: filter .15s, transform .15s;
+  background: var(--btn-gradient);
 }
-.an1-btn:hover{filter:brightness(1.1);}
-.an1-btn:active{transform:scale(.96);}
+.jd-btn:hover  { filter: brightness(1.1); }
+.jd-btn:active { transform: scale(.95); }
 
-/* Glassmorphism lang selector */
-.lang-glass-panel{
-  position:absolute;
-  top:110%;
-  right:0;
-  background:rgba(13,17,23,.82);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-  border:1px solid rgba(37,99,235,.35);
-  border-radius:16px;
-  padding:10px;
-  display:none;
-  flex-direction:column;
-  gap:3px;
-  z-index:200;
-  width:158px;
-  box-shadow:0 12px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04);
+/* ── GLASSMORPHISM language panel ────────────────────────────────*/
+.jd-lang-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: rgba(10,14,20,.88);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(37,99,235,.32);
+  border-radius: 16px;
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 300;
+  min-width: 160px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
 }
-.lang-glass-panel.active{display:flex;}
-.lang-glass-option{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:8px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  transition:background .15s;
-  font-size:11px;
-  font-weight:700;
+.jd-lang-panel.active { display: flex; }
+.jd-lang-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-main);
 }
-.lang-glass-option:hover{background:rgba(37,99,235,.18);}
-.light-mode .lang-glass-panel{
-  background:rgba(255,255,255,.88);
-  border-color:rgba(37,99,235,.25);
-  box-shadow:0 12px 40px rgba(0,0,0,.18);
+.jd-lang-opt:hover { background: rgba(37,99,235,.22); }
+.light-mode .jd-lang-panel {
+  background: rgba(255,255,255,.92);
+  border-color: rgba(37,99,235,.2);
+  box-shadow: 0 16px 40px rgba(0,0,0,.14);
 }
-.light-mode .lang-glass-option:hover{background:rgba(37,99,235,.1);}
+.light-mode .jd-lang-opt:hover { background: rgba(37,99,235,.09); }
 
 </style>
-
-<!-- ══ TRADUCTOR AUTOMÁTICO SILENCIOSO — Google Translate nativo ══ -->
-<style>
-/* Ocultar completamente la barra de herramientas de Google Translate */
-.goog-te-banner-frame,.goog-te-balloon-frame{display:none!important;}
-body{top:0!important;position:static!important;}
-.goog-te-gadget{display:none!important;}
-.skiptranslate{display:none!important;}
-#google_translate_element{display:none!important;}
-.goog-tooltip,.goog-tooltip:hover{display:none!important;}
-.goog-text-highlight{background:none!important;box-shadow:none!important;}
-</style>
-<div id="google_translate_element" style="display:none;visibility:hidden;"></div>
-<script type="text/javascript">
-(function(){
-  // Mapa idioma navegador → código Google Translate
-  var GT_MAP = {
-    'es':'es','en':'en','pt':'pt','de':'de','ru':'ru',
-    'zh':'zh-CN','ja':'ja','tr':'tr','hi':'hi','fr':'fr',
-    'it':'it','ar':'ar','ko':'ko','nl':'nl','pl':'pl'
-  };
-
-  function _getCookieLang(){
-    try{
-      var m = document.cookie.match(/googtrans=\/[a-z-]+\/([a-z-]+)/i);
-      return m ? m[1] : null;
-    }catch(e){return null;}
-  }
-
-  function _getUserLang(){
-    // 1) Preferencia guardada por el selector manual
-    var saved = localStorage.getItem('jd_gt_lang');
-    if(saved) return saved;
-    // 2) Idioma del navegador
-    var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'es';
-    var code = nav.toLowerCase().split('-')[0];
-    return GT_MAP[code] || 'es';
-  }
-
-  function _setGoogleLang(lang){
-    if(!lang || lang === 'es') return; // Español = idioma original, no traducir
-    try{
-      // Limpiar cookies previas
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'googtrans=/es/'+lang+'; path=/;';
-      // Usar el elemento de traducción de Google
-      var sel = document.querySelector('.goog-te-combo');
-      if(sel){
-        sel.value = lang;
-        sel.dispatchEvent(new Event('change'));
-      }
-    }catch(e){}
-  }
-
-  function _autoTranslate(){
-    var lang = _getUserLang();
-    if(!lang || lang === 'es') return;
-    // Esperar a que Google Translate esté listo
-    var tries = 0;
-    var iv = setInterval(function(){
-      tries++;
-      var sel = document.querySelector('.goog-te-combo');
-      if(sel){
-        clearInterval(iv);
-        sel.value = lang;
-        sel.dispatchEvent(new Event('change'));
-      }
-      if(tries > 30) clearInterval(iv);
-    }, 200);
-  }
-
-  // Función global para que el selector manual cambie idioma
-  window.jdSetLang = function(lang){
-    localStorage.setItem('jd_gt_lang', lang);
-    if(lang === 'es'){
-      // Restaurar original
-      document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'googtrans=/es/es; path=/;';
-      location.reload();
-      return;
-    }
-    _setGoogleLang(lang);
-    // Actualizar bandera
-    var flags = {
-      es:'https://flagcdn.com/w40/es.png',en:'https://flagcdn.com/w40/us.png',
-      pt:'https://flagcdn.com/w40/br.png',de:'https://flagcdn.com/w40/de.png',
-      ru:'https://flagcdn.com/w40/ru.png','zh-CN':'https://flagcdn.com/w40/cn.png',
-      ja:'https://flagcdn.com/w40/jp.png',tr:'https://flagcdn.com/w40/tr.png',
-      hi:'https://flagcdn.com/w40/in.png',fr:'https://flagcdn.com/w40/fr.png'
-    };
-    var fg = document.getElementById('current-flag');
-    if(fg && flags[lang]) fg.src = flags[lang];
-  };
-
-  // Inicializar Google Translate Widget
-  window.googleTranslateElementInit = function(){
-    new google.translate.TranslateElement({
-      pageLanguage:'es',
-      autoDisplay:false,
-      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-    },'google_translate_element');
-    // Auto-detectar y aplicar al cargar
-    setTimeout(_autoTranslate, 400);
-  };
-
-  // Cargar script de Google Translate de forma diferida
-  var s = document.createElement('script');
-  s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-  s.async = true;
-  s.defer = true;
-  document.head.appendChild(s);
-})();
-</script>
 </head>
 <body class="no-scrollbar">
 
@@ -901,17 +787,17 @@ body{top:0!important;position:static!important;}
         <button onclick="toggleLangDropdown()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center border border-blue-500/30 overflow-hidden">
           <img id="current-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon">
         </button>
-        <div id="lang-menu" class="lang-glass-panel">
-          <div class="lang-glass-option" onclick="jdSetLang('es')"><img src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('en')"><img src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('pt')"><img src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('ru')"><img src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('de')"><img src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('zh-CN')"><img src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('ja')"><img src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('tr')"><img src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('hi')"><img src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
-          <div class="lang-glass-option" onclick="jdSetLang('fr')"><img src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
+        <div id="lang-menu" class="jd-lang-panel">
+          <div class="jd-lang-opt" onclick="selectLanguage('es','https://flagcdn.com/w40/es.png')"><img src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('en','https://flagcdn.com/w40/us.png')"><img src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('pt','https://flagcdn.com/w40/br.png')"><img src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('ru','https://flagcdn.com/w40/ru.png')"><img src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('de','https://flagcdn.com/w40/de.png')"><img src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('zh-CN','https://flagcdn.com/w40/cn.png')"><img src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('ja','https://flagcdn.com/w40/jp.png')"><img src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('tr','https://flagcdn.com/w40/tr.png')"><img src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('hi','https://flagcdn.com/w40/in.png')"><img src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('fr','https://flagcdn.com/w40/fr.png')"><img src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
         </div>
       </div>
       <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
@@ -1024,7 +910,7 @@ body{top:0!important;position:static!important;}
     </div>
   </div>
 
-  <div id="game-list" class="an1-grid"></div>
+  <div id="game-list" class="jd-grid"></div>
 
   <footer class="pt-10 pb-10 text-center">
     <p id="copyright-text-ui" class="copyright-text">Copyright © <span id="current-year"></span> JoelDroid Mods YT. All rights reserved.</p>
@@ -2185,6 +2071,14 @@ function applyTranslations(lang){
 
   // ── 12) Colores modo claro ─────────────────────────────────────────
   applyLightColors();
+
+  // ── 13) Firebase content: start observer + translate existing cards ──
+  if(lang !== 'es'){
+    _jdStartObserver();
+    _jdTranslateNewCards();
+  } else {
+    _jdStopObserver();
+  }
 }
 
 // ── selectLanguage: cambia idioma al instante y actualiza todo ─────
@@ -2195,6 +2089,77 @@ function selectLanguage(langCode, flagUrl){
   renderGames();
   // Si hay un detalle abierto: re-renderizarlo con el nuevo idioma
   if(currentDetailId) showDetail(currentDetailId);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   JD FIREBASE TRANSLATOR — MutationObserver edition
+   ───────────────────────────────────────────────────────────────────
+   • Watches #game-list for new nodes injected by Firebase / renderGames
+   • Translates ONLY elements marked [data-jd-tr] (mod labels, descriptions)
+   • NEVER touches .notranslate elements (game names)
+   • Never modifies data-*, href, onclick, id or any JS variable
+   ═══════════════════════════════════════════════════════════════════ */
+var _jdObserver = null;
+var _jdObsBusy  = false;
+
+/* Translate a single translatable element safely */
+function _jdTranslateEl(el){
+  if(!el || el.classList.contains('notranslate')) return;
+  if(currentLang === 'es') return;
+  var orig = el.dataset.orig || el.innerText.trim();
+  if(!orig || orig.length < 2) return;
+  if(!el.dataset.orig) el.dataset.orig = orig;
+  trAPI(orig, function(tr){
+    if(tr && tr !== orig){
+      /* Only update visible text, never attribute or dataset values */
+      el.innerText = tr;
+    }
+  });
+}
+
+/* Translate all [data-jd-tr] elements already in #game-list */
+function _jdTranslateNewCards(){
+  if(currentLang === 'es') return;
+  var gl = document.getElementById('game-list');
+  if(!gl) return;
+  gl.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+  /* Also retranslate download button labels */
+  gl.querySelectorAll('.global-dl-btn-text').forEach(function(el){
+    el.textContent = tStr('Descargar APK');
+  });
+}
+
+/* Start the MutationObserver on #game-list */
+function _jdStartObserver(){
+  if(_jdObserver) return;
+  var gl = document.getElementById('game-list');
+  if(!gl) return;
+  _jdObserver = new MutationObserver(function(muts){
+    if(currentLang === 'es') return;
+    if(_jdObsBusy) return;
+    _jdObsBusy = true;
+    /* Debounce: translate in next microtask to batch multiple mutations */
+    setTimeout(function(){
+      _jdObsBusy = false;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(node){
+          if(node.nodeType !== 1) return;
+          /* Translate translatable children of the new card */
+          node.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+          /* Translate button label */
+          node.querySelectorAll('.global-dl-btn-text').forEach(function(b){
+            b.textContent = tStr('Descargar APK');
+          });
+        });
+      });
+    }, 60);
+  });
+  _jdObserver.observe(gl, { childList: true, subtree: false });
+}
+
+/* Stop the observer (when switching back to Spanish) */
+function _jdStopObserver(){
+  if(_jdObserver){ _jdObserver.disconnect(); _jdObserver = null; }
 }
 
 // ============================================================
@@ -2471,45 +2436,60 @@ function _renderGamesBatch(list, start, count){
   }
   var _adminBtn = siteState.buttonSettings.globalHomeButtonText || '';
   var _defaults = ['Descargar APK','Download APK','Baixar APK','APK Herunterladen',
-    '\u0421\u043a\u0430\u0447\u0430\u0442\u044c APK','\u4e0b\u8f7d APK','APK\u3092\u30c0\u30a6\u30f3\u30ed\u30fc\u30c9','APK \u0130ndir','APK \u0921\u093e\u0909\u0928\u0932\u094b\u0921 \u0915\u0930\u0947\u0902','T\u00e9l\u00e9charger APK',''];
-  var dlBtnText = (_defaults.indexOf(_adminBtn)>=0) ? 'Descargar' : _adminBtn;
+    '\u0421\u043a\u0430\u0447\u0430\u0442\u044c APK','\u4e0b\u8f7d APK',
+    'APK\u3092\u30c0\u30a6\u30f3\u30ed\u30fc\u30c9','APK \u0130ndir',
+    'APK \u0921\u093e\u0909\u0928\u0932\u094b\u0921 \u0915\u0930\u0947\u0902',
+    'T\u00e9l\u00e9charger APK',''];
+  var dlBtnText = (_defaults.indexOf(_adminBtn) >= 0) ? tStr('Descargar APK') : _adminBtn;
 
   var frag = document.createDocumentFragment();
   games.forEach(function(g){
-    /* Etiqueta MOD */
-    var modLabel = (g.modBadgeText && g.modBadgeVisible!==false) ? g.modBadgeText : 'MOD';
+    /* ── Badge labels ──────────────────────────────────────────── */
+    var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
     var modColor = g.modBadgeBgColor || '#ef4444';
-    /* Etiqueta UPDATE */
     var updateTag = (g.updateBadgeVisible && g.updateBadgeText)
-      ? '<span class="an1-update-tag">'+g.updateBadgeText+'</span>' : '';
-    /* Estrellas: doradas si hay rating, grises si no */
-    var miniR = _loadGameRatings(g.id);
+      ? '<span class="jd-upd-badge">'+g.updateBadgeText+'</span>' : '';
+
+    /* ── Stars: read real rating, always show 5 ────────────────── */
+    var miniR   = _loadGameRatings(g.id);
     var miniAvg = miniR.total > 0 ? (miniR.sum / miniR.total) : 0;
     var starsHtml = '';
-    for(var si=1;si<=5;si++){
-      starsHtml += '<span class="an1-star '+(si<=Math.round(miniAvg)?'on':'off')+'">&#9733;</span>';
+    for(var si=1; si<=5; si++){
+      starsHtml += '<span class="jd-star '+(si <= Math.round(miniAvg) ? 'on' : 'off')+'">&#9733;</span>';
     }
-    /* Nombre estilo AN1: "Juego (Mod Dinero)" */
-    var features = g.features || [];
-    var modSuffix = features.length > 0
-      ? ' ('+features[0]+')'
-      : (g.modBadgeText && g.modBadgeVisible!==false ? ' ('+g.modBadgeText+')' : ' (MOD)');
-    var displayName = g.name + modSuffix;
+
+    /* ── Mod-type label (translatable, NOT the game name) ──────── */
+    var features  = g.features || [];
+    var modSuffix = features.length > 0 ? features[0]
+      : (g.modBadgeVisible !== false && g.modBadgeText ? g.modBadgeText : 'MOD APK');
 
     var card = document.createElement('div');
-    card.className = 'an1-card';
-    card.setAttribute('onclick', "showDetail('"+g.id+"')");
+    card.className = 'jd-card';
+    card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
     card.innerHTML =
-      '<div class="an1-img-wrap">'+
-        '<img data-src="'+(g.thumb||'')+'" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" class="an1-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
-        '<span class="an1-mod-tag" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
+      '<div class="jd-img-box">'+
+        '<img data-src="'+(g.thumb||'')+'"'+
+             ' src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="'+
+             ' class="jd-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
+        '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
         updateTag+
       '</div>'+
-      '<div class="an1-info">'+
-        '<p class="an1-name notranslate">'+displayName+'</p>'+
-        '<div class="an1-stars">'+starsHtml+'</div>'+
-        '<button class="an1-btn" style="'+(g.homeButtonVisible!==false?'':'display:none;')+'background:'+siteState.buttonSettings.globalHomeButtonColor+';" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
-          '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+      '<div class="jd-info">'+
+        /* Name: notranslate — stays in original language always */
+        '<p class="jd-name notranslate">'+g.name+'</p>'+
+        /* Mod label: translatable */
+        '<p class="jd-mod-label" data-jd-tr="mod">'+modSuffix+'</p>'+
+        /* Stars */
+        '<div class="jd-stars">'+starsHtml+'</div>'+
+        /* Button */
+        '<button class="jd-btn"'+
+                ' style="'+(g.homeButtonVisible!==false?'':'display:none;')+
+                'background:'+siteState.buttonSettings.globalHomeButtonColor+';"'+
+                ' onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
+          '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
+            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
+            '<polyline points="7 10 12 15 17 10"/>'+
+            '<line x1="12" y1="15" x2="12" y2="3"/></svg>'+
           '<span class="global-dl-btn-text">'+dlBtnText+'</span>'+
         '</button>'+
       '</div>';
@@ -2517,6 +2497,8 @@ function _renderGamesBatch(list, start, count){
   });
   list.appendChild(frag);
   _initLazyImages();
+  /* Signal the translator that new Firebase content arrived */
+  if(typeof _jdTranslateNewCards === 'function') _jdTranslateNewCards();
 }
 function _setupLoadMoreSentinel(list){
   // Eliminar sentinel anterior
