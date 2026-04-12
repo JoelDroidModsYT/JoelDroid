@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="dns-prefetch" href="https://firestore.googleapis.com">
+<!-- ════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Premium Platform</title>
@@ -38,6 +46,44 @@
 <!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
+</script>
+<!-- ══ DETECCIÓN INSTANTÁNEA DE IDIOMA — corre antes del render ══
+     Evita el "flash" de texto en español para usuarios no hispanos.
+     Se ejecuta INLINE en el <head>, antes de que el DOM sea visible.
+     ════════════════════════════════════════════════════════════════ -->
+<script>
+(function _jdPreLang(){
+  try {
+    var supported = ['es','en','pt','de','ru','zh-CN','ja','tr','hi','fr'];
+    var saved = localStorage.getItem('selectedLang');
+    if(saved && supported.indexOf(saved) >= 0){
+      document.documentElement.lang = saved;
+      window.__JD_PRELANG = saved;
+      return; // idioma ya guardado — nada más que hacer
+    }
+    // Primera visita: detectar idioma del navegador
+    var langs = (navigator.languages && navigator.languages.length)
+      ? Array.from(navigator.languages)
+      : [navigator.language || navigator.userLanguage || 'es'];
+    var detected = 'es';
+    for(var i = 0; i < langs.length; i++){
+      var bl = (langs[i] || '').toLowerCase();
+      if(bl.startsWith('zh')){ detected = 'zh-CN'; break; }
+      var match = supported.find(function(s){ return bl.startsWith(s.toLowerCase().split('-')[0]); });
+      if(match){ detected = match; break; }
+    }
+    document.documentElement.lang = detected;
+    window.__JD_PRELANG = detected;
+    // Si no es español, ocultar body 120ms para evitar flash de texto en ES
+    if(detected !== 'es'){
+      document.documentElement.style.visibility = 'hidden';
+      document.addEventListener('DOMContentLoaded', function(){
+        // La visibilidad se restaura en applyTranslations() o tras 400ms máx
+        setTimeout(function(){ document.documentElement.style.visibility = ''; }, 400);
+      });
+    }
+  } catch(e) {}
+})();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
@@ -812,38 +858,39 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
-<div style="width: 100%; display: flex; justify-content: center; margin: 0; padding: 0; overflow: hidden;">
-    
-    <div style="max-width: 100%; height: auto;">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b9ef0affd856355663df505e4fbbca67',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js"></script>
-    </div>
-
+<!-- ══ AD SLOT 1: Banner superior home (468×60) ══════════════════ -->
+<div id="jd-ad-slot-home-top" style="width:100%;display:flex;justify-content:center;margin:0;padding:4px 0;overflow:hidden;min-height:62px;">
+  <div style="max-width:100%;height:auto;">
+    <script type="text/javascript">
+    (function(){
+      var atOptions = {
+        'key' : 'b9ef0affd856355663df505e4fbbca67',
+        'format' : 'iframe',
+        'height' : 60,
+        'width' : 468,
+        'params' : {}
+      };
+      window._jdAdOpts_hometop = atOptions;
+    })();
+    </script>
+    <script>window.atOptions = window._jdAdOpts_hometop;</script>
+    <script type="text/javascript" src="https://www.highperformanceformat.com/b9ef0affd856355663df505e4fbbca67/invoke.js"></script>
+  </div>
 </div>
-
+<!-- ── Refresco suave del banner cada 20s para maximizar impresiones ── -->
 <script>
-    setInterval(function() {
-        const adFrame = document.querySelector('iframe[src*="highperformanceformat"]');
-        if(adFrame) {
-            adFrame.src = adFrame.src;
-        }
-    }, 20000);
+(function(){
+  var _adRefreshTimer = setInterval(function() {
+    var adFrame = document.querySelector('#jd-ad-slot-home-top iframe[src*="highperformanceformat"]');
+    if(adFrame){ var s=adFrame.src; adFrame.src=''; adFrame.src=s; }
+  }, 20000);
+})();
 </script>
   <div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
       <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
     </div>
     <p id="ann-text-ui" class="text-[11px] font-black uppercase tracking-wider leading-relaxed">¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.</p>
-  </div>
-    </div>
   </div>
 
   <div class="space-y-3">
@@ -1001,21 +1048,26 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
         
       </div>
       <div class="text-center py-4 border-t border-[var(--border-color)]">
-          <div style="width: 100%; text-align: center; margin: 20px 0; clear: both; display: block;">
-    <span style="font-size: 8px; color: #888; font-family: sans-serif; font-weight: bold; margin-bottom: 5px; display: block;">PUBLICIDAD</span>
-    <div style="display: inline-block; width: 320px; height: 50px; overflow: hidden;">
-        <script type="text/javascript">
-            atOptions = {
+        <!-- ══ AD SLOT 2: Banner detalle — arriba botones descarga ══ -->
+        <div id="jd-ad-slot-det-top" style="width:100%;text-align:center;margin:16px 0 12px;clear:both;display:block;min-height:52px;">
+          <span style="font-size:8px;color:#888;font-family:sans-serif;font-weight:bold;margin-bottom:5px;display:block;letter-spacing:1px;text-transform:uppercase;">PUBLICIDAD</span>
+          <div style="display:inline-block;width:320px;height:50px;overflow:hidden;border-radius:4px;">
+            <script type="text/javascript">
+            (function(){
+              var atOptions = {
                 'key' : '13d51e2826afc9138cb8f865b0b8ea66',
                 'format' : 'iframe',
                 'height' : 50,
                 'width' : 320,
                 'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"></script>
-    </div>
-</div>
+              };
+              window._jdAdOpts_det1 = atOptions;
+            })();
+            </script>
+            <script>window.atOptions = window._jdAdOpts_det1;</script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"></script>
+          </div>
+        </div>
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2" data-i18n="official_links">Enlaces Oficiales</p>
         <h3 id="det-name-dl-secondary" class="text-xs font-black uppercase notranslate">JUEGO MOD APP</h3>
       </div>
@@ -1044,19 +1096,23 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
              Pega aquí banners, iframes, botones extra o URLs adicionales.
              Este bloque es seguro: está FUERA del JavaScript principal.
              ════════════════════════════════════════════════════════════ -->
-   <div id="zona-de-fuego-ads" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 20px 0 30px 0; clear: both; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 15px 0;">
-    <span style="font-size: 8px; color: #888; font-family: sans-serif; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; text-transform: uppercase;">Publicidad Recomendada</span>
-    
-    <div style="width: 320px; height: 50px; overflow: hidden; box-shadow: 0px 4px 12px rgba(0,0,0,0.4); border-radius: 4px;">
+   <div id="zona-de-fuego-ads" style="width:100%;display:flex;flex-direction:column;align-items:center;margin:20px 0 30px 0;clear:both;background:rgba(255,255,255,0.02);border-radius:12px;padding:15px 0;min-height:70px;">
+    <span style="font-size:8px;color:#888;font-family:sans-serif;font-weight:bold;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Publicidad Recomendada</span>
+    <!-- ══ AD SLOT 3: Banner zona-de-fuego — debajo botones descarga ══ -->
+    <div id="jd-ad-slot-det-bot" style="width:320px;height:50px;overflow:hidden;box-shadow:0px 4px 12px rgba(0,0,0,0.4);border-radius:4px;">
         <script type="text/javascript">
-            atOptions = {
-                'key' : '13d51e2826afc9138cb8f865b0b8ea66',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
+        (function(){
+          var atOptions = {
+            'key' : '13d51e2826afc9138cb8f865b0b8ea66',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+          window._jdAdOpts_det2 = atOptions;
+        })();
         </script>
+        <script>window.atOptions = window._jdAdOpts_det2;</script>
         <script type="text/javascript" src="https://www.highperformanceformat.com/13d51e2826afc9138cb8f865b0b8ea66/invoke.js"></script>
     </div>
 </div>
@@ -1193,11 +1249,11 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 <div id="toast-notification" aria-live="polite" aria-atomic="true"></div>
 
 
-<!-- Firebase SDK — síncrono, debe cargar antes del JS principal -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<!-- Firebase SDK — async para no bloquear render; se inicia en DOMContentLoaded -->
+<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script async src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 
 <script>
@@ -1976,6 +2032,10 @@ var LANG_FLAGS_KEYS={search_placeholder:'Buscar aplicaciones...',
 function applyTranslations(lang){
   currentLang = lang;
   localStorage.setItem('selectedLang', lang);
+  // Restaurar visibilidad si fue ocultada por el script pre-lang del <head>
+  if(document.documentElement.style.visibility === 'hidden'){
+    document.documentElement.style.visibility = '';
+  }
 
   // ── 1) Todos los elementos [data-i18n] del DOM ─────────────────────
   document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -4549,12 +4609,18 @@ var _fbReady = false, _fbInitDone = false;
 var _fbModsUnsub = null, _fbCfgUnsub = null;
 var _syncPollTimer = null, _lastSyncHash = '';
 
-// ── Inicializar Firebase ──────────────────────────────────────
+// ── Inicializar Firebase con caché offline + reintentos inteligentes ──
+var _fbRetryCount = 0;
 function _initFirebase(){
   if(_fbInitDone) return;
-  // Esperar al SDK de Firebase si aún no cargó
-  if(typeof firebase==='undefined'){setTimeout(_initFirebase,300);return;}
+  // Esperar SDK — reintento con backoff exponencial (no 300ms fijo)
+  if(typeof firebase==='undefined'){
+    var delay = Math.min(100 * Math.pow(1.5, _fbRetryCount++), 2000);
+    setTimeout(_initFirebase, delay);
+    return;
+  }
   _fbInitDone = true;
+  _fbRetryCount = 0;
 
   var key = FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey;
   if(!key || key.indexOf('PEGA_') === 0){
@@ -4566,19 +4632,27 @@ function _initFirebase(){
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db     = firebase.firestore();
     _fbAuth = firebase.auth();
+
+    // ── CACHÉ OFFLINE: Firestore sirve datos desde IndexedDB al instante ──
+    // Los juegos aparecen en <200ms en visitas repetidas, sin esperar red.
+    _db.enablePersistence({ synchronizeTabs: true }).catch(function(err){
+      // FAILED_PRECONDITION = otra pestaña abierta → modo multi-tab sin caché offline
+      // UNIMPLEMENTED = navegador no compatible (Safari antiguo) → ignorar
+      if(err.code !== 'failed-precondition' && err.code !== 'unimplemented'){
+        console.warn('[Firebase:persistence]', err.code);
+      }
+    });
+
     // Sesión persistente — el admin no se desloguea al cerrar
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady = true;
 
     // ── ARRANCAR LISTENERS (UNA SOLA VEZ) ─────────────────────
-    // Se activan para TODOS los visitantes del mundo
-    // El admin NO necesita estar logueado para que los visitantes reciban datos
     _fbListenMods();
     _fbListenConfig();
 
     // ── Reconexión automática al volver online ─────────────────
     window.addEventListener('online', function(){
-      console.log('[Firebase] Reconectando listeners...');
       _fbListenMods();
       _fbListenConfig();
     });
@@ -4589,17 +4663,13 @@ function _initFirebase(){
       _updateAdminBtns(user);
       if(user && ADMIN_UID && user.uid === ADMIN_UID){
         _updateSyncUI(true, '✅ Admin activo: '+user.email);
-        // Al autenticarse: sincronizar estado local → Firebase
         setTimeout(function(){
           if(!_isAdmin()) return;
-          // Solo verificar si hay mods para migrar — NO guardar config automáticamente
-          // (evita el "Guardando cambios..." al cargar la página)
           _db.collection('mods').limit(1).get()
             .then(function(snap){
               if(snap.empty && siteState.gamesList && siteState.gamesList.length > 0){
                 _autoMigrateToFirestore();
               }
-              // NO llamar _fbSaveSiteConfig() aquí — solo migrar si está vacío
             })
             .catch(function(e){ console.warn('[Firebase] Error verificando mods:', e.message); });
         }, 800);
@@ -4614,7 +4684,6 @@ function _initFirebase(){
   } catch(e){
     _updateSyncUI(false, '❌ Error Firebase: '+e.message);
     console.error('[Firebase]', e);
-    // Reintentar en 5 segundos
     _fbInitDone = false;
     setTimeout(_initFirebase, 5000);
   }
@@ -4873,21 +4942,25 @@ function _syncSave(msg){
 // porque el DOM ya existe cuando se ejecuta el código
 // ══════════════════════════════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 // SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
-// Los botones NO llevan URLs directas.
-// irADescarga() cachea los datos del juego en sessionStorage y
-// navega a descarga.html instantáneamente (efecto SPA).
+// Flujo: irADescarga() → sessionStorage + localStorage (doble respaldo)
+//        → modal anuncio 5s → descarga.html?id=X&modo=Y
+// descarga.html lee jd_dl_payload desde sessionStorage (instantáneo)
+// o localStorage (fallback cross-tab) o re-carga desde Firebase.
 // ════════════════════════════════════════════════════════════════
 
-// Prefetch silencioso de descarga.html en cuanto carga el index
-// (el navegador lo tendrá en caché cuando el usuario haga clic)
+// Prefetch de descarga.html al cargar el index
 (function _prefetchDescarga() {
   try {
-    var link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = '/download/';
-    link.as = 'document';
-    document.head.appendChild(link);
+    // Intentar con ruta relativa directa (funciona en GitHub Pages y hosting normal)
+    ['descarga.html', './descarga.html'].forEach(function(href){
+      var link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = href;
+      link.as = 'document';
+      document.head.appendChild(link);
+    });
   } catch(e) {}
 })();
 
@@ -4899,16 +4972,17 @@ function irADescarga(gameId, modo) {
     ? siteState.gamesList.find(function(g){ return String(g.id) === String(gameId); })
     : null;
 
-  // Serializar TODOS los campos en sessionStorage →
-  // descarga.html los lee al instante sin esperar a Firebase
+  // Serializar TODOS los campos → sessionStorage (tab actual) + localStorage (fallback cross-tab)
   if (game) {
     try {
       var _slug = (typeof slugifyTitle === 'function')
         ? slugifyTitle(game.name || game.nombre || '')
         : String(gameId);
-      var _name = game.name  || game.nombre  || '';
-      var _ver  = game.ver   || game.version || '';
-      var _size = game.size  || game.peso    || '';
+      var _name  = game.name  || game.nombre  || '';
+      var _ver   = game.ver   || game.version  || '';
+      var _size  = game.size  || game.peso     || '';
+      var _link1 = game.downloadButtonLink1 || game.enlace || game.link || '#';
+      var _link2 = game.downloadButtonLink2 || game.enlace2 || _link1;
       var payload = {
         id:    String(game.id),
         modo:  String(modo || 1),
@@ -4917,29 +4991,34 @@ function irADescarga(gameId, modo) {
         thumb: game.thumb || game.imagen || game.icon || '',
         ver:   _ver,
         size:  _size,
-        link1: game.downloadButtonLink1 || game.enlace || '#',
-        link2: game.downloadButtonLink2 || game.downloadButtonLink1 || game.enlace || '#',
+        link1: _link1,
+        link2: _link2,
+        // Campos extra por si descarga.html los necesita
+        features: JSON.stringify(game.features || []),
+        description: game.description || game.descripcion || '',
         ts: Date.now()
       };
-      sessionStorage.setItem('jd_dl_payload', JSON.stringify(payload));
+      var payloadStr = JSON.stringify(payload);
+      // Doble respaldo: sessionStorage (rápido) + localStorage (cross-tab)
+      try { sessionStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
+      try { localStorage.setItem('jd_dl_payload_bk', payloadStr); } catch(e){}
     } catch(e) {}
   }
 
-  // URL corregida: usar ruta relativa directa a descarga.html
+  // URL robusta: ruta relativa desde la raíz del sitio
   var destUrl = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
 
   // ── MODAL DE ANUNCIO antes de redirigir ──────────────────────
   var modal = document.getElementById('jd-modal-ad-descarga');
   if (modal) {
     modal.style.display = 'flex';
-    // Guardar URL destino en el modal para que el botón continuar la use
     modal.dataset.destUrl = destUrl;
-    // Contar regresiva 5s para habilitar el botón "Continuar"
     var btnCont = document.getElementById('jd-modal-ad-btn');
     var reloj   = document.getElementById('jd-modal-ad-timer');
+    // Reset estado del modal (puede haber quedado de una llamada anterior)
+    if (reloj) { reloj.textContent = 'Espera 5s'; reloj.style.display = ''; }
+    if (btnCont) { btnCont.disabled = true; btnCont.style.opacity = '0.4'; btnCont.textContent = 'Espera...'; }
     var s = 5;
-    if (reloj) reloj.textContent = 'Espera ' + s + 's';
-    if (btnCont) { btnCont.disabled = true; btnCont.style.opacity = '0.4'; }
     var iv = setInterval(function() {
       s--;
       if (s > 0) {
@@ -4950,7 +5029,7 @@ function irADescarga(gameId, modo) {
         if (btnCont) { btnCont.disabled = false; btnCont.style.opacity = '1'; btnCont.textContent = 'Continuar →'; }
       }
     }, 1000);
-    return; // No navegar aún — la navegación ocurre al cerrar el modal
+    return;
   }
 
   // Sin modal: navegar directo (fallback)
@@ -4992,9 +5071,13 @@ window.addEventListener('DOMContentLoaded', function() {
   initLazyLoading();
   loadSettings();
 
-  // ── Tema y language
+  // ── Tema y language — usa la detección pre-render del <head> si está disponible
   if(!loadThemePreference()) autoThemeDetection();
-  var savedLang = localStorage.getItem('selectedLang') || detectBrowserLanguage();
+  // __JD_PRELANG fue detectado ANTES del render (script inline del <head>)
+  // Si existe, lo usamos directamente — evita flash y doble detección
+  var savedLang = localStorage.getItem('selectedLang')
+    || (typeof window.__JD_PRELANG !== 'undefined' ? window.__JD_PRELANG : null)
+    || detectBrowserLanguage();
   currentLang = savedLang;
 
   // ── Renderizar interfaz con datos locales
@@ -5079,25 +5162,15 @@ window.addEventListener('DOMContentLoaded', function() {
   // ── 🔥 Firebase: arranca DESPUÉS del DOM
   //    _fbListenMods y _fbListenConfig activarán onSnapshot
   //    → cualquier cambio del admin aparece en tiempo real para TODOS
+  //    Se llama con setTimeout(0) para no bloquear el render inicial
   setTimeout(_initFirebase, 0);
   // Registrar visita cuando Firebase esté listo (con pequeño retardo)
   setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
 
-  // ── Performance: prefetch y Service Worker (DOM ya listo)
+  // ── Performance: prefetch descarga.html ─────────────────────
   try{
-    // Preconectar dominios
-    ['https://cdn.tailwindcss.com','https://fonts.googleapis.com',
-     'https://www.gstatic.com','https://flagcdn.com'].forEach(function(d){
-      var l=document.createElement('link');
-      l.rel='preconnect';l.href=d;l.crossOrigin='anonymous';
-      document.head.appendChild(l);
-    });
-    // Service Worker omitido (compatibilidad TrebEdit)}
+    // Service Worker omitido (compatibilidad TrebEdit)
   }catch(e){}
-
-  // 🔥 FIREBASE — conectar para TODOS los visitantes del mundo
-  // Los listeners onSnapshot actualizarán los juegos en tiempo real
-  setTimeout(_initFirebase, 0);
 });
 
 
@@ -5109,7 +5182,9 @@ window.onload=function(){
   _appInited=true;
   initLazyLoading();loadSettings();
   if(!loadThemePreference())autoThemeDetection();
-  var sl=localStorage.getItem("selectedLang")||detectBrowserLanguage();
+  var sl=localStorage.getItem("selectedLang")
+    ||(typeof window.__JD_PRELANG!=='undefined'?window.__JD_PRELANG:null)
+    ||detectBrowserLanguage();
   currentLang=sl;renderGames();applyUIChanges();applyTranslations(sl);checkDeepLink();
   var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
   var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
@@ -5253,26 +5328,30 @@ window.onload=function(){
 </style>
  
  <style>
+    /* ══ BANNER FLOTANTE INFERIOR — estilo nativo profesional ════════
+       Diseño inspirado en PlayMods: icono izquierda + texto derecha,
+       sin cortes, sin desbordamiento, sombra limpia.
+       ════════════════════════════════════════════════════════════ */
     #jd-play-container {
         position: fixed;
-        bottom: -400px;
+        bottom: -160px;
         left: 0;
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         z-index: 2147483647;
-        transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        padding-bottom: 10px;
+        transition: bottom 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        padding-bottom: env(safe-area-inset-bottom, 8px);
     }
 
-    #jd-play-container.visible { bottom: 10px; }
+    #jd-play-container.visible { bottom: 0; }
 
-    /* Pestaña de cierre idéntica a tu captura */
+    /* Pestaña de cierre */
     .jd-tab-mini {
-        background: #e2e8f0; 
+        background: #e2e8f0;
         width: 42px;
-        height: 24px;
+        height: 22px;
         border-radius: 10px 10px 0 0;
         display: flex;
         justify-content: center;
@@ -5284,41 +5363,38 @@ window.onload=function(){
         border-bottom: none;
     }
 
-    /* Contenedor principal estilo Nativo */
+    /* Contenedor principal — proporciones exactas para no cortar el iframe */
     .jd-banner-body {
         width: 94%;
         max-width: 480px;
         background: #ffffff;
-        border-radius: 15px; /* Bordes exactos como PlayMods */
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        border: 1px solid #f1f5f9;
-        height: 90px; /* Altura perfecta para móvil */
+        border-radius: 14px;
+        box-shadow: 0 -2px 20px rgba(0,0,0,0.18);
+        border: 1px solid #e2e8f0;
+        height: 80px;
         display: flex;
         align-items: center;
         overflow: hidden;
         position: relative;
     }
 
-    /* El Iframe se ajusta para mostrar el icono a la izquierda y texto a la derecha */
+    /* Iframe sin escala distorsionada — ocupa el 100% del banner */
     .jd-ad-content {
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
+        overflow: hidden;
     }
 
     #jd-iframe-play {
-        width: 160%; /* Lo hacemos más ancho para capturar el texto */
-        height: 160%; /* Lo hacemos más alto para capturar el icono */
+        width: 100%;
+        height: 100%;
         border: none;
-        transform: scale(0.65); /* Escalado para que el icono sea el protagonista */
-        transform-origin: top left;
-        position: absolute;
-        top: -12px;
-        left: 5px;
+        display: block;
     }
 
-    /* Capa invisible para que cualquier toque sea un clic al anuncio */
+    /* Overlay de clic */
     .jd-click-overlay {
         position: absolute;
         top: 0;
