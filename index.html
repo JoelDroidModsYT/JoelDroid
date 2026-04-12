@@ -5035,14 +5035,18 @@ function irADescarga(gameId, modo) {
         size:  _size,
         link1: _link1,
         link2: _link2,
+        // Campos con nombres que descarga.html busca primero
+        downloadButtonLink1: _link1,
+        downloadButtonLink2: _link2,
         // Campos extra por si descarga.html los necesita
         features: JSON.stringify(game.features || []),
         description: game.description || game.descripcion || '',
         ts: Date.now()
       };
       var payloadStr = JSON.stringify(payload);
-      // Doble respaldo: sessionStorage (rápido) + localStorage (cross-tab)
+      // Doble respaldo: sessionStorage (rápido) + localStorage (cross-tab, misma clave)
       try { sessionStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
+      try { localStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
       try { localStorage.setItem('jd_dl_payload_bk', payloadStr); } catch(e){}
     } catch(e) {}
   }
