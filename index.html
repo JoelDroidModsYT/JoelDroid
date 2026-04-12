@@ -86,8 +86,8 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 })();
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
+<script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
 
 <script>
@@ -270,11 +270,12 @@ body{top:0!important}
   nav{padding-left:2rem;padding-right:2rem}
   nav .max-w-md{max-width:700px}
   #detail-view>div{max-width:700px}
-  /* Centrar el contenido con margen elegante */
+  /* Centrar el contenido con margen elegante — isolation:auto para no atrapar ads fixed */
   #home-view{
     box-shadow:0 0 80px rgba(37,99,235,.04);
     border-left:1px solid rgba(37,99,235,.06);
     border-right:1px solid rgba(37,99,235,.06);
+    isolation:auto;
   }
 }
 
@@ -344,7 +345,7 @@ body{top:0!important}
 .btn-download-main:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.5)}
 .btn-download-main:active{transform:scale(.97)}
 .recommended-card:hover{transform:translateY(-2px)}
-nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relative;z-index:50;}
 .light-mode .game-card{box-shadow:0 2px 16px rgba(37,99,235,.12),var(--neon-border)}
 @keyframes btnPulse{0%,100%{box-shadow:0 4px 12px rgba(37,99,235,.3)}50%{box-shadow:0 4px 24px rgba(37,99,235,.6)}}
 #det-download-home-btn{animation:btnPulse 2.5s ease-in-out infinite}
@@ -1573,6 +1574,19 @@ function _refreshBgThemeUI(){
 // ════════════════════════════════════════════════════════════════
 
 var currentLang='es';
+// ── Programador no-invasivo: ejecuta trabajo pesado en tiempo libre ──
+// Usa MessageChannel (microtask yield) como polyfill de rIC para Safari
+var _jdIdle = (function(){
+  if(typeof requestIdleCallback === 'function'){
+    return function(fn){ requestIdleCallback(fn, { timeout: 2000 }); };
+  }
+  // Fallback: MessageChannel da un yield antes del siguiente frame
+  var ch = new MessageChannel();
+  var queue = [];
+  ch.port1.onmessage = function(){ if(queue.length){ var fn=queue.shift(); try{fn();}catch(e){} } };
+  return function(fn){ queue.push(fn); ch.port2.postMessage(0); };
+})();
+
 var _trMem={};var _trQ={};
 
 var LANG_FLAGS={
@@ -2029,6 +2043,8 @@ var LANG_FLAGS_KEYS={search_placeholder:'Buscar aplicaciones...',
 };
 
 // ── applyTranslations: Sistema profesional — diccionario + API fallback ──
+// PARTE CRÍTICA (síncrona, <1ms): idioma + visibilidad + filtros visibles
+// PARTE DIFERIDA (idle): querySelectorAll pesados, trAPI calls a la red
 function applyTranslations(lang){
   currentLang = lang;
   localStorage.setItem('selectedLang', lang);
@@ -2037,108 +2053,102 @@ function applyTranslations(lang){
     document.documentElement.style.visibility = '';
   }
 
-  // ── 1) Todos los elementos [data-i18n] del DOM ─────────────────────
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var key = el.getAttribute('data-i18n');
-    if(key==='banner_title'||key==='banner_subtitle'||key==='ann_text') return;
-    var es = LANG_FLAGS_KEYS[key];
-    if(!es) return;
-    el.textContent = tStr(es);
-  });
-
-  // ── 2) Placeholders ────────────────────────────────────────────────
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
-    var key = el.getAttribute('data-i18n-placeholder');
-    var es = LANG_FLAGS_KEYS[key]||key;
-    el.placeholder = tStr(es);
-  });
-  var sb = document.getElementById('search-bar');
-  if(sb) sb.placeholder = tStr('Buscar aplicaciones...');
-
-  // ── 3) Filtros ─────────────────────────────────────────────────────
+  // ── CRÍTICO INMEDIATO: solo los elementos visibles above-the-fold ──
+  // Filtros (siempre visibles)
   var chips = {all:'Todo', updated:'Actualizados', popular:'Popular'};
   Object.keys(chips).forEach(function(k){
     var el = document.getElementById('filter-'+k);
     if(el){ var sp=el.querySelector('span'); if(sp) sp.textContent=tStr(chips[k]); }
   });
-
-  // ── 4) Bandera activa ──────────────────────────────────────────────
+  // Placeholder del buscador
+  var sb = document.getElementById('search-bar');
+  if(sb) sb.placeholder = tStr('Buscar aplicaciones...');
+  // Bandera activa
   var fg = document.getElementById('current-flag');
   if(fg && LANG_FLAGS[lang]) fg.src = LANG_FLAGS[lang];
-
-  // ── 5) Botones descarga home (tarjetas) ────────────────────────────
+  // Botones de descarga de las tarjetas (siempre visibles)
   document.querySelectorAll('.global-dl-btn-text').forEach(function(el){
     var adminTxt = (typeof siteState!=='undefined'&&siteState.buttonSettings&&siteState.buttonSettings.globalHomeButtonText)||'';
     var defaults = ['Descargar APK','Download APK','Baixar APK','APK Herunterladen',
       'Скачать APK','下载 APK','APKをダウンロード','APK İndir','APK डाउनलोड करें','Télécharger APK',''];
     el.textContent = (defaults.indexOf(adminTxt)>=0) ? tStr('Descargar APK') : adminTxt;
   });
-
-  // ── 6) Botón compartir en detalle ──────────────────────────────────
-  var shareSpan = document.querySelector('#detail-view button[onclick="shareGame()"] span');
-  if(shareSpan) shareSpan.textContent = tStr('Compartir');
-
-  // ── 7) Textos estáticos en la vista de detalle ─────────────────────
-  // Advertencia fija
-  var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
-  if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
-  var warnBody = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
-  if(warnBody) warnBody.textContent = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
-
-  // Rating / Comentarios
-  var ratingLbl = document.querySelector('.ps-vote-lbl');
-  if(ratingLbl) ratingLbl.textContent = tStr('CALIFICA ESTA APP');
-  var ratingSubLbl = document.querySelector('.ps-vote-sublbl');
-  if(ratingSubLbl) ratingSubLbl.textContent = tStr('Comparte tu opinión con otros usuarios');
-
-  // ── 8) Comunicado de anuncio — diccionario primero, API como fallback ─
-  var ann = document.getElementById('ann-text-ui');
-  if(ann){
-    var orig = ann.dataset.orig || ann.innerText.trim();
-    if(!ann.dataset.orig && orig) ann.dataset.orig = orig;
-    if(lang==='es'){ ann.innerText = orig; }
-    else { trAPI(orig, function(tr){ var e=document.getElementById('ann-text-ui'); if(e) e.innerText=tr; }); }
-  }
-
-  // ── 9) Copyright ───────────────────────────────────────────────────
-  ['copyright-text-ui','copyright-text-det'].forEach(function(id){
-    var el = document.getElementById(id); if(!el) return;
-    var orig = el.dataset.orig || el.innerText.trim();
-    if(!el.dataset.orig && orig) el.dataset.orig = orig;
-    if(lang==='es'){ el.innerText = orig; }
-    else { trAPI(orig, function(tr){ var e=document.getElementById(id); if(e) e.innerText=tr; }); }
-  });
-
-  // ── 10) Botón descarga detalle (texto personalizable) ──────────────
-  var dlBtns = document.querySelectorAll('[data-i18n="download_mod_btn"]');
-  dlBtns.forEach(function(el){
-    var custom = typeof siteState!=='undefined' && siteState.buttonSettings && siteState.buttonSettings.globalDetailButtonText;
-    if(custom && custom !== 'Descargar Mod Apk'){
-      trAPI(custom, function(tr){ if(tr) el.textContent = tr; });
-    } else {
-      el.textContent = tStr('Descargar Mod Apk');
-    }
-  });
-
-  // ── 11) Descripciones de la vista de detalle abierta ──────────────
-  // (si el detalle está abierto, re-traducir desc con API)
-  if(currentDetailId && lang !== 'es'){
-    var descEl = document.getElementById('det-desc');
-    if(descEl && descEl.dataset.esOrig){
-      trAPI(descEl.dataset.esOrig, function(tr){ var e=document.getElementById('det-desc'); if(e) e.innerText=tr; });
-    }
-  }
-
-  // ── 12) Colores modo claro ─────────────────────────────────────────
+  // Modo claro (inmediato para evitar flash de color)
   applyLightColors();
 
-  // ── 13) Firebase content: start observer + translate existing cards ──
-  if(lang !== 'es'){
+  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea los anuncios ──
+  _jdIdle(function(){
+    // 1) Todos los [data-i18n] del DOM
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if(key==='banner_title'||key==='banner_subtitle'||key==='ann_text') return;
+      var es = LANG_FLAGS_KEYS[key];
+      if(!es) return;
+      el.textContent = tStr(es);
+    });
+    // 2) Placeholders extra
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-placeholder');
+      var es = LANG_FLAGS_KEYS[key]||key;
+      el.placeholder = tStr(es);
+    });
+    // 3) Botón compartir detalle
+    var shareSpan = document.querySelector('#detail-view button[onclick="shareGame()"] span');
+    if(shareSpan) shareSpan.textContent = tStr('Compartir');
+    // 4) Textos detalle estáticos
+    var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
+    if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
+    var warnBody = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
+    if(warnBody) warnBody.textContent = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
+    // 5) Rating labels
+    var ratingLbl = document.querySelector('.ps-vote-lbl');
+    if(ratingLbl) ratingLbl.textContent = tStr('CALIFICA ESTA APP');
+    var ratingSubLbl = document.querySelector('.ps-vote-sublbl');
+    if(ratingSubLbl) ratingSubLbl.textContent = tStr('Comparte tu opinión con otros usuarios');
+    // 6) Botón descarga detalle
+    var dlBtns = document.querySelectorAll('[data-i18n="download_mod_btn"]');
+    dlBtns.forEach(function(el){
+      var custom = typeof siteState!=='undefined' && siteState.buttonSettings && siteState.buttonSettings.globalDetailButtonText;
+      if(custom && custom !== 'Descargar Mod Apk'){
+        trAPI(custom, function(tr){ if(tr) el.textContent = tr; });
+      } else {
+        el.textContent = tStr('Descargar Mod Apk');
+      }
+    });
+  });
+
+  if(lang === 'es'){
+    _jdStopObserver();
+    return;
+  }
+
+  // ── DIFERIDO AL IDLE: llamadas a la API de traducción (red) ───────
+  _jdIdle(function(){
+    // Comunicado de anuncio
+    var ann = document.getElementById('ann-text-ui');
+    if(ann){
+      var orig = ann.dataset.orig || ann.innerText.trim();
+      if(!ann.dataset.orig && orig) ann.dataset.orig = orig;
+      trAPI(orig, function(tr){ var e=document.getElementById('ann-text-ui'); if(e) e.innerText=tr; });
+    }
+    // Copyright
+    ['copyright-text-ui','copyright-text-det'].forEach(function(id){
+      var el = document.getElementById(id); if(!el) return;
+      var orig = el.dataset.orig || el.innerText.trim();
+      if(!el.dataset.orig && orig) el.dataset.orig = orig;
+      trAPI(orig, function(tr){ var e=document.getElementById(id); if(e) e.innerText=tr; });
+    });
+    // Descripción del detalle abierto
+    if(currentDetailId){
+      var descEl = document.getElementById('det-desc');
+      if(descEl && descEl.dataset.esOrig){
+        trAPI(descEl.dataset.esOrig, function(tr){ var e=document.getElementById('det-desc'); if(e) e.innerText=tr; });
+      }
+    }
+    // Observer + traducción de tarjetas Firebase
     _jdStartObserver();
     _jdTranslateNewCards();
-  } else {
-    _jdStopObserver();
-  }
+  });
 }
 
 // ── selectLanguage: cambia idioma al instante y actualiza todo ─────
@@ -4700,6 +4710,38 @@ function _fbListenMods(){
   if(!_db) return;
   if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
 
+  // ── CACHÉ-FIRST: sirve los juegos desde IndexedDB al instante ──────
+  // En visitas repetidas los juegos aparecen en <50ms sin esperar red.
+  // El onSnapshot de abajo los actualiza en cuanto llega la respuesta real.
+  _db.collection('mods').orderBy('order','asc')
+    .get({ source: 'cache' })
+    .then(function(cacheSnap){
+      if(!cacheSnap.empty){
+        var games = cacheSnap.docs.map(function(doc){
+          var d = doc.data(); d.id = doc.id;
+          delete d.updatedAt; delete d.createdAt;
+          if(!d.name && d.nombre)             d.name = d.nombre;
+          if(!d.description && d.descripcion) d.description = d.descripcion;
+          if(!d.thumb && d.imagen)            d.thumb = d.imagen;
+          if(!d.thumb && d.icon)              d.thumb = d.icon;
+          if(!d.ver && d.version)             d.ver = d.version;
+          if(!d.size && d.peso)               d.size = d.peso;
+          if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
+          if(!d.timestamp) d.timestamp = 0;
+          return d;
+        });
+        games.sort(function(a,b){
+          var ta=b.timestamp||0, tb=a.timestamp||0;
+          if(ta!==tb) return ta-tb;
+          return (a.order||0)-(b.order||0);
+        });
+        siteState.gamesList = games;
+        renderGames(); // ← juegos en pantalla desde IndexedDB, sin red
+      }
+    })
+    .catch(function(){ /* caché vacía en primera visita — ignorar */ });
+
+  // ── TIEMPO REAL: actualiza desde red (puede llegar después) ───────
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
     .onSnapshot(function(snap){
@@ -5296,7 +5338,7 @@ window.onload=function(){
   ⚠️ Verifica tu correo para poder comentar
 </div>
 
-<div id="seccion-ads-adaptable" style="width: 95%; max-width: 480px; margin: -28px auto 20px auto; padding: 12px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 25px; border: 1.5px solid #007bff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; z-index: 10;">
+<div id="seccion-ads-adaptable" style="width: 95%; max-width: 480px; margin: -28px auto 20px auto; padding: 12px; background: rgba(20,25,40,0.85); border-radius: 25px; border: 1.5px solid #007bff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; z-index: 1; isolation: auto;">
 
     <div style="display: flex; align-items: center; margin-bottom: 8px; padding-left: 5px;">
         <div style="width: 3px; height: 14px; background: #007bff; border-radius: 4px; margin-right: 8px;"></div>
@@ -5328,82 +5370,143 @@ window.onload=function(){
 </style>
  
  <style>
-    /* ══ BANNER FLOTANTE INFERIOR — estilo nativo profesional ════════
-       Diseño inspirado en PlayMods: icono izquierda + texto derecha,
-       sin cortes, sin desbordamiento, sombra limpia.
-       ════════════════════════════════════════════════════════════ */
-    #jd-play-container {
-        position: fixed;
-        bottom: -160px;
-        left: 0;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        z-index: 2147483647;
-        transition: bottom 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        padding-bottom: env(safe-area-inset-bottom, 8px);
-    }
+/* ═══════════════════════════════════════════════════════════════════
+   BANNER FLOTANTE INFERIOR — Estilo nativo PlayMods
+   ✓ scale(0.82) → anuncio completo sin cortes
+   ✓ pointer-events:none en wrapper → clics pasan al catálogo
+   ✓ body.jd-banner-open → padding compensa la altura real
+   ✓ Responsive automático para cualquier ancho de móvil
+   ═══════════════════════════════════════════════════════════════════ */
 
-    #jd-play-container.visible { bottom: 0; }
+/* ── Wrapper principal ───────────────────────────────────────────── */
+#jd-play-container {
+    position: fixed;
+    bottom: -120px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2147483647;
+    /* Entrada tipo muelle: suave, sin rebotar demasiado */
+    transition: bottom 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* CRÍTICO: el wrapper NO intercepta clics sobre el catálogo */
+    pointer-events: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    will-change: bottom;
+}
 
-    /* Pestaña de cierre */
-    .jd-tab-mini {
-        background: #e2e8f0;
-        width: 42px;
-        height: 22px;
-        border-radius: 10px 10px 0 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        margin-left: auto;
-        margin-right: 6%;
-        border: 1px solid #cbd5e1;
-        border-bottom: none;
-    }
+#jd-play-container.visible {
+    bottom: 0;
+}
 
-    /* Contenedor principal — proporciones exactas para no cortar el iframe */
+/* ── Pestaña de cierre ───────────────────────────────────────────── */
+.jd-tab-mini {
+    pointer-events: auto;
+    background: rgba(226,232,240,0.96);
+    width: 44px;
+    height: 20px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: max(5%, 10px);
+    border: 1px solid #cbd5e1;
+    border-bottom: none;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.07);
+    -webkit-tap-highlight-color: transparent;
+}
+.jd-tab-mini:active { background: #cbd5e1; }
+
+/* ── Cuerpo del banner ───────────────────────────────────────────── */
+.jd-banner-body {
+    pointer-events: auto;
+    width: calc(100vw - 24px);
+    max-width: 480px;
+    /* Altura = altura nativa del ad (~90px) × scale(0.82) ≈ 74px */
+    height: 76px;
+    background: #ffffff;
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -4px 18px rgba(0,0,0,0.13);
+    border: 1px solid #e2e8f0;
+    border-bottom: none;
+    overflow: hidden;
+    position: relative;
+    /* Shimmer mientras carga el iframe */
+    background: linear-gradient(90deg,#f1f5f9 25%,#e8edf4 50%,#f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: jd-shimmer 1.5s infinite linear;
+}
+.jd-banner-body.loaded {
+    background: #ffffff;
+    animation: none;
+}
+@keyframes jd-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── Contenedor interno del iframe ──────────────────────────────── */
+.jd-ad-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: absolute;
+    inset: 0;
+}
+
+/* ── Iframe escalado: 0.82 = se ve completo, sin recorte ─────────
+   El iframe tiene dimensiones mayores al contenedor (122%) para
+   que al escalar al 82% llene exactamente el ancho disponible.
+   ──────────────────────────────────────────────────────────────── */
+#jd-iframe-play {
+    width: 122%;
+    height: 122%;
+    border: none;
+    display: block;
+    transform: scale(0.82);
+    transform-origin: center center;
+    /* El iframe en sí no recibe clics — el overlay los gestiona */
+    pointer-events: none;
+}
+
+/* ── Overlay de clic (sobre el iframe, bajo la pestaña) ─────────── */
+.jd-click-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Body: padding que compensa el banner cuando está visible ─────
+   Se añade/quita la clase .jd-banner-open desde JS              */
+body.jd-banner-open {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Pantallas muy pequeñas (<360px) ────────────────────────────── */
+@media (max-width: 360px) {
+    .jd-banner-body { height: 66px; }
+    #jd-iframe-play { transform: scale(0.74); }
+}
+
+/* ── Tablets / desktop: añadir borde inferior y separación ──────── */
+@media (min-width: 480px) {
     .jd-banner-body {
-        width: 94%;
-        max-width: 480px;
-        background: #ffffff;
         border-radius: 14px;
-        box-shadow: 0 -2px 20px rgba(0,0,0,0.18);
-        border: 1px solid #e2e8f0;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        position: relative;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 10px;
     }
-
-    /* Iframe sin escala distorsionada — ocupa el 100% del banner */
-    .jd-ad-content {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-    }
-
-    #jd-iframe-play {
-        width: 100%;
-        height: 100%;
-        border: none;
-        display: block;
-    }
-
-    /* Overlay de clic */
-    .jd-click-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 5;
-        cursor: pointer;
-    }
+    #jd-play-container.visible { bottom: 10px; }
+    body.jd-banner-open { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+}
 </style>
 
 <!-- ══ MODAL ANUNCIO AL HACER CLIC EN DESCARGAR ══════════════════
@@ -5447,49 +5550,66 @@ window.onload=function(){
 
 <script>
     (function() {
-        let currentAdIndex = 0;
-        const adsList = [
+        var currentAdIndex = 0;
+        var adsList = [
             "https://www.profitablecpmratenetwork.com/ycxbs2sk?key=ff4199cdbc5cc756cedfa675b9c6963d",
             "https://www.profitablecpmratenetwork.com/k2badz7rd?key=90355493e42aeeb59fdfa4038742037f"
         ];
-        
-        const wrap = document.getElementById('jd-play-container');
-        const frame = document.getElementById('jd-iframe-play');
-        let rotationTimer;
+
+        var wrap  = document.getElementById('jd-play-container');
+        var frame = document.getElementById('jd-iframe-play');
+        var body  = document.body;
+        var bannerBody = wrap ? wrap.querySelector('.jd-banner-body') : null;
+        var rotationTimer;
 
         function actualizarAnuncio() {
+            if(!frame) return;
+            // Quitar .loaded mientras carga el nuevo anuncio (reactiva shimmer)
+            if(bannerBody) bannerBody.classList.remove('loaded');
+            frame.onload = function(){
+                if(bannerBody) bannerBody.classList.add('loaded');
+            };
             frame.src = adsList[currentAdIndex];
             currentAdIndex = (currentAdIndex + 1) % adsList.length;
         }
 
         function mostrarPopUp() {
-            if (wrap.classList.contains('visible')) return;
+            if(!wrap || wrap.classList.contains('visible')) return;
             actualizarAnuncio();
             wrap.classList.add('visible');
-
-            // ROTACIÓN CADA 30 SEGUNDOS (Imprescindible para monetizar más)
+            // Añadir padding al body para que el catálogo no quede tapado
+            body.classList.add('jd-banner-open');
+            // ROTACIÓN CADA 30 SEGUNDOS
             rotationTimer = setInterval(actualizarAnuncio, 30000);
         }
 
         window.abrirAnuncio = function() {
-            window.open(adsList[currentAdIndex === 0 ? adsList.length - 1 : currentAdIndex - 1], '_blank');
+            var idx = currentAdIndex === 0 ? adsList.length - 1 : currentAdIndex - 1;
+            window.open(adsList[idx], '_blank');
         };
 
         window.cerrarJDPop = function() {
+            if(!wrap) return;
             wrap.classList.remove('visible');
+            // Quitar el padding extra del body al cerrar
+            body.classList.remove('jd-banner-open');
             clearInterval(rotationTimer);
         };
 
-        // Activación al primer toque o scroll
-        const launch = () => {
+        // Activación al primer toque o scroll — retardo de 1.2s para no
+        // interferir con la carga inicial de los scripts de anuncios inline
+        var launched = false;
+        function launch() {
+            if(launched) return;
+            launched = true;
             setTimeout(mostrarPopUp, 1200);
             document.removeEventListener('click', launch);
             document.removeEventListener('touchstart', launch);
-        };
+        }
 
         document.addEventListener('click', launch);
-        document.addEventListener('touchstart', launch);
-        window.addEventListener('scroll', launch, {once: true});
+        document.addEventListener('touchstart', launch, { passive: true });
+        window.addEventListener('scroll', launch, { once: true, passive: true });
     })();
 </script>
 
