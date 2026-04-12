@@ -503,14 +503,16 @@
         { slot:'jd-ad-banner-2', key:'b9ef0affd856355663df505e4fbbca67' }
       ].forEach(function(ad) {
         var c = document.getElementById(ad.slot);
-        if (!c) return;
-        var f = document.createElement('iframe');
-        f.style.cssText = 'width:320px;height:50px;border:none;overflow:hidden;display:block';
-        f.scrolling='no'; f.marginWidth='0'; f.marginHeight='0';
-        f.srcdoc = '<!DOCTYPE html><html><head><style>*{margin:0;padding:0;overflow:hidden}</style></head><body>'
-          + '<script>var atOptions={\'key\':\'' + ad.key + '\',\'format\':\'iframe\',\'height\':50,\'width\':320,\'params\':{}};<\/script>'
-          + '<script src="https://www.highperformanceformat.com/' + ad.key + '/invoke.js"><\/script></body></html>';
-        c.appendChild(f);
+        if (!c || c.dataset.loaded) return;
+        c.dataset.loaded = '1';
+        /* Inyección directa — más compatible con Chrome móvil que srcdoc */
+        var s1 = document.createElement('script');
+        s1.text = 'var atOptions={"key":"' + ad.key + '","format":"iframe","height":50,"width":320,"params":{}};';
+        c.appendChild(s1);
+        var s2 = document.createElement('script');
+        s2.src = 'https://www.highperformanceformat.com/' + ad.key + '/invoke.js';
+        s2.async = true;
+        c.appendChild(s2);
       });
     }
 
