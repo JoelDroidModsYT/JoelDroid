@@ -579,18 +579,18 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .light-mode #share-fab::before{background:rgba(255,255,255,.95);color:#0f172a}
 
 /* ── JD COMPACT GRID ─────────────────────────────────────────────
-   2 columns mobile → 3 tablet → 4 PC → 5 desktop
-   Cards are compact: fixed-height image, tight text, slim button
+   3 columns mobile → 4 tablet → 5 PC → 6 desktop
+   Cards are ultra-compact: fixed-height image, tight text, slim button
    ──────────────────────────────────────────────────────────────── */
 .jd-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
   padding: 2px 0 16px;
 }
-@media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:10px; } }
-@media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:12px; } }
-@media(min-width:1024px) { .jd-grid { grid-template-columns: repeat(5,1fr); gap:14px; } }
+@media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
+@media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
+@media(min-width:1024px) { .jd-grid { grid-template-columns: repeat(5,1fr); gap:12px; } }
 
 /* ── CARD ────────────────────────────────────────────────────────*/
 .jd-card {
@@ -606,26 +606,26 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
 .jd-card:active { transform: scale(.97); }
 
-/* ── IMAGE BOX: max-height 130px, never crops, adapts ───────────*/
+/* ── IMAGE BOX: cuadrado 1:1, icono completo sin cortes ──────────*/
 .jd-img-box {
   position: relative;
   width: 100%;
-  overflow: hidden;
-  background: rgba(255,255,255,.03);
+  aspect-ratio: 1 / 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  max-height: 130px;
+  background: rgba(255,255,255,.03);
+  overflow: hidden;
 }
 .jd-img {
   width: 100%;
-  height: 130px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: contain;
   display: block;
   transition: transform .28s;
 }
-.jd-card:hover .jd-img { transform: scale(1.05); }
+.jd-card:hover .jd-img { transform: scale(1.04); }
 
 /* ── MOD badge top-left ──────────────────────────────────────────*/
 .jd-mod-badge {
@@ -660,7 +660,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
 /* ── TEXT AREA ───────────────────────────────────────────────────*/
 .jd-info {
-  padding: 5px 6px 5px;
+  padding: 4px 5px 4px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -668,7 +668,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 }
 /* Game name — NEVER translated (notranslate) */
 .jd-name {
-  font-size: 10px;
+  font-size: 8.5px;
   font-weight: 800;
   line-height: 1.2;
   color: var(--text-main);
@@ -680,7 +680,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 }
 /* Mod-type label: small coloured text, CAN be translated */
 .jd-mod-label {
-  font-size: 8.5px;
+  font-size: 7.5px;
   font-weight: 700;
   color: var(--brand-color);
   white-space: nowrap;
@@ -690,29 +690,29 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 }
 /* ── STARS: always 5, gold when rated, dim when not ─────────────*/
 .jd-stars { display:flex; gap:1px; align-items:center; }
-.jd-star  { font-size:9px; line-height:1; }
+.jd-star  { font-size:8px; line-height:1; }
 .jd-star.on  { color:#f59e0b; }
 .jd-star.off { color:rgba(255,255,255,.18); }
 .light-mode .jd-star.off { color:rgba(0,0,0,.15); }
 
-/* ── DOWNLOAD BUTTON: slim ───────────────────────────────────────*/
+/* ── DOWNLOAD BUTTON: ultra-slim for 3-col ───────────────────────*/
 .jd-btn {
   margin-top: auto;
   width: 100%;
-  padding: 4px 4px;
-  border-radius: 7px;
+  padding: 3px 3px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  font-size: 7.5px;
+  font-size: 6.5px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  min-height: 22px;
+  gap: 2px;
+  min-height: 19px;
   white-space: nowrap;
   transition: filter .15s, transform .15s;
   background: var(--btn-gradient);
@@ -2092,15 +2092,18 @@ function selectLanguage(langCode, flagUrl){
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   JD FIREBASE TRANSLATOR — MutationObserver edition
+   JD FIREBASE TRANSLATOR — MutationObserver edition v2
    ───────────────────────────────────────────────────────────────────
-   • Watches #game-list for new nodes injected by Firebase / renderGames
-   • Translates ONLY elements marked [data-jd-tr] (mod labels, descriptions)
-   • NEVER touches .notranslate elements (game names)
+   • Watches #game-list AND #detail-view for Firebase-injected content
+   • Translates [data-jd-tr] elements (mod labels, descriptions, menus)
+   • Translates download button labels (Descargar Mod 1 / Mod 2)
+   • Auto-detects browser language on first visit (no saved preference)
+   • NEVER touches .notranslate elements (game names stay original)
    • Never modifies data-*, href, onclick, id or any JS variable
    ═══════════════════════════════════════════════════════════════════ */
-var _jdObserver = null;
-var _jdObsBusy  = false;
+var _jdObserver    = null;
+var _jdDetObserver = null;
+var _jdObsBusy     = false;
 
 /* Translate a single translatable element safely */
 function _jdTranslateEl(el){
@@ -2126,6 +2129,43 @@ function _jdTranslateNewCards(){
   /* Also retranslate download button labels */
   gl.querySelectorAll('.global-dl-btn-text').forEach(function(el){
     el.textContent = tStr('Descargar APK');
+  });
+}
+
+/* Translate detail-view dynamic content injected by Firebase/showDetail */
+function _jdTranslateDetailView(){
+  if(currentLang === 'es') return;
+  /* Description */
+  var descEl = document.getElementById('det-desc');
+  if(descEl && descEl.dataset.esOrig){
+    trAPI(descEl.dataset.esOrig, function(tr){
+      var e = document.getElementById('det-desc'); if(e) e.innerText = tr;
+    });
+  }
+  /* Download button 1 */
+  var btn1txt = document.getElementById('btn-descarga-1-texto');
+  if(btn1txt){
+    var orig1 = btn1txt.dataset.orig || btn1txt.textContent.trim();
+    if(!btn1txt.dataset.orig) btn1txt.dataset.orig = orig1;
+    if(orig1) trAPI(orig1, function(tr){ var e=document.getElementById('btn-descarga-1-texto'); if(e) e.textContent=tr; });
+  }
+  /* Download button 2 */
+  var btn2txt = document.getElementById('btn-descarga-2-texto');
+  if(btn2txt){
+    var orig2 = btn2txt.dataset.orig || btn2txt.textContent.trim();
+    if(!btn2txt.dataset.orig) btn2txt.dataset.orig = orig2;
+    if(orig2) trAPI(orig2, function(tr){ var e=document.getElementById('btn-descarga-2-texto'); if(e) e.textContent=tr; });
+  }
+  /* Mod features tags */
+  document.querySelectorAll('#det-mod-features .mod-tag').forEach(function(el){ _jdTranslateEl(el); });
+  /* Warning text in download section */
+  var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
+  if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
+  var warnBody  = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
+  if(warnBody)  warnBody.textContent  = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
+  /* Mediafire-Seguro labels */
+  document.querySelectorAll('#det-download-buttons p.text-blue-500\\/60').forEach(function(el){
+    el.textContent = tStr('Mediafire-Seguro');
   });
 }
 
@@ -2155,12 +2195,36 @@ function _jdStartObserver(){
     }, 60);
   });
   _jdObserver.observe(gl, { childList: true, subtree: false });
+  /* Also watch the detail view for Firebase-injected content */
+  _jdStartDetailObserver();
+}
+
+/* Start observer on the detail-view to catch Firebase-injected content */
+function _jdStartDetailObserver(){
+  if(_jdDetObserver) return;
+  var dv = document.getElementById('detail-view');
+  if(!dv) return;
+  _jdDetObserver = new MutationObserver(function(muts){
+    if(currentLang === 'es') return;
+    var hasRelevant = muts.some(function(m){
+      return m.addedNodes.length > 0 || m.type === 'characterData';
+    });
+    if(!hasRelevant) return;
+    /* Debounce 80ms to let Firebase finish injecting the batch */
+    clearTimeout(_jdDetObserver._t);
+    _jdDetObserver._t = setTimeout(function(){
+      _jdTranslateDetailView();
+    }, 80);
+  });
+  _jdDetObserver.observe(dv, { childList: true, subtree: true });
 }
 
 /* Stop the observer (when switching back to Spanish) */
 function _jdStopObserver(){
   if(_jdObserver){ _jdObserver.disconnect(); _jdObserver = null; }
+  if(_jdDetObserver){ _jdDetObserver.disconnect(); _jdDetObserver = null; }
 }
+
 
 // ============================================================
 // FIX 3: INSTALL TUTORIAL SECTION
@@ -2253,7 +2317,7 @@ var initialGames=[
 var defaultSiteState={
   ui:{title:"JOELDROID",subtitle:"MODS YT",logoVisible:true,selectedColor:'electricBlue',titleTextColor:'#ffffff',subtitleTextColor:'#ffffff',logoUrl:null,logoColor:'#ffffff'},
   announcement:{visible:true,text:"¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.",url:"",bgColor:"#ef4444"},
-  banner:{visible:true,title:"MODS EXCLUSIVOS",subtitle:"JOELDROID MODS YT • PREMIUM",bgColor:"#0f172a"},
+  banner:{visible:false,title:"",subtitle:"",bgColor:"#0f172a"},
   updatedBanner:{visible:true,title:"MODS ACTUALIZADOS",subtitle:"Nuevas versiones disponibles",bgColor:"#f97316"},
   popularBanner:{visible:true,title:"TOP DESCARGAS",subtitle:"Juegos más descargados",bgColor:"#ef4444",popularTopBadgeText:'PREMIUM',popularTopBadgeColor:'blue',popularBadgeText:'TOP',popularBadgeColor:'red'},
   copyright:{text:"Copyright © {year} JoelDroid Mods YT. All rights reserved.",textColor:'#ffffff'},
@@ -2684,10 +2748,10 @@ function showDetail(id){
   var btn1Text=game.downloadButtonText1||'Descargar Mod 1';
   var btn2Text=game.downloadButtonText2||'Descargar Mod 2';
   if(dlBtn1){dlBtn1.dataset.link=game.downloadButtonLink1||'#';dlBtn1.style.backgroundColor=game.downloadButtonColor1||'#3b82f6';}
-  if(dlBtn1txt){dlBtn1txt.textContent=btn1Text;}
+  if(dlBtn1txt){dlBtn1txt.textContent=btn1Text; dlBtn1txt.dataset.orig=btn1Text;}
   if(dlBtn1wrap){dlBtn1wrap.style.display=game.downloadButtonVisible1?'':'none';}
   if(dlBtn2){dlBtn2.dataset.link=game.downloadButtonLink2||'#';dlBtn2.style.backgroundColor=game.downloadButtonColor2||'#3b82f6';}
-  if(dlBtn2txt){dlBtn2txt.textContent=btn2Text;}
+  if(dlBtn2txt){dlBtn2txt.textContent=btn2Text; dlBtn2txt.dataset.orig=btn2Text;}
   if(dlBtn2wrap){dlBtn2wrap.style.display=game.downloadButtonVisible2?'':'none';}
 
   var dtTitle=document.getElementById('detail-site-title-ui');
@@ -2700,6 +2764,10 @@ function showDetail(id){
 
   renderRecommendedGames(id);
   applyTranslations(currentLang);
+  /* Re-translate detail content injected by Firebase (download btns, desc, features) */
+  if(currentLang !== 'es'){
+    setTimeout(function(){ _jdTranslateDetailView(); }, 120);
+  }
   refreshIcons();
   initDetRatingsComments(id);
 }
