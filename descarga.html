@@ -645,6 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .jd-btn-close-pop{display:flex;align-items:center;gap:4px;color:#1a73e8;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;user-select:none;-webkit-tap-highlight-color:transparent}
 .jd-frame-pop{width:100%;flex:1;border:none;background:#fff}
 </style>
+
 <div class="jd-fondo-popunder" id="capaPopunder">
   <div class="jd-blanco-pop">
     <div class="jd-barra-pop">
@@ -654,17 +655,15 @@ document.addEventListener('DOMContentLoaded', function() {
         Close ✕
       </span>
     </div>
-    <iframe class="jd-frame-pop" id="iframePopunder" scrolling="yes"></iframe>
+    <iframe class="jd-frame-pop" id="iframePopunder" scrolling="yes" allow="autoplay; encrypted-media" sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
   </div>
 </div>
+
 <script>
 (function () {
   'use strict';
-
-  /* ── URLs del anuncio popunder ── */
   var urlPop = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
 
-  /* ── Calcular URL de retorno al índice ── */
   function _backUrl() {
     var pid = (new URLSearchParams(window.location.search).get('id') || '').trim();
     try {
@@ -684,34 +683,26 @@ document.addEventListener('DOMContentLoaded', function() {
   var _adCargado = false;
   var _popAbierto = false;
 
-  /* Precarga silenciosa del iframe para que el anuncio aparezca al instante */
   function _precargarAd() {
     if (_adCargado) return;
     _adCargado = true;
     if (iframe) iframe.src = urlPop;
   }
 
-  /* Abrir el popunder — congela la página, muestra el anuncio */
   function _abrirPopunder() {
     if (_popAbierto) return;
     _popAbierto = true;
     _precargarAd();
-    /* Empujar estado para absorber futuros botones Atrás mientras el anuncio está abierto */
     history.pushState({ jdPop: true }, '', window.location.href);
     if (capa) capa.classList.add('activa');
   }
 
-  /* Cerrar el popunder y navegar al juego SIN recargar (Fix 6 & 7) */
   function _cerrarYNavegar() {
     if (capa) capa.classList.remove('activa');
     _popAbierto = false;
     var destUrl = _backUrl();
-    /* Si el index ya está en memoria (misma sesión), usar history para transición sin recarga */
     setTimeout(function () {
       try {
-        /* Usar location.replace para navegar sin añadir entrada al historial
-           El index.html debe manejar el param ?mod= y restaurar su estado sin recargar desde cero.
-           Para hacerlo fluido, guardamos señal en sessionStorage para que index.html salte directo al detalle */
         sessionStorage.setItem('jd_nav_return', '1');
         window.location.replace(destUrl);
       } catch(e) {
@@ -720,40 +711,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 120);
   }
 
-  /* ── Intercepción del botón Atrás — SIN bucle ni parpadeo ── */
   var _pushStateDone = false;
-
-  /* Empujar UNA sola entrada al historial para interceptar el "Atrás" */
   document.addEventListener('DOMContentLoaded', function() {
     if (!_pushStateDone) {
       _pushStateDone = true;
       try { history.pushState({ jdDl: true }, '', window.location.href); } catch(e) {}
     }
-  });
+    setTimeout(_precargarAd, 800); // Precarga rápida
+    if (btnClose) btnClose.addEventListener('click', _cerrarYNavegar);
 
-  window.addEventListener('popstate', function (e) {
-    /* El usuario tocó Atrás — mostrar anuncio popunder */
-    if (_popAbierto) return; /* Ya está mostrando, ignorar */
-    _abrirPopunder();
-    /* NO hacer pushState aquí — eso crea el bucle infinito */
-  });
-
-  /* El botón Atrás del nav interno — muestra el anuncio popunder */
-  window.jdGoBack = function (ev) {
-    if (ev) ev.preventDefault();
-    _abrirPopunder();
-  };
-
-  /* Precarga del iframe después de 1.5s para que esté listo cuando se necesite */
-  document.addEventListener('DOMContentLoaded', function () {
-    setTimeout(_precargarAd, 1500);
-
-    /* Cerrar con el botón Close del popunder → navegar al juego */
-    if (btnClose) {
-      btnClose.addEventListener('click', _cerrarYNavegar);
-    }
-
-    /* Logo y enlaces internos también abren el popunder */
     document.querySelectorAll('a[href*="index"],.logo,img[src*="logo"],header img,.nombre-sitio,.titulo-web')
       .forEach(function (el) {
         el.addEventListener('click', function (e) {
@@ -762,12 +728,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       });
   });
+
+  window.addEventListener('popstate', function (e) {
+    if (_popAbierto) return;
+    _abrirPopunder();
+  });
+
+  window.jdGoBack = function (ev) {
+    if (ev) ev.preventDefault();
+    _abrirPopunder();
+  };
 })();
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     BANNER INFERIOR FLOTANTE (estilo PlayMods) — INTACTO
-═══════════════════════════════════════════════════════════════ -->
 <style>
 .jd-pm-esqueleto{position:fixed;bottom:0;left:0;width:100%;background-color:transparent!important;display:flex;align-items:center;justify-content:center;z-index:10;font-family:Arial,sans-serif;padding-bottom:20px}
 .jd-pm-tarjeta{width:90%;max-width:440px;background-color:#fff;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,.2);position:relative;overflow:visible}
@@ -777,6 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .jd-cuerpo-anuncio{width:100%;height:130px;background-color:#fff;border-radius:16px;overflow:hidden;position:relative}
 .jd-iframe-anuncio-real{width:300%!important;height:300%!important;border:none;display:block;background-color:transparent!important;transform:scale(.3333);transform-origin:0 0;position:absolute;top:0;left:0}
 </style>
+
 <div class="jd-pm-esqueleto" id="esqueletoPublicidadPlaymods">
   <div class="jd-pm-tarjeta">
     <div class="jd-pm-pestana-cerrar">
@@ -784,10 +758,11 @@ document.addEventListener('DOMContentLoaded', function() {
       <span class="jd-pm-equis" id="botonCerrarPlaymods">×</span>
     </div>
     <div class="jd-cuerpo-anuncio">
-      <iframe id="iframeAnuncioCambiante" src="" class="jd-iframe-anuncio-real"></iframe>
+      <iframe id="iframeAnuncioCambiante" src="" class="jd-iframe-anuncio-real" allow="autoplay; encrypted-media" sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
     </div>
   </div>
 </div>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var _sl  = 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d';
@@ -800,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!_mif || !_esq || !_bx) return;
 
     _mif.src = Math.random() < 0.5 ? (_cur='smartlink',_sl) : (_cur='directlink',_dl);
-
+    
     _bx.addEventListener('click', function(e) { e.stopPropagation(); _esq.style.display='none'; _cls=true; });
 
     function _reap() {
@@ -815,22 +790,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 </script>
 
-<script>
-  // Este script detecta si el anuncio está bloqueado y fuerza su visibilidad
-  document.addEventListener("DOMContentLoaded", function() {
-    var checkAds = setInterval(function() {
-      var slots = document.querySelectorAll('.dl-ad-lower-slot, #jd-ad-banner-1, #jd-ad-banner-2');
-      slots.forEach(function(slot) {
-        if (slot) {
-          slot.style.display = "flex !important";
-          slot.style.visibility = "visible !important";
-          slot.style.opacity = "1 !important";
-        }
-      });
-    }, 2000);
-    setTimeout(function() { clearInterval(checkAds); }, 10000);
-  });
-</script>
+
 
 </body>
 </html>
