@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="referrer" content="no-referrer-when-downgrade">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Descarga - JOELDROID MODS YT</title>
@@ -787,26 +789,47 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 <script>
-  var _sl  = 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d';
-  var _dl  = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
-  var _mif = document.getElementById('iframeAnuncioCambiante');
-  var _esq = document.getElementById('esqueletoPublicidadPlaymods');
-  var _bx  = document.getElementById('botonCerrarPlaymods');
-  var _cur = '', _cls = false;
+  document.addEventListener('DOMContentLoaded', function() {
+    var _sl  = 'https://www.profitablecpmratenetwork.com/ar5urjtfe?key=005267733a6efd67f03c971b0a55798d';
+    var _dl  = 'https://www.profitablecpmratenetwork.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
+    var _mif = document.getElementById('iframeAnuncioCambiante');
+    var _esq = document.getElementById('esqueletoPublicidadPlaymods');
+    var _bx  = document.getElementById('botonCerrarPlaymods');
+    var _cur = '', _cls = false;
 
-  _mif.src = Math.random() < 0.5 ? (_cur='smartlink',_sl) : (_cur='directlink',_dl);
+    if (!_mif || !_esq || !_bx) return;
 
-  _bx.addEventListener('click', function(e) { e.stopPropagation(); _esq.style.display='none'; _cls=true; });
+    _mif.src = Math.random() < 0.5 ? (_cur='smartlink',_sl) : (_cur='directlink',_dl);
 
-  function _reap() {
-    if (!_cls) return;
-    _mif.src = _cur==='smartlink' ? (_cur='directlink',_dl) : (_cur='smartlink',_sl);
-    _cls=false; _esq.style.display='flex';
-    document.removeEventListener('click', _reap);
-    window.removeEventListener('scroll', _reap);
-  }
-  document.addEventListener('click', _reap);
-  window.addEventListener('scroll', _reap);
+    _bx.addEventListener('click', function(e) { e.stopPropagation(); _esq.style.display='none'; _cls=true; });
+
+    function _reap() {
+      if (!_cls) return;
+      _mif.src = _cur==='smartlink' ? (_cur='directlink',_dl) : (_cur='smartlink',_sl);
+      _cls=false; _esq.style.display='flex';
+      document.removeEventListener('click', _reap);
+      window.removeEventListener('scroll', _reap);
+    }
+    document.addEventListener('click', _reap);
+    window.addEventListener('scroll', _reap);
+  });
+</script>
+
+<script>
+  // Este script detecta si el anuncio está bloqueado y fuerza su visibilidad
+  document.addEventListener("DOMContentLoaded", function() {
+    var checkAds = setInterval(function() {
+      var slots = document.querySelectorAll('.dl-ad-lower-slot, #jd-ad-banner-1, #jd-ad-banner-2');
+      slots.forEach(function(slot) {
+        if (slot) {
+          slot.style.display = "flex !important";
+          slot.style.visibility = "visible !important";
+          slot.style.opacity = "1 !important";
+        }
+      });
+    }, 2000);
+    setTimeout(function() { clearInterval(checkAds); }, 10000);
+  });
 </script>
 
 </body>
