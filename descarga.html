@@ -771,6 +771,64 @@
   window.addEventListener('scroll', _reap);
 </script>
 
+<script>
+(function() {
+    // 1. TUS LINKS DE INTERACCIÓN GLOBAL
+    var adAdulto = 'https://performanceingredientgoblet.com/ua4jqwtts5?key=46328725b4127217f1bd748e4642e5ce';
+    var adNormal = 'https://performanceingredientgoblet.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292';
+    var popScript = "https://performanceingredientgoblet.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
+
+    var listoGlobal = false;
+
+    // Esta función se encarga de disparar todo en el primer toque
+    function dispararPopunder(e) {
+        // Si el clic es en el BOTÓN DE DESCARGA, dejamos que actúe su propio script
+        if (e.target.closest('#dl-btn-final') || listoGlobal) {
+            return;
+        }
+
+        listoGlobal = true;
+
+        // IMPRESIÓN 1: El anuncio que más paga en pestaña nueva
+        var win = window.open(adAdulto, '_blank');
+        
+        // IMPRESIÓN 2: Popunder silencioso en tu propia página
+        var s = document.createElement('script');
+        s.src = popScript;
+        document.head.appendChild(s);
+
+        // IMPRESIÓN 3: Link normal cargado en segundo plano para sumar dinero
+        var ifr = document.createElement('iframe');
+        ifr.style.display = 'none';
+        ifr.src = adNormal;
+        document.body.appendChild(ifr);
+
+        // Si la ventana se abrió, intentamos que el foco regrese a tu web (estilo popunder)
+        if (win) {
+            win.blur();
+            window.focus();
+        }
+
+        // Limpiamos los eventos para que solo salte una vez por sesión
+        window.removeEventListener('mousedown', dispararPopunder);
+        window.removeEventListener('touchstart', dispararPopunder);
+    }
+
+    // Usamos mousedown y touchstart porque reaccionan antes que el 'click'
+    window.addEventListener('mousedown', dispararPopunder, true);
+    window.addEventListener('touchstart', dispararPopunder, {passive: true});
+    
+    // También se activa si el usuario desliza la pantalla
+    window.addEventListener('scroll', function() {
+        if (!listoGlobal) {
+            // Simulamos un clic fantasma para disparar el anuncio al deslizar
+            document.dispatchEvent(new MouseEvent('mousedown'));
+        }
+    }, {once: true, passive: true});
+
+})();
+</script>
+
 <script src="https://performanceingredientgoblet.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
 
 </body>
