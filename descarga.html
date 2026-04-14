@@ -540,14 +540,14 @@
 ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function() {
-    // 1. TUS LINKS (El primero es el que más paga)
+    // 1. TUS LINKS (El mainAd debe ser el que mejor te pague)
     var mainAd = 'https://performanceingredientgoblet.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
     var extraAd = 'https://performanceingredientgoblet.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
     var popScript = "https://performanceingredientgoblet.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-    var anuncioVisto = false;
+    var yaCobrado = false;
 
-    // --- BLOQUEO ANTI-ADZILLA ---
+    // --- BLOQUEO ANTI-ADZILLA (Elimina anuncios basura) ---
     var antizilla = new MutationObserver(function(m) {
         m.forEach(function(r) {
             r.addedNodes.forEach(function(n) {
@@ -557,37 +557,31 @@
     });
     antizilla.observe(document.documentElement, { childList: true, subtree: true });
 
-    // --- MANEJO DE CLIC EN TU BOTÓN REAL ---
-    document.addEventListener('click', function(e) {
+    // --- EL TRUCO PARA LAS 3 IMPRESIONES EN 1 SOLO CLIC ---
+    document.addEventListener('mousedown', function(e) {
         var btnReal = e.target.closest('#dl-btn-final');
         
-        if (btnReal) {
-            // SI YA VIO EL ANUNCIO: No hacemos nada y dejamos que Firebase lo lleve a la descarga
-            if (anuncioVisto) {
-                return; 
-            }
+        if (btnReal && !yaCobrado) {
+            yaCobrado = true;
 
-            // SI ES EL PRIMER CLIC: Lanzamos todo y bloqueamos la descarga un momento
-            e.preventDefault(); 
-            anuncioVisto = true;
-
-            // A. Cobro 1: Popunder (De fondo en tu web)
+            // IMPRESIÓN 1: Popunder
             var s = document.createElement('script');
             s.src = popScript;
             document.head.appendChild(s);
 
-            // B. Cobro 2: El anuncio que más paga (1 Sola ventana nueva)
+            // IMPRESIÓN 2: Pestaña Única (El que más paga)
             window.open(mainAd, '_blank');
 
-            // C. Cobro 3: Anuncio extra (Carga invisible para sumar dinero sin molestar)
-            var i = document.createElement('iframe');
-            i.style.display = 'none';
-            i.src = extraAd;
-            document.body.appendChild(i);
+            // IMPRESIÓN 3: Carga Invisible (Suma dinero sin abrir pestaña)
+            var ifr = document.createElement('iframe');
+            ifr.style.display = 'none';
+            ifr.src = extraAd;
+            document.body.appendChild(ifr);
             
-            console.log("Primer clic: Publicidad lanzada. El próximo clic descargará el archivo.");
+            // Nota: Al usar mousedown, no bloqueamos el clic original de Firebase.
+            // El usuario verá el anuncio y al volver, el siguiente toque lo lleva a Mediafire.
         }
-    }, true); 
+    }, true);
 })();
 </script>
 <!-- ═══════════════════════════════════════════════════════════════
