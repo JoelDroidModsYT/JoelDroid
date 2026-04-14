@@ -476,27 +476,17 @@
       } catch(e) { console.warn('[descarga] Firebase:', e.message); if (!timerRunning) _startTimer(); }
     }
 
-    /* PUNTO 1: clic en botón → modal de anuncio; URL se ejecuta tras los anuncios */
+    /* Clic en botón → abre directamente el enlace de Mediafire */
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
         if (!timerDone) return;
-        document.dispatchEvent(new CustomEvent('jd:btnFinalClick'));
-      });
-    }
-
-    /* Listener de jd:btnFinalClick: se dispara tras el bloqueo de anuncios (primer clic).
-       Después de ~1.2 s (tiempo para que los scripts de monetización actúen)
-       navega al enlace real de Mediafire guardado en data-real-url. */
-    document.addEventListener('jd:btnFinalClick', function () {
-      setTimeout(function () {
-        if (!btnFinal) return;
         var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
         if (url && url !== '#') {
           window.open(url, '_blank', 'noopener,noreferrer');
         }
-      }, 1200);
-    });
+      });
+    }
 
     /* PUNTO 4: nuestro CLOSE/X activa la X original del banner inferior */
     if (closeBtnNinos) {
@@ -575,12 +565,8 @@
         var btnReal = e.target.closest('#dl-btn-final');
         
         if (btnReal) {
-            // SI YA COBRAMOS: Abrir directamente el enlace real de Mediafire
+            // SI YA COBRAMOS: dejar pasar sin interferir
             if (yaCobrado) {
-                var urlReal = btnReal.getAttribute('data-real-url') || btnReal.getAttribute('href');
-                if (urlReal && urlReal !== '#') {
-                    window.open(urlReal, '_blank', 'noopener,noreferrer');
-                }
                 return; 
             }
 
