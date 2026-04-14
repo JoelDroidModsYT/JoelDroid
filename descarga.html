@@ -540,14 +540,14 @@
 ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function() {
-    // 1. TUS LINKS (El mainAd debe ser el que mejor te pague)
+    // 1. TUS LINKS DE MONETIZACIÓN
     var mainAd = 'https://performanceingredientgoblet.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
     var extraAd = 'https://performanceingredientgoblet.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
     var popScript = "https://performanceingredientgoblet.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
     var yaCobrado = false;
 
-    // --- BLOQUEO ANTI-ADZILLA (Elimina anuncios basura) ---
+    // --- BLOQUEO ANTI-ADZILLA ---
     var antizilla = new MutationObserver(function(m) {
         m.forEach(function(r) {
             r.addedNodes.forEach(function(n) {
@@ -557,31 +557,37 @@
     });
     antizilla.observe(document.documentElement, { childList: true, subtree: true });
 
-    // --- EL TRUCO PARA LAS 3 IMPRESIONES EN 1 SOLO CLIC ---
-    document.addEventListener('mousedown', function(e) {
+    // --- MANEJO DE CLIC PARA NO ROMPER FIREBASE ---
+    document.addEventListener('click', function(e) {
         var btnReal = e.target.closest('#dl-btn-final');
         
-        if (btnReal && !yaCobrado) {
+        if (btnReal) {
+            // SI YA COBRAMOS: No hacemos nada y dejamos que Firebase actúe (Mediafire)
+            if (yaCobrado) {
+                return; 
+            }
+
+            // SI ES EL PRIMER CLIC: Lanzamos las 3 impresiones y bloqueamos un segundo
+            e.preventDefault(); 
             yaCobrado = true;
 
-            // IMPRESIÓN 1: Popunder
+            // A. Popunder (Impresión 1)
             var s = document.createElement('script');
             s.src = popScript;
             document.head.appendChild(s);
 
-            // IMPRESIÓN 2: Pestaña Única (El que más paga)
+            // B. Ventana Nueva (Impresión 2 - El que más paga)
             window.open(mainAd, '_blank');
 
-            // IMPRESIÓN 3: Carga Invisible (Suma dinero sin abrir pestaña)
+            // C. Iframe Invisible (Impresión 3 - Dinero extra sin ventana)
             var ifr = document.createElement('iframe');
             ifr.style.display = 'none';
             ifr.src = extraAd;
             document.body.appendChild(ifr);
             
-            // Nota: Al usar mousedown, no bloqueamos el clic original de Firebase.
-            // El usuario verá el anuncio y al volver, el siguiente toque lo lleva a Mediafire.
+            // Al terminar este clic, el usuario regresa y el botón funcionará normal.
         }
-    }, true);
+    }, true); 
 })();
 </script>
 <!-- ═══════════════════════════════════════════════════════════════
