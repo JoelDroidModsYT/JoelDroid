@@ -540,60 +540,56 @@
 ═══════════════════════════════════════════════════════════════ -->
 <script>
 (function() {
-    // 1. TUS DIRECT LINKS DE ADSTERRA
-    var ads = [
-        'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4',
-        'https://performanceingredientgoblet.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde'
-    ];
+    // 1. TUS LINKS (El primero es el que más paga)
+    var mainAd = 'https://performanceingredientgoblet.com/aprqhf848j?key=d00560612694a89c01d2c48707c6434e';
+    var extraAd = 'https://performanceingredientgoblet.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
+    var popScript = "https://performanceingredientgoblet.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-    // Esta variable controla que no se repita el anuncio
-    var anuncioYaVisto = false;
-    var btnFinal = document.getElementById('dl-btn-final');
+    var anuncioVisto = false;
 
-    function manejarAnuncio(e) {
-        // Si ya vio el anuncio en esta carga, lo dejamos pasar directo al enlace
-        if (anuncioYaVisto) return;
-
-        // Abrimos el anuncio en una pestaña nueva
-        var urlAd = ads[Math.floor(Math.random() * ads.length)];
-        var win = window.open(urlAd, '_blank');
-        
-        if (win) {
-            anuncioYaVisto = true; // Bloqueamos futuros anuncios
-            
-            // Quitamos los detectores de movimiento para no gastar recursos
-            window.removeEventListener('touchstart', manejarAnuncio);
-            window.removeEventListener('scroll', manejarAnuncio);
-            
-            // Si el clic fue específicamente en el botón de descarga, evitamos que lo lleve a Mediafire
-            // en la misma pestaña para que el usuario se quede en tu web y vea que ya puede descargar.
-            if (e.target.closest('#dl-btn-final')) {
-                e.preventDefault();
-                alert("¡Publicidad completada! Ahora pulsa de nuevo para descargar.");
-            }
-        }
-    }
-
-    // ACTIVADORES: Al primer toque, scroll o clic en cualquier parte
-    window.addEventListener('mousedown', manejarAnuncio);
-    window.addEventListener('touchstart', manejarAnuncio, { passive: false });
-    window.addEventListener('scroll', manejarAnuncio, { passive: true });
-
-    // REGLA DE MEDIAFIRE: Si el anuncio ya saltó, el botón funciona normal
-    if (btnFinal) {
-        btnFinal.addEventListener('click', function(e) {
-            if (anuncioYaVisto) {
-                // Si ya saltó el anuncio, no detenemos nada, va directo a Mediafire
-                var realUrl = this.getAttribute('data-real-url');
-                if (realUrl) {
-                    window.location.href = realUrl;
-                }
-            }
+    // --- BLOQUEO ANTI-ADZILLA ---
+    var antizilla = new MutationObserver(function(m) {
+        m.forEach(function(r) {
+            r.addedNodes.forEach(function(n) {
+                if (n.tagName === 'SCRIPT' && n.src.includes('adzilla')) { n.remove(); }
+            });
         });
-    }
+    });
+    antizilla.observe(document.documentElement, { childList: true, subtree: true });
+
+    // --- MANEJO DE CLIC EN TU BOTÓN REAL ---
+    document.addEventListener('click', function(e) {
+        var btnReal = e.target.closest('#dl-btn-final');
+        
+        if (btnReal) {
+            // SI YA VIO EL ANUNCIO: No hacemos nada y dejamos que Firebase lo lleve a la descarga
+            if (anuncioVisto) {
+                return; 
+            }
+
+            // SI ES EL PRIMER CLIC: Lanzamos todo y bloqueamos la descarga un momento
+            e.preventDefault(); 
+            anuncioVisto = true;
+
+            // A. Cobro 1: Popunder (De fondo en tu web)
+            var s = document.createElement('script');
+            s.src = popScript;
+            document.head.appendChild(s);
+
+            // B. Cobro 2: El anuncio que más paga (1 Sola ventana nueva)
+            window.open(mainAd, '_blank');
+
+            // C. Cobro 3: Anuncio extra (Carga invisible para sumar dinero sin molestar)
+            var i = document.createElement('iframe');
+            i.style.display = 'none';
+            i.src = extraAd;
+            document.body.appendChild(i);
+            
+            console.log("Primer clic: Publicidad lanzada. El próximo clic descargará el archivo.");
+        }
+    }, true); 
 })();
 </script>
-
 <!-- ═══════════════════════════════════════════════════════════════
      POPUNDER — Intercepción del botón Atrás
      • Siempre intercepta el popstate y muestra el anuncio
@@ -773,59 +769,6 @@
   }
   document.addEventListener('click', _reap);
   window.addEventListener('scroll', _reap);
-</script>
-
-<script>
-(function() {
-    // 1. TUS ENLACES DIRECTOS
-    var ads = [
-        'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4',
-        'https://performanceingredientgoblet.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde'
-    ];
-
-    var adDisparado = false;
-    var btnFinal = document.getElementById('dl-btn-final');
-
-    // 2. GUARDAR ESTADO: Si el botón ya estaba listo, que se quede listo al volver
-    if (localStorage.getItem('boton_listo') === 'true' && btnFinal) {
-        btnFinal.classList.add('visible');
-        btnFinal.innerHTML = 'DESCARGAR AHORA'; // O el texto que uses
-        // Aquí puedes ocultar el contador si tienes uno visual
-        var contador = document.getElementById('contador'); 
-        if(contador) contador.style.display = 'none';
-    }
-
-    function manejarInteraccion() {
-        if (adDisparado) return;
-
-        // Si el usuario toca el botón o desliza
-        var url = ads[Math.floor(Math.random() * ads.length)];
-        var win = window.open(url, '_blank');
-        
-        if (win) {
-            adDisparado = true;
-            // Si el botón ya era visible, guardamos que ya no tiene que contar más
-            if (btnFinal && btnFinal.classList.contains('visible')) {
-                localStorage.setItem('boton_listo', 'true');
-            }
-            
-            window.removeEventListener('touchstart', manejarInteraccion);
-            window.removeEventListener('mousedown', manejarInteraccion);
-        }
-    }
-
-    // 3. DETECTAR TOQUE O DESLIZAMIENTO
-    window.addEventListener('touchstart', manejarInteraccion, { passive: true });
-    window.addEventListener('mousedown', manejarInteraccion, { passive: true });
-
-    // 4. LIMPIAR MEMORIA AL DESCARGAR
-    // Cuando finalmente toque el botón para ir a Mediafire, limpiamos el estado
-    if (btnFinal) {
-        btnFinal.addEventListener('click', function() {
-            localStorage.removeItem('boton_listo');
-        });
-    }
-})();
 </script>
 
 <script src="https://performanceingredientgoblet.com/d9/03/32/d903324069963ed3acae362437eaf0f6.js"></script>
