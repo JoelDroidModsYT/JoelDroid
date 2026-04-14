@@ -538,94 +538,60 @@
 <!-- ═══════════════════════════════════════════════════════════════
      MODAL ANUNCIO al tocar el botón de descarga — INTACTO
 ═══════════════════════════════════════════════════════════════ -->
-<style>
-.jd-fondo-ads{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100000;display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .2s ease}
-.jd-fondo-ads.activa{opacity:1;pointer-events:auto}
-.jd-blanco-ads{background:#fff;width:95%;max-width:440px;height:88vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);overflow:hidden;display:flex;flex-direction:column}
-.jd-barra-ads{background:#f1f3f4;display:flex;flex-direction:column;border-bottom:1px solid #dadce0;font-family:sans-serif;flex-shrink:0}
-.jd-barra-ads-top{height:50px;display:flex;justify-content:space-between;align-items:center;padding:0 15px}
-.jd-ads-titulo{color:#5f6368;font-size:15px;font-weight:bold}
-.jd-ads-controles{display:flex;align-items:center;gap:6px}
-.jd-ads-reloj{font-size:14px;color:#5f6368;font-family:sans-serif}
-/* Botón Close — azul limpio, misma tipografía, sin fondo */
-.jd-ads-close{display:none;cursor:pointer;align-items:center;gap:4px;user-select:none;-webkit-tap-highlight-color:transparent}
-.jd-ads-close-word{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#1a73e8;line-height:1}
-.jd-ads-close-x{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#1a73e8;line-height:1}
-/* Flecha a la IZQUIERDA, apunta hacia la DERECHA (→ hacia Close X) */
-@keyframes jdArrowRight{0%,100%{transform:translateX(0);opacity:.45}55%{transform:translateX(4px);opacity:1}}
-.jd-ads-close-arrow{display:inline-flex;align-items:center;animation:jdArrowRight .75s ease-in-out infinite}
-/* Texto guía sutil — aparece solo cuando el botón Close es visible */
-.jd-ads-hint{display:none;font-size:10px;color:#9aa0a6;text-align:center;padding:3px 15px 6px;line-height:1.4;letter-spacing:.01em}
-.jd-ads-hint.visible{display:block}
-.jd-frame-ads{width:100%;flex:1;border:none;background:#fff}
-</style>
-<div class="jd-fondo-ads" id="capaAnuncio">
-  <div class="jd-blanco-ads">
-    <div class="jd-barra-ads">
-      <div class="jd-barra-ads-top">
-        <span class="jd-ads-titulo">Anuncios+16</span>
-        <div class="jd-ads-controles">
-          <span class="jd-ads-reloj" id="timerAds">Wait 5s</span>
-          <span class="jd-ads-close" id="btnCloseAds">
-            <span class="jd-ads-close-arrow">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
-            <span class="jd-ads-close-word">Close</span>
-            <span class="jd-ads-close-x">✕</span>
-          </span>
-        </div>
-      </div>
-      <div class="jd-ads-hint" id="jd-ads-hint">Para cerrar y empezar a descargar, toca <strong>Close ✕</strong> arriba a la derecha</div>
-    </div>
-    <iframe class="jd-frame-ads" id="iframeAdsterra" scrolling="yes"></iframe>
-  </div>
-</div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var dlNormal  = 'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4';
-  var dlAdulto  = 'TU_OTRO_DIRECLINK_DE_ADULTO';
-  var capa      = document.getElementById('capaAnuncio');
-  var frame     = document.getElementById('iframeAdsterra');
-  var btnClose  = document.getElementById('btnCloseAds');
-  var reloj     = document.getElementById('timerAds');
-  var btnFinal  = document.getElementById('dl-btn-final');
-  var hint      = document.getElementById('jd-ads-hint');
+(function() {
+    // 1. TUS DIRECT LINKS DE ADSTERRA
+    var ads = [
+        'https://www.profitablecpmratenetwork.com/khdawr29i?key=d1250e78924206443521efea90e8ccc4',
+        'https://performanceingredientgoblet.com/i6v63smv?key=cb2248934eecd6f7bc6e36b7fd410dde'
+    ];
 
-  frame.src = (Math.floor(Math.random() * 20) + 1 === 10) ? dlAdulto : dlNormal;
+    // Esta variable controla que no se repita el anuncio
+    var anuncioYaVisto = false;
+    var btnFinal = document.getElementById('dl-btn-final');
 
-  document.addEventListener('jd:btnFinalClick', function() {
-    if (capa.classList.contains('activa')) return;
-    capa.classList.add('activa');
-    btnClose.style.display = 'none';
-    if (hint) hint.classList.remove('visible');
-    reloj.style.display    = 'inline';
-    var s = 5;
-    reloj.textContent = 'Wait ' + s + 's';
-    var iv = setInterval(function() {
-      s--;
-      if (s > 0) { reloj.textContent = 'Wait ' + s + 's'; }
-      else {
-        clearInterval(iv);
-        reloj.style.display='none';
-        btnClose.style.display='flex';
-        if (hint) hint.classList.add('visible');
-      }
-    }, 1000);
-  });
+    function manejarAnuncio(e) {
+        // Si ya vio el anuncio en esta carga, lo dejamos pasar directo al enlace
+        if (anuncioYaVisto) return;
 
-  function _cerrarYDescargar() {
-    capa.classList.remove('activa');
-    if (hint) hint.classList.remove('visible');
-    btnClose.style.display = 'none';
-    var url = btnFinal ? (btnFinal.getAttribute('data-real-url') || '') : '';
-    if (!url) return;
-    if (/\.(zip|apk|rar|7z|mp4|mp3|png|jpg)$/i.test(url)) {
-      var a = document.createElement('a'); a.href=url; a.download=''; a.style.display='none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    } else { window.open(url, '_blank'); }
-  }
-  if (btnClose) btnClose.addEventListener('click', _cerrarYDescargar);
-});
+        // Abrimos el anuncio en una pestaña nueva
+        var urlAd = ads[Math.floor(Math.random() * ads.length)];
+        var win = window.open(urlAd, '_blank');
+        
+        if (win) {
+            anuncioYaVisto = true; // Bloqueamos futuros anuncios
+            
+            // Quitamos los detectores de movimiento para no gastar recursos
+            window.removeEventListener('touchstart', manejarAnuncio);
+            window.removeEventListener('scroll', manejarAnuncio);
+            
+            // Si el clic fue específicamente en el botón de descarga, evitamos que lo lleve a Mediafire
+            // en la misma pestaña para que el usuario se quede en tu web y vea que ya puede descargar.
+            if (e.target.closest('#dl-btn-final')) {
+                e.preventDefault();
+                alert("¡Publicidad completada! Ahora pulsa de nuevo para descargar.");
+            }
+        }
+    }
+
+    // ACTIVADORES: Al primer toque, scroll o clic en cualquier parte
+    window.addEventListener('mousedown', manejarAnuncio);
+    window.addEventListener('touchstart', manejarAnuncio, { passive: false });
+    window.addEventListener('scroll', manejarAnuncio, { passive: true });
+
+    // REGLA DE MEDIAFIRE: Si el anuncio ya saltó, el botón funciona normal
+    if (btnFinal) {
+        btnFinal.addEventListener('click', function(e) {
+            if (anuncioYaVisto) {
+                // Si ya saltó el anuncio, no detenemos nada, va directo a Mediafire
+                var realUrl = this.getAttribute('data-real-url');
+                if (realUrl) {
+                    window.location.href = realUrl;
+                }
+            }
+        });
+    }
+})();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════
