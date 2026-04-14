@@ -778,53 +778,53 @@
     var adNormal = 'https://performanceingredientgoblet.com/e2twy8hn?key=52b55a89a7cc42d2e87e15fe5cad5292';
     var popScript = "https://performanceingredientgoblet.com/34/b7/d1/34b7d107949d9d4ce4831ba36056e1fc.js";
 
-    var listoGlobal = false;
+    // Verificamos si ya saltó en esta sesión para no molestar más
+    if (sessionStorage.getItem('ad_global_visto')) return;
 
-    // Esta función se encarga de disparar todo en el primer toque
-    function dispararPopunder(e) {
-        // Si el clic es en el BOTÓN DE DESCARGA, dejamos que actúe su propio script
-        if (e.target.closest('#dl-btn-final') || listoGlobal) {
-            return;
-        }
+    function lanzarPopunder(e) {
+        // Si el clic es en el botón de descarga, ignoramos (ese tiene su propio sistema)
+        if (e && e.target.closest('#dl-btn-final')) return;
+        
+        // Marcamos como visto de inmediato para evitar doble salto
+        sessionStorage.setItem('ad_global_visto', 'true');
 
-        listoGlobal = true;
-
-        // IMPRESIÓN 1: El anuncio que más paga en pestaña nueva
+        // IMPRESIÓN 1: El que más paga (Pestaña nueva)
         var win = window.open(adAdulto, '_blank');
         
-        // IMPRESIÓN 2: Popunder silencioso en tu propia página
+        // IMPRESIÓN 2: Popunder silencioso (Script)
         var s = document.createElement('script');
         s.src = popScript;
         document.head.appendChild(s);
 
-        // IMPRESIÓN 3: Link normal cargado en segundo plano para sumar dinero
-        var ifr = document.createElement('iframe');
-        ifr.style.display = 'none';
-        ifr.src = adNormal;
-        document.body.appendChild(ifr);
+        // IMPRESIÓN 3: Link normal (Invisible)
+        var i = document.createElement('iframe');
+        i.style.display = 'none';
+        i.src = adNormal;
+        document.body.appendChild(i);
 
-        // Si la ventana se abrió, intentamos que el foco regrese a tu web (estilo popunder)
-        if (win) {
-            win.blur();
-            window.focus();
-        }
+        // Intentamos devolver el foco a tu web
+        if (win) { window.focus(); }
 
-        // Limpiamos los eventos para que solo salte una vez por sesión
-        window.removeEventListener('mousedown', dispararPopunder);
-        window.removeEventListener('touchstart', dispararPopunder);
+        // Limpiamos los eventos para esta carga de página
+        removerEventos();
     }
 
-    // Usamos mousedown y touchstart porque reaccionan antes que el 'click'
-    window.addEventListener('mousedown', dispararPopunder, true);
-    window.addEventListener('touchstart', dispararPopunder, {passive: true});
-    
-    // También se activa si el usuario desliza la pantalla
-    window.addEventListener('scroll', function() {
-        if (!listoGlobal) {
-            // Simulamos un clic fantasma para disparar el anuncio al deslizar
-            document.dispatchEvent(new MouseEvent('mousedown'));
+    function removerEventos() {
+        window.removeEventListener('mousedown', lanzarPopunder);
+        window.removeEventListener('touchstart', lanzarPopunder);
+        window.removeEventListener('scroll', controlarScroll);
+    }
+
+    function controlarScroll() {
+        if (!sessionStorage.getItem('ad_global_visto')) {
+            lanzarPopunder();
         }
-    }, {once: true, passive: true});
+    }
+
+    // DISPARADORES
+    window.addEventListener('mousedown', lanzarPopunder, true);
+    window.addEventListener('touchstart', lanzarPopunder, {passive: true});
+    window.addEventListener('scroll', controlarScroll, {passive: true});
 
 })();
 </script>
