@@ -22,7 +22,21 @@
 <meta name="msapplication-TileImage"          content="logo.png?v=1.1">
 <meta name="msapplication-TileColor"          content="#020408">
 <meta name="theme-color"                      content="#007bff">
-<!-- Script inline: fuerza favicon con cache-busting agresivo ANTES del DOM -->
+
+<!-- ══ SEO + OPEN GRAPH — logo en navegadores, Google, WhatsApp, Telegram ══ -->
+<meta name="description" content="JoelDroid Mods YT — Descarga los mejores MOD APK gratis. Mods verificados y seguros para Android.">
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="JoelDroid Mods YT">
+<meta property="og:title"       content="JoelDroid Mods YT | Premium MOD APK Platform">
+<meta property="og:description" content="Descarga los mejores MOD APK gratis. Mods verificados y seguros para Android.">
+<meta property="og:image"       content="logo.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height"content="512">
+<meta name="twitter:card"       content="summary">
+<meta name="twitter:title"      content="JoelDroid Mods YT">
+<meta name="twitter:description"content="Descarga los mejores MOD APK gratis para Android.">
+<meta name="twitter:image"      content="logo.png">
+<!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
   // Genera versión única por sesión — elimina el icono genérico del browser
@@ -3041,8 +3055,10 @@ function testServers(){
 
 
 function saveSettings(){
-  // Solo guarda preferencias de usuario localmente (tema, idioma, etc.)
+  // Guardar localmente siempre
   localStorage.setItem('siteState',JSON.stringify(siteState));
+  // Si el admin está logueado, también persistir en Firebase para todos
+  if(_fbReady && _isAdmin()) _fbSaveSiteConfig();
 }
 
 function _loadFromGitHub(cb){
@@ -4841,11 +4857,64 @@ function _fbListenConfig(){
 // ESCRITURA — Solo el admin puede escribir (lo garantizan las Reglas)
 // ════════════════════════════════════════════════════════════════
 
-function _fbSaveGame(){ return Promise.resolve(); }
-function _fbDeleteGame(){ return Promise.resolve(); }
-function _fbSaveSiteConfig(){}
-function _autoMigrateToFirestore(){}
-function fbMigrateLocalGames(){}
+// ── Guardar un juego en Firestore ──────────────────────────────
+function _fbSaveGame(game){
+  if(!_db || !_isAdmin()) return Promise.resolve();
+  var id = String(game.id || Date.now());
+  var data = Object.assign({}, game);
+  data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  if(!data.createdAt) data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  if(!data.order && data.order !== 0) data.order = siteState.gamesList.length;
+  if(!data.timestamp) data.timestamp = Date.now();
+  return _db.collection('mods').doc(id).set(data, { merge: true })
+    .then(function(){ _updateSyncUI(true, '✅ Juego guardado en Firebase'); })
+    .catch(function(e){ _updateSyncUI(false, '❌ Error guardando juego: '+e.message); return Promise.reject(e); });
+}
+
+// ── Eliminar un juego de Firestore ─────────────────────────────
+function _fbDeleteGame(id){
+  if(!_db || !_isAdmin()) return Promise.resolve();
+  return _db.collection('mods').doc(String(id)).delete()
+    .then(function(){ _updateSyncUI(true, '✅ Juego eliminado de Firebase'); })
+    .catch(function(e){ _updateSyncUI(false, '❌ Error eliminando juego: '+e.message); return Promise.reject(e); });
+}
+
+// ── Guardar configuración del sitio en Firestore (logo, colores, banners, etc.) ──
+function _fbSaveSiteConfig(){
+  if(!_db || !_isAdmin()) return;
+  var cfg = Object.assign({}, siteState);
+  delete cfg.gamesList; // los juegos van en /mods, no en siteConfig
+  cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  _db.collection('siteConfig').doc('main').set(cfg, { merge: true })
+    .then(function(){ _updateSyncUI(true, '✅ Configuración guardada — Conexión Segura ✓'); })
+    .catch(function(e){ _updateSyncUI(false, '❌ Error guardando config: '+e.message); });
+}
+
+// ── Migrar juegos locales a Firestore si está vacío ────────────
+function _autoMigrateToFirestore(){
+  if(!_db || !_isAdmin()) return;
+  var games = siteState.gamesList || [];
+  if(!games.length) return;
+  _updateSyncUI(null, '⏳ Migrando '+games.length+' juegos a Firestore...');
+  var batch = _db.batch();
+  games.forEach(function(g, i){
+    var id = String(g.id || ('game_'+Date.now()+'_'+i));
+    var data = Object.assign({}, g, {
+      id: id, order: i,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(_db.collection('mods').doc(id), data, { merge: true });
+  });
+  batch.commit()
+    .then(function(){ _updateSyncUI(true, '✅ '+games.length+' juegos migrados a Firebase'); })
+    .catch(function(e){ _updateSyncUI(false, '❌ Error en migración: '+e.message); });
+}
+
+// ── Migrar manualmente desde el panel ─────────────────────────
+function fbMigrateLocalGames(){
+  _autoMigrateToFirestore();
+}
 
 function clearAdminSession(){ localStorage.clear(); sessionStorage.clear(); window.location.reload(); }
 function emergencyReset(){ localStorage.clear(); sessionStorage.clear(); window.location.reload(true); }
@@ -4890,11 +4959,21 @@ function _fbAutoMigrateIfEmpty(){
 }
 
 var _pendingChanges = false;
-function _markPendingChange(label){}
+function _markPendingChange(label){
+  _pendingChanges = true;
+  // Guardar inmediatamente local + Firebase
+  localStorage.setItem('siteState', JSON.stringify(siteState));
+  if(_fbReady && _isAdmin()) _fbSaveSiteConfig();
+}
 function _flushPendingChanges(){
   _pendingChanges = false;
   localStorage.setItem('siteState', JSON.stringify(siteState));
-  showToast('✅ Cambios guardados');
+  if(_fbReady && _isAdmin()){
+    _fbSaveSiteConfig();
+    showToast('✅ Cambios guardados — visible para todos 🌍');
+  } else {
+    showToast('✅ Cambios guardados localmente');
+  }
 }
 function _clearPendingChanges(){ _pendingChanges = false; }
 function saveAllChanges(){ saveSettings(); _clearPendingChanges(); }
@@ -4973,8 +5052,12 @@ function _startPolling(){ /* Firebase usa onSnapshot — no necesita polling */ 
 function _applyRemoteData(){ /* Firebase maneja esto con onSnapshot */ }
 function _syncSave(msg){
   localStorage.setItem('siteState', JSON.stringify(siteState));
-  if(_isAdmin()) _fbSaveSiteConfig();
-  else _updateSyncUI(null, msg||'Guardado localmente');
+  if(_fbReady && _isAdmin()){
+    _fbSaveSiteConfig();
+    _updateSyncUI(true, msg || '✅ Guardado en Firebase — Conexión Segura ✓');
+  } else {
+    _updateSyncUI(null, msg||'Guardado localmente');
+  }
 }
 
 
