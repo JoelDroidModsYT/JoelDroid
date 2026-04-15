@@ -2969,8 +2969,10 @@ function slugifyTitle(title){
   if(!title) return 'Mod';
   return title
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // quitar acentos
-    .replace(/[^a-zA-Z0-9\s]/g,'')                  // solo letras/numeros/espacios
-    .trim().replace(/\s+/g,'-')                      // espacios → guiones
+    .replace(/[^a-zA-Z0-9\s\-]/g,'')                // solo letras/numeros/espacios/guiones
+    .trim()
+    .replace(/[\s\-]+/g,'-')                         // espacios y guiones múltiples → un guion
+    .replace(/^-+|-+$/g,'')                          // trim guiones extremos
     +'-Mod';
 }
 
@@ -3380,26 +3382,46 @@ function checkDeepLink(){
     var gameSlug  = params.get('game');
     if(!modSlug && !directId && !gameSlug) return;
 
+    // Función interna: normaliza cualquier slug/nombre para comparación
+    // Elimina acentos, caracteres especiales, convierte espacios y guiones a guion simple
+    // Resultado: "car-simulator-2" (solo minúsculas y dígitos, separados por guion)
+    function _normSlug(s){
+      if(!s) return '';
+      return s.toString()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // quitar acentos
+        .replace(/-Mod$/i,'')                             // quitar sufijo -Mod si lo tiene
+        .replace(/[^a-zA-Z0-9]+/g,'-')                   // todo lo que no es letra/numero → guion
+        .replace(/^-+|-+$/g,'')                           // trim guiones extremos
+        .toLowerCase();
+    }
+
     var retries = 0;
     var maxRetries = 30; // 7.5 segundos — aguanta la carga de Firebase
     var openGame = function(){
       var found = null;
 
-      // 1) Buscar por ?mod= (búsqueda por slug del nombre — sistema nuevo)
+      // 1) Buscar por ?mod= usando slugifyTitle (mismo algoritmo que genera las URLs)
       if(modSlug && !found){
-        // Normalizar el slug recibido igual que slugifyTitle genera
-        var normalizedMod = decodeURIComponent(modSlug).replace(/-Mod$/i,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        var incomingNorm = _normSlug(decodeURIComponent(modSlug));
         found = siteState.gamesList.find(function(g){
           if(g.visible === false) return false;
-          var gSlug = (g.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9\s]/g,'').trim().replace(/\s+/g,'-').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-          return gSlug === normalizedMod || g.slug === modSlug || g.nombre_url === modSlug;
+          // Método principal: usar slugifyTitle (mismo que usa showDetail al generar URL)
+          var generatedSlug = (typeof slugifyTitle === 'function')
+            ? _normSlug(slugifyTitle(g.name || g.nombre || ''))
+            : _normSlug(g.name || g.nombre || '');
+          if(generatedSlug === incomingNorm) return true;
+          // Campos opcionales de Firebase: slug / nombre_url
+          if(g.slug && _normSlug(g.slug) === incomingNorm) return true;
+          if(g.nombre_url && _normSlug(g.nombre_url) === incomingNorm) return true;
+          return false;
         }) || null;
-        // Intento adicional: búsqueda más flexible por palabras clave
-        if(!found){
+
+        // Intento adicional: búsqueda más flexible (substring) para nombres parciales
+        if(!found && incomingNorm.length >= 4){
           found = siteState.gamesList.find(function(g){
             if(g.visible === false) return false;
-            var gSlug = (g.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').toLowerCase().replace(/^-|-$/g,'');
-            return normalizedMod.indexOf(gSlug) !== -1 || gSlug.indexOf(normalizedMod) !== -1;
+            var gNorm = _normSlug(g.name || g.nombre || '');
+            return incomingNorm.indexOf(gNorm) !== -1 || gNorm.indexOf(incomingNorm) !== -1;
           }) || null;
         }
       }
