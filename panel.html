@@ -243,13 +243,34 @@ body{
       <div class="space-y-2 p-4 border rounded-xl" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.04)">
         <h3 class="font-bold uppercase flex items-center gap-2" style="color:#60a5fa">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          Estadísticas en Tiempo Real
+          Analytics en Tiempo Real
         </h3>
-        <p style="font-size:9px;opacity:.5;line-height:1.5">Visitas al sitio y clicks por juego. Se actualiza automáticamente desde Firebase.</p>
-        <div id="stats-panel-content" style="margin-top:10px">
-          <p style="font-size:10px;opacity:.35;text-align:center;padding:16px">Presiona "Actualizar" para cargar estadísticas.</p>
+        <!-- Métricas rápidas -->
+        <div id="stats-metrics-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+          <div style="background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:12px;padding:10px;text-align:center">
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#60a5fa;opacity:.7">Hoy</p>
+            <p id="stat-today" style="font-size:22px;font-weight:900;color:#60a5fa;line-height:1.1">—</p>
+          </div>
+          <div style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:10px;text-align:center">
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;opacity:.7">Este mes</p>
+            <p id="stat-month" style="font-size:22px;font-weight:900;color:#a78bfa;line-height:1.1">—</p>
+          </div>
+          <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:10px;text-align:center">
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#34d399;opacity:.7">Total</p>
+            <p id="stat-total" style="font-size:22px;font-weight:900;color:#34d399;line-height:1.1">—</p>
+          </div>
         </div>
-        <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Estadísticas</button>
+        <!-- Gráfico de barras últimos 7 días -->
+        <div style="background:rgba(0,0,0,.25);border:1px solid rgba(96,165,250,.15);border-radius:14px;padding:14px;margin-top:8px">
+          <p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(96,165,250,.6);margin-bottom:12px">📈 Visitas últimos 7 días</p>
+          <div id="stats-chart" style="display:flex;align-items:flex-end;gap:6px;height:72px;width:100%">
+            <p style="font-size:9px;opacity:.3;margin:auto;text-align:center">Cargando gráfico...</p>
+          </div>
+          <div id="stats-chart-labels" style="display:flex;gap:6px;margin-top:6px"></div>
+        </div>
+        <!-- Top juegos clickeados -->
+        <div id="stats-panel-content" style="margin-top:8px"></div>
+        <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Analytics</button>
       </div>
 
       <!-- GITHUB SYNC -->
@@ -296,14 +317,25 @@ body{
       <!-- LOGO -->
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Logo del Sitio</h3>
+        <!-- Preview en tiempo real -->
+        <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(0,0,0,.3);border-radius:12px;border:1px dashed rgba(37,99,235,.3)">
+          <img id="logo-admin-preview" src="" alt="preview logo" style="width:56px;height:56px;border-radius:20%;object-fit:cover;display:none;border:2px solid rgba(37,99,235,.4)">
+          <div id="logo-admin-placeholder" style="width:56px;height:56px;border-radius:20%;background:rgba(37,99,235,.15);border:2px dashed rgba(37,99,235,.4);display:flex;align-items:center;justify-content:center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(96,165,250,.6)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div style="flex:1">
+            <p style="font-size:10px;font-weight:900;color:rgba(255,255,255,.7)">Logo actual</p>
+            <p id="logo-admin-status" style="font-size:8px;color:rgba(96,165,250,.6);margin-top:2px">Sin logo personalizado</p>
+          </div>
+        </div>
         <div class="flex items-center space-x-2"><input type="checkbox" id="logo-visibility-switch" class="h-4 w-4" onchange="updateSiteInfo()"><span class="text-sm">Ocultar Logo</span></div>
-        <label class="block text-sm font-medium text-gray-300 mb-1">URL de Imagen</label>
+        <label class="block text-sm font-medium text-gray-300 mb-1">📎 Subir desde tu dispositivo</label>
+        <input type="file" id="logo-file-in" class="admin-input" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" onchange="handleLogoFileChange(this)" style="cursor:pointer">
+        <label class="block text-sm font-medium text-gray-300 mb-1">🔗 O pegar URL de imagen</label>
         <input type="url" id="logo-url-in" class="admin-input" placeholder="https://ejemplo.com/logo.png" oninput="liveUpdate()">
         <button onclick="resetLogoDefault()" style="font-size:9px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:8px;padding:6px 12px;cursor:pointer;margin-top:6px;width:100%">↩️ Restaurar logo original del sitio</button>
-        <label class="block text-sm font-medium text-gray-300 mb-1">Subir Archivo</label>
-        <input type="file" id="logo-file-in" class="admin-input" accept="image/*" onchange="handleLogoFileChange(this)">
         <div class="pt-2"><h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Color del Icono</h4><div id="logo-color-selector-ui" class="color-selector"></div></div>
-        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px" onclick="updateLogo()">Actualizar Logo</button>
+        <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px" onclick="updateLogo()">✅ Aplicar Logo — Guardar para Todos</button>
       </div>
 
       <!-- MODO CLARO -->
@@ -1076,6 +1108,21 @@ function renderAdminUI(){
   set('popular-top-badge-text-in',siteState.popularBanner.popularTopBadgeText);
   set('popular-badge-text-in',siteState.popularBanner.popularBadgeText);
   set('copyright-text-in',siteState.copyright.text);set('logo-url-in',siteState.ui.logoUrl);
+  // Actualizar preview del logo en el panel
+  (function(){
+    var prevImg=document.getElementById('logo-admin-preview');
+    var prevPh=document.getElementById('logo-admin-placeholder');
+    var prevStatus=document.getElementById('logo-admin-status');
+    if(siteState.ui.logoUrl&&siteState.ui.logoUrl.trim()){
+      if(prevImg){prevImg.src=siteState.ui.logoUrl;prevImg.style.display='block';}
+      if(prevPh)prevPh.style.display='none';
+      if(prevStatus)prevStatus.textContent='✅ Logo personalizado activo';
+    } else {
+      if(prevImg)prevImg.style.display='none';
+      if(prevPh)prevPh.style.display='flex';
+      if(prevStatus)prevStatus.textContent='Sin logo personalizado';
+    }
+  })();
   set('verification-text-in',siteState.verification.text);
   set('global-home-button-text-in',siteState.buttonSettings.globalHomeButtonText);
   set('global-detail-button-text-in',siteState.buttonSettings.globalDetailButtonText);
@@ -1121,28 +1168,102 @@ function updateSiteInfo(){
 function handleLogoFileChange(input){
   if(!input.files||!input.files[0])return;
   var file=input.files[0];
-  if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&typeof firebase.storage!=='undefined'){
-    var storageRef=firebase.storage().ref('config/logo_'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
-    showToast('⏳ Subiendo logo...');
-    storageRef.put(file).then(function(snapshot){return snapshot.ref.getDownloadURL();})
-      .then(function(downloadURL){
-        siteState.ui.logoUrl=downloadURL;saveSettings();
-        if(_db){_db.collection('siteConfig').doc('main').set({ui:{logoUrl:downloadURL}},{merge:true}).then(function(){showToast('✅ Logo guardado globalmente 🌍');}).catch(function(){showToast('✅ Logo actualizado localmente');});}
-        else showToast('✅ Logo actualizado');
-      }).catch(function(){
-        var r=new FileReader();r.onload=function(ev){siteState.ui.logoUrl=ev.target.result;saveSettings();showToast('✅ Logo actualizado');};r.readAsDataURL(file);
-      });
-  }else{
-    var r2=new FileReader();r2.onload=function(ev){siteState.ui.logoUrl=ev.target.result;saveSettings();showToast('✅ Logo actualizado');};r2.readAsDataURL(file);
+  if(file.size > 5*1024*1024){ showToast('⚠️ El archivo supera 5MB. Usa una imagen más pequeña.'); return; }
+
+  // Preview inmediato en el panel
+  var reader0=new FileReader();
+  reader0.onload=function(ev){
+    var prev=document.getElementById('logo-admin-preview');
+    if(prev){ prev.src=ev.target.result; prev.style.display='block'; }
+  };
+  reader0.readAsDataURL(file);
+
+  showToast('⏳ Subiendo logo...');
+
+  // Intentar subir a Firebase Storage
+  var _guardarURL=function(url){
+    siteState.ui.logoUrl=url;
+    saveSettings();
+    // Propagar a Firestore para que index.html lo reciba en tiempo real
+    if(_db&&_isAdmin()){
+      _db.collection('siteConfig').doc('main').set({ui:{logoUrl:url}},{merge:true})
+        .then(function(){
+          showToast('✅ Logo guardado — visible para todos 🌍');
+          _updateFaviconAdmin(url);
+        })
+        .catch(function(){ showToast('✅ Logo guardado localmente'); });
+    } else {
+      showToast('✅ Logo actualizado');
+      _updateFaviconAdmin(url);
+    }
+  };
+
+  // Intentar Firebase Storage primero
+  var _storageListo = typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&
+    (typeof firebase.storage !== 'undefined');
+
+  if(_storageListo){
+    try{
+      var storageRef=firebase.storage().ref('config/logo_'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
+      storageRef.put(file)
+        .then(function(snap){ return snap.ref.getDownloadURL(); })
+        .then(function(url){ _guardarURL(url); })
+        .catch(function(e){
+          // Si Storage falla, usar base64 como fallback
+          showToast('⚠️ Storage falló, usando base64...');
+          var r=new FileReader();
+          r.onload=function(ev){ _guardarURL(ev.target.result); };
+          r.readAsDataURL(file);
+        });
+    } catch(e){
+      var r2=new FileReader();
+      r2.onload=function(ev){ _guardarURL(ev.target.result); };
+      r2.readAsDataURL(file);
+    }
+  } else {
+    // Sin Firebase Storage: guardar como base64
+    var r3=new FileReader();
+    r3.onload=function(ev){ _guardarURL(ev.target.result); };
+    r3.readAsDataURL(file);
   }
 }
-function resetLogoDefault(){siteState.ui.logoUrl=null;siteState.ui.logoVisible=true;saveSettings();showToast('🔄 Logo restaurado');}
+
+// Actualizar favicon del panel admin en tiempo real cuando cambia el logo
+function _updateFaviconAdmin(url){
+  try{
+    if(!url)return;
+    var sep=url.indexOf('?')>=0?'&':'?';
+    var fUrl=url+sep+'jdv='+Date.now();
+    ['favicon','favicon-192','favicon-512','favicon-180'].forEach(function(id){
+      var el=document.getElementById(id); if(el)el.href=fUrl;
+    });
+  }catch(e){}
+}
+
+function resetLogoDefault(){
+  siteState.ui.logoUrl=null;siteState.ui.logoVisible=true;
+  saveSettings();
+  if(_db&&_isAdmin()){
+    _db.collection('siteConfig').doc('main').set({ui:{logoUrl:null,logoVisible:true}},{merge:true}).catch(function(){});
+  }
+  var prev=document.getElementById('logo-admin-preview');
+  if(prev)prev.style.display='none';
+  showToast('🔄 Logo restaurado para todos');
+}
+
 function updateLogo(){
   var f=document.getElementById('logo-file-in');
   var u=document.getElementById('logo-url-in');
-  if(f&&f.files&&f.files.length>0){handleLogoFileChange(f);}
-  else if(u&&u.value){siteState.ui.logoUrl=u.value;saveSettings();showToast('✅ Logo actualizado con URL');}
-  else{siteState.ui.logoUrl=null;saveSettings();showToast('✅ Logo restaurado');}
+  if(f&&f.files&&f.files.length>0){ handleLogoFileChange(f); }
+  else if(u&&u.value.trim()){
+    siteState.ui.logoUrl=u.value.trim();
+    saveSettings();
+    if(_db&&_isAdmin()){
+      _db.collection('siteConfig').doc('main').set({ui:{logoUrl:siteState.ui.logoUrl}},{merge:true})
+        .then(function(){ showToast('✅ Logo URL guardada — visible para todos 🌍'); _updateFaviconAdmin(siteState.ui.logoUrl); })
+        .catch(function(){ showToast('✅ Logo guardado localmente'); });
+    } else { showToast('✅ Logo actualizado con URL'); }
+  } else { siteState.ui.logoUrl=null; saveSettings(); showToast('✅ Logo restaurado'); }
 }
 function updateAnnouncement(){
   siteState.announcement.text=document.getElementById('ann-text-in').value;
@@ -1457,23 +1578,65 @@ function _showGHStatus(msg,color){
   setTimeout(function(){if(el)el.style.display='none';},4000);
 }
 
+// ── Fetch con timeout para no quedarse colgado indefinidamente ──
+function _fetchWithTimeout(url, opts, ms){
+  ms = ms || 8000;
+  return new Promise(function(resolve, reject){
+    var timer = setTimeout(function(){ reject(new Error('timeout')); }, ms);
+    fetch(url, opts).then(function(r){ clearTimeout(timer); resolve(r); })
+                    .catch(function(e){ clearTimeout(timer); reject(e); });
+  });
+}
+
 function saveGHConfig(){
   var token=(document.getElementById('gh-token-in')||{}).value||'';
   var gistId=(document.getElementById('gh-gist-in')||{}).value||'';
   if(!token||!gistId){_showGHStatus('⚠️ Completa el token y el Gist ID','#f59e0b');return;}
-  _showGHStatus('⏳ Verificando token...','#60a5fa');
-  fetch('https://api.github.com/gists/'+gistId+'?t='+Date.now(),{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}})
+  _showGHStatus('⏳ Verificando token... (hasta 8s)','#60a5fa');
+  var _intento = function(tries){
+    _fetchWithTimeout('https://api.github.com/gists/'+gistId+'?t='+Date.now(),
+      {headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}}, 8000)
     .then(function(r){
-      if(r.status===200){_saveGHConfig({token:token,gistId:gistId});_showGHStatus('✅ Token válido — guardado','#10b981');_syncToGitHub();}
-      else if(r.status===401){_showGHStatus('❌ Token inválido (401)','#ef4444');}
-      else if(r.status===404){_showGHStatus('❌ Gist ID no encontrado (404)','#ef4444');}
-      else{_saveGHConfig({token:token,gistId:gistId});_showGHStatus('⚠️ Error '+r.status,'#f59e0b');}
-    }).catch(function(){_saveGHConfig({token:token,gistId:gistId});_showGHStatus('⚠️ Sin conexión — guardado localmente','#f59e0b');});
+      if(r.status===200){
+        _saveGHConfig({token:token,gistId:gistId});
+        _showGHStatus('✅ Conexión Segura — Token válido y guardado','#10b981');
+        _syncToGitHub();
+      } else if(r.status===401){
+        _showGHStatus('❌ Token inválido — revisa los permisos (scope: gist)','#ef4444');
+      } else if(r.status===404){
+        _showGHStatus('❌ Gist ID no encontrado — verifica el ID','#ef4444');
+      } else if(r.status===403){
+        _showGHStatus('❌ Límite de peticiones GitHub — espera 1 minuto','#f59e0b');
+      } else {
+        _saveGHConfig({token:token,gistId:gistId});
+        _showGHStatus('⚠️ Respuesta inesperada '+r.status+' — guardado localmente','#f59e0b');
+      }
+    }).catch(function(e){
+      if(tries>0){
+        _showGHStatus('🔄 Reintentando... ('+(tries)+' intento)','#60a5fa');
+        setTimeout(function(){ _intento(tries-1); }, 2000);
+      } else {
+        _saveGHConfig({token:token,gistId:gistId});
+        _showGHStatus('⚠️ Sin conexión tras 3 intentos — config guardada localmente','#f59e0b');
+      }
+    });
+  };
+  _intento(2); // 3 intentos total
 }
+
 function testGHSync(){
-  var cfg=_ghCfg||_loadGHConfig();if(!cfg||!cfg.gistId){_showGHStatus('⚠️ Configura primero','#f59e0b');return;}
+  var cfg=_ghCfg||_loadGHConfig();
+  if(!cfg||!cfg.gistId){_showGHStatus('⚠️ Configura primero el token y Gist ID','#f59e0b');return;}
   _showGHStatus('🔄 Probando conexión...','#60a5fa');
-  _loadFromGitHub(function(ok){if(ok)_showGHStatus('✅ Conexión exitosa','#10b981');else _showGHStatus('❌ Error de conexión','#ef4444');});
+  _fetchWithTimeout('https://api.github.com/gists/'+cfg.gistId+'?t='+Date.now(),
+    {headers:{'Authorization':'token '+cfg.token,'Accept':'application/vnd.github.v3+json'}}, 8000)
+  .then(function(r){
+    if(r.ok){ _showGHStatus('✅ Conexión Segura — Servidor respondió OK','#10b981'); }
+    else { _showGHStatus('❌ Error del servidor: '+r.status,'#ef4444'); }
+  }).catch(function(e){
+    if(e.message==='timeout') _showGHStatus('⚠️ Tiempo de espera agotado — red lenta o sin internet','#f59e0b');
+    else _showGHStatus('❌ Sin conexión: '+e.message,'#ef4444');
+  });
 }
 function disconnectGH(){localStorage.removeItem('jd_gh_cfg');_ghCfg=null;_showGHStatus('🔌 GitHub desconectado','#94a3b8');}
 function _fillGHInputs(){
@@ -1483,39 +1646,129 @@ function _fillGHInputs(){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ESTADÍSTICAS
+// ANALYTICS — Dashboard profesional con gráfico por día/mes
+// Datos guardados en Firestore: siteConfig/stats
+// Estructura: { visits:N, daily:{YYYY-MM-DD:N}, monthly:{YYYY-MM:N},
+//               gameClicks_ID:N, gameName_ID:'Nombre' }
 // ════════════════════════════════════════════════════════════════
 var _statsUnsub=null;
-function _listenStats(){
-  if(!_db)return;if(_statsUnsub){_statsUnsub();_statsUnsub=null;}
-  _statsUnsub=_db.collection('siteConfig').doc('stats')
-    .onSnapshot(function(doc){if(doc.exists)_renderStatsPanel(doc.data());},function(){});
+
+// Registrar visita desde index.html (llamado automáticamente al cargar)
+function _registrarVisita(){
+  if(!_db)return;
+  var hoy=_hoy();var mes=hoy.slice(0,7);
+  var update={visits:firebase.firestore.FieldValue.increment(1)};
+  update['daily.'+hoy]=firebase.firestore.FieldValue.increment(1);
+  update['monthly.'+mes]=firebase.firestore.FieldValue.increment(1);
+  _db.collection('siteConfig').doc('stats').set(update,{merge:true}).catch(function(){});
 }
-function _renderStatsPanel(data){
-  var panel=document.getElementById('stats-panel-content');if(!panel)return;
-  if(!data){panel.innerHTML='<p style="font-size:10px;opacity:.4;text-align:center;padding:16px">Sin datos todavía.</p>';return;}
-  var visits=data.visits||0;
+
+function _hoy(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function _diasAnteriores(n){
+  var dias=[];
+  for(var i=n-1;i>=0;i--){
+    var d=new Date(Date.now()-i*86400000);
+    dias.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
+  }
+  return dias;
+}
+
+function _listenStats(){
+  if(!_db)return;
+  if(_statsUnsub){_statsUnsub();_statsUnsub=null;}
+  _statsUnsub=_db.collection('siteConfig').doc('stats')
+    .onSnapshot(function(doc){
+      if(doc.exists) _renderDashboard(doc.data());
+      else _renderDashboard({});
+    },function(){});
+}
+
+function _renderDashboard(data){
+  var hoy=_hoy();
+  var mes=hoy.slice(0,7);
+  var daily=data.daily||{};
+  var monthly=data.monthly||{};
+  var total=data.visits||0;
+
+  // ── Métricas rápidas ──────────────────────────────────────────
+  var elHoy=document.getElementById('stat-today');
+  var elMes=document.getElementById('stat-month');
+  var elTot=document.getElementById('stat-total');
+  if(elHoy)elHoy.textContent=(daily[hoy]||0).toLocaleString();
+  if(elMes)elMes.textContent=(monthly[mes]||0).toLocaleString();
+  if(elTot)elTot.textContent=total.toLocaleString();
+
+  // ── Gráfico de barras 7 días ──────────────────────────────────
+  var chart=document.getElementById('stats-chart');
+  var labels=document.getElementById('stats-chart-labels');
+  var dias=_diasAnteriores(7);
+  var maxVal=1;
+  var vals=dias.map(function(d){ var v=daily[d]||0; if(v>maxVal)maxVal=v; return v; });
+  var diasLabels=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+  var colors=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ec4899','#60a5fa'];
+
+  if(chart){
+    chart.innerHTML=vals.map(function(v,i){
+      var pct=Math.max(4,Math.round((v/maxVal)*100));
+      var isHoy=(dias[i]===hoy);
+      var col=isHoy?'#38bdf8':colors[i%colors.length];
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'
+        +'<span style="font-size:7px;font-weight:900;color:'+col+';opacity:'+(v>0?'1':'.3')+'">'+v+'</span>'
+        +'<div style="width:100%;height:'+pct+'%;min-height:3px;background:'+col+';border-radius:4px 4px 0 0;'+(isHoy?'box-shadow:0 0 8px '+col+';':'')+'transition:height .4s ease"></div>'
+        +'</div>';
+    }).join('');
+  }
+
+  if(labels){
+    labels.innerHTML=dias.map(function(d,i){
+      var dt=new Date(d+'T12:00:00');
+      var lbl=diasLabels[dt.getDay()];
+      var isHoy=(d===hoy);
+      return '<span style="flex:1;font-size:7px;font-weight:900;text-align:center;color:'+(isHoy?'#38bdf8':'rgba(255,255,255,.35)')+'">'+lbl+(isHoy?' ●':'')+'</span>';
+    }).join('');
+  }
+
+  // ── Top juegos clickeados ─────────────────────────────────────
+  var panel=document.getElementById('stats-panel-content');
+  if(!panel)return;
   var clicks=[];
   Object.keys(data).forEach(function(k){
-    if(k.indexOf('gameClicks_')===0){clicks.push({name:data['gameName_'+k.replace('gameClicks_','')]||k,count:data[k]||0});}
+    if(k.indexOf('gameClicks_')===0){
+      var id=k.replace('gameClicks_','');
+      clicks.push({name:data['gameName_'+id]||('Juego #'+id),count:data[k]||0});
+    }
   });
   clicks.sort(function(a,b){return b.count-a.count;});
-  var top=clicks.slice(0,8);var maxC=top.length?top[0].count:1;
-  var colors=['#60a5fa','#a78bfa','#34d399','#f59e0b','#f472b6','#06b6d4','#fb923c','#818cf8'];
-  panel.innerHTML='<div style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);border-radius:14px;padding:14px 16px;margin-bottom:12px">'
-    +'<p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#60a5fa;opacity:.7;margin-bottom:2px">Visitas Totales</p>'
-    +'<p style="font-size:30px;font-weight:900;color:#60a5fa;line-height:1">'+visits.toLocaleString()+'</p>'
-    +'</div>'
-    +(top.length?'<p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#a78bfa;opacity:.7;margin-bottom:8px">🔥 Más clickeados</p>'
-      +top.map(function(c,i){
-        var pct=Math.round(c.count/maxC*100);var col=colors[i%colors.length];
-        return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px">'
-          +'<span style="font-size:9px;font-weight:800;flex:1;padding-right:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+'</span>'
-          +'<span style="font-size:9px;font-weight:900;color:'+col+'">'+c.count+'</span></div>'
-          +'<div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:2px"></div></div></div>';
-      }).join(''):'<p style="font-size:9px;opacity:.35;text-align:center;padding:8px">Sin clicks registrados.</p>');
+  var top=clicks.slice(0,6);
+  var maxC=top.length?top[0].count:1;
+  var barColors=['#60a5fa','#a78bfa','#34d399','#f59e0b','#f472b6','#06b6d4'];
+
+  if(!top.length){
+    panel.innerHTML='<p style="font-size:9px;opacity:.3;text-align:center;padding:10px">Sin clicks registrados aún.</p>';
+    return;
+  }
+
+  panel.innerHTML='<p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(167,139,250,.7);margin-bottom:8px">🔥 Juegos más clickeados</p>'
+    +top.map(function(c,i){
+      var pct=Math.round(c.count/maxC*100);
+      var col=barColors[i%barColors.length];
+      return '<div style="margin-bottom:9px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+        +'<span style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px;color:rgba(255,255,255,.8)">'+c.name+'</span>'
+        +'<span style="font-size:9px;font-weight:900;color:'+col+';min-width:24px;text-align:right">'+c.count+'</span></div>'
+        +'<div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">'
+        +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,'+col+','+col+'99);border-radius:3px;box-shadow:0 0 8px '+col+'66;transition:width .5s ease"></div></div></div>';
+    }).join('');
 }
-function refreshStats(){if(!_db){showToast('⚠️ Firebase no conectado');return;}_listenStats();showToast('📊 Estadísticas en vivo activadas');}
+
+function refreshStats(){
+  if(!_db){showToast('⚠️ Firebase no conectado');return;}
+  _listenStats();
+  showToast('📊 Analytics en vivo activado');
+}
 
 // ════════════════════════════════════════════════════════════════
 // EMAIL PANEL
