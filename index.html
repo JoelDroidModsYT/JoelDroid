@@ -2754,6 +2754,52 @@ function showDetail(id){
   try{ _trackClick(id, game.name||game.nombre||''); }catch(e){}
 
   try{ document.title = game.name + ' MOD - JoelDroidMods.com'; }catch(e){}
+
+  // ══ ACTUALIZAR URL CON ?mod= PARA COMPARTIR ══════════════════════
+  // Cada juego (incluyendo los nuevos de Firebase) obtiene su propia
+  // URL limpia automáticamente al abrir la ficha de detalle.
+  // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA-Mod
+  try {
+    var _slug = (typeof slugifyTitle === 'function')
+      ? slugifyTitle(game.name || game.nombre || '')
+      : String(id);
+    var _shareUrl = window.location.origin + window.location.pathname + '?mod=' + encodeURIComponent(_slug);
+    window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
+  } catch(e) {}
+
+  // ══ ACTUALIZAR META OG TAGS DINÁMICAMENTE ════════════════════════
+  // Así WhatsApp/Telegram ven la imagen y descripción del juego exacto
+  // cuando alguien copia el link MIENTRAS tiene la ficha abierta.
+  try {
+    var _gameName  = game.name || game.nombre || '';
+    var _gameDesc  = game.description || game.descripcion || ('Descarga el MOD APK de ' + _gameName + ' creado por JoelDroid Mods YT');
+    var _gameThumb = game.thumb || game.imagen || game.icon || '';
+    var _ogBase    = window.location.origin + window.location.pathname + '?mod=' + encodeURIComponent(_slug);
+
+    var _setMeta = function(sel, attr, val) {
+      var el = document.querySelector(sel);
+      if (el) el.setAttribute(attr, val);
+    };
+
+    // Title
+    _setMeta('meta[property="og:title"]',       'content', _gameName + ' MOD APK - JoelDroid Mods YT');
+    _setMeta('meta[name="twitter:title"]',       'content', _gameName + ' MOD APK - JoelDroid Mods YT');
+    // Description
+    _setMeta('meta[property="og:description"]',  'content', _gameDesc.substring(0, 200));
+    _setMeta('meta[name="twitter:description"]', 'content', _gameDesc.substring(0, 200));
+    _setMeta('meta[name="description"]',         'content', _gameDesc.substring(0, 200));
+    // Image — usar thumb del juego si existe, si no el logo del sitio
+    if (_gameThumb) {
+      var _imgUrl = _gameThumb.startsWith('http') ? _gameThumb : (window.location.origin + '/' + _gameThumb);
+      _setMeta('meta[property="og:image"]',      'content', _imgUrl);
+      _setMeta('meta[name="twitter:image"]',     'content', _imgUrl);
+    }
+    // URL canónica del juego
+    _setMeta('meta[property="og:url"]',          'content', _ogBase);
+    _setMeta('link[rel="canonical"]',            'href',    _ogBase);
+  } catch(e) {}
+  // ══════════════════════════════════════════════════════════════════
+
   var dv=document.getElementById('detail-view');
   if(dv)dv.scrollTop=0;
 
@@ -2864,8 +2910,27 @@ function closeDetail(){
   if(dv)dv.classList.add('hidden');
   document.body.style.overflow='';
   currentDetailId=null;
-  try{ document.title = 'JoelDroid Mods YT | Premium Platform'; }catch(e){}
+  try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
+
+  // ══ RESTAURAR META OG AL ESTADO GENERAL DEL SITIO ════════════════
+  try {
+    var _setMeta = function(sel, attr, val) {
+      var el = document.querySelector(sel);
+      if (el) el.setAttribute(attr, val);
+    };
+    var _siteBase = window.location.origin + window.location.pathname;
+    _setMeta('meta[property="og:title"]',       'content', 'JoelDroid Mods YT | Los Mejores MOD APK para Android');
+    _setMeta('meta[name="twitter:title"]',       'content', 'JoelDroid Mods YT | Los Mejores MOD APK para Android');
+    _setMeta('meta[property="og:description"]',  'content', 'Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados por JoelDroid Mods YT.');
+    _setMeta('meta[name="twitter:description"]', 'content', 'Descarga gratis los mejores MOD APK para Android. Mods verificados por JoelDroid Mods YT.');
+    _setMeta('meta[name="description"]',         'content', 'Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados, seguros y actualizados.');
+    _setMeta('meta[property="og:image"]',        'content', window.location.origin + '/logo.png');
+    _setMeta('meta[name="twitter:image"]',       'content', window.location.origin + '/logo.png');
+    _setMeta('meta[property="og:url"]',          'content', _siteBase);
+    _setMeta('link[rel="canonical"]',            'href',    _siteBase);
+  } catch(e) {}
+  // ══════════════════════════════════════════════════════════════════
 }
 
 function shareGame(){
