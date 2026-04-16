@@ -784,6 +784,51 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 .jd-btn:hover  { filter: brightness(1.1); }
 .jd-btn:active { transform: scale(.95); }
 
+/* ══ SKELETON CARDS — aparecen al instante mientras Firebase carga ══ */
+@keyframes jd-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.jd-skeleton-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.jd-sk-img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
+  background-size: 800px 100%;
+  animation: jd-shimmer 1.4s infinite linear;
+}
+.jd-sk-line {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
+  background-size: 800px 100%;
+  animation: jd-shimmer 1.4s infinite linear;
+  margin: 4px 6px 2px;
+}
+.jd-sk-line-sm { height: 6px; width: 60%; }
+.jd-sk-btn {
+  height: 18px;
+  border-radius: 5px;
+  margin: 4px 6px 6px;
+  background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
+  background-size: 800px 100%;
+  animation: jd-shimmer 1.4s infinite linear;
+}
+.light-mode .jd-sk-img,
+.light-mode .jd-sk-line,
+.light-mode .jd-sk-btn {
+  background: linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.05) 75%);
+  background-size: 800px 100%;
+  animation: jd-shimmer 1.4s infinite linear;
+}
 /* ── GLASSMORPHISM language panel ────────────────────────────────*/
 .jd-lang-panel {
   position: absolute;
@@ -2515,6 +2560,27 @@ function setFilter(filter){
 }
 
 // ════════════════════════════════════════════════════════════════
+// SKELETON PLACEHOLDERS — se muestran al instante mientras Firebase carga
+// ════════════════════════════════════════════════════════════════
+function _renderSkeletons(n){
+  var list = document.getElementById('game-list');
+  if(!list) return;
+  var frag = document.createDocumentFragment();
+  for(var i=0; i<(n||12); i++){
+    var c = document.createElement('div');
+    c.className = 'jd-skeleton-card';
+    c.innerHTML =
+      '<div class="jd-sk-img"></div>'+
+      '<div class="jd-sk-line"></div>'+
+      '<div class="jd-sk-line jd-sk-line-sm"></div>'+
+      '<div class="jd-sk-btn"></div>';
+    frag.appendChild(c);
+  }
+  list.innerHTML = '';
+  list.appendChild(frag);
+}
+
+// ════════════════════════════════════════════════════════════════
 // RENDER GAMES — Lazy Loading + Paginación (12 iniciales) + Timestamp sort
 // ════════════════════════════════════════════════════════════════
 var _gamesPage = 0;
@@ -2525,6 +2591,15 @@ var _gamesLoadMoreObserver = null;
 function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
+
+  // Si aún no hay juegos, mostrar skeletons en lugar de pantalla vacía
+  if(!siteState.gamesList || siteState.gamesList.length === 0){
+    // Solo poner skeletons si la lista no tiene ya skeletons o juegos reales
+    if(!list.querySelector('.jd-card') && !list.querySelector('.jd-skeleton-card')){
+      _renderSkeletons(12);
+    }
+    return;
+  }
 
   // Filtro de búsqueda
   var q = searchQuery || '';
@@ -3383,8 +3458,6 @@ function checkDeepLink(){
     if(!modSlug && !directId && !gameSlug) return;
 
     // Función interna: normaliza cualquier slug/nombre para comparación
-    // Elimina acentos, caracteres especiales, convierte espacios y guiones a guion simple
-    // Resultado: "car-simulator-2" (solo minúsculas y dígitos, separados por guion)
     function _normSlug(s){
       if(!s) return '';
       return s.toString()
@@ -3396,7 +3469,7 @@ function checkDeepLink(){
     }
 
     var retries = 0;
-    var maxRetries = 30; // 7.5 segundos — aguanta la carga de Firebase
+    var maxRetries = 40; // 10 segundos — aguanta la carga de Firebase
     var openGame = function(){
       var found = null;
 
@@ -3444,10 +3517,15 @@ function checkDeepLink(){
         showDetail(found.id);
         return;
       }
-      // Reintentar mientras Firebase carga los juegos
-      if(++retries < maxRetries) setTimeout(openGame, 250);
+      // Reintentar mientras Firebase carga los juegos — intervalos cortos al principio
+      if(++retries < maxRetries){
+        // Primeros intentos más rápidos (100ms), luego más lentos para no saturar
+        var delay = retries < 10 ? 100 : retries < 20 ? 200 : 500;
+        setTimeout(openGame, delay);
+      }
     };
-    var delay = (siteState.gamesList && siteState.gamesList.length > 0) ? 0 : 400;
+    // Intentar al instante si ya hay juegos en caché, o con mínimo delay
+    var delay = (siteState.gamesList && siteState.gamesList.length > 0) ? 0 : 50;
     setTimeout(openGame, delay);
   }catch(e){}
 }
@@ -4843,6 +4921,8 @@ function _fbListenMods(){
         });
         siteState.gamesList = games;
         renderGames(); // ← juegos en pantalla desde IndexedDB, sin red
+        // Si hay un deep link pendiente, intentar resolverlo ya con los datos de caché
+        checkDeepLink();
       }
     })
     .catch(function(){ /* caché vacía en primera visita — ignorar */ });
@@ -5285,6 +5365,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // Manejar redireccionamiento desde 404.html
   if(_handle404Redirect()) return;
+
+  // ── PASO 0: Mostrar skeletons INMEDIATAMENTE (el usuario ve algo en <10ms)
+  _renderSkeletons(12);
 
   // ── Carga local inmediata (el usuario ve el sitio al instante)
   initLazyLoading();
