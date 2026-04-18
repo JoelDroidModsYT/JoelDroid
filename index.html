@@ -2767,7 +2767,20 @@ function showDetailAndScroll(id){
 }
 
 function refreshIcons(){if(window.lucide)window.lucide.createIcons();}
-function resetPage(){window.location.href=window.location.pathname;}
+function resetPage(){window.location.href=_jdBaseUrl();}
+
+/* ── URL base limpia: elimina /index.html del pathname ──────────
+   https://joeldroidmods.com/index.html → https://joeldroidmods.com/
+   ──────────────────────────────────────────────────────────────── */
+function _jdBaseUrl(){
+  var origin = window.location.origin;
+  var path   = window.location.pathname;
+  // Quitar index.html del final si existe
+  path = path.replace(/\/index\.html$/i, '/').replace(/\/index\.htm$/i, '/');
+  // Asegurar que termina en /
+  if(!path.endsWith('/')) path += '/';
+  return origin + path;
+}
 function toggleLangDropdown(){var m=document.getElementById('lang-menu');if(m)m.classList.toggle('active');}
 function handleSearch(){searchQuery=document.getElementById('search-bar').value.toLowerCase();renderGames();}
 
@@ -3106,7 +3119,7 @@ function showDetail(id){
     var _slug = (typeof slugifyTitle === 'function')
       ? slugifyTitle(game.name || game.nombre || '')
       : String(id);
-    var _shareUrl = window.location.origin + window.location.pathname + '?mod=' + encodeURIComponent(_slug);
+    var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
     window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
   } catch(e) {}
 
@@ -3117,7 +3130,7 @@ function showDetail(id){
     var _gameName  = game.name || game.nombre || '';
     var _gameDesc  = game.description || game.descripcion || ('Descarga el MOD APK de ' + _gameName + ' creado por JoelDroid Mods YT');
     var _gameThumb = game.thumb || game.imagen || game.icon || '';
-    var _ogBase    = window.location.origin + window.location.pathname + '?mod=' + encodeURIComponent(_slug);
+    var _ogBase    = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
 
     var _setMeta = function(sel, attr, val) {
       var el = document.querySelector(sel);
@@ -3262,7 +3275,7 @@ function closeDetail(){
       var el = document.querySelector(sel);
       if (el) el.setAttribute(attr, val);
     };
-    var _siteBase = window.location.origin + window.location.pathname;
+    var _siteBase = _jdBaseUrl();
     _setMeta('meta[property="og:title"]',       'content', 'JoelDroid Mods YT | Los Mejores MOD APK para Android');
     _setMeta('meta[name="twitter:title"]',       'content', 'JoelDroid Mods YT | Los Mejores MOD APK para Android');
     _setMeta('meta[property="og:description"]',  'content', 'Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados por JoelDroid Mods YT.');
@@ -3288,7 +3301,7 @@ function shareGame(){
   // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA
   // ──────────────────────────────────────────────────────────────────
   var slug   = slugifyTitle(game.name);
-  var base   = window.location.origin + window.location.pathname;
+  var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
 
   var shareTitle = game.name + ' MOD - JoelDroidMods.com';
@@ -4948,7 +4961,7 @@ function _fillGHInputs(){
 
 // ════════════════════════════════════════════════════════════════
 function shareApp(){
-  var url=window.location.href.split('?')[0].split('#')[0]; // URL base limpia
+  var url=_jdBaseUrl().replace(/\/$/, ''); // URL base limpia sin index.html
   var title='JoelDroid Mods YT — Mods Premium';
   var text='🎮 Descarga los mejores Mods APK premium gratis en JoelDroid Mods YT';
 
