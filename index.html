@@ -775,7 +775,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 .jd-img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* cover → todos los iconos llenan el cuadro completo y uniformes */
+  object-fit: cover;
+  object-position: center top;
   display: block;
   transition: transform .28s;
 }
@@ -6027,7 +6029,7 @@ window.onload=function(){
   ⚠️ Verifica tu correo para poder comentar
 </div>
 
-<div id="seccion-ads-adaptable" style="width: 95%; max-width: 480px; margin: -28px auto 20px auto; padding: 12px; background: rgba(20,25,40,0.85); border-radius: 25px; border: 1.5px solid #007bff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; z-index: 1; isolation: auto;">
+<div id="seccion-ads-adaptable" style="width: 95%; max-width: 480px; margin: -28px auto 20px auto; padding: 12px; border-radius: 25px; border: 1.5px solid rgba(37,99,235,.4); box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; position: relative; z-index: 1; isolation: auto;" id-extra="ads-wrap">
 
     <div style="display: flex; align-items: center; margin-bottom: 8px; padding-left: 5px;">
         <div style="width: 3px; height: 14px; background: #007bff; border-radius: 4px; margin-right: 8px;"></div>
@@ -6065,8 +6067,17 @@ window.onload=function(){
         transform-origin: top center;
     }
     
-    /* Esto asegura que el texto se lea en modo oscuro si tu body cambia de clase */
-    body.dark-mode #seccion-ads-adaptable span { color: #fff !important; }
+    /* ── Fondo adaptativo día/noche ── */
+    #seccion-ads-adaptable {
+        background: var(--card-bg) !important;
+    }
+    .light-mode #seccion-ads-adaptable {
+        background: #ffffff !important;
+        border-color: rgba(37,99,235,.25) !important;
+    }
+    #seccion-ads-adaptable span {
+        color: var(--text-secondary) !important;
+    }
 </style>
 <script>
 /* ══ AUTO-ZOOM ANUNCIO ADAPTABLE — escala el iframe para que siempre sea visible completo ══ */
@@ -6194,6 +6205,15 @@ window.onload=function(){
 .jd-banner-body.loaded {
     background: #ffffff;
     animation: none;
+}
+/* Modo oscuro: el iframe del anuncio tiene fondo blanco propio,
+   pero el contenedor debe ser neutro para no verse negro */
+body:not(.light-mode) .jd-banner-body {
+    background: linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.06) 75%) !important;
+    background-size: 200% 100% !important;
+}
+body:not(.light-mode) .jd-banner-body.loaded {
+    background: rgba(255,255,255,.04) !important;
 }
 @keyframes jd-shimmer {
     0%   { background-position: 200% 0; }
