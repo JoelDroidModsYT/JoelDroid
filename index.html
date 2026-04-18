@@ -1056,13 +1056,15 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
     if(!games || games.length < 1) return;
     // Renderizar tarjetas directamente sin esperar DOMContentLoaded
     // Se ejecuta tan pronto como el DOM llega a este punto del HTML
+    var _rendered = false;
     var _ready = function(){
+      if(_rendered) return;
       var list = document.getElementById('game-list');
       if(!list) return;
       // Si ya hay tarjetas REALES (.jd-card) no sobreescribir
-      // Los skeletons inline se reemplazan siempre que haya caché
       var hasRealCards = list.querySelector('.jd-card');
       if(hasRealCards) return;
+      _rendered = true;
       // Limpiar skeletons inline para mostrar datos reales del caché
       list.innerHTML = '';
       var frag = document.createDocumentFragment();
@@ -5182,8 +5184,8 @@ function _initFirebase(){
   if(_fbInitDone) return;
   // Esperar SDK — reintento con backoff exponencial (no 300ms fijo)
   if(typeof firebase==='undefined'){
-    var delay = Math.min(100 * Math.pow(1.5, _fbRetryCount++), 2000);
-    setTimeout(_initFirebase, delay);
+    // SDK aún no cargó — reintentar en 50ms (defer scripts llegan rápido)
+    setTimeout(_initFirebase, 50);
     return;
   }
   _fbInitDone = true;
@@ -5199,22 +5201,8 @@ function _initFirebase(){
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db     = firebase.firestore();
     _fbAuth = firebase.auth();
-    // ── Persistencia offline IndexedDB — carga en <50ms en visitas repetidas ──
-    _db.enablePersistence({ synchronizeTabs: true })
-      .catch(function(err){
-        // failed-precondition = múltiples tabs (ok), unimplemented = browser viejo (ok)
-      });
-
-    // ── CACHÉ OFFLINE: Firestore sirve datos desde IndexedDB al instante ──
-    // Los juegos aparecen en <200ms en visitas repetidas, sin esperar red.
-    _db.enablePersistence({ synchronizeTabs: true }).catch(function(err){
-      // FAILED_PRECONDITION = otra pestaña abierta → modo multi-tab sin caché offline
-      // UNIMPLEMENTED = navegador no compatible (Safari antiguo) → ignorar
-      if(err.code !== 'failed-precondition' && err.code !== 'unimplemented'){
-        console.warn('[Firebase:persistence]', err.code);
-      }
-    });
-
+    // ── Persistencia offline — UNA sola llamada ──
+    _db.enablePersistence({ synchronizeTabs: false }).catch(function(){});
     // Sesión persistente — el admin no se desloguea al cerrar
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady = true;
@@ -5342,14 +5330,12 @@ function _fbListenMods(){
         checkDeepLink();
       })
       .catch(function(){});
-  }, 800); // fallback rápido: si no hay respuesta en 800ms, forzar servidor
+  }, 500); // fallback: 500ms
 
   // ── TIEMPO REAL: actualiza desde red (puede llegar después) ───────
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
-    .onSnapshot({ includeMetadataChanges: false }, function(snap){
-      // Ignorar snapshots que vienen solo del caché local (ya procesados arriba)
-      if(snap.metadata && snap.metadata.fromCache) return;
+    .onSnapshot(function(snap){
       // Marcar que ya llegó el primer snapshot — cancelar el fallback timer
       _fbFirstSnapReceived = true;
       clearTimeout(_fbFastFallback);
@@ -5901,8 +5887,15 @@ window.addEventListener('DOMContentLoaded', function() {
   //    _fbListenMods y _fbListenConfig activarán onSnapshot
   //    → cualquier cambio del admin aparece en tiempo real para TODOS
   //    Se llama con setTimeout(0) para no bloquear el render inicial
-  setTimeout(_initFirebase, 0);
-  // Registrar visita cuando Firebase esté listo (con pequeño retardo)
+  // Arrancar Firebase lo antes posible — polling cada 50ms
+  // En lugar de esperar DOMContentLoaded completo
+  (function _tryFirebase(){
+    if(typeof firebase !== 'undefined'){
+      _initFirebase();
+    } else {
+      setTimeout(_tryFirebase, 50);
+    }
+  })();
   setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
 
   // ── Performance: prefetch descarga.html ─────────────────────
