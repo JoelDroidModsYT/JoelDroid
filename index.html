@@ -876,9 +876,13 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 
 /* ══ SKELETON CARDS — aparecen al instante mientras Firebase carga ══ */
 @keyframes jd-shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position:  400px 0; }
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
+/* ═══ SKELETON SCREENS — misma estructura que .jd-card ═══════════
+   aspect-ratio 1/1 + max-height 115px = idéntico a la tarjeta real
+   Pulso wave de izquierda a derecha (shimmer) en 1.2s
+   ════════════════════════════════════════════════════════════════ */
 .jd-skeleton-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -887,37 +891,73 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   display: flex;
   flex-direction: column;
   pointer-events: none;
+  /* Misma sombra que jd-card para coherencia visual */
+  box-shadow: var(--neon-border);
 }
+/* Imagen: aspect-ratio 1/1 CON max-height 115px — igual que .jd-img-box */
 .jd-sk-img {
   width: 100%;
-  aspect-ratio: 1/1;
-  background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
-  background-size: 800px 100%;
-  animation: jd-shimmer 1.4s infinite linear;
+  aspect-ratio: 1 / 1;
+  max-height: 115px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.03) 0%,
+    rgba(255,255,255,.09) 40%,
+    rgba(255,255,255,.03) 80%);
+  background-size: 300% 100%;
+  animation: jd-shimmer 1.2s ease-in-out infinite;
 }
+/* Línea de texto nombre */
 .jd-sk-line {
   height: 8px;
   border-radius: 4px;
-  background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
-  background-size: 800px 100%;
-  animation: jd-shimmer 1.4s infinite linear;
-  margin: 4px 6px 2px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.03) 0%,
+    rgba(255,255,255,.09) 40%,
+    rgba(255,255,255,.03) 80%);
+  background-size: 300% 100%;
+  animation: jd-shimmer 1.2s ease-in-out infinite;
+  margin: 5px 6px 2px;
 }
-.jd-sk-line-sm { height: 6px; width: 60%; }
+/* Línea secundaria más corta */
+.jd-sk-line-sm { height: 6px; width: 65%; }
+/* Botón de descarga skeleton */
 .jd-sk-btn {
-  height: 18px;
-  border-radius: 5px;
+  height: 20px;
+  border-radius: 6px;
   margin: 4px 6px 6px;
-  background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
-  background-size: 800px 100%;
-  animation: jd-shimmer 1.4s infinite linear;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.03) 0%,
+    rgba(255,255,255,.09) 40%,
+    rgba(255,255,255,.03) 80%);
+  background-size: 300% 100%;
+  animation: jd-shimmer 1.2s ease-in-out infinite;
 }
+/* Delays escalonados para efecto cascada natural */
+.jd-skeleton-card:nth-child(2) .jd-sk-img,
+.jd-skeleton-card:nth-child(2) .jd-sk-line,
+.jd-skeleton-card:nth-child(2) .jd-sk-btn { animation-delay: .1s; }
+.jd-skeleton-card:nth-child(3) .jd-sk-img,
+.jd-skeleton-card:nth-child(3) .jd-sk-line,
+.jd-skeleton-card:nth-child(3) .jd-sk-btn { animation-delay: .2s; }
+.jd-skeleton-card:nth-child(4) .jd-sk-img,
+.jd-skeleton-card:nth-child(4) .jd-sk-line,
+.jd-skeleton-card:nth-child(4) .jd-sk-btn { animation-delay: .3s; }
+.jd-skeleton-card:nth-child(5) .jd-sk-img,
+.jd-skeleton-card:nth-child(5) .jd-sk-line,
+.jd-skeleton-card:nth-child(5) .jd-sk-btn { animation-delay: .15s; }
+.jd-skeleton-card:nth-child(6) .jd-sk-img,
+.jd-skeleton-card:nth-child(6) .jd-sk-line,
+.jd-skeleton-card:nth-child(6) .jd-sk-btn { animation-delay: .25s; }
+/* Light mode */
 .light-mode .jd-sk-img,
 .light-mode .jd-sk-line,
 .light-mode .jd-sk-btn {
-  background: linear-gradient(90deg,rgba(0,0,0,.05) 25%,rgba(0,0,0,.12) 50%,rgba(0,0,0,.05) 75%);
-  background-size: 800px 100%;
-  animation: jd-shimmer 1.4s infinite linear;
+  background: linear-gradient(90deg,
+    rgba(0,0,0,.04) 0%,
+    rgba(0,0,0,.11) 40%,
+    rgba(0,0,0,.04) 80%);
+  background-size: 300% 100%;
+  animation: jd-shimmer 1.2s ease-in-out infinite;
 }
 /* ── GLASSMORPHISM language panel ────────────────────────────────*/
 .jd-lang-panel {
@@ -1019,8 +1059,12 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
     var _ready = function(){
       var list = document.getElementById('game-list');
       if(!list) return;
-      // Si ya fue renderizado por otro script, no sobreescribir
-      if(list.children.length > 0) return;
+      // Si ya hay tarjetas REALES (.jd-card) no sobreescribir
+      // Los skeletons inline se reemplazan siempre que haya caché
+      var hasRealCards = list.querySelector('.jd-card');
+      if(hasRealCards) return;
+      // Limpiar skeletons inline para mostrar datos reales del caché
+      list.innerHTML = '';
       var frag = document.createDocumentFragment();
       var visible = games.filter(function(g){ return g.visible !== false; });
       visible.sort(function(a,b){ return (b.timestamp||0)-(a.timestamp||0); });
@@ -1164,7 +1208,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
     </div>
   </div>
 
-  <div id="game-list" class="jd-grid"></div>
+  <div id="game-list" class="jd-grid"><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div></div>
 
   <footer class="pt-10 pb-10 text-center">
     <p id="copyright-text-ui" class="copyright-text">Copyright © <span id="current-year"></span> JoelDroid Mods YT. All rights reserved.</p>
@@ -2866,9 +2910,9 @@ function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
 
-  // Si aún no hay juegos, mostrar skeletons en lugar de pantalla vacía
+  // Sin datos: los skeletons ya están en el HTML desde el inicio (0ms)
+  // Solo mostrar skeletons adicionales si la lista quedó completamente vacía
   if(!siteState.gamesList || siteState.gamesList.length === 0){
-    // Solo poner skeletons si la lista está completamente vacía
     if(!list.querySelector('.jd-card') && !list.querySelector('.jd-skeleton-card')){
       _renderSkeletons(12);
     }
@@ -2950,7 +2994,7 @@ function _renderGamesBatch(list, start, count){
   var dlBtnText = (_defaults.indexOf(_adminBtn) >= 0) ? tStr('Descargar APK') : _adminBtn;
 
   var frag = document.createDocumentFragment();
-  games.forEach(function(g){
+  games.forEach(function(g, _gIdx){
     /* ── Badge labels ──────────────────────────────────────────── */
     var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
     var modColor = g.modBadgeBgColor || '#ef4444';
@@ -2973,11 +3017,17 @@ function _renderGamesBatch(list, start, count){
     var card = document.createElement('div');
     card.className = 'jd-card';
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
+    /* Las primeras 6 imágenes cargan directo (above the fold = sin espera) */
+    var _isAboveFold = (start + _gIdx) < 6;
+    var _imgHtml = _isAboveFold
+      ? '<img src="'+(g.thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
+              ' class="jd-img icon-img-loaded loaded" alt="'+g.name+'" loading="eager">'
+      : '<img data-src="'+(g.thumb||'')+'"'+
+             ' src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="'+
+             ' class="jd-img lazy-img icon-img-loaded" alt="'+g.name+'" loading="lazy">';
     card.innerHTML =
       '<div class="jd-img-box">'+
-        '<img data-src="'+(g.thumb||'')+'"'+
-             ' src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="'+
-             ' class="jd-img lazy-img icon-img-loaded" alt="'+g.name+'">'+
+        _imgHtml+
         '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
         updateTag+
       '</div>'+
@@ -3084,7 +3134,7 @@ function _initLazyImages(){
           _lazyIO.unobserve(img);
         }
       });
-    }, { rootMargin: '150px' });
+    }, { rootMargin: '300px' });
   }
   imgs.forEach(function(img){ _lazyIO.observe(img); });
 }
@@ -5149,6 +5199,11 @@ function _initFirebase(){
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db     = firebase.firestore();
     _fbAuth = firebase.auth();
+    // ── Persistencia offline IndexedDB — carga en <50ms en visitas repetidas ──
+    _db.enablePersistence({ synchronizeTabs: true })
+      .catch(function(err){
+        // failed-precondition = múltiples tabs (ok), unimplemented = browser viejo (ok)
+      });
 
     // ── CACHÉ OFFLINE: Firestore sirve datos desde IndexedDB al instante ──
     // Los juegos aparecen en <200ms en visitas repetidas, sin esperar red.
@@ -5287,12 +5342,14 @@ function _fbListenMods(){
         checkDeepLink();
       })
       .catch(function(){});
-  }, 2000);
+  }, 800); // fallback rápido: si no hay respuesta en 800ms, forzar servidor
 
   // ── TIEMPO REAL: actualiza desde red (puede llegar después) ───────
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
-    .onSnapshot(function(snap){
+    .onSnapshot({ includeMetadataChanges: false }, function(snap){
+      // Ignorar snapshots que vienen solo del caché local (ya procesados arriba)
+      if(snap.metadata && snap.metadata.fromCache) return;
       // Marcar que ya llegó el primer snapshot — cancelar el fallback timer
       _fbFirstSnapReceived = true;
       clearTimeout(_fbFastFallback);
