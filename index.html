@@ -175,17 +175,119 @@ html{scroll-behavior:smooth}
 #settings-view{overflow-y:auto}
 #admin-panel{overflow-y:auto}
 .settings-description-box{background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px;padding:16px;box-shadow:var(--neon-border);transition:background .3s ease,box-shadow .3s ease}
-#settings-overlay{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:none;opacity:0;transition:opacity .3s ease}
-#settings-view{position:absolute;top:0;right:0;bottom:0;width:90%;max-width:380px;background:var(--settings-panel-bg);border-left:1px solid var(--border-color);box-shadow:0 0 30px rgba(0,0,0,.5);transform:translateX(100%);transition:transform .4s ease-in-out;max-height:100vh;overflow-y:auto;padding:20px}
-@media(min-width:640px){#settings-view{width:30%}}
-@media(min-width:1024px){#settings-view{width:25%;max-width:300px}}
-#settings-overlay.show #settings-view{transform:translateX(0)}
-#settings-overlay.show{display:block;opacity:1}
-.settings-option{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.3);box-shadow:0 0 10px rgba(59,130,246,.2);padding:18px;border-radius:16px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .3s ease;position:relative}
-.settings-option:hover{background:rgba(59,130,246,.15);transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,130,246,.3)}
-.settings-option.active{border-color:#3b82f6;background:rgba(59,130,246,.25)}
-.settings-option-icon{color:#3b82f6;transition:transform .3s ease}
-.settings-content-anim{animation:fadeIn .4s ease-out}
+/* ══ SETTINGS — Drawer lateral izquierdo estilo Androeed ════════════
+   Se abre desde la izquierda, ocupa ~85% del ancho, lado derecho
+   visible con el fondo. Esquinas redondeadas solo en el lado derecho.
+   ════════════════════════════════════════════════════════════════ */
+#settings-overlay{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.38);
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  display:none;opacity:0;
+  transition:opacity .26s ease;
+  align-items:stretch;justify-content:flex-start;
+}
+#settings-overlay.show{ display:flex; opacity:1; }
+#settings-overlay.show #settings-view{ transform:translateX(0); }
+
+#settings-view{
+  /* 85% del ancho — igual que en la foto */
+  width:85%;
+  max-width:360px;
+  min-height:100%;
+  background:#ffffff;
+  /* Esquinas redondeadas SOLO en el lado derecho */
+  border-radius:0 20px 20px 0;
+  box-shadow:4px 0 32px rgba(0,0,0,.22);
+  /* Entra deslizando desde la izquierda */
+  transform:translateX(-100%);
+  transition:transform .28s cubic-bezier(.32,1,.45,1);
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:0 0 40px 0;
+  font-family:'Inter',system-ui,sans-serif;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Quitar el handle bar (era para bottom sheet) */
+#settings-view::before{ display:none; }
+
+/* Header */
+.jd-st-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 20px 14px;
+  border-bottom:1px solid rgba(0,0,0,.07);
+  flex-shrink:0;
+}
+.jd-st-title{
+  font-size:19px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.04em;
+  color:#1d6aff;
+}
+.jd-st-close{
+  width:34px;height:34px;border-radius:50%;
+  border:none;background:rgba(0,0,0,.06);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:20px;color:#5f6368;font-weight:400;line-height:1;
+  transition:background .15s;-webkit-tap-highlight-color:transparent;
+  flex-shrink:0;
+}
+.jd-st-close:active{background:rgba(0,0,0,.13);}
+
+/* Sección idioma */
+.jd-st-lang-section{
+  margin:14px 14px 10px;
+  background:#f4f6f8;border-radius:14px;
+  padding:13px 16px;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+.jd-st-lang-label{
+  font-size:15px;font-weight:600;color:#333;flex:1;
+}
+.jd-st-lang-btns{display:flex;gap:8px;}
+.jd-st-lang-btn{
+  padding:7px 17px;border-radius:20px;border:none;
+  background:#1d6aff;color:#fff;
+  font-size:13px;font-weight:800;letter-spacing:.03em;
+  cursor:pointer;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.jd-st-lang-btn:active{transform:scale(.93);}
+.jd-st-lang-btn.inactive{background:#dde3ec;color:#555;}
+
+/* Lista opciones */
+.jd-st-list{
+  background:#f4f6f8;
+  border-radius:14px;
+  margin:0 14px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.jd-st-item{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;
+  cursor:pointer;
+  transition:background .13s;
+  border-bottom:1px solid rgba(0,0,0,.055);
+  -webkit-tap-highlight-color:transparent;
+  text-decoration:none;color:inherit;
+  background:transparent;
+}
+.jd-st-item:last-child{border-bottom:none;}
+.jd-st-item:active{background:rgba(0,0,0,.07);}
+.jd-st-item-icon{
+  width:34px;height:34px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:#555;
+}
+.jd-st-item-icon svg{width:21px;height:21px;stroke-width:1.6;}
+.jd-st-item-text{
+  font-size:16px;font-weight:500;color:#1a1a1a;letter-spacing:-.01em;
+}
+
+.settings-content-anim{animation:fadeIn .3s ease-out;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .icon-anim-home:hover{animation:floatingIcon 1.5s infinite alternate ease-in-out}
 @keyframes floatingIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
@@ -657,11 +759,12 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 .jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
 .jd-card:active { transform: scale(.97); }
 
-/* ── IMAGE BOX: cuadrado 1:1, icono completo sin cortes ──────────*/
+/* ── IMAGE BOX: cuadrado con altura máxima limitada ──────────*/
 .jd-img-box {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
+  max-height: 115px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -1304,47 +1407,122 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 </div>
 
 <!-- SETTINGS OVERLAY -->
-<div id="settings-overlay" class="hidden" onclick="closeSettings()">
+<div id="settings-overlay" onclick="closeSettings()" style="display:none">
   <div id="settings-view" onclick="event.stopPropagation()">
-    <div id="settings-main-menu" class="space-y-4 settings-content-anim">
-      <a href="#home-view" onclick="closeSettings();" id="setting-home-option" class="settings-option group active">
-        <i data-lucide="home" class="w-6 h-6 settings-option-icon icon-anim-home"></i>
-        <div class="flex flex-col flex-grow">
-          <h3 class="text-sm font-black uppercase tracking-widest" data-i18n="nav_home">HOME</h3>
-          <p class="text-xs opacity-70 font-medium tracking-tighter" data-i18n="nav_home_desc">Regresar al panel principal.</p>
+
+    <!-- Handle + Header -->
+    <div class="jd-st-header">
+      <span class="jd-st-title">JOELDROID</span>
+      <button class="jd-st-close" onclick="closeSettings()">×</button>
+    </div>
+
+    <!-- Sección idioma — ES, EN, PT (los 3 más usados) -->
+    <div class="jd-st-lang-section">
+      <span class="jd-st-lang-label">Idioma:</span>
+      <div class="jd-st-lang-btns" id="jd-st-lang-btns">
+        <button class="jd-st-lang-btn" id="jd-stlb-es" onclick="jdStLang('es')">ES</button>
+        <button class="jd-st-lang-btn inactive" id="jd-stlb-en" onclick="jdStLang('en')">EN</button>
+        <button class="jd-st-lang-btn inactive" id="jd-stlb-pt" onclick="jdStLang('pt')">PT</button>
+      </div>
+    </div>
+
+    <!-- Lista principal -->
+    <div class="jd-st-list settings-content-anim">
+
+      <!-- Juegos -->
+      <div class="jd-st-item" onclick="closeSettings();resetPage();">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4m-2-2v4"/><circle cx="16" cy="11" r="1" fill="currentColor"/><circle cx="18" cy="13" r="1" fill="currentColor"/>
+          </svg>
         </div>
+        <span class="jd-st-item-text" data-i18n="nav_games">Juegos</span>
+      </div>
+
+      <!-- Aplicaciones -->
+      <div class="jd-st-item" onclick="closeSettings();filterByCategory('apps');" >
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </div>
+        <span class="jd-st-item-text">Aplicaciones</span>
+      </div>
+
+      <!-- Mods -->
+      <div class="jd-st-item" onclick="closeSettings();filterByCategory('mods');">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+          </svg>
+        </div>
+        <span class="jd-st-item-text">Mods</span>
+      </div>
+
+      <!-- TOP 100 -->
+      <div class="jd-st-item" onclick="closeSettings();filterChip('popular');">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <span class="jd-st-item-text">TOP 100</span>
+      </div>
+
+      <!-- Actualizados -->
+      <div class="jd-st-item" onclick="closeSettings();filterChip('updated');">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+          </svg>
+        </div>
+        <span class="jd-st-item-text">Actualizados</span>
+      </div>
+
+      <!-- Sobre nosotros -->
+      <div class="jd-st-item" onclick="jdStDetail('about')">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <span class="jd-st-item-text" data-i18n="nav_about">Sobre Nosotros</span>
+      </div>
+
+      <!-- Telegram -->
+      <a class="jd-st-item" href="https://t.me/joeldroidmods" target="_blank" onclick="closeSettings()">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </div>
+        <span class="jd-st-item-text">Bot de Telegram</span>
       </a>
-      <div onclick="showSettingDetails('games',this)" id="setting-games-option" class="settings-option group">
-        <i data-lucide="gamepad" class="w-6 h-6 settings-option-icon icon-anim-gamepad"></i>
-        <div class="flex flex-col flex-grow">
-          <h3 class="text-sm font-black uppercase tracking-widest" data-i18n="nav_games">Juegos</h3>
-          <p class="text-xs opacity-70 font-medium tracking-tighter" data-i18n="nav_games_desc">Nuestra colección de mods premium.</p>
+
+      <!-- Políticas -->
+      <div class="jd-st-item" onclick="jdStDetail('policies')">
+        <div class="jd-st-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
         </div>
+        <span class="jd-st-item-text" data-i18n="nav_policies">Ayuda</span>
       </div>
-      <div onclick="showSettingDetails('about',this)" id="setting-about-option" class="settings-option group">
-        <i data-lucide="users" class="w-6 h-6 settings-option-icon icon-anim-users"></i>
-        <div class="flex flex-col flex-grow">
-          <h3 class="text-sm font-black uppercase tracking-widest" data-i18n="nav_about">Sobre Nosotros</h3>
-          <p class="text-xs opacity-70 font-medium tracking-tighter" data-i18n="nav_about_desc">El equipo detrás de JoelDroid Mods.</p>
-        </div>
-      </div>
-      <div onclick="showSettingDetails('policies',this)" id="setting-policies-option" class="settings-option group">
-        <i data-lucide="alert-triangle" class="w-6 h-6 settings-option-icon icon-anim-alert"></i>
-        <div class="flex flex-col flex-grow">
-          <h3 class="text-sm font-black uppercase tracking-widest" data-i18n="nav_policies">Políticas y Condiciones</h3>
-          <p class="text-xs opacity-70 font-medium tracking-tighter" data-i18n="nav_policies_desc">Términos de uso y privacidad.</p>
-        </div>
-      </div>
-    </div>
-    <div id="settings-detail-panel" class="mt-4 hidden settings-content-anim">
-      <button onclick="backToSettingsMenu()" class="text-blue-500 flex items-center gap-1 font-bold mb-4">
-        <i data-lucide="chevron-left" class="w-4 h-4"></i><span data-i18n="back_btn">Atrás</span>
+
+    </div><!-- /jd-st-list -->
+
+    <!-- Panel de detalle (Sobre nosotros / Políticas) -->
+    <div id="jd-st-detail" style="display:none;padding:16px 16px 0;" class="settings-content-anim">
+      <button onclick="jdStBack()" style="display:flex;align-items:center;gap:6px;background:none;border:none;color:#1d6aff;font-size:14px;font-weight:700;cursor:pointer;padding:0 0 14px;font-family:inherit">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Atrás
       </button>
-      <div class="settings-description-box">
-        <h3 id="setting-desc-title" class="text-lg font-black uppercase mb-2"></h3>
-        <p id="setting-desc-text" class="text-sm leading-relaxed opacity-80 font-medium"></p>
+      <div style="background:#f4f6f8;border-radius:14px;padding:18px">
+        <h3 id="jd-st-det-title" style="font-size:16px;font-weight:900;color:#1a1a1a;margin-bottom:8px;text-transform:uppercase"></h3>
+        <p  id="jd-st-det-text"  style="font-size:14px;line-height:1.6;color:#555"></p>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -1354,6 +1532,8 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 <!-- Firebase SDK — preload + defer para máxima velocidad -->
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js">
+<link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
+<link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js">
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -3139,50 +3319,99 @@ function slugifyTitle(title){
     +'-Mod';
 }
 
-function showSettingDetails(optionKey,element){
-  var titleEl=document.getElementById('setting-desc-title');
-  var descEl=document.getElementById('setting-desc-text');
-  var detailPanel=document.getElementById('settings-detail-panel');
-  var mainMenu=document.getElementById('settings-main-menu');
-  document.querySelectorAll('.settings-option').forEach(function(op){op.classList.remove('active');});
-  if(element)element.classList.add('active');
-  var content={
-    games:{title:'Juegos',desc:'Somos una plataforma de ingeniería digital dedicada a la vanguardia en la personalización de simuladores, ofreciendo soluciones de alto rendimiento para la comunidad global.'},
-    about:{title:'Sobre Nosotros',desc:'Conoce la visión y la tecnología detrás de la comunidad líder en personalización de vehículos.'},
-    policies:{title:'Políticas y Condiciones',desc:'Consulta nuestro marco normativo y protocolos de privacidad diseñados para garantizar la integridad de los datos y la seguridad del usuario en todo nuestro ecosistema.'}
-  };
-  var c=content[optionKey]||{title:'',desc:''};
-  if(mainMenu)mainMenu.classList.add('hidden');
-  if(detailPanel)detailPanel.classList.remove('hidden');
-  if(titleEl)titleEl.innerText=c.title;
-  if(descEl)descEl.innerText=c.desc;
-}
-
+/* ══ SETTINGS — Bottom Sheet estilo Androeed ══ */
 function openSettings(){
   var overlay=document.getElementById('settings-overlay');
-  var mainMenu=document.getElementById('settings-main-menu');
-  var detailPanel=document.getElementById('settings-detail-panel');
-  if(overlay){
-    overlay.classList.remove('hidden');
-    document.body.style.overflow='hidden';
-    if(mainMenu)mainMenu.classList.remove('hidden');
-    if(detailPanel)detailPanel.classList.add('hidden');
-    refreshIcons();
-    setTimeout(function(){overlay.classList.add('show');},10);
-  }
+  if(!overlay) return;
+  // Reset: mostrar lista, ocultar detalle
+  var det=document.getElementById('jd-st-detail');
+  var list=overlay.querySelector('.jd-st-list');
+  var langSec=overlay.querySelector('.jd-st-lang-section');
+  if(det){det.style.display='none';}
+  if(list){list.style.display='';}
+  if(langSec){langSec.style.display='';}
+  // Actualizar botones de idioma activo
+  jdStUpdateLangBtns();
+  // Drawer desde izquierda
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
+  refreshIcons();
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ overlay.classList.add('show'); });
+  });
 }
 function closeSettings(){
   var overlay=document.getElementById('settings-overlay');
-  if(overlay)overlay.classList.remove('show');
-  setTimeout(function(){if(overlay)overlay.classList.add('hidden');document.body.style.overflow='';},300);
+  if(!overlay) return;
+  overlay.classList.remove('show');
+  setTimeout(function(){
+    overlay.style.display='none';
+    document.body.style.overflow='';
+  },300);
 }
-function backToSettingsMenu(){
-  var mainMenu=document.getElementById('settings-main-menu');
-  var detailPanel=document.getElementById('settings-detail-panel');
-  if(mainMenu)mainMenu.classList.remove('hidden');
-  if(detailPanel)detailPanel.classList.add('hidden');
-  document.querySelectorAll('.settings-option').forEach(function(op){op.classList.remove('active');});
+function jdStDetail(key){
+  var data={
+    about:{title:'Sobre Nosotros',text:'JoelDroid Mods YT es la plataforma líder en MOD APK para Android. Nuestro equipo verifica cada mod para garantizar seguridad y calidad.'},
+    policies:{title:'Ayuda & Políticas',text:'Todo el contenido es solo para pruebas. Apoya a los desarrolladores comprando los juegos originales. Para dudas contáctanos en Telegram.'}
+  };
+  var d=data[key]||{title:'',text:''};
+  var det=document.getElementById('jd-st-detail');
+  var list=document.querySelector('.jd-st-list');
+  var langSec=document.querySelector('.jd-st-lang-section');
+  document.getElementById('jd-st-det-title').innerText=d.title;
+  document.getElementById('jd-st-det-text').innerText=d.text;
+  if(list){list.style.display='none';}
+  if(langSec){langSec.style.display='none';}
+  if(det){det.style.display='block';}
 }
+function jdStBack(){
+  var det=document.getElementById('jd-st-detail');
+  var list=document.querySelector('.jd-st-list');
+  var langSec=document.querySelector('.jd-st-lang-section');
+  if(det){det.style.display='none';}
+  if(list){list.style.display='';}
+  if(langSec){langSec.style.display='';}
+}
+function jdStLang(code){
+  // Reutiliza selectLanguage existente con la bandera correcta
+  var flags={es:'https://flagcdn.com/w40/es.png',en:'https://flagcdn.com/w40/us.png',pt:'https://flagcdn.com/w40/br.png'};
+  selectLanguage(code, flags[code]||'https://flagcdn.com/w40/es.png');
+  jdStUpdateLangBtns();
+}
+function jdStUpdateLangBtns(){
+  var active=localStorage.getItem('selectedLang')||'es';
+  ['es','en','pt'].forEach(function(c){
+    var btn=document.getElementById('jd-stlb-'+c);
+    if(btn) btn.className='jd-st-lang-btn'+(active===c?'':' inactive');
+  });
+}
+function filterChip(type){
+  // Activar el chip correspondiente en home
+  var chipMap={popular:'popular',updated:'updated',all:'all'};
+  var allBtns=document.querySelectorAll('.filter-chip');
+  allBtns.forEach(function(b){b.classList.remove('active');});
+  if(type==='popular'){
+    var btn=Array.from(allBtns).find(function(b){return b.textContent.toLowerCase().includes('popular');});
+    if(btn){btn.classList.add('active');activeFilter='popular';renderGames();}
+  } else if(type==='updated'){
+    var btn=Array.from(allBtns).find(function(b){return b.textContent.toLowerCase().includes('actual');});
+    if(btn){btn.classList.add('active');activeFilter='updated';renderGames();}
+  }
+}
+function filterByCategory(cat){
+  // Activa filtro de categoría si existe, sino resetea
+  activeFilter='all';
+  var allBtns=document.querySelectorAll('.filter-chip');
+  allBtns.forEach(function(b){b.classList.remove('active');});
+  var first=allBtns[0];if(first)first.classList.add('active');
+  searchQuery=cat==='mods'?'mod':'';
+  var sb=document.getElementById('search-bar');
+  if(sb)sb.value=searchQuery;
+  renderGames();
+}
+// Alias para compatibilidad con código existente
+function showSettingDetails(k){jdStDetail(k);}
+function backToSettingsMenu(){jdStBack();}
 
 function showToast(message){
   var toast=document.getElementById('toast-notification');
@@ -5009,10 +5238,51 @@ function _fbListenMods(){
     })
     .catch(function(){ /* caché vacía en primera visita — ignorar */ });
 
+  // ── PRIMERA VISITA SIN CACHÉ: obtener desde red con timeout de 2s ──
+  // Si en 2 segundos no llega respuesta de Firestore, forzar un get()
+  // para que los juegos aparezcan lo antes posible.
+  var _fbFirstSnapReceived = false;
+  var _fbFastFallback = setTimeout(function(){
+    if(_fbFirstSnapReceived) return;
+    // Intentar get() directo desde servidor como fallback rápido
+    _db.collection('mods').orderBy('order','asc')
+      .get({ source: 'server' })
+      .then(function(snap){
+        if(_fbFirstSnapReceived || snap.empty) return;
+        var games = snap.docs.map(function(doc){
+          var d = doc.data(); d.id = doc.id;
+          delete d.updatedAt; delete d.createdAt;
+          if(!d.name && d.nombre)             d.name = d.nombre;
+          if(!d.description && d.descripcion) d.description = d.descripcion;
+          if(!d.thumb && d.imagen)            d.thumb = d.imagen;
+          if(!d.thumb && d.icon)              d.thumb = d.icon;
+          if(!d.ver && d.version)             d.ver = d.version;
+          if(!d.size && d.peso)               d.size = d.peso;
+          if(!d.downloadButtonLink1 && d.enlace) d.downloadButtonLink1 = d.enlace;
+          if(!d.downloadButtonLink1 && d.link)   d.downloadButtonLink1 = d.link;
+          if(!d.timestamp) d.timestamp = 0;
+          return d;
+        });
+        games.sort(function(a,b){
+          var ta=b.timestamp||0, tb=a.timestamp||0;
+          if(ta!==tb) return ta-tb;
+          return (a.order||0)-(b.order||0);
+        });
+        siteState.gamesList = games;
+        _saveGamesCache(games);
+        renderGames();
+        checkDeepLink();
+      })
+      .catch(function(){});
+  }, 2000);
+
   // ── TIEMPO REAL: actualiza desde red (puede llegar después) ───────
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
     .onSnapshot(function(snap){
+      // Marcar que ya llegó el primer snapshot — cancelar el fallback timer
+      _fbFirstSnapReceived = true;
+      clearTimeout(_fbFastFallback);
       if(snap.empty){
         renderGames();
         if(_isAdmin() && siteState.gamesList && siteState.gamesList.length > 0){
@@ -5709,21 +5979,78 @@ window.onload=function(){
 </div>
 
 <style>
-    /* Forzamos al anuncio a ser flexible dentro del límite */
+    /* ══ FIX: Anuncio adaptable — zoom automático, sin cortes ══
+       Si el iframe es más ancho que el contenedor, se escala para
+       que quepa completo. transform-origin: top center asegura que
+       el anuncio siempre se vea desde arriba sin cortar. */
+    #wrapper-auto {
+        overflow: visible !important;
+        align-items: flex-start !important;
+    }
+    #container-ec8e04f7f5f2b33bf58e0f40ba2b6c81 {
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+    }
     #container-ec8e04f7f5f2b33bf58e0f40ba2b6c81 iframe {
-        max-width: 100% !important;
-        height: auto !important; 
+        max-width: none !important;
+        height: auto !important;
         min-height: 80px !important;
-        max-height: 195px !important; 
         border: none !important;
         display: block;
-        transform: scale(0.98); 
+        /* Sin scale fijo: el JS abajo calcula el zoom real necesario */
         transform-origin: top center;
     }
     
     /* Esto asegura que el texto se lea en modo oscuro si tu body cambia de clase */
     body.dark-mode #seccion-ads-adaptable span { color: #fff !important; }
 </style>
+<script>
+/* ══ AUTO-ZOOM ANUNCIO ADAPTABLE — escala el iframe para que siempre sea visible completo ══ */
+(function(){
+  function _fitAdIframe(){
+    var wrapper = document.getElementById('wrapper-auto');
+    if(!wrapper) return;
+    var iframes = wrapper.querySelectorAll('iframe');
+    iframes.forEach(function(f){
+      f.style.transform = ''; // reset
+      var iw = f.offsetWidth || f.scrollWidth || 320;
+      var cw = wrapper.offsetWidth || window.innerWidth;
+      if(iw > cw && cw > 0){
+        var scale = cw / iw;
+        f.style.transform = 'scale('+scale.toFixed(3)+')';
+        f.style.transformOrigin = 'top center';
+        // Ajustar altura del wrapper al tamaño real tras escala
+        var ih = f.offsetHeight || 90;
+        wrapper.style.minHeight = Math.ceil(ih * scale) + 'px';
+        wrapper.style.maxHeight = Math.ceil(ih * scale) + 'px';
+      } else {
+        wrapper.style.minHeight = '';
+        wrapper.style.maxHeight = '200px';
+      }
+    });
+  }
+  // Esperar a que el iframe cargue y luego ajustar
+  function _waitAndFit(){
+    var wrapper = document.getElementById('wrapper-auto');
+    if(!wrapper){ setTimeout(_waitAndFit, 200); return; }
+    // Observer para cuando se inserte el iframe dinámicamente
+    var obs = new MutationObserver(function(){ _fitAdIframe(); });
+    obs.observe(wrapper, { childList: true, subtree: true, attributes: true });
+    // También ajustar al resize
+    window.addEventListener('resize', _fitAdIframe, { passive: true });
+    // Intentar ajustar ahora y después de cargas
+    _fitAdIframe();
+    setTimeout(_fitAdIframe, 800);
+    setTimeout(_fitAdIframe, 2000);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', _waitAndFit);
+  } else {
+    _waitAndFit();
+  }
+})();
+</script>
  
  <style>
 /* ═══════════════════════════════════════════════════════════════════
@@ -5776,16 +6103,17 @@ window.onload=function(){
 }
 .jd-tab-mini:active { background: #cbd5e1; }
 
-/* ── Cuerpo del banner ───────────────────────────────────────────── */
+/* ── Cuerpo del banner — sistema Playmods ───────────────────────── */
 .jd-banner-body {
     pointer-events: auto;
     width: calc(100vw - 24px);
-    max-width: 480px;
-    /* Altura = altura nativa del ad (~90px) × scale(0.82) ≈ 74px */
-    height: 76px;
+    max-width: 440px;
+    /* Altura fija: el iframe renderiza 3× y escala a 1/3 → 130px × 0.3333 ≈ 43px
+       Usamos 130px igual que descarga.html para el mismo resultado visual */
+    height: 95px;
     background: #ffffff;
-    border-radius: 14px 14px 0 0;
-    box-shadow: 0 -4px 18px rgba(0,0,0,0.13);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     border: 1px solid #e2e8f0;
     border-bottom: none;
     overflow: hidden;
@@ -5808,25 +6136,28 @@ window.onload=function(){
 .jd-ad-content {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     position: absolute;
-    inset: 0;
+    top: 0; left: 0;
+    border-radius: 16px 16px 0 0;
 }
 
-/* ── Iframe escalado: 0.82 = se ve completo, sin recorte ─────────
-   El iframe tiene dimensiones mayores al contenedor (122%) para
-   que al escalar al 82% llene exactamente el ancho disponible.
-   ──────────────────────────────────────────────────────────────── */
+/* ══ SISTEMA PLAYMODS — igual que descarga.html ══════════════════
+   El iframe se renderiza al 300% (tamaño real grande, sin cortes)
+   y luego se escala a 1/3 desde la esquina 0 0.
+   Resultado: el anuncio siempre se ve completo, nunca cortado.
+   ════════════════════════════════════════════════════════════════ */
 #jd-iframe-play {
-    width: 122%;
-    height: 122%;
+    width: 300% !important;
+    height: 300% !important;
     border: none;
     display: block;
-    transform: scale(0.82);
-    transform-origin: center center;
+    background-color: transparent !important;
+    transform: scale(0.3333);
+    transform-origin: 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
     /* El iframe en sí no recibe clics — el overlay los gestiona */
     pointer-events: none;
 }
@@ -5841,27 +6172,25 @@ window.onload=function(){
     -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Body: padding que compensa el banner cuando está visible ─────
-   Se añade/quita la clase .jd-banner-open desde JS              */
+/* ── Body: padding = altura banner (130px) + pestaña (20px) + margen ── */
 body.jd-banner-open {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
 }
 
-/* ── Pantallas muy pequeñas (<360px) ────────────────────────────── */
+/* ── Pantallas muy pequeñas (<360px): JS controla la altura real ── */
 @media (max-width: 360px) {
-    .jd-banner-body { height: 66px; }
-    #jd-iframe-play { transform: scale(0.74); }
+    .jd-banner-body { height: 80px !important; }
 }
 
 /* ── Tablets / desktop: añadir borde inferior y separación ──────── */
 @media (min-width: 480px) {
     .jd-banner-body {
-        border-radius: 14px;
+        border-radius: 16px;
         border-bottom: 1px solid #e2e8f0;
         margin-bottom: 10px;
     }
     #jd-play-container.visible { bottom: 10px; }
-    body.jd-banner-open { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
+    body.jd-banner-open { padding-bottom: calc(135px + env(safe-area-inset-bottom, 0px)); }
 }
 </style>
 
@@ -5976,6 +6305,7 @@ body.jd-banner-open {
         document.addEventListener('click', launch);
         document.addEventListener('touchstart', launch, { passive: true });
         window.addEventListener('scroll', launchOnScroll, { passive: true });
+
     })();
 </script>
 
