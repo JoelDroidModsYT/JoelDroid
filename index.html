@@ -1119,88 +1119,99 @@ window.__JD_STATIC_GAMES = (function(){
 window.__JD_REST_DONE = false;
 
 /* ════════════════════════════════════════════════════════════════════════
-   SISTEMA games.json — Carga instantánea en TODA visita (nueva o repetida)
+   CARGA INSTANTÁNEA — games.json desde Gist CDN de GitHub
    
-   FLUJO PRIMERA VISITA:
-   ① fetch games.json del Gist  →  <200ms  →  juegos en pantalla ✅
-   ② Si falla o vacío → Firestore REST (~800ms) → guarda games.json
+   URL CDN: https://gist.githubusercontent.com/JoelDroidModsYT/
+            5981d391897fe461dc5ac9ba7303b8f2/raw/games.json
    
-   FLUJO VISITA REPETIDA:
-   ① sessionStorage (0ms) → instantáneo ✅
+   FLUJO:
+   ① sessionStorage (0ms)       → visitas repetidas, absolutamente instantáneo
+   ② games.json del Gist (<300ms) → primera visita, CDN GitHub mundial
+   ③ Firestore REST (~800ms)    → fallback si Gist aún no tiene datos
    
-   FLUJO ADMIN (auto-actualización):
-   → Cada vez que Firebase trae cambios → actualiza games.json en Gist
-   → Todos los usuarios nuevos ven los datos frescos en <200ms
+   El panel admin actualiza games.json automáticamente al guardar juegos.
    ════════════════════════════════════════════════════════════════════════ */
 (function(){
-  // Si ya hay caché local (visita repetida) → no hacer ningún fetch
+  // Si ya hay caché local (visita repetida) → no hacer nada más
   if(window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length > 0) return;
 
-  var PROJECT = 'joeldroid-mods';
-  var API_KEY  = 'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
-  var GIST_ID  = '6af1ef1dafd40c26283b9d717db4e1d0';
+  var PROJECT       = 'joeldroid-mods';
+  var API_KEY       = 'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
+  var GAMES_GIST_ID = '5981d391897fe461dc5ac9ba7303b8f2';
+  var GIST_USER     = 'JoelDroidModsYT';
 
-  /* ── Normalizar juego independientemente del origen (games.json o Firestore) ── */
-  function _normalizeGame(g){ return g; } // games.json ya viene normalizado
-
+  /* ── Parser Firestore REST (fallback) ── */
   function _parseFirestoreDoc(doc){
     var f = doc.fields || {};
-    function _v(field){
+    function _s(field){
       if(!field) return '';
       return field.stringValue !== undefined ? field.stringValue :
              String(field.integerValue || field.doubleValue || '');
     }
-    function _b(field){ return !field || field.booleanValue !== false; }
+    function _b(field, def){
+      if(!field) return def !== false;
+      return field.booleanValue !== false;
+    }
     function _arr(field){
       if(!field || !field.arrayValue) return [];
-      return (field.arrayValue.values||[]).map(function(v){ return _v(v); }).filter(Boolean);
+      return (field.arrayValue.values||[]).map(function(v){ return _s(v); }).filter(Boolean);
     }
     var id = (doc.name||'').split('/').pop();
     return {
-      id:id, name:_v(f.name||f.nombre), description:_v(f.description||f.descripcion),
-      thumb:_v(f.thumb||f.imagen||f.icon), ver:_v(f.ver||f.version),
-      size:_v(f.size||f.peso), visible:_b(f.visible),
-      downloadButtonLink1:_v(f.downloadButtonLink1||f.enlace||f.link),
-      downloadButtonLink2:_v(f.downloadButtonLink2||f.enlace2),
-      modBadgeText:_v(f.modBadgeText)||'MOD', modBadgeBgColor:_v(f.modBadgeBgColor)||'#ef4444',
-      modBadgeVisible:_b(f.modBadgeVisible), updateBadgeVisible:!!(f.updateBadgeVisible&&f.updateBadgeVisible.booleanValue),
-      updateBadgeText:_v(f.updateBadgeText), homeButtonVisible:_b(f.homeButtonVisible),
-      features:_arr(f.features),
-      timestamp:parseInt(_v(f.timestamp)||'0',10)||0,
-      order:parseInt(_v(f.order)||'0',10)||0,
-      visits:parseInt(_v(f.visits)||'0',10)||0
+      id: id, name: _s(f.name||f.nombre), description: _s(f.description||f.descripcion),
+      thumb: _s(f.thumb||f.imagen||f.icon), ver: _s(f.ver||f.version),
+      size: _s(f.size||f.peso), visible: _b(f.visible, true),
+      downloadButtonLink1: _s(f.downloadButtonLink1||f.enlace||f.link),
+      downloadButtonLink2: _s(f.downloadButtonLink2||f.enlace2),
+      downloadButtonText1: _s(f.downloadButtonText1) || 'Descargar MOD APK',
+      downloadButtonText2: _s(f.downloadButtonText2) || '',
+      downloadButtonVisible1: _b(f.downloadButtonVisible1, true),
+      downloadButtonVisible2: _b(f.downloadButtonVisible2, false),
+      modBadgeText: _s(f.modBadgeText)||'MOD', modBadgeBgColor: _s(f.modBadgeBgColor)||'#ef4444',
+      modBadgeVisible: _b(f.modBadgeVisible, true),
+      updateBadgeText: _s(f.updateBadgeText), updateBadgeVisible: _b(f.updateBadgeVisible, false),
+      updateBadgeBgColor: _s(f.updateBadgeBgColor)||'#10b981',
+      homeButtonVisible: _b(f.homeButtonVisible, true),
+      features: _arr(f.features),
+      timestamp: parseInt(_s(f.timestamp)||'0', 10)||0,
+      order: parseInt(_s(f.order)||'0', 10)||0,
+      visits: parseInt(_s(f.visits)||'0', 10)||0,
+      warningVisible: _b(f.warningVisible, false),
+      warningText: _s(f.warningText),
+      dlPageName1: _s(f.dlPageName1), dlPageVer1: _s(f.dlPageVer1),
+      dlPageSize1: _s(f.dlPageSize1), dlPageBtn1: _s(f.dlPageBtn1),
+      dlPageName2: _s(f.dlPageName2), dlPageVer2: _s(f.dlPageVer2),
+      dlPageSize2: _s(f.dlPageSize2), dlPageBtn2: _s(f.dlPageBtn2)
     };
   }
 
-  function _sortGames(games){
+  /* ── Ordenar juegos ── */
+  function _sort(games){
     return games.filter(function(g){ return g.visible !== false; })
       .sort(function(a,b){
-        return b.timestamp !== a.timestamp ? b.timestamp-a.timestamp : a.order-b.order;
+        return b.timestamp !== a.timestamp ? b.timestamp - a.timestamp : a.order - b.order;
       });
   }
 
-  /* ── Renderizar en pantalla ── */
+  /* ── Renderizar tarjetas en pantalla ── */
   function _renderNow(games){
     if(window.__JD_REST_DONE) return;
     window.__JD_REST_DONE = true;
-    var sorted = _sortGames(games);
+    var sorted = _sort(games);
     window.__JD_STATIC_GAMES = sorted;
-    // Guardar en caché local
     try{
       var json = JSON.stringify(sorted);
       sessionStorage.setItem('jd_ss_games', json);
       localStorage.setItem('jd_games_cache_v2', json);
     }catch(e){}
-    // Renderizar
     var list = document.getElementById('game-list');
-    if(!list) return;
-    if(list.querySelector('.jd-card')) return;
+    if(!list || list.querySelector('.jd-card')) return;
     if(typeof siteState !== 'undefined' && typeof renderGames === 'function'){
       siteState.gamesList = sorted;
       renderGames();
       return;
     }
-    // Renderizado básico directo (antes de que el SDK cargue)
+    // Render básico directo (antes de que el SDK cargue)
     list.innerHTML = '';
     var frag = document.createDocumentFragment();
     sorted.slice(0, 24).forEach(function(g){
@@ -1214,13 +1225,13 @@ window.__JD_REST_DONE = false;
                ' loading="eager" decoding="async" alt="'+g.name+'">'+
           '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
             (g.modBadgeText||'MOD')+'</span>'+
-          (g.updateBadgeVisible ? '<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>' : '')+
+          (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
         '</div>'+
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+g.name+'</p>'+
           '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
           '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
-          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
+          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
             '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
             '<polyline points="7 10 12 15 17 10"/>'+
@@ -1234,25 +1245,24 @@ window.__JD_REST_DONE = false;
     list.dataset.restLoaded = '1';
   }
 
-  /* ══ PASO 1: Leer games.json del Gist (CDN GitHub, <200ms) ══════════ */
-  var rawUrl = 'https://gist.githubusercontent.com/raw/'+GIST_ID+'/games.json?t='+Date.now();
-  
-  fetch(rawUrl)
+  /* ══ PASO 1: games.json desde CDN GitHub (<300ms) ══════════════════ */
+  var cdnUrl = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?_='+Date.now();
+
+  fetch(cdnUrl, { cache: 'no-cache' })
     .then(function(r){
-      if(!r.ok) throw new Error('games.json not found');
+      if(!r.ok) throw new Error('HTTP '+r.status);
       return r.json();
     })
     .then(function(data){
-      // games.json puede tener formato {games:[...]} o directamente [...]
       var games = Array.isArray(data) ? data : (data.games || []);
-      if(!games.length) throw new Error('games.json vacío');
+      if(!games.length) throw new Error('vacío');
       _renderNow(games);
     })
     .catch(function(){
-      /* ══ PASO 2 (fallback): Firestore REST directo ═══════════════════
-         Se activa si games.json no existe aún o está vacío.
-         Tras obtener datos → guarda games.json en el Gist automáticamente
-         para que la próxima visita use el PASO 1 (<200ms).              */
+      /* ══ PASO 2: Firestore REST directo (fallback ~800ms) ════════════
+         Se activa si games.json no tiene datos todavía.
+         Cuando responde, guarda en games.json del Gist automáticamente
+         para que la próxima visita use el CDN (<300ms).               */
       var fsUrl = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
                   '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
       fetch(fsUrl)
@@ -1263,99 +1273,32 @@ window.__JD_REST_DONE = false;
           if(!docs.length) return;
           var games = docs.map(_parseFirestoreDoc);
           _renderNow(games);
-          // Guardar en games.json del Gist para que próximas visitas sean <200ms
-          window.__jdSaveGamesToGist(window.__JD_STATIC_GAMES);
         })
         .catch(function(){});
     });
 
-  /* ══ Función global para actualizar games.json en el Gist ═══════════
-     Se llama automáticamente cuando:
-     • Firebase onSnapshot trae datos nuevos
-     • El admin agrega/edita/elimina un juego
-     Así games.json siempre está al día y cualquier usuario nuevo
-     carga los juegos en <200ms desde el CDN de GitHub.              */
+  /* ══ Función global para guardar en games.json ═══════════════════════
+     También usada por el index cuando Firebase trae actualizaciones    */
   window.__jdSaveGamesToGist = function(games){
     if(!games || !games.length) return;
     try{
       var cfg = JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');
-      if(!cfg || !cfg.token || !cfg.gistId) return; // Solo si admin tiene token
+      if(!cfg || !cfg.token) return;
       var payload = JSON.stringify({
-        _info: 'JoelDroid Mods YT — Auto-generado. No editar.',
+        _info: 'JoelDroid Mods YT — Auto-generado.',
         _updated: new Date().toISOString(),
+        _count: games.length,
         games: games
-      });
-      fetch('https://api.github.com/gists/'+cfg.gistId, {
+      }, null, 2);
+      fetch('https://api.github.com/gists/'+GAMES_GIST_ID, {
         method: 'PATCH',
-        headers: {
-          'Authorization': 'token '+cfg.token,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': 'token '+cfg.token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ files: { 'games.json': { content: payload } } })
       }).catch(function(){});
     }catch(e){}
   };
 
 })();
-
-<!-- ══ INSTANT GAME LOADER — corre en <5ms antes que cualquier otro JS ══ -->
-<script>
-(function(){
-  try{
-    // Usar datos del bloque estático (sessionStorage + localStorage ya combinados)
-    var games = window.__JD_STATIC_GAMES;
-    if(!games || games.length < 1) return;
-    var _rendered = false;
-    var _ready = function(){
-      if(_rendered) return;
-      var list = document.getElementById('game-list');
-      if(!list) return;
-      var hasRealCards = list.querySelector('.jd-card');
-      if(hasRealCards) return;
-      _rendered = true;
-      list.innerHTML = '';
-      var frag = document.createDocumentFragment();
-      var visible = games.filter(function(g){ return g.visible !== false; });
-      visible.sort(function(a,b){ return (b.timestamp||0)-(a.timestamp||0); });
-      var show = visible.slice(0, 24);
-      show.forEach(function(g){
-        var card = document.createElement('div');
-        card.className = 'jd-card';
-        card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
-        var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
-        var modColor = g.modBadgeBgColor || '#ef4444';
-        var updBadge = (g.updateBadgeVisible && g.updateBadgeText)
-          ? '<span class="jd-upd-badge">'+g.updateBadgeText+'</span>' : '';
-        card.innerHTML =
-          '<div class="jd-img-box">'+
-            '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" alt="'+g.name+'" loading="eager" decoding="async">'+
-            '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
-            updBadge+
-          '</div>'+
-          '<div class="jd-info">'+
-            '<p class="jd-name notranslate">'+g.name+'</p>'+
-            '<p class="jd-mod-label">'+((g.features&&g.features[0])||g.modBadgeText||'MOD APK')+'</p>'+
-            '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
-            '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+String(g.id)+'');">'+
-              '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
-              '<span>Descargar APK</span>'+
-            '</button>'+
-          '</div>';
-        frag.appendChild(card);
-      });
-      list.appendChild(frag);
-      // Flag para que renderGames() no sobreescriba si los datos son los mismos
-      list.dataset.instantLoaded = '1';
-    };
-    // Ejecutar ahora si el DOM ya llegó al game-list, sino en DOMContentLoaded
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', _ready);
-    } else {
-      _ready();
-    }
-  }catch(e){}
-})();
-</script>
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
 <!-- ══ AD SLOT 1: Banner superior home (468×60) ══════════════════ -->

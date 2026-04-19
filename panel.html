@@ -31,6 +31,11 @@ var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
 };
+
+// ── Gist público para games.json (carga instantánea en index) ──
+// NO tocar — separado del gistId principal de estado del sitio
+var GAMES_GIST_ID  = '5981d391897fe461dc5ac9ba7303b8f2';
+var GAMES_GIST_RAW = 'https://gist.githubusercontent.com/JoelDroidModsYT/'+GAMES_GIST_ID+'/raw/games.json';
 </script>
 
 <!-- ══ FIREBASE SDK ══ -->
@@ -1502,14 +1507,22 @@ function processSaveGameData(editId,data){
   });
   if(_fbReady&&_db&&_isAdmin()){
     _fbSaveGame(newGame,editId?String(editId):null)
-      .then(function(){renderGameEditorList();closeGameEditor();try{_syncToGitHub();}catch(e){}})
+      .then(function(){
+        renderGameEditorList();closeGameEditor();
+        try{_syncToGitHub();}catch(e){}
+        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
+      })
       .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
   }else{
     showToast('⏳ Conectando a Firebase...');
     setTimeout(function(){
       if(_fbReady&&_db&&_isAdmin()){
         _fbSaveGame(newGame,editId?String(editId):null)
-          .then(function(){renderGameEditorList();closeGameEditor();try{_syncToGitHub();}catch(e){}})
+          .then(function(){
+            renderGameEditorList();closeGameEditor();
+            try{_syncToGitHub();}catch(e){}
+            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
+          })
           .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
       }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
     },2000);
@@ -1539,7 +1552,10 @@ function renderGameEditorList(){
 
 function deleteGameGlobal(gameId){
   if(!confirm('¿Eliminar este juego? Se eliminará para TODOS los usuarios.'))return;
-  if(_isAdmin()){_fbDeleteGame(String(gameId)).then(function(){renderGameEditorList();});}
+  if(_isAdmin()){_fbDeleteGame(String(gameId)).then(function(){
+    renderGameEditorList();
+    try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json al eliminar
+  });}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
 
@@ -1548,6 +1564,95 @@ function deleteGameGlobal(gameId){
 // ════════════════════════════════════════════════════════════════
 function _loadGHConfig(){try{return JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');}catch(e){return null;}}
 function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(cfg));}catch(e){}_ghCfg=cfg;}
+
+/* ════════════════════════════════════════════════════════════════════
+   _syncGamesToGist() — Escribe games.json al Gist público de juegos
+   Completamente SEPARADO del _syncToGitHub() principal.
+   Se llama automáticamente al guardar/eliminar un juego.
+   Usa el mismo token del admin pero escribe al GIST de games.
+   ════════════════════════════════════════════════════════════════════ */
+function _syncGamesToGist(){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token) return; // Solo si admin tiene token configurado
+
+  // Tomar todos los juegos visibles del siteState
+  var games = (siteState.gamesList || []).filter(function(g){
+    return g.visible !== false;
+  }).map(function(g){
+    // Estructura limpia compatible con descarga.html y index.html
+    return {
+      id:                   String(g.id),
+      name:                 g.name || g.nombre || '',
+      description:          g.description || g.descripcion || '',
+      thumb:                g.thumb || g.imagen || g.icon || '',
+      ver:                  g.ver || g.version || '',
+      size:                 g.size || g.peso || '',
+      visible:              g.visible !== false,
+      downloadButtonLink1:  g.downloadButtonLink1 || g.enlace || g.link || '',
+      downloadButtonLink2:  g.downloadButtonLink2 || g.enlace2 || '',
+      downloadButtonText1:  g.downloadButtonText1 || 'Descargar MOD APK',
+      downloadButtonText2:  g.downloadButtonText2 || '',
+      downloadButtonVisible1: g.downloadButtonVisible1 !== false,
+      downloadButtonVisible2: !!g.downloadButtonVisible2,
+      modBadgeText:         g.modBadgeText || 'MOD',
+      modBadgeBgColor:      g.modBadgeBgColor || '#ef4444',
+      modBadgeVisible:      g.modBadgeVisible !== false,
+      updateBadgeText:      g.updateBadgeText || '',
+      updateBadgeVisible:   !!g.updateBadgeVisible,
+      updateBadgeBgColor:   g.updateBadgeBgColor || '#10b981',
+      homeButtonVisible:    g.homeButtonVisible !== false,
+      features:             g.features || [],
+      timestamp:            g.timestamp || 0,
+      order:                g.order || 0,
+      visits:               g.visits || 0,
+      warningVisible:       !!g.warningVisible,
+      warningText:          g.warningText || '',
+      youtubeUrl:           g.youtubeUrl || '',
+      installYoutubeUrl:    g.installYoutubeUrl || '',
+      dlPageName1:          g.dlPageName1 || '',
+      dlPageVer1:           g.dlPageVer1 || '',
+      dlPageSize1:          g.dlPageSize1 || '',
+      dlPageBtn1:           g.dlPageBtn1 || '',
+      dlPageName2:          g.dlPageName2 || '',
+      dlPageVer2:           g.dlPageVer2 || '',
+      dlPageSize2:          g.dlPageSize2 || '',
+      dlPageBtn2:           g.dlPageBtn2 || ''
+    };
+  });
+
+  var fileContent = JSON.stringify({
+    _info:    'JoelDroid Mods YT — Auto-generado. No editar manualmente.',
+    _updated: new Date().toISOString(),
+    _count:   games.length,
+    games:    games
+  }, null, 2);
+
+  // Escribir al Gist de games (GAMES_GIST_ID), NO al gistId principal
+  fetch('https://api.github.com/gists/' + GAMES_GIST_ID, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'token ' + cfg.token,
+      'Content-Type':  'application/json'
+    },
+    body: JSON.stringify({
+      files: { 'games.json': { content: fileContent } }
+    })
+  })
+  .then(function(r){
+    if(r.ok){
+      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
+    } else {
+      r.json().then(function(e){
+        _showGHStatus('⚠️ games.json: Error ' + r.status + ' — ' + (e.message||''), '#f59e0b');
+      }).catch(function(){
+        _showGHStatus('⚠️ games.json: Error ' + r.status, '#f59e0b');
+      });
+    }
+  })
+  .catch(function(e){
+    _showGHStatus('⚠️ games.json: Sin conexión — ' + e.message, '#f59e0b');
+  });
+}
 
 function _syncToGitHub(){
   var cfg=_ghCfg||_loadGHConfig();
