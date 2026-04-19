@@ -1117,104 +1117,172 @@ window.__JD_STATIC_GAMES = (function(){
 // ── CAPA 2: REST fetch directo a Firestore (no necesita SDK) ─────────
 // Se ejecuta en paralelo — si responde antes que el SDK renderiza ya.
 window.__JD_REST_DONE = false;
+
+/* ════════════════════════════════════════════════════════════════════
+   CARGADOR ULTRA-RÁPIDO — Sistema de 3 velocidades en paralelo
+   
+   V1 (0ms)    : sessionStorage/localStorage — visitas repetidas
+   V2 (<300ms) : games.json en Gist/CDN — archivo estático, rapidísimo
+   V3 (<800ms) : REST directo a Firestore — primera visita sin caché
+   
+   El SDK Firebase sigue corriendo para tiempo real.
+   La primera velocidad que responde gana y renderiza.
+   ════════════════════════════════════════════════════════════════════ */
 (function(){
-  // Solo activar si NO hay caché local (primera visita real)
   if(window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length) return;
 
   var PROJECT = 'joeldroid-mods';
   var API_KEY  = 'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
-  var URL = 'https://firestore.googleapis.com/v1/projects/' + PROJECT +
-            '/databases/(default)/documents/mods?orderBy=order&pageSize=50&key=' + API_KEY;
 
+  /* ── Parser compartido para docs de Firestore REST ── */
   function _parseDoc(doc){
     var f = doc.fields || {};
     function _v(field){
       if(!field) return '';
-      return field.stringValue || field.integerValue || field.doubleValue ||
-             field.booleanValue || '';
+      return field.stringValue !== undefined ? field.stringValue :
+             (field.integerValue || field.doubleValue || '');
     }
+    function _b(field){ return field && field.booleanValue !== false; }
     function _arr(field){
       if(!field || !field.arrayValue) return [];
-      return (field.arrayValue.values||[]).map(function(v){ return _v(v); });
+      return (field.arrayValue.values||[]).map(function(v){ return _v(v); }).filter(Boolean);
     }
     var id = (doc.name||'').split('/').pop();
     return {
-      id: id,
-      name: _v(f.name||f.nombre),
-      description: _v(f.description||f.descripcion),
-      thumb: _v(f.thumb||f.imagen||f.icon),
-      ver: _v(f.ver||f.version),
-      size: _v(f.size||f.peso),
-      visible: f.visible ? f.visible.booleanValue !== false : true,
-      downloadButtonLink1: _v(f.downloadButtonLink1||f.enlace||f.link),
-      downloadButtonLink2: _v(f.downloadButtonLink2||f.enlace2),
-      modBadgeText: _v(f.modBadgeText) || 'MOD',
-      modBadgeBgColor: _v(f.modBadgeBgColor) || '#ef4444',
-      modBadgeVisible: f.modBadgeVisible ? f.modBadgeVisible.booleanValue !== false : true,
-      updateBadgeVisible: f.updateBadgeVisible && f.updateBadgeVisible.booleanValue,
-      updateBadgeText: _v(f.updateBadgeText),
-      homeButtonVisible: f.homeButtonVisible ? f.homeButtonVisible.booleanValue !== false : true,
-      features: _arr(f.features),
-      timestamp: parseInt(_v(f.timestamp)||'0',10) || 0,
-      order: parseInt(_v(f.order)||'0',10) || 0,
-      visits: parseInt(_v(f.visits)||'0',10) || 0
+      id:id, name:_v(f.name||f.nombre), description:_v(f.description||f.descripcion),
+      thumb:_v(f.thumb||f.imagen||f.icon), ver:_v(f.ver||f.version),
+      size:_v(f.size||f.peso), visible:f.visible ? _b(f.visible) : true,
+      downloadButtonLink1:_v(f.downloadButtonLink1||f.enlace||f.link),
+      downloadButtonLink2:_v(f.downloadButtonLink2||f.enlace2),
+      modBadgeText:_v(f.modBadgeText)||'MOD', modBadgeBgColor:_v(f.modBadgeBgColor)||'#ef4444',
+      modBadgeVisible:f.modBadgeVisible ? _b(f.modBadgeVisible) : true,
+      updateBadgeVisible:f.updateBadgeVisible ? _b(f.updateBadgeVisible) : false,
+      updateBadgeText:_v(f.updateBadgeText),
+      homeButtonVisible:f.homeButtonVisible ? _b(f.homeButtonVisible) : true,
+      features:_arr(f.features),
+      timestamp:parseInt(_v(f.timestamp)||'0',10)||0,
+      order:parseInt(_v(f.order)||'0',10)||0,
+      visits:parseInt(_v(f.visits)||'0',10)||0
     };
   }
 
-  fetch(URL)
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(window.__JD_REST_DONE) return; // SDK ya respondió primero
-      var docs = data.documents || [];
-      if(!docs.length) return;
-      var games = docs.map(_parseDoc).filter(function(g){ return g.visible !== false; });
-      games.sort(function(a,b){
-        if(b.timestamp !== a.timestamp) return b.timestamp - a.timestamp;
-        return a.order - b.order;
-      });
-      window.__JD_STATIC_GAMES = games;
-      // Guardar en caché para próxima visita
-      try{
-        var json = JSON.stringify(games);
-        sessionStorage.setItem('jd_ss_games', json);
-        localStorage.setItem('jd_games_cache_v2', json);
-      }catch(e){}
-      // Renderizar si el DOM ya está listo
-      var list = document.getElementById('game-list');
-      if(list && !list.querySelector('.jd-card') && typeof renderGames === 'function'){
-        if(typeof siteState !== 'undefined') siteState.gamesList = games;
-        renderGames();
-      } else if(list && !list.querySelector('.jd-card')){
-        // DOM listo pero renderGames aún no existe — renderizado básico directo
-        list.innerHTML = '';
-        var frag = document.createDocumentFragment();
-        games.slice(0,24).forEach(function(g){
-          var card = document.createElement('div');
-          card.className = 'jd-card';
-          card.setAttribute('onclick',"showDetail('"+g.id+"')");
-          var mc = g.modBadgeBgColor||'#ef4444';
-          card.innerHTML =
-            '<div class="jd-img-box">'+
-              '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" alt="'+g.name+'">'+
-              '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
-              (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
-            '</div>'+
-            '<div class="jd-info">'+
-              '<p class="jd-name notranslate">'+g.name+'</p>'+
-              '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-              '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
-              '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
-                '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
-                '<span>Descargar APK</span>'+
-              '</button>'+
-            '</div>';
-          frag.appendChild(card);
-        });
-        list.appendChild(frag);
-        list.dataset.restLoaded = '1';
-      }
+  /* ── Renderizado inmediato sin esperar el SDK ── */
+  function _renderNow(games){
+    if(window.__JD_REST_DONE) return;
+    window.__JD_REST_DONE = true;
+    var visible = games.filter(function(g){ return g.visible !== false; });
+    visible.sort(function(a,b){
+      return b.timestamp !== a.timestamp ? b.timestamp-a.timestamp : a.order-b.order;
+    });
+    window.__JD_STATIC_GAMES = visible;
+    try{
+      var json = JSON.stringify(visible);
+      sessionStorage.setItem('jd_ss_games', json);
+      localStorage.setItem('jd_games_cache_v2', json);
+    }catch(e){}
+    /* Si siteState ya existe, inyectar y renderizar */
+    if(typeof siteState !== 'undefined' && typeof renderGames === 'function'){
+      siteState.gamesList = visible;
+      renderGames();
+      return;
+    }
+    /* Si renderGames aún no cargó, renderizado directo básico */
+    var list = document.getElementById('game-list');
+    if(!list || list.querySelector('.jd-card')) return;
+    list.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    visible.slice(0,24).forEach(function(g){
+      var card = document.createElement('div');
+      card.className = 'jd-card';
+      card.setAttribute('onclick',"showDetail('"+g.id+"')");
+      var mc = g.modBadgeBgColor||'#ef4444';
+      card.innerHTML =
+        '<div class="jd-img-box">'+
+          '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
+               ' loading="eager" decoding="async" alt="'+g.name+'">'+
+          '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
+            (g.modBadgeText||'MOD')+'</span>'+
+          (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+        '</div>'+
+        '<div class="jd-info">'+
+          '<p class="jd-name notranslate">'+g.name+'</p>'+
+          '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
+          '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
+            '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
+            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
+            '<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+            '<span>Descargar APK</span>'+
+          '</button>'+
+        '</div>';
+      frag.appendChild(card);
+    });
+    list.appendChild(frag);
+    list.dataset.restLoaded = '1';
+  }
+
+  /* ── V2: games.json en GitHub Gist (archivo estático, CDN, <300ms) ── */
+  var GIST_ID = '6af1ef1dafd40c26283b9d717db4e1d0';
+  var gistUrl = 'https://gist.githubusercontent.com/raw/'+GIST_ID+'/games.json';
+  /* También intentar rawgit CDN como alternativa */
+  var gistUrlAlt = 'https://api.github.com/gists/'+GIST_ID;
+
+  fetch(gistUrl, {cache:'no-cache'})
+    .then(function(r){ if(!r.ok) throw new Error('no games.json'); return r.json(); })
+    .then(function(games){
+      if(!Array.isArray(games) || !games.length) throw new Error('empty');
+      _renderNow(games);
     })
-    .catch(function(){}); // Silenciar errores — el SDK tomará el control
+    .catch(function(){
+      /* Gist sin games.json — intentar leerlo desde los archivos del gist */
+      fetch(gistUrlAlt, {headers:{'Accept':'application/vnd.github.v3+json'}})
+        .then(function(r){ return r.json(); })
+        .then(function(gist){
+          var file = gist.files && (gist.files['games.json'] || gist.files['juegos.json']);
+          if(file && file.content){
+            var games = JSON.parse(file.content);
+            if(Array.isArray(games) && games.length) _renderNow(games);
+          }
+        })
+        .catch(function(){});
+    });
+
+  /* ── V3: REST directo a Firestore (fallback si Gist no tiene games.json) ── */
+  var fsUrl = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
+              '/databases/(default)/documents/mods?orderBy=order&pageSize=50&key='+API_KEY;
+  
+  /* Esperar 400ms para darle prioridad al Gist — si ya respondió, skip */
+  setTimeout(function(){
+    if(window.__JD_REST_DONE) return;
+    fetch(fsUrl)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(window.__JD_REST_DONE) return;
+        var docs = data.documents||[];
+        if(!docs.length) return;
+        _renderNow(docs.map(_parseDoc));
+        /* Guardar games.json en el Gist automáticamente para próximas visitas */
+        _saveGamesToGist(window.__JD_STATIC_GAMES);
+      })
+      .catch(function(){});
+  }, 400);
+
+  /* ── Auto-actualizar games.json en Gist cuando hay datos nuevos ── */
+  window.__jdSaveGamesToGist = function(games){
+    try{
+      var cfg = JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');
+      if(!cfg || !cfg.token || !cfg.gistId) return;
+      fetch('https://api.github.com/gists/'+cfg.gistId, {
+        method:'PATCH',
+        headers:{'Authorization':'token '+cfg.token,'Content-Type':'application/json'},
+        body: JSON.stringify({
+          files:{ 'games.json':{ content: JSON.stringify(games) } }
+        })
+      }).catch(function(){});
+    }catch(e){}
+  };
+  function _saveGamesToGist(games){ window.__jdSaveGamesToGist(games); }
+
 })();
 </script>
 
@@ -5557,6 +5625,10 @@ function _fbListenMods(){
       });
       siteState.gamesList = games;
       _saveGamesCache(games); // ← guardar en localStorage+sessionStorage+memoria
+      // Auto-actualizar games.json en Gist para que próximas visitas sean <300ms
+      if(typeof window.__jdSaveGamesToGist === 'function'){
+        window.__jdSaveGamesToGist(games);
+      }
       renderGames();
       updateBannerBasedOnFilter();
       if(document.getElementById('game-list-editor')) renderGameEditorList();
