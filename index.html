@@ -1048,26 +1048,42 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
+<!-- ══ STATIC GAMES SNAPSHOT — se actualiza automáticamente tras cada cambio ══
+     Primera visita: vacío [] → skeletons → Firebase llena en ~2s
+     Siguiente visita: datos embebidos → 0ms, instantáneo
+     El admin NO toca esto — se actualiza solo vía JS cuando Firebase responde
+════════════════════════════════════════════════════════════════════════ -->
+<script>
+// Snapshot estático incrustado — se reemplaza con datos reales automáticamente
+// al primer render exitoso de Firebase. En primera visita es [].
+window.__JD_STATIC_GAMES = (function(){
+  try{
+    // Intentar recuperar desde sessionStorage primero (misma sesión = instantáneo)
+    var ss = sessionStorage.getItem('jd_ss_games');
+    if(ss){ var p=JSON.parse(ss); if(p&&p.length) return p; }
+    // Luego localStorage
+    var ls = localStorage.getItem('jd_games_cache_v2');
+    if(ls){ var p2=JSON.parse(ls); if(p2&&p2.length) return p2; }
+  }catch(e){}
+  return [];
+})();
+</script>
+
 <!-- ══ INSTANT GAME LOADER — corre en <5ms antes que cualquier otro JS ══ -->
 <script>
 (function(){
   try{
-    var raw = localStorage.getItem('jd_games_cache_v2');
-    if(!raw) return;
-    var games = JSON.parse(raw);
+    // Usar datos del bloque estático (sessionStorage + localStorage ya combinados)
+    var games = window.__JD_STATIC_GAMES;
     if(!games || games.length < 1) return;
-    // Renderizar tarjetas directamente sin esperar DOMContentLoaded
-    // Se ejecuta tan pronto como el DOM llega a este punto del HTML
     var _rendered = false;
     var _ready = function(){
       if(_rendered) return;
       var list = document.getElementById('game-list');
       if(!list) return;
-      // Si ya hay tarjetas REALES (.jd-card) no sobreescribir
       var hasRealCards = list.querySelector('.jd-card');
       if(hasRealCards) return;
       _rendered = true;
-      // Limpiar skeletons inline para mostrar datos reales del caché
       list.innerHTML = '';
       var frag = document.createDocumentFragment();
       var visible = games.filter(function(g){ return g.visible !== false; });
@@ -1083,7 +1099,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
           ? '<span class="jd-upd-badge">'+g.updateBadgeText+'</span>' : '';
         card.innerHTML =
           '<div class="jd-img-box">'+
-            '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded" alt="'+g.name+'" loading="lazy">'+
+            '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" alt="'+g.name+'" loading="eager" decoding="async">'+
             '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
             updBadge+
           '</div>'+
@@ -2865,18 +2881,27 @@ function _saveGamesCache(games){
         visits:g.visits||0
       };
     });
-    localStorage.setItem(_JD_CACHE_KEY, JSON.stringify(compact));
+    var json = JSON.stringify(compact);
+    localStorage.setItem(_JD_CACHE_KEY, json);
+    // sessionStorage: más rápido, persiste en navegación back/forward de la sesión
+    try{ sessionStorage.setItem('jd_ss_games', json); }catch(e2){}
+    // Actualizar también el snapshot en memoria para esta sesión
+    window.__JD_STATIC_GAMES = compact;
   }catch(e){}
 }
 
 function _loadGamesFromCache(){
   try{
-    var raw = localStorage.getItem(_JD_CACHE_KEY);
-    if(!raw) return false;
-    var games = JSON.parse(raw);
+    // 1) Intentar sessionStorage primero (misma sesión, más rápido)
+    var games = window.__JD_STATIC_GAMES;
+    if(!games || !games.length){
+      // 2) localStorage como fallback
+      var raw = localStorage.getItem(_JD_CACHE_KEY);
+      if(raw) games = JSON.parse(raw);
+    }
     if(!games || !games.length) return false;
     siteState.gamesList = games;
-    renderGames(); // ← render INSTANTÁNEO en 0ms
+    renderGames(); // ← render INSTANTÁNEO en 0ms desde caché
     return true;
   }catch(e){ return false; }
 }
@@ -2923,11 +2948,15 @@ function renderGames(){
     return;
   }
 
-  // Si el instant-loader ya pobló la lista con los mismos datos del caché,
-  // no re-renderizar inmediatamente para evitar flash (lo hará Firebase al llegar)
+  // Si el instant-loader ya pintó tarjetas del caché local,
+  // permitir que Firebase actualice sin bloquear (solo salta si los datos son idénticos)
   if(list.dataset.instantLoaded === '1' && list.querySelector('.jd-card')){
-    list.dataset.instantLoaded = '0'; // permitir siguiente renderGames() de Firebase
-    return;
+    list.dataset.instantLoaded = '0';
+    // Comparar si los datos nuevos son distintos antes de re-renderizar
+    var _newHash = (siteState.gamesList||[]).length + '_' +
+                   ((siteState.gamesList||[])[0]||{}).id;
+    if(list.dataset.lastHash === _newHash) return; // mismos datos, no re-renderizar
+    list.dataset.lastHash = _newHash;
   }
 
   // Filtro de búsqueda
@@ -5262,9 +5291,14 @@ function _fbListenMods(){
   if(!_db) return;
   if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
 
-  // ── CACHÉ-FIRST: sirve los juegos desde IndexedDB al instante ──────
-  // En visitas repetidas los juegos aparecen en <50ms sin esperar red.
-  // El onSnapshot de abajo los actualiza en cuanto llega la respuesta real.
+  // ── CACHÉ-FIRST: 3 capas — sessionStorage → localStorage → Firestore IndexedDB ──
+  // Si __JD_STATIC_GAMES ya tiene datos, los juegos YA están pintados (0ms).
+  // Firestore caché es la 3ª capa para sincronizar con datos más recientes.
+  if(window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length){
+    // Ya tenemos datos en pantalla — solo escuchar tiempo real para actualizar
+  } else {
+    // Sin caché local — intentar Firestore IndexedDB como fallback rápido
+  }
   _db.collection('mods').orderBy('order','asc')
     .get({ source: 'cache' })
     .then(function(cacheSnap){
@@ -5371,7 +5405,7 @@ function _fbListenMods(){
         return (a.order||0) - (b.order||0);
       });
       siteState.gamesList = games;
-      _saveGamesCache(games); // ← guardar para próxima visita instantánea
+      _saveGamesCache(games); // ← guardar en localStorage+sessionStorage+memoria
       renderGames();
       updateBannerBasedOnFilter();
       if(document.getElementById('game-list-editor')) renderGameEditorList();
@@ -5777,23 +5811,19 @@ window.addEventListener('DOMContentLoaded', function() {
   // Manejar redireccionamiento desde 404.html
   if(_handle404Redirect()) return;
 
-  // ── PASO 0: Intentar carga ultra-rápida desde localStorage (0ms)
-  // Si hay juegos cacheados de visitas anteriores, los muestra al instante.
-  // Si no hay caché (primera visita), muestra skeletons.
+  // ── PASO 0: Carga ultra-rápida — 3 capas de caché ──────────────
+  // Capa 1: __JD_STATIC_GAMES (sessionStorage+localStorage ya en memoria)
+  // Capa 2: _loadGamesFromCache() renderiza inmediatamente si hay datos
+  // Capa 3: Firebase actualiza en segundo plano
   initLazyLoading();
   loadSettings();
-  // Cargar caché en siteState para que checkDeepLink() funcione al instante
-  // El instant-loader (script inline en el body) ya renderizó las tarjetas en <5ms
-  try{
-    var _rawCache = localStorage.getItem('jd_games_cache_v2');
-    if(_rawCache){
-      var _cachedGames = JSON.parse(_rawCache);
-      if(_cachedGames && _cachedGames.length) siteState.gamesList = _cachedGames;
-    }
-  }catch(e){}
-  // Si no hay caché y el instant-loader no pintó nada, poner skeletons
+
+  // Intentar renderizar desde caché local AHORA (0ms)
+  var _cacheHit = _loadGamesFromCache();
+
+  // Si no hay caché, verificar que el instant-loader ya pintó algo
   var _list = document.getElementById('game-list');
-  if(!_list || !_list.querySelector('.jd-card')){
+  if(!_cacheHit && (!_list || !_list.querySelector('.jd-card'))){
     _renderSkeletons(12);
   }
 
