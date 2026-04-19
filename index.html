@@ -39,6 +39,55 @@
 <!-- ══ CANONICAL URL — evita contenido duplicado en Google ════════ -->
 <link rel="canonical" href="https://joeldroidmods.com/">
 <meta property="og:url" content="https://joeldroidmods.com/">
+<!-- ══ FAVICON PNG EXTERNO — Google lo usa para el logo en búsquedas ══
+     Debe existir en el servidor: /logo.png (512×512 mínimo recomendado)
+     Google indexa favicons externos, no data: URIs embebidos en base64  -->
+<link rel="icon" type="image/png" sizes="512x512" href="https://joeldroidmods.com/logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://joeldroidmods.com/logo.png">
+<link rel="shortcut icon" href="https://joeldroidmods.com/logo.png">
+<!-- ══ JSON-LD STRUCTURED DATA — Organization + WebSite para Google ══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://joeldroidmods.com/#organization",
+      "name": "JoelDroid Mods YT",
+      "url": "https://joeldroidmods.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://joeldroidmods.com/logo.png",
+        "width": 512,
+        "height": 512
+      },
+      "image": "https://joeldroidmods.com/logo.png",
+      "description": "JoelDroid Mods YT — Descarga gratis los mejores MOD APK para Android. Mods verificados, seguros y actualizados.",
+      "sameAs": [
+        "https://www.youtube.com/@JoelDroidYT"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://joeldroidmods.com/#website",
+      "url": "https://joeldroidmods.com/",
+      "name": "JoelDroid Mods YT",
+      "description": "Los Mejores MOD APK para Android",
+      "publisher": {
+        "@id": "https://joeldroidmods.com/#organization"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://joeldroidmods.com/?s={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+}
+</script>
 <!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 // Favicon embebido en base64 — no necesita cache-busting ni archivos externos
@@ -1048,24 +1097,124 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
-<!-- ══ STATIC GAMES SNAPSHOT — se actualiza automáticamente tras cada cambio ══
-     Primera visita: vacío [] → skeletons → Firebase llena en ~2s
-     Siguiente visita: datos embebidos → 0ms, instantáneo
-     El admin NO toca esto — se actualiza solo vía JS cuando Firebase responde
+<!-- ══ CARGA ULTRA-RÁPIDA — 3 capas paralelas ═════════════════════════════
+     Capa 1 (0ms):    sessionStorage / localStorage → visitas repetidas
+     Capa 2 (<800ms): REST fetch directo a Firestore → sin SDK, sin overhead
+     Capa 3 (tiempo real): SDK Firebase onSnapshot → actualizaciones live
 ════════════════════════════════════════════════════════════════════════ -->
 <script>
-// Snapshot estático incrustado — se reemplaza con datos reales automáticamente
-// al primer render exitoso de Firebase. En primera visita es [].
+// ── CAPA 1: Caché local instantánea ──────────────────────────────────
 window.__JD_STATIC_GAMES = (function(){
   try{
-    // Intentar recuperar desde sessionStorage primero (misma sesión = instantáneo)
     var ss = sessionStorage.getItem('jd_ss_games');
     if(ss){ var p=JSON.parse(ss); if(p&&p.length) return p; }
-    // Luego localStorage
     var ls = localStorage.getItem('jd_games_cache_v2');
     if(ls){ var p2=JSON.parse(ls); if(p2&&p2.length) return p2; }
   }catch(e){}
   return [];
+})();
+
+// ── CAPA 2: REST fetch directo a Firestore (no necesita SDK) ─────────
+// Se ejecuta en paralelo — si responde antes que el SDK renderiza ya.
+window.__JD_REST_DONE = false;
+(function(){
+  // Solo activar si NO hay caché local (primera visita real)
+  if(window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length) return;
+
+  var PROJECT = 'joeldroid-mods';
+  var API_KEY  = 'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
+  var URL = 'https://firestore.googleapis.com/v1/projects/' + PROJECT +
+            '/databases/(default)/documents/mods?orderBy=order&pageSize=50&key=' + API_KEY;
+
+  function _parseDoc(doc){
+    var f = doc.fields || {};
+    function _v(field){
+      if(!field) return '';
+      return field.stringValue || field.integerValue || field.doubleValue ||
+             field.booleanValue || '';
+    }
+    function _arr(field){
+      if(!field || !field.arrayValue) return [];
+      return (field.arrayValue.values||[]).map(function(v){ return _v(v); });
+    }
+    var id = (doc.name||'').split('/').pop();
+    return {
+      id: id,
+      name: _v(f.name||f.nombre),
+      description: _v(f.description||f.descripcion),
+      thumb: _v(f.thumb||f.imagen||f.icon),
+      ver: _v(f.ver||f.version),
+      size: _v(f.size||f.peso),
+      visible: f.visible ? f.visible.booleanValue !== false : true,
+      downloadButtonLink1: _v(f.downloadButtonLink1||f.enlace||f.link),
+      downloadButtonLink2: _v(f.downloadButtonLink2||f.enlace2),
+      modBadgeText: _v(f.modBadgeText) || 'MOD',
+      modBadgeBgColor: _v(f.modBadgeBgColor) || '#ef4444',
+      modBadgeVisible: f.modBadgeVisible ? f.modBadgeVisible.booleanValue !== false : true,
+      updateBadgeVisible: f.updateBadgeVisible && f.updateBadgeVisible.booleanValue,
+      updateBadgeText: _v(f.updateBadgeText),
+      homeButtonVisible: f.homeButtonVisible ? f.homeButtonVisible.booleanValue !== false : true,
+      features: _arr(f.features),
+      timestamp: parseInt(_v(f.timestamp)||'0',10) || 0,
+      order: parseInt(_v(f.order)||'0',10) || 0,
+      visits: parseInt(_v(f.visits)||'0',10) || 0
+    };
+  }
+
+  fetch(URL)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(window.__JD_REST_DONE) return; // SDK ya respondió primero
+      var docs = data.documents || [];
+      if(!docs.length) return;
+      var games = docs.map(_parseDoc).filter(function(g){ return g.visible !== false; });
+      games.sort(function(a,b){
+        if(b.timestamp !== a.timestamp) return b.timestamp - a.timestamp;
+        return a.order - b.order;
+      });
+      window.__JD_STATIC_GAMES = games;
+      // Guardar en caché para próxima visita
+      try{
+        var json = JSON.stringify(games);
+        sessionStorage.setItem('jd_ss_games', json);
+        localStorage.setItem('jd_games_cache_v2', json);
+      }catch(e){}
+      // Renderizar si el DOM ya está listo
+      var list = document.getElementById('game-list');
+      if(list && !list.querySelector('.jd-card') && typeof renderGames === 'function'){
+        if(typeof siteState !== 'undefined') siteState.gamesList = games;
+        renderGames();
+      } else if(list && !list.querySelector('.jd-card')){
+        // DOM listo pero renderGames aún no existe — renderizado básico directo
+        list.innerHTML = '';
+        var frag = document.createDocumentFragment();
+        games.slice(0,24).forEach(function(g){
+          var card = document.createElement('div');
+          card.className = 'jd-card';
+          card.setAttribute('onclick',"showDetail('"+g.id+"')");
+          var mc = g.modBadgeBgColor||'#ef4444';
+          card.innerHTML =
+            '<div class="jd-img-box">'+
+              '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" alt="'+g.name+'">'+
+              '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
+              (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+            '</div>'+
+            '<div class="jd-info">'+
+              '<p class="jd-name notranslate">'+g.name+'</p>'+
+              '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
+              '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+              '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
+                '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+                '<span>Descargar APK</span>'+
+              '</button>'+
+            '</div>';
+          frag.appendChild(card);
+        });
+        list.appendChild(frag);
+        list.dataset.restLoaded = '1';
+      }
+    })
+    .catch(function(){}); // Silenciar errores — el SDK tomará el control
 })();
 </script>
 
@@ -2950,12 +3099,13 @@ function renderGames(){
 
   // Si el instant-loader ya pintó tarjetas del caché local,
   // permitir que Firebase actualice sin bloquear (solo salta si los datos son idénticos)
-  if(list.dataset.instantLoaded === '1' && list.querySelector('.jd-card')){
+  var _alreadyHasCards = list.querySelector('.jd-card');
+  if(_alreadyHasCards && (list.dataset.instantLoaded==='1' || list.dataset.restLoaded==='1')){
     list.dataset.instantLoaded = '0';
-    // Comparar si los datos nuevos son distintos antes de re-renderizar
-    var _newHash = (siteState.gamesList||[]).length + '_' +
-                   ((siteState.gamesList||[])[0]||{}).id;
-    if(list.dataset.lastHash === _newHash) return; // mismos datos, no re-renderizar
+    list.dataset.restLoaded = '0';
+    // Solo re-renderizar si los datos cambiaron
+    var _newHash = (siteState.gamesList||[]).length+'_'+((siteState.gamesList||[])[0]||{}).id;
+    if(list.dataset.lastHash === _newHash) return;
     list.dataset.lastHash = _newHash;
   }
 
@@ -5374,6 +5524,7 @@ function _fbListenMods(){
     .onSnapshot(function(snap){
       // Marcar que ya llegó el primer snapshot — cancelar el fallback timer
       _fbFirstSnapReceived = true;
+      window.__JD_REST_DONE = true; // SDK ganó la carrera → REST no sobreescribe
       clearTimeout(_fbFastFallback);
       if(snap.empty){
         renderGames();
