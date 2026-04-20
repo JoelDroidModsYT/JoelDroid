@@ -1262,15 +1262,22 @@ window.__JD_REST_DONE = false;
 
   /* ══ AMBOS FETCHES EN PARALELO — el primero que responda gana ══ */
 
-  /* Fetch 1: Gist CDN (suele ser ~150-300ms) */
-  fetch(CDN_URL+'?_='+Date.now(),{cache:'no-cache'})
-    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
-    .then(function(d){
+  /* Fetch 1: Gist CDN — sin cache-buster para aprovechar CDN de GitHub (~150-300ms) */
+  /* Timeout de 4s: si GitHub tarda más, Firestore ya ganó o hay caché local          */
+  (function(){
+    var _timer;
+    var _p = new Promise(function(resolve,reject){
+      _timer = setTimeout(function(){ reject(new Error('timeout')); }, 4000);
+      fetch(CDN_URL, {cache:'default'})
+        .then(function(r){ clearTimeout(_timer); if(!r.ok) throw new Error(r.status); return r.json(); })
+        .then(resolve).catch(function(e){ clearTimeout(_timer); reject(e); });
+    });
+    _p.then(function(d){
       var g=Array.isArray(d)?d:(d.games||[]);
       if(!g.length)throw new Error('vacio');
       _renderNow(g);
-    })
-    .catch(function(){/* si falla, Firestore ya está corriendo en paralelo */});
+    }).catch(function(){/* si falla o timeout, Firestore corre en paralelo */});
+  })();
 
   /* Fetch 2: Firestore REST (arranca al mismo tiempo, ~500-800ms) */
   fetch(FS_URL)

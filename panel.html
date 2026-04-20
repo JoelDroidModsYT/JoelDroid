@@ -1082,9 +1082,9 @@ function loadSettings(){
     }catch(e){}
   }
   _ghCfg=_loadGHConfig();
-  if(_ghCfg&&_ghCfg.gistId){
-    _loadFromGitHub(function(ok){if(ok)renderAdminUI();});
-  }
+  // NO llamamos _loadFromGitHub() al iniciar — eso causaba que el Gist principal
+  // sobreescribiera el siteState (incluyendo gamesList) cada vez que se abría el panel.
+  // El Gist principal se usa solo para GUARDAR cambios, no para cargar al arranque.
 }
 
 function _mergeState(remote){
@@ -1101,7 +1101,9 @@ function _mergeState(remote){
     youtubeUrl:remote.youtubeUrl||'',installYoutubeUrl:remote.installYoutubeUrl||'',
     youtubeVisible:remote.youtubeVisible!==false,installVisible:remote.installVisible!==false,
     showGeoShapes:remote.showGeoShapes!==false,activeScene:remote.activeScene||'none',
-    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:(remote.gamesList||[])
+    // gamesList NUNCA se toma del Gist principal (joeldroid_state.json)
+    // Los juegos vienen de Firestore onSnapshot o del editor local — nunca del estado remoto
+    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:[]
   });
 }
 
@@ -1609,15 +1611,10 @@ function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(
    Se llama automáticamente al guardar/eliminar un juego.
    Usa el mismo token del admin pero escribe al GIST de games.
    ════════════════════════════════════════════════════════════════════ */
-function _syncGamesToGist(){
-  var cfg = _ghCfg || _loadGHConfig();
-  if(!cfg || !cfg.token) return; // Solo si admin tiene token configurado
-
-  // Tomar todos los juegos visibles del siteState
+function _buildGamesPayload(){
   var games = (siteState.gamesList || []).filter(function(g){
     return g.visible !== false;
   }).map(function(g){
-    // Estructura limpia compatible con descarga.html y index.html
     return {
       id:                   String(g.id),
       name:                 g.name || g.nombre || '',
@@ -1657,15 +1654,32 @@ function _syncGamesToGist(){
       dlPageBtn2:           g.dlPageBtn2 || ''
     };
   });
-
-  var fileContent = JSON.stringify({
+  return JSON.stringify({
     _info:    'JoelDroid Mods YT — Auto-generado. No editar manualmente.',
     _updated: new Date().toISOString(),
     _count:   games.length,
     games:    games
   }, null, 2);
+}
 
-  // Escribir al Gist de games (GAMES_GIST_ID), NO al gistId principal
+/* Versión silenciosa (auto-sync al guardar/eliminar) */
+function _syncGamesToGist(){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token) return;
+  _syncGamesToGistWithCallback(function(ok, msg){
+    if(ok){
+      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
+    } else {
+      _showGHStatus('⚠️ games.json: ' + msg, '#f59e0b');
+    }
+  });
+}
+
+/* Versión con callback — devuelve el resultado REAL del fetch */
+function _syncGamesToGistWithCallback(cb){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token){ if(cb) cb(false, 'Sin token GitHub'); return; }
+
   fetch('https://api.github.com/gists/' + GAMES_GIST_ID, {
     method: 'PATCH',
     headers: {
@@ -1673,22 +1687,22 @@ function _syncGamesToGist(){
       'Content-Type':  'application/json'
     },
     body: JSON.stringify({
-      files: { 'games.json': { content: fileContent } }
+      files: { 'games.json': { content: _buildGamesPayload() } }
     })
   })
   .then(function(r){
     if(r.ok){
-      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
+      if(cb) cb(true, '');
     } else {
       r.json().then(function(e){
-        _showGHStatus('⚠️ games.json: Error ' + r.status + ' — ' + (e.message||''), '#f59e0b');
+        if(cb) cb(false, 'Error ' + r.status + ' — ' + (e.message||'token inválido o sin permisos'));
       }).catch(function(){
-        _showGHStatus('⚠️ games.json: Error ' + r.status, '#f59e0b');
+        if(cb) cb(false, 'Error ' + r.status);
       });
     }
   })
   .catch(function(e){
-    _showGHStatus('⚠️ games.json: Sin conexión — ' + e.message, '#f59e0b');
+    if(cb) cb(false, 'Sin conexión — ' + e.message);
   });
 }
 
@@ -1723,14 +1737,14 @@ function syncGamesNow(){
     return;
   }
   _setGamesGistStatus('⏳ Sincronizando games.json...', '#fbbf24');
-  try{
-    _syncGamesToGist();
-    setTimeout(function(){
+  // Llamamos directamente al fetch real y mostramos el resultado verdadero
+  _syncGamesToGistWithCallback(function(ok, msg){
+    if(ok){
       _setGamesGistStatus('✅ games.json sincronizado — Carga instantánea activa 🚀', '#10b981');
-    }, 2000);
-  }catch(e){
-    _setGamesGistStatus('❌ Error: ' + e.message, '#ef4444');
-  }
+    } else {
+      _setGamesGistStatus('❌ Error: ' + msg, '#ef4444');
+    }
+  });
 }
 
 function testGamesGist(){
