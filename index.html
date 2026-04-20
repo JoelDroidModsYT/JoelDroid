@@ -1103,7 +1103,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
      Capa 3 (tiempo real): SDK Firebase onSnapshot → actualizaciones live
 ════════════════════════════════════════════════════════════════════════ -->
 <script>
-// ── CAPA 1: Caché local instantánea ──────────────────────────────────
+// ── CAPA 1: Caché local — renderizado INMEDIATO sin esperar nada ────
 window.__JD_STATIC_GAMES = (function(){
   try{
     var ss = sessionStorage.getItem('jd_ss_games');
@@ -1112,6 +1112,62 @@ window.__JD_STATIC_GAMES = (function(){
     if(ls){ var p2=JSON.parse(ls); if(p2&&p2.length) return p2; }
   }catch(e){}
   return [];
+})();
+
+// ── Renderizado directo desde caché (0ms) ─────────────────────────
+// Si hay datos en caché, renderizar las tarjetas AHORA mismo
+// sin esperar DOMContentLoaded ni Firebase ni ningún otro script
+(function(){
+  var games = window.__JD_STATIC_GAMES;
+  if(!games || !games.length) return;
+
+  function _doRender(){
+    var list = document.getElementById('game-list');
+    if(!list) return;
+    if(list.querySelector('.jd-card')) return; // ya renderizado
+    list.innerHTML = ''; // limpiar skeletons
+    var frag = document.createDocumentFragment();
+    var visible = games.filter(function(g){ return g.visible !== false; });
+    visible.sort(function(a,b){
+      return b.timestamp !== a.timestamp ? b.timestamp-a.timestamp : a.order-b.order;
+    });
+    visible.slice(0,24).forEach(function(g){
+      var mc = g.modBadgeBgColor || '#ef4444';
+      var card = document.createElement('div');
+      card.className = 'jd-card';
+      card.setAttribute('onclick',"showDetail('"+g.id+"')");
+      card.innerHTML =
+        '<div class="jd-img-box">'+
+          '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
+               ' loading="eager" decoding="async" alt="'+g.name+'">'+
+          '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
+            (g.modBadgeText||'MOD')+'</span>'+
+          (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+        '</div>'+
+        '<div class="jd-info">'+
+          '<p class="jd-name notranslate">'+g.name+'</p>'+
+          '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
+          '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
+            '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
+            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
+            '<polyline points="7 10 12 15 17 10"/>'+
+            '<line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+            '<span>Descargar APK</span>'+
+          '</button>'+
+        '</div>';
+      frag.appendChild(card);
+    });
+    list.appendChild(frag);
+    list.dataset.instantLoaded = '1';
+  }
+
+  // Ejecutar ahora si el DOM llegó al game-list, sino en DOMContentLoaded
+  if(document.readyState !== 'loading'){
+    _doRender();
+  } else {
+    document.addEventListener('DOMContentLoaded', _doRender);
+  }
 })();
 
 // ── CAPA 2: REST fetch directo a Firestore (no necesita SDK) ─────────
@@ -1248,34 +1304,47 @@ window.__JD_REST_DONE = false;
   /* ══ PASO 1: games.json desde CDN GitHub (<300ms) ══════════════════ */
   var cdnUrl = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?_='+Date.now();
 
+  // Timeout de 1.5s para el Gist — si tarda más, ir directo a Firestore
+  var _cdnTimeout = setTimeout(function(){
+    if(window.__JD_REST_DONE) return;
+    _fetchFirestore();
+  }, 1500);
+
   fetch(cdnUrl, { cache: 'no-cache' })
     .then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status);
       return r.json();
     })
     .then(function(data){
+      clearTimeout(_cdnTimeout);
       var games = Array.isArray(data) ? data : (data.games || []);
       if(!games.length) throw new Error('vacío');
       _renderNow(games);
     })
     .catch(function(){
+      clearTimeout(_cdnTimeout);
       /* ══ PASO 2: Firestore REST directo (fallback ~800ms) ════════════
          Se activa si games.json no tiene datos todavía.
          Cuando responde, guarda en games.json del Gist automáticamente
          para que la próxima visita use el CDN (<300ms).               */
-      var fsUrl = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
-                  '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
-      fetch(fsUrl)
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          if(window.__JD_REST_DONE) return;
-          var docs = data.documents || [];
-          if(!docs.length) return;
-          var games = docs.map(_parseFirestoreDoc);
-          _renderNow(games);
-        })
-        .catch(function(){});
+      _fetchFirestore();
     });
+
+  function _fetchFirestore(){
+    if(window.__JD_REST_DONE) return;
+    var fsUrl = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
+                '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
+    fetch(fsUrl)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if(window.__JD_REST_DONE) return;
+        var docs = data.documents || [];
+        if(!docs.length) return;
+        var games = docs.map(_parseFirestoreDoc);
+        _renderNow(games);
+      })
+      .catch(function(){});
+  }
 
   /* ══ Función global para guardar en games.json ═══════════════════════
      También usada por el index cuando Firebase trae actualizaciones    */
@@ -6415,14 +6484,15 @@ window.onload=function(){
     background: #ffffff;
     animation: none;
 }
-/* Modo oscuro: el iframe del anuncio tiene fondo blanco propio,
-   pero el contenedor debe ser neutro para no verse negro */
+/* Modo oscuro: mantener fondo blanco siempre — el anuncio necesita fondo blanco */
 body:not(.light-mode) .jd-banner-body {
-    background: linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.06) 75%) !important;
+    background: linear-gradient(90deg,#e8edf4 25%,#f1f5f9 50%,#e8edf4 75%) !important;
     background-size: 200% 100% !important;
+    animation: jd-shimmer 1.5s infinite linear !important;
 }
 body:not(.light-mode) .jd-banner-body.loaded {
-    background: rgba(255,255,255,.04) !important;
+    background: #ffffff !important;
+    animation: none !important;
 }
 @keyframes jd-shimmer {
     0%   { background-position: 200% 0; }
