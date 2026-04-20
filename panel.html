@@ -278,18 +278,56 @@ body{
         <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Analytics</button>
       </div>
 
-      <!-- GITHUB SYNC -->
+      <!-- GITHUB SYNC — CONEXIÓN PRINCIPAL (NO TOCAR) -->
       <div class="space-y-2 p-4 border rounded-xl border-green-500/40 bg-green-500/5">
         <h3 class="font-bold uppercase text-green-400 flex items-center gap-2">🌐 Sincronización Global (GitHub)</h3>
         <p class="text-[9px] text-green-300/70 font-medium">Conecta con un GitHub Gist para que los cambios del panel apliquen a TODOS los visitantes en tiempo real.<br><br><b>Pasos:</b> 1) Ve a github.com → Settings → Developer settings → Personal access tokens → New token (selecciona scope "gist"). 2) Crea un Gist público vacío en gist.github.com. 3) Pega el token y el ID del Gist aquí.</p>
         <label class="block text-xs font-medium text-gray-300 mb-1">GitHub Token (Personal Access Token)</label>
         <input type="password" id="gh-token-in" class="admin-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-        <label class="block text-xs font-medium text-gray-300 mb-1">Gist ID</label>
+        <label class="block text-xs font-medium text-gray-300 mb-1">Gist ID (Configuración del sitio)</label>
         <input type="text" id="gh-gist-in" class="admin-input" placeholder="abc123def456..." autocomplete="off">
         <div id="gh-sync-status" style="display:none;font-size:10px;font-weight:700;margin-top:6px;"></div>
         <button onclick="saveGHConfig()" class="w-full py-3 bg-green-600 text-white rounded-xl font-black uppercase text-xs mt-3">🔗 Conectar y Sincronizar</button>
         <button onclick="testGHSync()" class="w-full py-3 bg-green-800 text-white rounded-xl font-black uppercase text-xs mt-1">📡 Probar Conexión</button>
         <button onclick="disconnectGH()" class="w-full py-3 bg-gray-600 text-white rounded-xl font-black uppercase text-xs mt-1 opacity-60">Desconectar GitHub</button>
+      </div>
+
+      <!-- CARGA INSTANTÁNEA — Gist de games.json SEPARADO -->
+      <div class="space-y-2 p-4 border rounded-xl" style="border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.04)">
+        <h3 class="font-bold uppercase flex items-center gap-2" style="color:#fbbf24">
+          ⚡ Carga Instantánea de Juegos
+        </h3>
+        <p style="font-size:9px;color:rgba(251,191,36,.7);font-weight:600;line-height:1.6">
+          Este Gist <b>separado</b> almacena <code style="background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px">games.json</code> — el archivo que hace que los juegos carguen en <b>&lt;300ms</b> para usuarios nuevos.<br><br>
+          ✅ <b>No interfiere</b> con la conexión principal de arriba.<br>
+          🚀 Se actualiza <b>automáticamente</b> al guardar/eliminar juegos.<br>
+          👤 Usuario GitHub: <b>JoelDroidModsYT</b>
+        </p>
+
+        <!-- Estado del Gist de games -->
+        <div id="games-gist-status" style="padding:10px 12px;border-radius:10px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);font-size:10px;font-weight:800;color:#fbbf24">
+          ⏳ Sin verificar — presiona "Probar" para comprobar
+        </div>
+
+        <!-- ID fijo del Gist de games (solo lectura, informativo) -->
+        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:10px 12px">
+          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Gist ID de games.json</p>
+          <p style="font-size:11px;font-weight:700;color:#fbbf24;letter-spacing:.02em;word-break:break-all">5981d391897fe461dc5ac9ba7303b8f2</p>
+          <p style="font-size:8px;color:rgba(255,255,255,.4);margin-top:4px">Este ID está fijo en el sistema — no necesitas cambiarlo</p>
+        </div>
+
+        <!-- URL del CDN (solo lectura) -->
+        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.15);border-radius:10px;padding:10px 12px">
+          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">URL CDN de carga instantánea</p>
+          <p style="font-size:9px;color:rgba(255,255,255,.5);word-break:break-all;line-height:1.5">https://gist.githubusercontent.com/JoelDroidModsYT/<br>5981d391897fe461dc5ac9ba7303b8f2/raw/games.json</p>
+        </div>
+
+        <button onclick="syncGamesNow()" style="width:100%;padding:13px;border:none;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(251,191,36,.4);margin-top:4px">
+          🚀 Sincronizar games.json ahora
+        </button>
+        <button onclick="testGamesGist()" style="width:100%;padding:10px;border:1px solid rgba(251,191,36,.3);border-radius:14px;background:transparent;color:#fbbf24;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:4px">
+          📡 Probar Gist de juegos
+        </button>
       </div>
 
       <!-- SINCRONIZACIÓN GLOBAL — Firebase -->
@@ -1676,6 +1714,59 @@ function _loadFromGitHub(cb){
       }else{if(cb)cb(false);}
     }).catch(function(){if(cb)cb(false);});
 }
+
+/* ══ FUNCIONES DEL GIST DE GAMES ════════════════════════════════════ */
+function syncGamesNow(){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token){
+    _setGamesGistStatus('❌ Primero conecta el token de GitHub arriba', '#ef4444');
+    return;
+  }
+  _setGamesGistStatus('⏳ Sincronizando games.json...', '#fbbf24');
+  try{
+    _syncGamesToGist();
+    setTimeout(function(){
+      _setGamesGistStatus('✅ games.json sincronizado — Carga instantánea activa 🚀', '#10b981');
+    }, 2000);
+  }catch(e){
+    _setGamesGistStatus('❌ Error: ' + e.message, '#ef4444');
+  }
+}
+
+function testGamesGist(){
+  _setGamesGistStatus('⏳ Verificando Gist de juegos...', '#fbbf24');
+  var url = 'https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json?_='+Date.now();
+  fetch(url, {cache:'no-cache'})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data){
+      var games = Array.isArray(data) ? data : (data.games || []);
+      if(games.length > 0){
+        _setGamesGistStatus('✅ Gist activo — ' + games.length + ' juegos disponibles para carga instantánea 🚀', '#10b981');
+      } else {
+        _setGamesGistStatus('⚠️ games.json existe pero está vacío — presiona "Sincronizar" para llenarlo', '#f59e0b');
+      }
+    })
+    .catch(function(e){
+      if(e.message.indexOf('404') >= 0 || e.message.indexOf('HTTP') >= 0){
+        _setGamesGistStatus('❌ games.json no encontrado — crea el archivo en el Gist y presiona Sincronizar', '#ef4444');
+      } else {
+        _setGamesGistStatus('⚠️ Sin conexión o Gist privado — verifica que sea público', '#f59e0b');
+      }
+    });
+}
+
+function _setGamesGistStatus(msg, color){
+  var el = document.getElementById('games-gist-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = color || '#fbbf24';
+  el.style.borderColor = (color||'#fbbf24') + '55';
+  el.style.background = (color||'#fbbf24') + '11';
+}
+/* ═════════════════════════════════════════════════════════════════ */
 
 function _showGHStatus(msg,color){
   var el=document.getElementById('gh-sync-status');if(!el)return;
