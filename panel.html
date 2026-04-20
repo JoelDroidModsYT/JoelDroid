@@ -907,6 +907,13 @@ function _fbListenMods(){
     });
     siteState.gamesList=games;
     renderGameEditorList();
+    // Sincronizar Gist automáticamente cuando Firebase notifica cambios externos
+    // (cambios hechos desde otra sesión/dispositivo). Usamos un debounce de 1.5s
+    // para no disparar múltiples veces seguidas.
+    clearTimeout(window.__jdGistSyncTimer);
+    window.__jdGistSyncTimer = setTimeout(function(){
+      try{ _syncGamesToGist(); }catch(e){}
+    }, 1500);
   },function(err){if(err.code==='unavailable'||err.code==='failed-precondition')setTimeout(_fbListenMods,3000);});
 }
 
@@ -1545,12 +1552,25 @@ function processSaveGameData(editId,data){
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
+  // ── Actualizar siteState.gamesList AHORA con el juego nuevo/editado ──────
+  // Esto es crítico: _syncGamesToGist() usa siteState.gamesList para escribir
+  // el Gist. Si esperamos al onSnapshot de Firebase (~500-2000ms después),
+  // el Gist se sincroniza con datos VIEJOS. Actualizamos localmente primero.
+  function _applyGameToState(id, game){
+    var idx = siteState.gamesList.findIndex(function(g){ return String(g.id) === String(id); });
+    if(idx !== -1){ siteState.gamesList[idx] = Object.assign({}, siteState.gamesList[idx], game); }
+    else { siteState.gamesList.push(game); }
+  }
+
   if(_fbReady&&_db&&_isAdmin()){
     _fbSaveGame(newGame,editId?String(editId):null)
       .then(function(){
-        renderGameEditorList();closeGameEditor();
+        // 1. Actualizar lista local inmediatamente (no esperar onSnapshot)
+        _applyGameToState(gameId, newGame);
+        renderGameEditorList(); closeGameEditor();
+        // 2. Sincronizar Gist con datos ya actualizados
         try{_syncToGitHub();}catch(e){}
-        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
+        try{_syncGamesToGist();}catch(e){}
       })
       .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
   }else{
@@ -1559,9 +1579,10 @@ function processSaveGameData(editId,data){
       if(_fbReady&&_db&&_isAdmin()){
         _fbSaveGame(newGame,editId?String(editId):null)
           .then(function(){
-            renderGameEditorList();closeGameEditor();
+            _applyGameToState(gameId, newGame);
+            renderGameEditorList(); closeGameEditor();
             try{_syncToGitHub();}catch(e){}
-            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
+            try{_syncGamesToGist();}catch(e){}
           })
           .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
       }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
