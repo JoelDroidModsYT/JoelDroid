@@ -1612,9 +1612,10 @@ function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(
    Usa el mismo token del admin pero escribe al GIST de games.
    ════════════════════════════════════════════════════════════════════ */
 function _buildGamesPayload(){
-  var games = (siteState.gamesList || []).filter(function(g){
-    return g.visible !== false;
-  }).map(function(g){
+  // Incluimos TODOS los juegos (visibles e invisibles).
+  // El index.html ya filtra por visible:true por su cuenta.
+  // Si filtramos aquí y el campo visible no está seteado en Firestore → Gist queda vacío.
+  var games = (siteState.gamesList || []).map(function(g){
     return {
       id:                   String(g.id),
       name:                 g.name || g.nombre || '',
@@ -1736,11 +1737,32 @@ function syncGamesNow(){
     _setGamesGistStatus('❌ Primero conecta el token de GitHub arriba', '#ef4444');
     return;
   }
-  _setGamesGistStatus('⏳ Sincronizando games.json...', '#fbbf24');
-  // Llamamos directamente al fetch real y mostramos el resultado verdadero
+
+  // Si Firestore aún no cargó los juegos, esperar hasta 6s
+  if(!siteState.gamesList || siteState.gamesList.length === 0){
+    _setGamesGistStatus('⏳ Esperando que Firestore cargue los juegos...', '#fbbf24');
+    var _tries = 0;
+    var _wait = setInterval(function(){
+      _tries++;
+      if(siteState.gamesList && siteState.gamesList.length > 0){
+        clearInterval(_wait);
+        _doSyncGamesNow(cfg);
+      } else if(_tries >= 12){ // 6 segundos (12 x 500ms)
+        clearInterval(_wait);
+        _setGamesGistStatus('❌ Firestore no devolvió juegos. Verifica que tienes juegos publicados.', '#ef4444');
+      }
+    }, 500);
+    return;
+  }
+
+  _doSyncGamesNow(cfg);
+}
+
+function _doSyncGamesNow(cfg){
+  _setGamesGistStatus('⏳ Sincronizando ' + siteState.gamesList.length + ' juegos...', '#fbbf24');
   _syncGamesToGistWithCallback(function(ok, msg){
     if(ok){
-      _setGamesGistStatus('✅ games.json sincronizado — Carga instantánea activa 🚀', '#10b981');
+      _setGamesGistStatus('✅ games.json sincronizado — ' + siteState.gamesList.length + ' juegos — Carga instantánea activa 🚀', '#10b981');
     } else {
       _setGamesGistStatus('❌ Error: ' + msg, '#ef4444');
     }
@@ -1757,8 +1779,10 @@ function testGamesGist(){
     })
     .then(function(data){
       var games = Array.isArray(data) ? data : (data.games || []);
-      if(games.length > 0){
-        _setGamesGistStatus('✅ Gist activo — ' + games.length + ' juegos disponibles para carga instantánea 🚀', '#10b981');
+      var total = games.length;
+      var visibles = games.filter(function(g){ return g.visible !== false; }).length;
+      if(total > 0){
+        _setGamesGistStatus('✅ Gist activo — ' + total + ' juegos (' + visibles + ' visibles) — Carga instantánea activa 🚀', '#10b981');
       } else {
         _setGamesGistStatus('⚠️ games.json existe pero está vacío — presiona "Sincronizar" para llenarlo', '#f59e0b');
       }
