@@ -5315,10 +5315,25 @@ function _shareExecCopy(url){
 function _trackVisit(){
   try{
     if(!_db) return;
-    _db.collection('siteConfig').doc('stats').set({
+    /* Evitar contar la misma sesión dos veces (recargas rápidas) */
+    var _ssKey='jd_visit_tracked_'+new Date().toISOString().slice(0,10);
+    if(sessionStorage.getItem(_ssKey)) return;
+    sessionStorage.setItem(_ssKey,'1');
+
+    var hoy = (function(){
+      var d=new Date();
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    })();
+    var mes = hoy.slice(0,7);
+
+    var update = {
       visits: firebase.firestore.FieldValue.increment(1),
       lastVisit: firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true}).catch(function(){});
+    };
+    update['daily.'+hoy]   = firebase.firestore.FieldValue.increment(1);
+    update['monthly.'+mes] = firebase.firestore.FieldValue.increment(1);
+
+    _db.collection('siteConfig').doc('stats').set(update,{merge:true}).catch(function(){});
   }catch(e){}
 }
 function _trackClick(gameId, gameName){

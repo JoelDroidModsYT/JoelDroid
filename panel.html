@@ -251,18 +251,22 @@ body{
           Analytics en Tiempo Real
         </h3>
         <!-- Métricas rápidas -->
-        <div id="stats-metrics-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+        <div id="stats-metrics-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
           <div style="background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:12px;padding:10px;text-align:center">
             <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#60a5fa;opacity:.7">Hoy</p>
             <p id="stat-today" style="font-size:22px;font-weight:900;color:#60a5fa;line-height:1.1">—</p>
           </div>
           <div style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:10px;text-align:center">
-            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;opacity:.7">Este mes</p>
-            <p id="stat-month" style="font-size:22px;font-weight:900;color:#a78bfa;line-height:1.1">—</p>
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;opacity:.7">Esta semana</p>
+            <p id="stat-week" style="font-size:22px;font-weight:900;color:#a78bfa;line-height:1.1">—</p>
           </div>
           <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:10px;text-align:center">
-            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#34d399;opacity:.7">Total</p>
-            <p id="stat-total" style="font-size:22px;font-weight:900;color:#34d399;line-height:1.1">—</p>
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#34d399;opacity:.7">Este mes</p>
+            <p id="stat-month" style="font-size:22px;font-weight:900;color:#34d399;line-height:1.1">—</p>
+          </div>
+          <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:10px;text-align:center">
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#fbbf24;opacity:.7">Total</p>
+            <p id="stat-total" style="font-size:22px;font-weight:900;color:#fbbf24;line-height:1.1">—</p>
           </div>
         </div>
         <!-- Gráfico de barras últimos 7 días -->
@@ -292,49 +296,41 @@ body{
         <button onclick="disconnectGH()" class="w-full py-3 bg-gray-600 text-white rounded-xl font-black uppercase text-xs mt-1 opacity-60">Desconectar GitHub</button>
       </div>
 
-      <!-- ⚡ CARGA 0ms — JUEGOS INLINE EN index.html -->
+      <!-- CARGA INSTANTÁNEA — Gist de games.json SEPARADO -->
       <div class="space-y-2 p-4 border rounded-xl" style="border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.04)">
-        <h3 class="font-bold uppercase flex items-center gap-2" style="color:#fbbf24">⚡ Carga 0ms — Juegos en el HTML</h3>
+        <h3 class="font-bold uppercase flex items-center gap-2" style="color:#fbbf24">
+          ⚡ Carga Instantánea de Juegos
+        </h3>
         <p style="font-size:9px;color:rgba(251,191,36,.7);font-weight:600;line-height:1.6">
-          Los juegos se escriben <b>directamente</b> en el <code style="background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px">index.html</code> de tu repositorio.<br>
-          Al entrar al sitio los juegos aparecen <b>al instante</b> — igual que Netflix o YouTube.<br><br>
-          🔧 <b>Necesitas:</b> Tu token GitHub (ya lo tienes arriba) + el nombre de tu repo.<br>
-          🚀 <b>Se actualiza solo</b> cada vez que guardas o eliminas un juego.
+          Este Gist <b>separado</b> almacena <code style="background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px">games.json</code> — el archivo que hace que los juegos carguen en <b>&lt;300ms</b> para usuarios nuevos.<br><br>
+          ✅ <b>No interfiere</b> con la conexión principal de arriba.<br>
+          🚀 Se actualiza <b>automáticamente</b> al guardar/eliminar juegos.<br>
+          👤 Usuario GitHub: <b>JoelDroidModsYT</b>
         </p>
 
-        <!-- Estado de inyección -->
+        <!-- Estado del Gist de games -->
         <div id="games-gist-status" style="padding:10px 12px;border-radius:10px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);font-size:10px;font-weight:800;color:#fbbf24">
-          ⏳ Sin configurar — ingresa tu repo abajo
+          ⏳ Sin verificar — presiona "Probar" para comprobar
         </div>
 
-        <!-- Campo: nombre del repositorio -->
-        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:12px">
-          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Repositorio GitHub (usuario/repo)</p>
-          <input type="text" id="gh-repo-in" class="admin-input" placeholder="JoelDroidModsYT/joeldroidmods.com" autocomplete="off" style="font-size:11px">
-          <p style="font-size:8px;color:rgba(255,255,255,.4);margin-top:4px">Ejemplo: JoelDroidModsYT/joeldroidmods.com — la rama debe ser <b>main</b> o <b>master</b></p>
+        <!-- ID fijo del Gist de games (solo lectura, informativo) -->
+        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:10px 12px">
+          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.6);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Gist ID de games.json</p>
+          <p style="font-size:11px;font-weight:700;color:#fbbf24;letter-spacing:.02em;word-break:break-all">5981d391897fe461dc5ac9ba7303b8f2</p>
+          <p style="font-size:8px;color:rgba(255,255,255,.4);margin-top:4px">Este ID está fijo en el sistema — no necesitas cambiarlo</p>
         </div>
 
-        <!-- Campo: rama -->
-        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.15);border-radius:10px;padding:12px">
-          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Rama del repositorio</p>
-          <input type="text" id="gh-branch-in" class="admin-input" placeholder="main" value="main" autocomplete="off" style="font-size:11px">
+        <!-- URL del CDN (solo lectura) -->
+        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.15);border-radius:10px;padding:10px 12px">
+          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">URL CDN de carga instantánea</p>
+          <p style="font-size:9px;color:rgba(255,255,255,.5);word-break:break-all;line-height:1.5">https://gist.githubusercontent.com/JoelDroidModsYT/<br>5981d391897fe461dc5ac9ba7303b8f2/raw/games.json</p>
         </div>
 
-        <!-- Campo: ruta del archivo index.html en el repo -->
-        <div style="background:rgba(0,0,0,.3);border:1px solid rgba(251,191,36,.15);border-radius:10px;padding:12px">
-          <p style="font-size:8px;font-weight:900;color:rgba(251,191,36,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Ruta del index.html en el repo</p>
-          <input type="text" id="gh-indexpath-in" class="admin-input" placeholder="index.html" value="index.html" autocomplete="off" style="font-size:11px">
-          <p style="font-size:8px;color:rgba(255,255,255,.4);margin-top:4px">Normalmente es <b>index.html</b>. Si está en una carpeta: <b>public/index.html</b></p>
-        </div>
-
-        <button onclick="saveRepoConfig()" style="width:100%;padding:11px;border:none;border-radius:14px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:2px">
-          💾 Guardar configuración del repo
-        </button>
         <button onclick="syncGamesNow()" style="width:100%;padding:13px;border:none;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(251,191,36,.4);margin-top:4px">
-          🚀 Inyectar juegos en index.html ahora
+          🚀 Sincronizar games.json ahora
         </button>
         <button onclick="testGamesGist()" style="width:100%;padding:10px;border:1px solid rgba(251,191,36,.3);border-radius:14px;background:transparent;color:#fbbf24;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:4px">
-          📡 Verificar que el index tiene juegos inline
+          📡 Probar Gist de juegos
         </button>
       </div>
 
@@ -915,13 +911,6 @@ function _fbListenMods(){
     });
     siteState.gamesList=games;
     renderGameEditorList();
-    // Sincronizar Gist automáticamente cuando Firebase notifica cambios externos
-    // (cambios hechos desde otra sesión/dispositivo). Usamos un debounce de 1.5s
-    // para no disparar múltiples veces seguidas.
-    clearTimeout(window.__jdGistSyncTimer);
-    window.__jdGistSyncTimer = setTimeout(function(){
-      try{ _syncGamesToGist(); }catch(e){}
-    }, 1500);
   },function(err){if(err.code==='unavailable'||err.code==='failed-precondition')setTimeout(_fbListenMods,3000);});
 }
 
@@ -1003,30 +992,65 @@ function fbMigrateLocalGames(){
 }
 
 function doFirebaseLogin(){
-  var email=(document.getElementById('fb-login-email')||{}).value||'';
-  var pass=(document.getElementById('fb-login-pass')||{}).value||'';
-  var status=document.getElementById('fb-login-status');
-  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
-  if(status)status.innerText='⏳ Iniciando sesión...';
-  if(!_fbReady||!_fbAuth){_initFirebase();setTimeout(doFirebaseLogin,1500);return;}
-  _fbAuth.signInWithEmailAndPassword(email.trim(),pass)
+  var emailEl = document.getElementById('fb-login-email');
+  var passEl  = document.getElementById('fb-login-pass');
+  var status  = document.getElementById('fb-login-status');
+  var email   = (emailEl||{}).value||'';
+  var pass    = (passEl||{}).value||'';
+
+  if(!email||!pass){
+    if(status) status.innerText='⚠️ Ingresa tu email y contraseña';
+    return;
+  }
+  if(status) status.innerText='⏳ Conectando a Firebase...';
+
+  /* Si Firebase aún no está listo, esperar con los datos ya capturados */
+  if(!_fbReady||!_fbAuth){
+    _initFirebase();
+    var _tries=0;
+    var _wait=setInterval(function(){
+      _tries++;
+      if(_fbReady&&_fbAuth){
+        clearInterval(_wait);
+        _doLogin(email,pass,status);
+      } else if(_tries>=10){
+        clearInterval(_wait);
+        if(status) status.innerText='❌ Firebase no responde — verifica tu conexión a internet';
+      }
+    },500);
+    return;
+  }
+  _doLogin(email,pass,status);
+}
+
+function _doLogin(email,pass,status){
+  _fbAuth.signInWithEmailAndPassword(email.trim(), pass)
     .then(function(cred){
-      if(cred.user.uid===ADMIN_UID){
-        if(status)status.innerText='✅ Admin verificado';
+      if(cred.user.uid === ADMIN_UID){
+        if(status) status.innerText='✅ Admin verificado — entrando...';
         setTimeout(function(){
           document.getElementById('login-screen').style.display='none';
           document.getElementById('admin-panel').classList.remove('hidden');
-          renderAdminUI();renderGameEditorList();_fillGHInputs();
-          try{if(_db)_listenStats();}catch(e){}
-        },500);
-      }else{
-        if(status)status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
+          renderAdminUI();
+          renderGameEditorList();
+          _fillGHInputs();
+          _fillRepoInputs();
+          try{ if(_db) _listenStats(); }catch(e){}
+        }, 400);
+      } else {
+        if(status) status.innerText='❌ Este email no es el administrador del sitio.\nUID recibido: '+cred.user.uid+'\nUID esperado: '+ADMIN_UID;
         _fbAuth.signOut();
       }
     })
     .catch(function(err){
-      var msg=err.code==='auth/wrong-password'?'❌ Contraseña incorrecta':err.code==='auth/user-not-found'?'❌ Email no registrado':'❌ Error: '+err.message;
-      if(status)status.innerText=msg;
+      var msg = '❌ ';
+      if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential') msg+='Contraseña incorrecta';
+      else if(err.code==='auth/user-not-found')  msg+='Email no registrado en Firebase';
+      else if(err.code==='auth/invalid-email')   msg+='Formato de email inválido';
+      else if(err.code==='auth/too-many-requests')msg+='Demasiados intentos — espera unos minutos';
+      else if(err.code==='auth/network-request-failed') msg+='Sin conexión a internet';
+      else msg+=err.message;
+      if(status) status.innerText=msg;
     });
 }
 
@@ -1097,9 +1121,9 @@ function loadSettings(){
     }catch(e){}
   }
   _ghCfg=_loadGHConfig();
-  // NO llamamos _loadFromGitHub() al iniciar — eso causaba que el Gist principal
-  // sobreescribiera el siteState (incluyendo gamesList) cada vez que se abría el panel.
-  // El Gist principal se usa solo para GUARDAR cambios, no para cargar al arranque.
+  if(_ghCfg&&_ghCfg.gistId){
+    _loadFromGitHub(function(ok){if(ok)renderAdminUI();});
+  }
 }
 
 function _mergeState(remote){
@@ -1116,9 +1140,7 @@ function _mergeState(remote){
     youtubeUrl:remote.youtubeUrl||'',installYoutubeUrl:remote.installYoutubeUrl||'',
     youtubeVisible:remote.youtubeVisible!==false,installVisible:remote.installVisible!==false,
     showGeoShapes:remote.showGeoShapes!==false,activeScene:remote.activeScene||'none',
-    // gamesList NUNCA se toma del Gist principal (joeldroid_state.json)
-    // Los juegos vienen de Firestore onSnapshot o del editor local — nunca del estado remoto
-    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:[]
+    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:(remote.gamesList||[])
   });
 }
 
@@ -1560,26 +1582,12 @@ function processSaveGameData(editId,data){
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
-  // ── Actualizar siteState.gamesList AHORA con el juego nuevo/editado ──────
-  // Esto es crítico: _syncGamesToGist() usa siteState.gamesList para escribir
-  // el Gist. Si esperamos al onSnapshot de Firebase (~500-2000ms después),
-  // el Gist se sincroniza con datos VIEJOS. Actualizamos localmente primero.
-  function _applyGameToState(id, game){
-    var idx = siteState.gamesList.findIndex(function(g){ return String(g.id) === String(id); });
-    if(idx !== -1){ siteState.gamesList[idx] = Object.assign({}, siteState.gamesList[idx], game); }
-    else { siteState.gamesList.push(game); }
-  }
-
   if(_fbReady&&_db&&_isAdmin()){
     _fbSaveGame(newGame,editId?String(editId):null)
       .then(function(){
-        // 1. Actualizar lista local inmediatamente (no esperar onSnapshot)
-        _applyGameToState(gameId, newGame);
-        renderGameEditorList(); closeGameEditor();
-        // Actualizar index.html del repo (juegos inline → 0ms) + Gist como respaldo
-        try{_injectGamesIntoHTML(function(){});}catch(e){}
+        renderGameEditorList();closeGameEditor();
         try{_syncToGitHub();}catch(e){}
-        try{_syncGamesToGist();}catch(e){}
+        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
       })
       .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
   }else{
@@ -1588,11 +1596,9 @@ function processSaveGameData(editId,data){
       if(_fbReady&&_db&&_isAdmin()){
         _fbSaveGame(newGame,editId?String(editId):null)
           .then(function(){
-            _applyGameToState(gameId, newGame);
-            renderGameEditorList(); closeGameEditor();
-            try{_injectGamesIntoHTML(function(){});}catch(e){}
+            renderGameEditorList();closeGameEditor();
             try{_syncToGitHub();}catch(e){}
-            try{_syncGamesToGist();}catch(e){}
+            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
           })
           .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
       }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
@@ -1625,8 +1631,7 @@ function deleteGameGlobal(gameId){
   if(!confirm('¿Eliminar este juego? Se eliminará para TODOS los usuarios.'))return;
   if(_isAdmin()){_fbDeleteGame(String(gameId)).then(function(){
     renderGameEditorList();
-    try{_injectGamesIntoHTML(function(){});}catch(e){}
-    try{_syncGamesToGist();}catch(e){} // ← Actualiza Gist como respaldo
+    try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json al eliminar
   });}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
@@ -1643,11 +1648,15 @@ function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(
    Se llama automáticamente al guardar/eliminar un juego.
    Usa el mismo token del admin pero escribe al GIST de games.
    ════════════════════════════════════════════════════════════════════ */
-function _buildGamesPayload(){
-  // Incluimos TODOS los juegos (visibles e invisibles).
-  // El index.html ya filtra por visible:true por su cuenta.
-  // Si filtramos aquí y el campo visible no está seteado en Firestore → Gist queda vacío.
-  var games = (siteState.gamesList || []).map(function(g){
+function _syncGamesToGist(){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token) return; // Solo si admin tiene token configurado
+
+  // Tomar todos los juegos visibles del siteState
+  var games = (siteState.gamesList || []).filter(function(g){
+    return g.visible !== false;
+  }).map(function(g){
+    // Estructura limpia compatible con descarga.html y index.html
     return {
       id:                   String(g.id),
       name:                 g.name || g.nombre || '',
@@ -1687,32 +1696,15 @@ function _buildGamesPayload(){
       dlPageBtn2:           g.dlPageBtn2 || ''
     };
   });
-  return JSON.stringify({
+
+  var fileContent = JSON.stringify({
     _info:    'JoelDroid Mods YT — Auto-generado. No editar manualmente.',
     _updated: new Date().toISOString(),
     _count:   games.length,
     games:    games
   }, null, 2);
-}
 
-/* Versión silenciosa (auto-sync al guardar/eliminar) */
-function _syncGamesToGist(){
-  var cfg = _ghCfg || _loadGHConfig();
-  if(!cfg || !cfg.token) return;
-  _syncGamesToGistWithCallback(function(ok, msg){
-    if(ok){
-      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
-    } else {
-      _showGHStatus('⚠️ games.json: ' + msg, '#f59e0b');
-    }
-  });
-}
-
-/* Versión con callback — devuelve el resultado REAL del fetch */
-function _syncGamesToGistWithCallback(cb){
-  var cfg = _ghCfg || _loadGHConfig();
-  if(!cfg || !cfg.token){ if(cb) cb(false, 'Sin token GitHub'); return; }
-
+  // Escribir al Gist de games (GAMES_GIST_ID), NO al gistId principal
   fetch('https://api.github.com/gists/' + GAMES_GIST_ID, {
     method: 'PATCH',
     headers: {
@@ -1720,22 +1712,22 @@ function _syncGamesToGistWithCallback(cb){
       'Content-Type':  'application/json'
     },
     body: JSON.stringify({
-      files: { 'games.json': { content: _buildGamesPayload() } }
+      files: { 'games.json': { content: fileContent } }
     })
   })
   .then(function(r){
     if(r.ok){
-      if(cb) cb(true, '');
+      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
     } else {
       r.json().then(function(e){
-        if(cb) cb(false, 'Error ' + r.status + ' — ' + (e.message||'token inválido o sin permisos'));
+        _showGHStatus('⚠️ games.json: Error ' + r.status + ' — ' + (e.message||''), '#f59e0b');
       }).catch(function(){
-        if(cb) cb(false, 'Error ' + r.status);
+        _showGHStatus('⚠️ games.json: Error ' + r.status, '#f59e0b');
       });
     }
   })
   .catch(function(e){
-    if(cb) cb(false, 'Sin conexión — ' + e.message);
+    _showGHStatus('⚠️ games.json: Sin conexión — ' + e.message, '#f59e0b');
   });
 }
 
@@ -1762,176 +1754,47 @@ function _loadFromGitHub(cb){
     }).catch(function(){if(cb)cb(false);});
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   INYECCIÓN DE JUEGOS EN index.html DEL REPOSITORIO
-   Reemplaza /* JD_GAMES_JSON */[] con el JSON real de juegos.
-   Esto hace que los juegos carguen en 0ms — sin fetch, sin red.
-   ════════════════════════════════════════════════════════════════ */
-
-function _loadRepoConfig(){
-  try{return JSON.parse(localStorage.getItem('jd_repo_cfg')||'null');}catch(e){return null;}
-}
-function saveRepoConfig(){
-  var repo  =(document.getElementById('gh-repo-in')||{}).value||'';
-  var branch=(document.getElementById('gh-branch-in')||{}).value||'main';
-  var path  =(document.getElementById('gh-indexpath-in')||{}).value||'index.html';
-  if(!repo){_setGamesGistStatus('❌ Ingresa el nombre del repositorio (usuario/repo)','#ef4444');return;}
-  localStorage.setItem('jd_repo_cfg',JSON.stringify({repo:repo,branch:branch,path:path}));
-  _setGamesGistStatus('✅ Configuración guardada — presiona "Inyectar" para aplicar','#10b981');
-}
-
-function _fillRepoInputs(){
-  var cfg=_loadRepoConfig();if(!cfg)return;
-  var r=document.getElementById('gh-repo-in');if(r)r.value=cfg.repo||'';
-  var b=document.getElementById('gh-branch-in');if(b)b.value=cfg.branch||'main';
-  var p=document.getElementById('gh-indexpath-in');if(p)p.value=cfg.path||'index.html';
-}
-
-/* Inyectar juegos en index.html del repositorio GitHub */
-function _injectGamesIntoHTML(cb){
-  var ghCfg = _ghCfg || _loadGHConfig();
-  if(!ghCfg||!ghCfg.token){if(cb)cb(false,'Sin token GitHub — conéctate arriba primero');return;}
-  var repoCfg = _loadRepoConfig();
-  if(!repoCfg||!repoCfg.repo){if(cb)cb(false,'Sin repositorio configurado — ingresa tu repo abajo');return;}
-
-  var token  = ghCfg.token;
-  var repo   = repoCfg.repo;
-  var branch = repoCfg.branch||'main';
-  var path   = repoCfg.path||'index.html';
-  var apiBase= 'https://api.github.com/repos/'+repo+'/contents/'+path;
-
-  /* Construir JSON limpio de juegos */
-  var games = (siteState.gamesList||[]).map(function(g){
-    return{
-      id:String(g.id),name:g.name||'',description:g.description||'',
-      thumb:g.thumb||'',ver:g.ver||'',size:g.size||'',visible:g.visible!==false,
-      downloadButtonLink1:g.downloadButtonLink1||'',downloadButtonLink2:g.downloadButtonLink2||'',
-      downloadButtonText1:g.downloadButtonText1||'Descargar MOD APK',downloadButtonText2:g.downloadButtonText2||'',
-      downloadButtonVisible1:g.downloadButtonVisible1!==false,downloadButtonVisible2:!!g.downloadButtonVisible2,
-      modBadgeText:g.modBadgeText||'MOD',modBadgeBgColor:g.modBadgeBgColor||'#ef4444',
-      modBadgeVisible:g.modBadgeVisible!==false,updateBadgeText:g.updateBadgeText||'',
-      updateBadgeVisible:!!g.updateBadgeVisible,updateBadgeBgColor:g.updateBadgeBgColor||'#10b981',
-      homeButtonVisible:g.homeButtonVisible!==false,features:g.features||[],
-      timestamp:g.timestamp||0,order:g.order||0,visits:g.visits||0,
-      warningVisible:!!g.warningVisible,warningText:g.warningText||'',
-      youtubeUrl:g.youtubeUrl||'',installYoutubeUrl:g.installYoutubeUrl||'',
-      dlPageName1:g.dlPageName1||'',dlPageVer1:g.dlPageVer1||'',dlPageSize1:g.dlPageSize1||'',dlPageBtn1:g.dlPageBtn1||'',
-      dlPageName2:g.dlPageName2||'',dlPageVer2:g.dlPageVer2||'',dlPageSize2:g.dlPageSize2||'',dlPageBtn2:g.dlPageBtn2||''
-    };
-  });
-  var gamesJson = JSON.stringify(games);
-
-  /* Paso 1: descargar index.html actual del repo */
-  fetch(apiBase+'?ref='+branch, {
-    headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
-  })
-  .then(function(r){
-    if(!r.ok)throw new Error('HTTP '+r.status+' al leer index.html del repo');
-    return r.json();
-  })
-  .then(function(data){
-    var sha     = data.sha;
-    var htmlB64 = data.content.replace(/\n/g,'');
-    var html;
-    try{ html = decodeURIComponent(escape(atob(htmlB64))); }
-    catch(e){ html = atob(htmlB64); }
-
-    /* Paso 2: reemplazar el marcador JD_GAMES_JSON con el JSON real */
-    var MARKER_RE = /\/\* JD_GAMES_JSON \*\/(\[\]|\[[\s\S]*?\]);/;
-    if(!MARKER_RE.test(html)){
-      if(cb)cb(false,'El index.html no tiene el marcador /* JD_GAMES_JSON */ — sube el index.html correcto primero');
-      return;
-    }
-    var newHtml = html.replace(MARKER_RE, '/* JD_GAMES_JSON */'+gamesJson+';');
-
-    /* Paso 3: subir el index.html actualizado */
-    var newB64;
-    try{ newB64 = btoa(unescape(encodeURIComponent(newHtml))); }
-    catch(e){ newB64 = btoa(newHtml); }
-
-    return fetch(apiBase,{
-      method:'PUT',
-      headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        message:'⚡ JoelDroid: actualizar juegos inline ('+games.length+' mods)',
-        content:newB64,
-        sha:sha,
-        branch:branch
-      })
-    });
-  })
-  .then(function(r){
-    if(!r)return; // ya terminó en paso 2 con error
-    if(r.ok){if(cb)cb(true,'');}
-    else{r.json().then(function(e){if(cb)cb(false,'Error '+r.status+': '+(e.message||'token sin permisos repo'));});}
-  })
-  .catch(function(e){if(cb)cb(false,e.message);});
-}
-
-/* syncGamesNow — botón principal */
+/* ══ FUNCIONES DEL GIST DE GAMES ════════════════════════════════════ */
 function syncGamesNow(){
-  var ghCfg=_ghCfg||_loadGHConfig();
-  if(!ghCfg||!ghCfg.token){_setGamesGistStatus('❌ Primero conecta el token de GitHub arriba','#ef4444');return;}
-  var repoCfg=_loadRepoConfig();
-  if(!repoCfg||!repoCfg.repo){_setGamesGistStatus('❌ Ingresa tu repositorio abajo y guarda la configuración','#ef4444');return;}
-
-  /* Esperar que Firestore cargue si gamesList aún está vacío */
-  if(!siteState.gamesList||!siteState.gamesList.length){
-    _setGamesGistStatus('⏳ Esperando que Firestore cargue los juegos...','#fbbf24');
-    var _tries=0,_wait=setInterval(function(){
-      _tries++;
-      if(siteState.gamesList&&siteState.gamesList.length){clearInterval(_wait);_doInject();}
-      else if(_tries>=12){clearInterval(_wait);_setGamesGistStatus('❌ Firestore no devolvió juegos. Verifica que tienes juegos publicados.','#ef4444');}
-    },500);
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token){
+    _setGamesGistStatus('❌ Primero conecta el token de GitHub arriba', '#ef4444');
     return;
   }
-  _doInject();
+  _setGamesGistStatus('⏳ Sincronizando games.json...', '#fbbf24');
+  try{
+    _syncGamesToGist();
+    setTimeout(function(){
+      _setGamesGistStatus('✅ games.json sincronizado — Carga instantánea activa 🚀', '#10b981');
+    }, 2000);
+  }catch(e){
+    _setGamesGistStatus('❌ Error: ' + e.message, '#ef4444');
+  }
 }
 
-function _doInject(){
-  _setGamesGistStatus('⏳ Inyectando '+siteState.gamesList.length+' juegos en index.html...','#fbbf24');
-  _injectGamesIntoHTML(function(ok,msg){
-    if(ok){
-      _setGamesGistStatus('✅ index.html actualizado — '+siteState.gamesList.length+' juegos cargando en 0ms 🚀','#10b981');
-      /* También actualizar el Gist como respaldo */
-      try{_syncGamesToGist();}catch(e){}
-    }else{
-      _setGamesGistStatus('❌ '+msg,'#ef4444');
-    }
-  });
-}
-
-/* testGamesGist — ahora verifica si el index tiene el marcador con juegos */
 function testGamesGist(){
-  var repoCfg=_loadRepoConfig();
-  var ghCfg=_ghCfg||_loadGHConfig();
-  if(!repoCfg||!repoCfg.repo||!ghCfg||!ghCfg.token){
-    /* Fallback: probar el Gist CDN */
-    _setGamesGistStatus('⏳ Verificando Gist de respaldo...','#fbbf24');
-    var url='https://gist.githubusercontent.com/JoelDroidModsYT/'+GAMES_GIST_ID+'/raw/games.json?_='+Date.now();
-    fetch(url,{cache:'no-cache'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(data){
-        var games=Array.isArray(data)?data:(data.games||[]);
-        _setGamesGistStatus(games.length?'✅ Gist respaldo: '+games.length+' juegos disponibles':'⚠️ Gist vacío — configura tu repo arriba y presiona Inyectar','#fbbf24');
-      }).catch(function(e){_setGamesGistStatus('⚠️ '+e.message,'#f59e0b');});
-    return;
-  }
-  _setGamesGistStatus('⏳ Verificando index.html del repositorio...','#fbbf24');
-  var apiBase='https://api.github.com/repos/'+repoCfg.repo+'/contents/'+(repoCfg.path||'index.html');
-  fetch(apiBase+'?ref='+(repoCfg.branch||'main'),{
-    headers:{'Authorization':'token '+ghCfg.token,'Accept':'application/vnd.github.v3+json'}
-  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+  _setGamesGistStatus('⏳ Verificando Gist de juegos...', '#fbbf24');
+  var url = 'https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json?_='+Date.now();
+  fetch(url, {cache:'no-cache'})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function(data){
-      var html;
-      try{html=decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));}
-      catch(e){html=atob(data.content.replace(/\n/g,''));}
-      var m=html.match(/\/\* JD_GAMES_JSON \*\/([\[\{][\s\S]*?)[;\n]/);
-      if(!m){_setGamesGistStatus('⚠️ index.html no tiene el marcador inline — presiona "Inyectar" para agregarlo','#f59e0b');return;}
-      try{
-        var games=JSON.parse(m[1]);
-        _setGamesGistStatus('✅ index.html tiene '+games.length+' juegos inline — carga en 0ms activa 🚀','#10b981');
-      }catch(e){_setGamesGistStatus('⚠️ Marcador encontrado pero JSON inválido — presiona Inyectar','#f59e0b');}
-    }).catch(function(e){_setGamesGistStatus('❌ '+e.message,'#ef4444');});
+      var games = Array.isArray(data) ? data : (data.games || []);
+      if(games.length > 0){
+        _setGamesGistStatus('✅ Gist activo — ' + games.length + ' juegos disponibles para carga instantánea 🚀', '#10b981');
+      } else {
+        _setGamesGistStatus('⚠️ games.json existe pero está vacío — presiona "Sincronizar" para llenarlo', '#f59e0b');
+      }
+    })
+    .catch(function(e){
+      if(e.message.indexOf('404') >= 0 || e.message.indexOf('HTTP') >= 0){
+        _setGamesGistStatus('❌ games.json no encontrado — crea el archivo en el Gist y presiona Sincronizar', '#ef4444');
+      } else {
+        _setGamesGistStatus('⚠️ Sin conexión o Gist privado — verifica que sea público', '#f59e0b');
+      }
+    });
 }
 
 function _setGamesGistStatus(msg, color){
@@ -2061,17 +1924,28 @@ function _listenStats(){
 function _renderDashboard(data){
   var hoy=_hoy();
   var mes=hoy.slice(0,7);
+  var anio=hoy.slice(0,4);
   var daily=data.daily||{};
   var monthly=data.monthly||{};
   var total=data.visits||0;
 
+  // ── Calcular visitas de esta semana (últimos 7 días) ────────────
+  var diasSemana=_diasAnteriores(7);
+  var semanaTotal=diasSemana.reduce(function(s,d){return s+(daily[d]||0);},0);
+
+  // ── Calcular visitas de este año ────────────────────────────────
+  var anioTotal=Object.keys(monthly).filter(function(k){return k.indexOf(anio)===0;})
+    .reduce(function(s,k){return s+(monthly[k]||0);},0);
+
   // ── Métricas rápidas ──────────────────────────────────────────
-  var elHoy=document.getElementById('stat-today');
-  var elMes=document.getElementById('stat-month');
-  var elTot=document.getElementById('stat-total');
-  if(elHoy)elHoy.textContent=(daily[hoy]||0).toLocaleString();
-  if(elMes)elMes.textContent=(monthly[mes]||0).toLocaleString();
-  if(elTot)elTot.textContent=total.toLocaleString();
+  var elHoy  = document.getElementById('stat-today');
+  var elWeek = document.getElementById('stat-week');
+  var elMes  = document.getElementById('stat-month');
+  var elTot  = document.getElementById('stat-total');
+  if(elHoy)  elHoy.textContent  = (daily[hoy]||0).toLocaleString();
+  if(elWeek) elWeek.textContent = semanaTotal.toLocaleString();
+  if(elMes)  elMes.textContent  = (monthly[mes]||0).toLocaleString();
+  if(elTot)  elTot.textContent  = total.toLocaleString();
 
   // ── Gráfico de barras 7 días ──────────────────────────────────
   var chart=document.getElementById('stats-chart');
@@ -2254,7 +2128,6 @@ window.addEventListener('DOMContentLoaded',function(){
   loadSettings();
   _ghCfg=_loadGHConfig();
   _fillGHInputs();
-  _fillRepoInputs();
   renderAdminUI();
   renderGameEditorList();
   _initFirebase();
