@@ -1097,20 +1097,28 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
-<!-- ══ CARGA INSTANTÁNEA DE JUEGOS ════════════════════════════════════
-     NIVEL 0 (0ms):       caché local → sessionStorage/localStorage
-     NIVEL 1 (50-300ms):  Gist CDN GitHub → primera visita sin caché
-     NIVEL 2 (500-800ms): Firestore REST → respaldo si Gist falla
-     REGLA: el primero con datos > 0 gana y bloquea a los demás
-     Si ya hay caché, red solo actualiza silenciosamente para next visit
+<!-- ══ JUEGOS INLINE — CARGA EN 0ms ═══════════════════════════════════
+     Los juegos están escritos DIRECTAMENTE en el HTML como JSON.
+     No hay fetch, no hay red, no hay espera — aparecen con el sitio.
+     El panel.html actualiza este bloque automáticamente via GitHub API
+     cada vez que guardas/eliminas un juego (reemplaza index.html en el repo).
+     Firebase/Gist solo sirven como respaldo y para sync entre dispositivos.
 ════════════════════════════════════════════════════════════════════ -->
 <script>
-/* ── FLAGS GLOBALES DE CARRERA ───────────────────────────────────── */
-window.__JD_DONE     = false; // true cuando algún nivel ya renderizó
-window.__JD_REST_DONE= false; // alias de compatibilidad
+/* ── DATOS INLINE — escritos por el panel al guardar juegos ─────── */
+/* ██ INICIO BLOQUE JUEGOS — NO EDITAR MANUALMENTE ██              */
+window.__JD_INLINE_GAMES = /* JD_GAMES_JSON */[];
+/* ██ FIN BLOQUE JUEGOS ██                                          */
 
-/* ── NIVEL 0: CACHÉ LOCAL — 0ms, sin red ──────────────────────────── */
+window.__JD_DONE      = false;
+window.__JD_REST_DONE = false;
+
+/* Lee caché local (2ª visita o más) */
 window.__JD_STATIC_GAMES = (function(){
+  /* 1. Datos inline en el HTML — siempre presentes, 0ms */
+  if(window.__JD_INLINE_GAMES && window.__JD_INLINE_GAMES.length)
+    return window.__JD_INLINE_GAMES;
+  /* 2. sessionStorage — navegación back/forward */
   try{
     var ss=sessionStorage.getItem('jd_ss_games');
     if(ss){var a=JSON.parse(ss);if(a&&a.length)return a;}
@@ -1120,17 +1128,21 @@ window.__JD_STATIC_GAMES = (function(){
   return [];
 })();
 
-/* ── FUNCIÓN COMPARTIDA DE RENDER — usada por todos los niveles ──── */
-window.__JD_RENDER = function(rawGames){
-  if(window.__JD_DONE)return;
-  if(!rawGames||!rawGames.length)return;
+/* Función compartida de render */
+window.__JD_RENDER = function(rawGames, silent){
+  if(window.__JD_DONE && !silent) return;
+  if(!rawGames||!rawGames.length) return;
   var visible=rawGames.filter(function(g){return g.visible!==false;});
   visible.sort(function(a,b){return b.timestamp!==a.timestamp?b.timestamp-a.timestamp:(a.order||0)-(b.order||0);});
-  if(!visible.length)return;
-  window.__JD_DONE=true;
-  window.__JD_REST_DONE=true;
-  window.__JD_STATIC_GAMES=visible;
+  if(!visible.length) return;
+  if(!silent){
+    window.__JD_DONE=true;
+    window.__JD_REST_DONE=true;
+    window.__JD_STATIC_GAMES=visible;
+  }
+  /* Siempre actualizar caché para la próxima visita */
   try{var j=JSON.stringify(visible);sessionStorage.setItem('jd_ss_games',j);localStorage.setItem('jd_games_cache_v2',j);}catch(e){}
+  if(silent) return; /* solo actualizar caché, no re-pintar */
   if(typeof siteState!=='undefined'&&typeof renderGames==='function'){siteState.gamesList=visible;renderGames();return;}
   function _paint(){
     var list=document.getElementById('game-list');
@@ -1155,17 +1167,15 @@ window.__JD_RENDER = function(rawGames){
     });
     list.appendChild(frag);list.dataset.instantLoaded='1';
   }
-  if(document.readyState!=='loading'){_paint();}else{document.addEventListener('DOMContentLoaded',_paint);}
+  if(document.readyState!=='loading'){_paint();}
+  else{document.addEventListener('DOMContentLoaded',_paint);}
 };
 
-/* ── Disparar Nivel 0 AHORA si hay caché ─────────────────────────── */
-if(window.__JD_STATIC_GAMES.length>0){
-  window.__JD_RENDER(window.__JD_STATIC_GAMES);
-}
+/* Renderizar ahora — 0ms, sin red */
+window.__JD_RENDER(window.__JD_STATIC_GAMES);
 
-/* ── NIVELES 1 y 2: RED — ambos en paralelo ─────────────────────── */
+/* Red en background: Gist + Firestore actualizan caché silenciosamente */
 (function(){
-  var _hadCache = window.__JD_DONE; // si caché ya pintó, red solo refresca
   var PROJECT='joeldroid-mods';
   var API_KEY='AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
   var GAMES_GIST_ID='5981d391897fe461dc5ac9ba7303b8f2';
@@ -1193,33 +1203,27 @@ if(window.__JD_STATIC_GAMES.length>0){
       visits:parseInt(_s(f.visits)||'0',10)||0};
   }
 
-  function _silentRefresh(games){
-    /* Solo actualiza localStorage para la próxima visita sin re-pintar */
-    if(!games||!games.length)return;
-    try{var j=JSON.stringify(games);localStorage.setItem('jd_games_cache_v2',j);sessionStorage.setItem('jd_ss_games',j);window.__JD_STATIC_GAMES=games;}catch(e){}
-  }
+  /* Si ya hay datos inline (panel los incrustó), la red solo refresca caché */
+  var _hasInline = window.__JD_INLINE_GAMES && window.__JD_INLINE_GAMES.length > 0;
 
-  /* NIVEL 1: Gist CDN — cache:default para aprovechar HTTP cache del browser */
+  /* Gist CDN — actualiza caché silent si ya hay inline, o renderiza si no hay */
   fetch(CDN_URL,{cache:'default'})
-    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(function(r){if(!r.ok)throw 0;return r.json();})
     .then(function(d){
       var g=Array.isArray(d)?d:(d.games||[]);
-      if(!g.length)throw new Error('vacio');
-      if(_hadCache){_silentRefresh(g);}else{window.__JD_RENDER(g);}
-    })
-    .catch(function(){/* Gist falla → Firestore ya corre */});
+      if(!g.length)return;
+      window.__JD_RENDER(g, _hasInline); /* silent=true si había inline */
+    }).catch(function(){});
 
-  /* NIVEL 2: Firestore REST — corre en paralelo desde el inicio */
+  /* Firestore REST — igual que Gist, en paralelo */
   fetch(FS_URL,{cache:'default'})
     .then(function(r){return r.json();})
     .then(function(d){
       var docs=d.documents||[];if(!docs.length)return;
-      var games=docs.map(_parseDoc);
-      if(_hadCache){_silentRefresh(games);}else{window.__JD_RENDER(games);}
-    })
-    .catch(function(){});
+      window.__JD_RENDER(docs.map(_parseDoc), _hasInline);
+    }).catch(function(){});
 
-  /* Auto-guardar Gist desde panel.html */
+  /* Exponer función para que panel.html guarde el Gist */
   window.__jdSaveGamesToGist=function(games){
     if(!games||!games.length)return;
     try{
@@ -1227,7 +1231,9 @@ if(window.__JD_STATIC_GAMES.length>0){
       if(!cfg||!cfg.token)return;
       fetch('https://api.github.com/gists/'+GAMES_GIST_ID,{method:'PATCH',
         headers:{'Authorization':'token '+cfg.token,'Content-Type':'application/json'},
-        body:JSON.stringify({files:{'games.json':{content:JSON.stringify({_info:'JoelDroid Mods YT — Auto-generado.',_updated:new Date().toISOString(),_count:games.length,games:games},null,2)}}})
+        body:JSON.stringify({files:{'games.json':{content:JSON.stringify({
+          _info:'JoelDroid Mods YT',_updated:new Date().toISOString(),
+          _count:games.length,games:games},null,2)}}})
       }).catch(function(){});
     }catch(e){}
   };
