@@ -1,117 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- ══ PROTECCIÓN ANTI-REDIRECCIÓN — debe ser lo PRIMERO del head ══════
-     Intercepta window.location antes que cualquier script de anuncio.
-     Los anuncios siguen cargando y mostrándose — solo se bloquea
-     cualquier intento de redirigir la pestaña principal automáticamente.
-     Tu propio código (download, deeplink) funciona normalmente porque
-     usa _jdAllowRedirect() para marcar la redirección como legítima.
-════════════════════════════════════════════════════════════════════ -->
-<script>
-(function(){
-  /* ── Marcar las URLs legítimas de TU código ── */
-  window._jdAllowRedirect = function(){
-    window.__JD_REDIRECT_OK = true;
-    /* Se auto-limpia en 500ms por si no se usó */
-    setTimeout(function(){ window.__JD_REDIRECT_OK = false; }, 500);
-  };
-  window.__JD_REDIRECT_OK = false;
-
-  /* ── Guardar los métodos originales ANTES que cualquier script los toque ── */
-  var _realHref     = Object.getOwnPropertyDescriptor(window.location, 'href')
-                   || Object.getOwnPropertyDescriptor(Location.prototype, 'href');
-  var _realAssign   = window.location.assign.bind(window.location);
-  var _realReplace  = window.location.replace.bind(window.location);
-  var _realOpen     = window.open.bind(window);
-
-  /* ── Función que decide si una redirección es legítima ── */
-  function _isLegit(url){
-    if(window.__JD_REDIRECT_OK) return true;          // tu código la marcó OK
-    if(!url) return false;
-    var u = String(url);
-    var own = window.location.origin;                  // https://joeldroidmods.com
-    /* Permitir: navegación interna, rutas de descarga, reset */
-    if(u.indexOf(own) === 0)      return true;
-    if(u.indexOf('/') === 0)      return true;
-    if(u.indexOf('#') === 0)      return true;
-    if(u === 'about:blank')       return true;
-    /* Todo lo demás (URLs de redes de anuncios) → bloqueado */
-    return false;
-  }
-
-  /* ── Interceptar location.href ── */
-  try{
-    Object.defineProperty(window.location, 'href', {
-      get: function(){ return window.location.toString(); },
-      set: function(url){
-        if(_isLegit(url)){
-          if(_realHref && _realHref.set) _realHref.set.call(window.location, url);
-          else _realAssign(url);
-        }
-        /* Si no es legítima: ignorar silenciosamente */
-      },
-      configurable: true
-    });
-  }catch(e){}
-
-  /* ── Interceptar location.assign() ── */
-  try{
-    window.location.assign = function(url){
-      if(_isLegit(url)) _realAssign(url);
-    };
-  }catch(e){}
-
-  /* ── Interceptar location.replace() ── */
-  try{
-    window.location.replace = function(url){
-      if(_isLegit(url)) _realReplace(url);
-    };
-  }catch(e){}
-
-  /* ── Interceptar window.open() — convertir popups en pestañas nuevas ──
-     Los anuncios que llaman window.open() lo siguen haciendo,
-     pero siempre en _blank (nueva pestaña), nunca reemplazando la actual. */
-  window.open = function(url, target, features){
-    var t = (target === '_self' || target === '_top' || target === '_parent')
-            ? '_blank'   /* redirigir a sí mismo → abrir en nueva pestaña */
-            : (target || '_blank');
-    return _realOpen(url, t, features);
-  };
-
-  /* ── Bloquear intentos de reemplazar window.location completo ── */
-  try{
-    Object.defineProperty(window, 'location', {
-      get: function(){ return window.location; },
-      set: function(url){
-        if(_isLegit(String(url))){
-          _realAssign(String(url));
-        }
-      },
-      configurable: false
-    });
-  }catch(e){}
-
-  /* ── Bloquear meta refresh inyectados dinámicamente ── */
-  var _origCreateEl = document.createElement.bind(document);
-  document.createElement = function(tag){
-    var el = _origCreateEl(tag);
-    if(tag && tag.toLowerCase() === 'meta'){
-      /* Interceptar cuando intenten setear http-equiv=refresh */
-      var _origSetAttr = el.setAttribute.bind(el);
-      el.setAttribute = function(name, val){
-        if(name && name.toLowerCase() === 'http-equiv' &&
-           val  && val.toLowerCase()  === 'refresh'){
-          return; /* bloquear silenciosamente */
-        }
-        _origSetAttr(name, val);
-      };
-    }
-    return el;
-  };
-
-})();
-</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -4085,7 +3974,6 @@ function _handle404Redirect(){
     var id = p.get('id') || '';
     // Si 404.html nos redirigió desde /download/?id=X -> redirigir de vuelta
     if (path === 'download' && id) {
-      window._jdAllowRedirect && window._jdAllowRedirect();
       window.location.replace('/download/?id=' + encodeURIComponent(id) + (p.get('modo') ? '&modo=' + p.get('modo') : ''));
       return true;
     }
@@ -5315,25 +5203,10 @@ function _shareExecCopy(url){
 function _trackVisit(){
   try{
     if(!_db) return;
-    /* Evitar contar la misma sesión dos veces (recargas rápidas) */
-    var _ssKey='jd_visit_tracked_'+new Date().toISOString().slice(0,10);
-    if(sessionStorage.getItem(_ssKey)) return;
-    sessionStorage.setItem(_ssKey,'1');
-
-    var hoy = (function(){
-      var d=new Date();
-      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    })();
-    var mes = hoy.slice(0,7);
-
-    var update = {
+    _db.collection('siteConfig').doc('stats').set({
       visits: firebase.firestore.FieldValue.increment(1),
       lastVisit: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    update['daily.'+hoy]   = firebase.firestore.FieldValue.increment(1);
-    update['monthly.'+mes] = firebase.firestore.FieldValue.increment(1);
-
-    _db.collection('siteConfig').doc('stats').set(update,{merge:true}).catch(function(){});
+    },{merge:true}).catch(function(){});
   }catch(e){}
 }
 function _trackClick(gameId, gameName){
@@ -6026,7 +5899,6 @@ function irADescarga(gameId, modo) {
   }
 
   // Sin modal: navegar directo (fallback)
-  window._jdAllowRedirect && window._jdAllowRedirect();
   window.location.href = destUrl;
 }
 
@@ -6036,10 +5908,7 @@ function jdCerrarModalAd() {
   if (!modal) return;
   var dest = modal.dataset.destUrl || '';
   modal.style.display = 'none';
-  if (dest){
-    window._jdAllowRedirect && window._jdAllowRedirect();
-    window.location.href = dest;
-  }
+  if (dest) window.location.href = dest;
 }
 
 
