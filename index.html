@@ -1,32 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-(function(){
-  window._jdAllowRedirect=function(){window.__JD_REDIRECT_OK=true;setTimeout(function(){window.__JD_REDIRECT_OK=false;},500);};
-  window.__JD_REDIRECT_OK=false;
-  var _realAssign=window.location.assign.bind(window.location);
-  var _realReplace=window.location.replace.bind(window.location);
-  var _realOpen=window.open.bind(window);
-  function _isLegit(url){
-    if(window.__JD_REDIRECT_OK)return true;
-    if(!url)return false;
-    var u=String(url),own=window.location.origin;
-    if(u.indexOf(own)===0)return true;
-    if(u.indexOf('/')===0)return true;
-    if(u.indexOf('#')===0)return true;
-    if(u==='about:blank')return true;
-    return false;
-  }
-  try{Object.defineProperty(window.location,'href',{get:function(){return window.location.toString();},set:function(url){if(_isLegit(url))_realAssign(url);},configurable:true});}catch(e){}
-  try{window.location.assign=function(url){if(_isLegit(url))_realAssign(url);};}catch(e){}
-  try{window.location.replace=function(url){if(_isLegit(url))_realReplace(url);};}catch(e){}
-  window.open=function(url,target,features){
-    var t=(target==='_self'||target==='_top'||target==='_parent')?'_blank':(target||'_blank');
-    return _realOpen(url,t,features);
-  };
-})();
-</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -2927,10 +2901,10 @@ var colorPalette={
   lightGray:{name:'Gris Claro',hex:'#9ca3af',rgb:'156,163,175'}
 };
 
-var initialGames=[
+var initialGames=/* JD_INITIAL_GAMES_START */[
   {id:1,name:"Global Truck Online",description:"Este juego fue desarrollado por JoelDroid Labs y modificado para ofrecer la mejor experiencia premium. Vive el simulador de camiones más avanzado con multijugador masivo.",thumb:"https://play-lh.googleusercontent.com/JJiHxM3IMImgKaROZ3U6yivclo5jxepBfZRShfCoxij7SrY233VKi_sp0YoxiWyHSfttjrgfYAy2vDVtYiaU5dw=w240-h480-rw",size:"420 MB",ver:"v1.5.2",update:true,lastUpdate:"2024-05-20",visits:1250,features:["Monedas Infinitas","Sin Anuncios","Todo Desbloqueado"],warningVisible:true,warningText:"Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.",downloadNameSecondary:"GLOBAL TRUCK ONLINE MOD APP",downloadButtonText1:"Descargar Mod 1",downloadButtonLink1:"#",downloadButtonText2:"Descargar Mod 2",downloadButtonLink2:"#",visible:true,homeButtonVisible:true,updateBadgeText:'UPDATE',updateBadgeVisible:true,modBadgeText:'MOD APP',modBadgeVisible:true,modBadgeBgColor:'#ef4444',updateBadgeBgColor:'#10b981',homeButtonText:'Descargar APK',homeButtonColor:'blue',homeButtonColorKey:'blue',downloadButtonVisible1:true,downloadButtonVisible2:true,downloadButtonColor1:'#3b82f6',downloadButtonColor2:'#3b82f6',updateBadgeBgColorKey:'green',modBadgeBgColorKey:'red'},
   {id:2,name:"Trucker of Europe 3",description:"Una obra maestra de la conducción pesada. Modificado especialmente para entusiastas que buscan desbloquear todo el potencial de la gestión de carga.",thumb:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1rjfLgFxiBAOozVIDrq0X6KmF92Wy56gGoj8e2ZM7Ocbw5_AQK4kpzgc&s=10",size:"315 MB",ver:"v0.40.1",update:false,lastUpdate:"2024-01-10",visits:890,features:["Monedas Infinitas","Sin Anuncios","Sin Virus"],warningVisible:true,warningText:"Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.",downloadNameSecondary:"TRUCKER OF EUROPE MOD APP",downloadButtonText1:"Descargar Mod 1",downloadButtonLink1:"#",downloadButtonText2:"Descargar Mod 2",downloadButtonLink2:"#",visible:true,homeButtonVisible:true,updateBadgeText:'UPDATE',updateBadgeVisible:false,modBadgeText:'MOD APP',modBadgeVisible:true,modBadgeBgColor:'#ef4444',updateBadgeBgColor:'#10b981',homeButtonText:'Descargar APK',homeButtonColor:'blue',homeButtonColorKey:'blue',downloadButtonVisible1:true,downloadButtonVisible2:true,downloadButtonColor1:'#3b82f6',downloadButtonColor2:'#3b82f6',updateBadgeBgColorKey:'green',modBadgeBgColorKey:'red'}
-];
+]/* JD_INITIAL_GAMES_END */;
 
 var defaultSiteState={
   ui:{title:"JOELDROID",subtitle:"MODS YT",logoVisible:true,selectedColor:'electricBlue',titleTextColor:'#ffffff',subtitleTextColor:'#ffffff',logoUrl:null,logoColor:'#ffffff'},
@@ -3140,8 +3114,7 @@ function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
 
-  // Sin datos: los skeletons ya están en el HTML desde el inicio (0ms)
-  // Solo mostrar skeletons adicionales si la lista quedó completamente vacía
+  // Sin datos: mostrar skeletons
   if(!siteState.gamesList || siteState.gamesList.length === 0){
     if(!list.querySelector('.jd-card') && !list.querySelector('.jd-skeleton-card')){
       _renderSkeletons(12);
@@ -3149,16 +3122,18 @@ function renderGames(){
     return;
   }
 
-  // Si el instant-loader ya pintó tarjetas del caché local,
-  // permitir que Firebase actualice sin bloquear (solo salta si los datos son idénticos)
+  // ── OPTIMIZACIÓN CORE VITALS ─────────────────────────────────────
+  // Si el grid ya tiene tarjetas reales (pre-renderizadas desde initialGames),
+  // solo re-renderizar si los datos de Firebase son distintos (más juegos o cambios).
+  // Esto evita el flash en blanco al actualizar desde Firebase.
   var _alreadyHasCards = list.querySelector('.jd-card');
-  if(_alreadyHasCards && (list.dataset.instantLoaded==='1' || list.dataset.restLoaded==='1')){
+  if(_alreadyHasCards){
+    var _newHash = (siteState.gamesList||[]).length+'_'+((siteState.gamesList||[])[0]||{}).id;
+    if(list.dataset.lastHash === _newHash) return; // datos idénticos → no re-pintar
+    list.dataset.lastHash = _newHash;
+    // Limpiar flags de carga anterior
     list.dataset.instantLoaded = '0';
     list.dataset.restLoaded = '0';
-    // Solo re-renderizar si los datos cambiaron
-    var _newHash = (siteState.gamesList||[]).length+'_'+((siteState.gamesList||[])[0]||{}).id;
-    if(list.dataset.lastHash === _newHash) return;
-    list.dataset.lastHash = _newHash;
   }
 
   // Filtro de búsqueda
@@ -4059,7 +4034,7 @@ function _handle404Redirect(){
     var id = p.get('id') || '';
     // Si 404.html nos redirigió desde /download/?id=X -> redirigir de vuelta
     if (path === 'download' && id) {
-      window._jdAllowRedirect&&window._jdAllowRedirect();window.location.replace('/download/?id=' + encodeURIComponent(id) + (p.get('modo') ? '&modo=' + p.get('modo') : ''));
+      window.location.replace('/download/?id=' + encodeURIComponent(id) + (p.get('modo') ? '&modo=' + p.get('modo') : ''));
       return true;
     }
   } catch(e) {}
@@ -5287,15 +5262,16 @@ function _shareExecCopy(url){
 
 function _trackVisit(){
   try{
-    if(!_db) return;
+    if(!_db)return;
+    /* Evitar doble conteo en la misma sesión */
+    var _k='jd_vt_'+new Date().toISOString().slice(0,10);
+    if(sessionStorage.getItem(_k))return;
+    sessionStorage.setItem(_k,'1');
     var _d=new Date();
     var hoy=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
     var mes=hoy.slice(0,7);
-    var upd={
-      visits:firebase.firestore.FieldValue.increment(1),
-      lastVisit:firebase.firestore.FieldValue.serverTimestamp()
-    };
-    upd['daily.'+hoy]  =firebase.firestore.FieldValue.increment(1);
+    var upd={visits:firebase.firestore.FieldValue.increment(1),lastVisit:firebase.firestore.FieldValue.serverTimestamp()};
+    upd['daily.'+hoy]=firebase.firestore.FieldValue.increment(1);
     upd['monthly.'+mes]=firebase.firestore.FieldValue.increment(1);
     _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
   }catch(e){}
