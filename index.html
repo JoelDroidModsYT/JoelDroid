@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>
+(function(){
+  window._jdAllowRedirect=function(){window.__JD_REDIRECT_OK=true;setTimeout(function(){window.__JD_REDIRECT_OK=false;},500);};
+  window.__JD_REDIRECT_OK=false;
+  var _realAssign=window.location.assign.bind(window.location);
+  var _realReplace=window.location.replace.bind(window.location);
+  var _realOpen=window.open.bind(window);
+  function _isLegit(url){
+    if(window.__JD_REDIRECT_OK)return true;
+    if(!url)return false;
+    var u=String(url),own=window.location.origin;
+    if(u.indexOf(own)===0)return true;
+    if(u.indexOf('/')===0)return true;
+    if(u.indexOf('#')===0)return true;
+    if(u==='about:blank')return true;
+    return false;
+  }
+  try{Object.defineProperty(window.location,'href',{get:function(){return window.location.toString();},set:function(url){if(_isLegit(url))_realAssign(url);},configurable:true});}catch(e){}
+  try{window.location.assign=function(url){if(_isLegit(url))_realAssign(url);};}catch(e){}
+  try{window.location.replace=function(url){if(_isLegit(url))_realReplace(url);};}catch(e){}
+  window.open=function(url,target,features){
+    var t=(target==='_self'||target==='_top'||target==='_parent')?'_blank':(target||'_blank');
+    return _realOpen(url,t,features);
+  };
+})();
+</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -1097,95 +1123,104 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
-<!-- ══ JUEGOS INLINE — CARGA EN 0ms ═══════════════════════════════════
-     Los juegos están escritos DIRECTAMENTE en el HTML como JSON.
-     No hay fetch, no hay red, no hay espera — aparecen con el sitio.
-     El panel.html actualiza este bloque automáticamente via GitHub API
-     cada vez que guardas/eliminas un juego (reemplaza index.html en el repo).
-     Firebase/Gist solo sirven como respaldo y para sync entre dispositivos.
-════════════════════════════════════════════════════════════════════ -->
+<!-- ══ CARGA ULTRA-RÁPIDA — 3 capas paralelas ═════════════════════════════
+     Capa 1 (0ms):    sessionStorage / localStorage → visitas repetidas
+     Capa 2 (<800ms): REST fetch directo a Firestore → sin SDK, sin overhead
+     Capa 3 (tiempo real): SDK Firebase onSnapshot → actualizaciones live
+════════════════════════════════════════════════════════════════════════ -->
 <script>
-/* ── DATOS INLINE — escritos por el panel al guardar juegos ─────── */
-/* ██ INICIO BLOQUE JUEGOS — NO EDITAR MANUALMENTE ██              */
-window.__JD_INLINE_GAMES = /* JD_GAMES_JSON */[];
-/* ██ FIN BLOQUE JUEGOS ██                                          */
-
-window.__JD_DONE      = false;
-window.__JD_REST_DONE = false;
-
-/* Lee caché local (2ª visita o más) */
+// ── CAPA 1: Caché local — renderizado INMEDIATO sin esperar nada ────
 window.__JD_STATIC_GAMES = (function(){
-  /* 1. Datos inline en el HTML — siempre presentes, 0ms */
-  if(window.__JD_INLINE_GAMES && window.__JD_INLINE_GAMES.length)
-    return window.__JD_INLINE_GAMES;
-  /* 2. sessionStorage — navegación back/forward */
   try{
-    var ss=sessionStorage.getItem('jd_ss_games');
-    if(ss){var a=JSON.parse(ss);if(a&&a.length)return a;}
-    var ls=localStorage.getItem('jd_games_cache_v2');
-    if(ls){var b=JSON.parse(ls);if(b&&b.length)return b;}
+    var ss = sessionStorage.getItem('jd_ss_games');
+    if(ss){ var p=JSON.parse(ss); if(p&&p.length) return p; }
+    var ls = localStorage.getItem('jd_games_cache_v2');
+    if(ls){ var p2=JSON.parse(ls); if(p2&&p2.length) return p2; }
   }catch(e){}
   return [];
 })();
 
-/* Función compartida de render */
-window.__JD_RENDER = function(rawGames, silent){
-  if(window.__JD_DONE && !silent) return;
-  if(!rawGames||!rawGames.length) return;
-  var visible=rawGames.filter(function(g){return g.visible!==false;});
-  visible.sort(function(a,b){return b.timestamp!==a.timestamp?b.timestamp-a.timestamp:(a.order||0)-(b.order||0);});
-  if(!visible.length) return;
-  if(!silent){
-    window.__JD_DONE=true;
-    window.__JD_REST_DONE=true;
-    window.__JD_STATIC_GAMES=visible;
-  }
-  /* Siempre actualizar caché para la próxima visita */
-  try{var j=JSON.stringify(visible);sessionStorage.setItem('jd_ss_games',j);localStorage.setItem('jd_games_cache_v2',j);}catch(e){}
-  if(silent) return; /* solo actualizar caché, no re-pintar */
-  if(typeof siteState!=='undefined'&&typeof renderGames==='function'){siteState.gamesList=visible;renderGames();return;}
-  function _paint(){
-    var list=document.getElementById('game-list');
-    if(!list||list.querySelector('.jd-card'))return;
-    list.innerHTML='';
-    var frag=document.createDocumentFragment();
-    visible.slice(0,24).forEach(function(g){
-      var mc=g.modBadgeBgColor||'#ef4444';
-      var c=document.createElement('div');c.className='jd-card';c.setAttribute('onclick',"showDetail('"+g.id+"')");
-      c.innerHTML='<div class="jd-img-box"><img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" alt="'+g.name+'">'+
-        '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
-        (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
-        '</div><div class="jd-info"><p class="jd-name notranslate">'+g.name+'</p>'+
-        '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-        '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
-        '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'')">' +
-        '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
-        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
-        '<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
-        '<span>Descargar APK</span></button></div>';
-      frag.appendChild(c);
-    });
-    list.appendChild(frag);list.dataset.instantLoaded='1';
-  }
-  if(document.readyState!=='loading'){_paint();}
-  else{document.addEventListener('DOMContentLoaded',_paint);}
-};
-
-/* Renderizar ahora — 0ms, sin red */
-window.__JD_RENDER(window.__JD_STATIC_GAMES);
-
-/* Red en background: Gist + Firestore actualizan caché silenciosamente */
+// ── Renderizado directo desde caché (0ms) ─────────────────────────
+// Si hay datos en caché, renderizar las tarjetas AHORA mismo
+// sin esperar DOMContentLoaded ni Firebase ni ningún otro script
 (function(){
-  var PROJECT='joeldroid-mods';
-  var API_KEY='AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
-  var GAMES_GIST_ID='5981d391897fe461dc5ac9ba7303b8f2';
-  var CDN_URL='https://gist.githubusercontent.com/JoelDroidModsYT/'+GAMES_GIST_ID+'/raw/games.json';
-  var FS_URL='https://firestore.googleapis.com/v1/projects/'+PROJECT+'/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
+  var games = window.__JD_STATIC_GAMES;
+  if(!games || !games.length) return;
 
+  function _doRender(){
+    var list = document.getElementById('game-list');
+    if(!list) return;
+    if(list.querySelector('.jd-card')) return; // ya renderizado
+    list.innerHTML = ''; // limpiar skeletons
+    var frag = document.createDocumentFragment();
+    var visible = games.filter(function(g){ return g.visible !== false; });
+    visible.sort(function(a,b){
+      return b.timestamp !== a.timestamp ? b.timestamp-a.timestamp : a.order-b.order;
+    });
+    visible.slice(0,24).forEach(function(g){
+      var mc = g.modBadgeBgColor || '#ef4444';
+      var card = document.createElement('div');
+      card.className = 'jd-card';
+      card.setAttribute('onclick',"showDetail('"+g.id+"')");
+      card.innerHTML =
+        '<div class="jd-img-box">'+
+          '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
+               ' loading="eager" decoding="async" alt="'+g.name+'">'+
+          '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
+            (g.modBadgeText||'MOD')+'</span>'+
+          (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+        '</div>'+
+        '<div class="jd-info">'+
+          '<p class="jd-name notranslate">'+g.name+'</p>'+
+          '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
+          '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
+            '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
+            '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
+            '<polyline points="7 10 12 15 17 10"/>'+
+            '<line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+            '<span>Descargar APK</span>'+
+          '</button>'+
+        '</div>';
+      frag.appendChild(card);
+    });
+    list.appendChild(frag);
+    list.dataset.instantLoaded = '1';
+  }
+
+  // Ejecutar ahora si el DOM llegó al game-list, sino en DOMContentLoaded
+  if(document.readyState !== 'loading'){
+    _doRender();
+  } else {
+    document.addEventListener('DOMContentLoaded', _doRender);
+  }
+})();
+
+// ── CAPA 2: REST fetch directo a Firestore (no necesita SDK) ─────────
+// Se ejecuta en paralelo — si responde antes que el SDK renderiza ya.
+window.__JD_REST_DONE = false;
+
+/* ════════════════════════════════════════════════════════════════════════
+   CARGA INSTANTÁNEA — Gist CDN + Firestore en PARALELO SIMULTÁNEO
+   Ambos fetches arrancan al mismo tiempo. El primero que responda gana.
+   Gist CDN (~150-300ms) suele ganar → juegos en pantalla en <300ms
+   ════════════════════════════════════════════════════════════════════════ */
+(function(){
+  if(window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length > 0) return;
+
+  var PROJECT       = 'joeldroid-mods';
+  var API_KEY       = 'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
+  var GAMES_GIST_ID = '5981d391897fe461dc5ac9ba7303b8f2';
+  var GIST_USER     = 'JoelDroidModsYT';
+  var CDN_URL       = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json';
+  var FS_URL        = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
+                      '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
+
+  /* ── Parser Firestore REST ── */
   function _parseDoc(doc){
     var f=doc.fields||{};
     function _s(x){if(!x)return '';return x.stringValue!==undefined?x.stringValue:String(x.integerValue||x.doubleValue||'');}
-    function _b(x,d){return x?(x.booleanValue!==false):d!==false;}
+    function _b(x,d){return x?x.booleanValue!==false:d!==false;}
     function _a(x){if(!x||!x.arrayValue)return [];return(x.arrayValue.values||[]).map(function(v){return _s(v);}).filter(Boolean);}
     var id=(doc.name||'').split('/').pop();
     return{id:id,name:_s(f.name||f.nombre),description:_s(f.description||f.descripcion),
@@ -1203,40 +1238,94 @@ window.__JD_RENDER(window.__JD_STATIC_GAMES);
       visits:parseInt(_s(f.visits)||'0',10)||0};
   }
 
-  /* Si ya hay datos inline (panel los incrustó), la red solo refresca caché */
-  var _hasInline = window.__JD_INLINE_GAMES && window.__JD_INLINE_GAMES.length > 0;
+  /* ── Ordenar ── */
+  function _sort(games){
+    return games.filter(function(g){return g.visible!==false;})
+      .sort(function(a,b){return b.timestamp!==a.timestamp?b.timestamp-a.timestamp:a.order-b.order;});
+  }
 
-  /* Gist CDN — actualiza caché silent si ya hay inline, o renderiza si no hay */
-  fetch(CDN_URL,{cache:'default'})
-    .then(function(r){if(!r.ok)throw 0;return r.json();})
+  /* ── Render en pantalla ── */
+  function _renderNow(games){
+    if(window.__JD_REST_DONE)return;
+    window.__JD_REST_DONE=true;
+    var sorted=_sort(games);
+    window.__JD_STATIC_GAMES=sorted;
+    try{
+      var j=JSON.stringify(sorted);
+      sessionStorage.setItem('jd_ss_games',j);
+      localStorage.setItem('jd_games_cache_v2',j);
+    }catch(e){}
+    var list=document.getElementById('game-list');
+    if(!list||list.querySelector('.jd-card'))return;
+    if(typeof siteState!=='undefined'&&typeof renderGames==='function'){
+      siteState.gamesList=sorted;renderGames();return;
+    }
+    list.innerHTML='';
+    var frag=document.createDocumentFragment();
+    sorted.slice(0,24).forEach(function(g){
+      var mc=g.modBadgeBgColor||'#ef4444';
+      var c=document.createElement('div');
+      c.className='jd-card';
+      c.setAttribute('onclick',"showDetail('"+g.id+"')");
+      c.innerHTML='<div class="jd-img-box">'+
+        '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" alt="'+g.name+'">'+
+        '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
+        (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+        '</div><div class="jd-info">'+
+        '<p class="jd-name notranslate">'+g.name+'</p>'+
+        '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
+        '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+        '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
+        '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
+        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
+        '<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+        '<span>Descargar APK</span></button></div>';
+      frag.appendChild(c);
+    });
+    list.appendChild(frag);
+    list.dataset.restLoaded='1';
+  }
+
+  /* ══ AMBOS FETCHES EN PARALELO — el primero que responda gana ══ */
+
+  /* Fetch 1: Gist CDN (suele ser ~150-300ms) */
+  fetch(CDN_URL+'?_='+Date.now(),{cache:'no-cache'})
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
     .then(function(d){
       var g=Array.isArray(d)?d:(d.games||[]);
-      if(!g.length)return;
-      window.__JD_RENDER(g, _hasInline); /* silent=true si había inline */
-    }).catch(function(){});
+      if(!g.length)throw new Error('vacio');
+      _renderNow(g);
+    })
+    .catch(function(){/* si falla, Firestore ya está corriendo en paralelo */});
 
-  /* Firestore REST — igual que Gist, en paralelo */
-  fetch(FS_URL,{cache:'default'})
+  /* Fetch 2: Firestore REST (arranca al mismo tiempo, ~500-800ms) */
+  fetch(FS_URL)
     .then(function(r){return r.json();})
     .then(function(d){
-      var docs=d.documents||[];if(!docs.length)return;
-      window.__JD_RENDER(docs.map(_parseDoc), _hasInline);
-    }).catch(function(){});
+      if(window.__JD_REST_DONE)return; /* Gist ya ganó */
+      var docs=d.documents||[];
+      if(!docs.length)return;
+      _renderNow(docs.map(_parseDoc));
+    })
+    .catch(function(){});
 
-  /* Exponer función para que panel.html guarde el Gist */
+  /* ── Auto-guardar en Gist cuando admin tiene token ── */
   window.__jdSaveGamesToGist=function(games){
     if(!games||!games.length)return;
     try{
       var cfg=JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');
       if(!cfg||!cfg.token)return;
-      fetch('https://api.github.com/gists/'+GAMES_GIST_ID,{method:'PATCH',
+      fetch('https://api.github.com/gists/'+GAMES_GIST_ID,{
+        method:'PATCH',
         headers:{'Authorization':'token '+cfg.token,'Content-Type':'application/json'},
         body:JSON.stringify({files:{'games.json':{content:JSON.stringify({
-          _info:'JoelDroid Mods YT',_updated:new Date().toISOString(),
+          _info:'JoelDroid Mods YT — Auto-generado.',
+          _updated:new Date().toISOString(),
           _count:games.length,games:games},null,2)}}})
       }).catch(function(){});
     }catch(e){}
   };
+
 })();
 </script>
 <!-- HOME VIEW -->
@@ -3783,7 +3872,7 @@ function _showGHStatus(msg,color){
 }
 
 function loadSettings(){
-  // Cargar config local (instantáneo — 0ms)
+  // Primero cargar local (instantáneo)
   var saved=localStorage.getItem('siteState');
   if(saved){
     try{
@@ -3805,32 +3894,28 @@ function loadSettings(){
         installVisible:p.installVisible!==false,
         showGeoShapes:p.showGeoShapes!==false,
         activeScene:p.activeScene||'none',
-        // gamesList viene de Firebase/Gist CDN — NUNCA del siteState guardado
-        gamesList:[]
+        gamesList:p.gamesList||[]
       };
     }catch(e){}
   }
-  // GitHub Gist de configuración visual — cargar en background DESPUÉS del render
-  // NO bloquea el render inicial de juegos ni la UI
+  // GitHub Gist — solo para config visual, NUNCA sobreescribe juegos de Firebase
   _ghCfg=_loadGHConfig();
   if(_ghCfg&&_ghCfg.gistId){
-    // Diferir 800ms: permitir que juegos y UI carguen primero
-    setTimeout(function(){
-      _loadFromGitHub(function(ok){
-        if(ok){
-          // Solo re-aplicar UI visual — NO tocar gamesList (Firebase los maneja)
-          applyUIChanges();
-          applyTranslations(currentLang);
-          applyYoutubeVideo();
-          applyInstallVideo();
-          setTimeout(function(){
-            applyBgTheme(siteState.bgTheme||'neon');
-            _clearScene();
-            _restoreScene();
-          },100);
-        }
-      });
-    }, 800);
+    _loadFromGitHub(function(ok){
+      if(ok){
+        // Re-aplicar todo con los datos remotos
+        applyUIChanges();
+        renderGames();
+        applyTranslations(currentLang);
+        applyYoutubeVideo();
+        applyInstallVideo();
+        setTimeout(function(){
+          applyBgTheme(siteState.bgTheme||'neon');
+          _clearScene();
+          _restoreScene();
+        },100);
+      }
+    });
   }
 }
 
@@ -3974,7 +4059,7 @@ function _handle404Redirect(){
     var id = p.get('id') || '';
     // Si 404.html nos redirigió desde /download/?id=X -> redirigir de vuelta
     if (path === 'download' && id) {
-      window.location.replace('/download/?id=' + encodeURIComponent(id) + (p.get('modo') ? '&modo=' + p.get('modo') : ''));
+      window._jdAllowRedirect&&window._jdAllowRedirect();window.location.replace('/download/?id=' + encodeURIComponent(id) + (p.get('modo') ? '&modo=' + p.get('modo') : ''));
       return true;
     }
   } catch(e) {}
@@ -5203,10 +5288,16 @@ function _shareExecCopy(url){
 function _trackVisit(){
   try{
     if(!_db) return;
-    _db.collection('siteConfig').doc('stats').set({
-      visits: firebase.firestore.FieldValue.increment(1),
-      lastVisit: firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true}).catch(function(){});
+    var _d=new Date();
+    var hoy=_d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');
+    var mes=hoy.slice(0,7);
+    var upd={
+      visits:firebase.firestore.FieldValue.increment(1),
+      lastVisit:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    upd['daily.'+hoy]  =firebase.firestore.FieldValue.increment(1);
+    upd['monthly.'+mes]=firebase.firestore.FieldValue.increment(1);
+    _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
   }catch(e){}
 }
 function _trackClick(gameId, gameName){

@@ -251,22 +251,18 @@ body{
           Analytics en Tiempo Real
         </h3>
         <!-- Métricas rápidas -->
-        <div id="stats-metrics-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <div id="stats-metrics-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
           <div style="background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:12px;padding:10px;text-align:center">
             <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#60a5fa;opacity:.7">Hoy</p>
             <p id="stat-today" style="font-size:22px;font-weight:900;color:#60a5fa;line-height:1.1">—</p>
           </div>
           <div style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:10px;text-align:center">
-            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;opacity:.7">Esta semana</p>
-            <p id="stat-week" style="font-size:22px;font-weight:900;color:#a78bfa;line-height:1.1">—</p>
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;opacity:.7">Este mes</p>
+            <p id="stat-month" style="font-size:22px;font-weight:900;color:#a78bfa;line-height:1.1">—</p>
           </div>
           <div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:10px;text-align:center">
-            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#34d399;opacity:.7">Este mes</p>
-            <p id="stat-month" style="font-size:22px;font-weight:900;color:#34d399;line-height:1.1">—</p>
-          </div>
-          <div style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:10px;text-align:center">
-            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#fbbf24;opacity:.7">Total</p>
-            <p id="stat-total" style="font-size:22px;font-weight:900;color:#fbbf24;line-height:1.1">—</p>
+            <p style="font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#34d399;opacity:.7">Total</p>
+            <p id="stat-total" style="font-size:22px;font-weight:900;color:#34d399;line-height:1.1">—</p>
           </div>
         </div>
         <!-- Gráfico de barras últimos 7 días -->
@@ -992,65 +988,30 @@ function fbMigrateLocalGames(){
 }
 
 function doFirebaseLogin(){
-  var emailEl = document.getElementById('fb-login-email');
-  var passEl  = document.getElementById('fb-login-pass');
-  var status  = document.getElementById('fb-login-status');
-  var email   = (emailEl||{}).value||'';
-  var pass    = (passEl||{}).value||'';
-
-  if(!email||!pass){
-    if(status) status.innerText='⚠️ Ingresa tu email y contraseña';
-    return;
-  }
-  if(status) status.innerText='⏳ Conectando a Firebase...';
-
-  /* Si Firebase aún no está listo, esperar con los datos ya capturados */
-  if(!_fbReady||!_fbAuth){
-    _initFirebase();
-    var _tries=0;
-    var _wait=setInterval(function(){
-      _tries++;
-      if(_fbReady&&_fbAuth){
-        clearInterval(_wait);
-        _doLogin(email,pass,status);
-      } else if(_tries>=10){
-        clearInterval(_wait);
-        if(status) status.innerText='❌ Firebase no responde — verifica tu conexión a internet';
-      }
-    },500);
-    return;
-  }
-  _doLogin(email,pass,status);
-}
-
-function _doLogin(email,pass,status){
-  _fbAuth.signInWithEmailAndPassword(email.trim(), pass)
+  var email=(document.getElementById('fb-login-email')||{}).value||'';
+  var pass=(document.getElementById('fb-login-pass')||{}).value||'';
+  var status=document.getElementById('fb-login-status');
+  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
+  if(status)status.innerText='⏳ Iniciando sesión...';
+  if(!_fbReady||!_fbAuth){_initFirebase();setTimeout(doFirebaseLogin,1500);return;}
+  _fbAuth.signInWithEmailAndPassword(email.trim(),pass)
     .then(function(cred){
-      if(cred.user.uid === ADMIN_UID){
-        if(status) status.innerText='✅ Admin verificado — entrando...';
+      if(cred.user.uid===ADMIN_UID){
+        if(status)status.innerText='✅ Admin verificado';
         setTimeout(function(){
           document.getElementById('login-screen').style.display='none';
           document.getElementById('admin-panel').classList.remove('hidden');
-          renderAdminUI();
-          renderGameEditorList();
-          _fillGHInputs();
-          _fillRepoInputs();
-          try{ if(_db) _listenStats(); }catch(e){}
-        }, 400);
-      } else {
-        if(status) status.innerText='❌ Este email no es el administrador del sitio.\nUID recibido: '+cred.user.uid+'\nUID esperado: '+ADMIN_UID;
+          renderAdminUI();renderGameEditorList();_fillGHInputs();
+          try{if(_db)_listenStats();}catch(e){}
+        },500);
+      }else{
+        if(status)status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
         _fbAuth.signOut();
       }
     })
     .catch(function(err){
-      var msg = '❌ ';
-      if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential') msg+='Contraseña incorrecta';
-      else if(err.code==='auth/user-not-found')  msg+='Email no registrado en Firebase';
-      else if(err.code==='auth/invalid-email')   msg+='Formato de email inválido';
-      else if(err.code==='auth/too-many-requests')msg+='Demasiados intentos — espera unos minutos';
-      else if(err.code==='auth/network-request-failed') msg+='Sin conexión a internet';
-      else msg+=err.message;
-      if(status) status.innerText=msg;
+      var msg=err.code==='auth/wrong-password'?'❌ Contraseña incorrecta':err.code==='auth/user-not-found'?'❌ Email no registrado':'❌ Error: '+err.message;
+      if(status)status.innerText=msg;
     });
 }
 
@@ -1924,28 +1885,17 @@ function _listenStats(){
 function _renderDashboard(data){
   var hoy=_hoy();
   var mes=hoy.slice(0,7);
-  var anio=hoy.slice(0,4);
   var daily=data.daily||{};
   var monthly=data.monthly||{};
   var total=data.visits||0;
 
-  // ── Calcular visitas de esta semana (últimos 7 días) ────────────
-  var diasSemana=_diasAnteriores(7);
-  var semanaTotal=diasSemana.reduce(function(s,d){return s+(daily[d]||0);},0);
-
-  // ── Calcular visitas de este año ────────────────────────────────
-  var anioTotal=Object.keys(monthly).filter(function(k){return k.indexOf(anio)===0;})
-    .reduce(function(s,k){return s+(monthly[k]||0);},0);
-
   // ── Métricas rápidas ──────────────────────────────────────────
-  var elHoy  = document.getElementById('stat-today');
-  var elWeek = document.getElementById('stat-week');
-  var elMes  = document.getElementById('stat-month');
-  var elTot  = document.getElementById('stat-total');
-  if(elHoy)  elHoy.textContent  = (daily[hoy]||0).toLocaleString();
-  if(elWeek) elWeek.textContent = semanaTotal.toLocaleString();
-  if(elMes)  elMes.textContent  = (monthly[mes]||0).toLocaleString();
-  if(elTot)  elTot.textContent  = total.toLocaleString();
+  var elHoy=document.getElementById('stat-today');
+  var elMes=document.getElementById('stat-month');
+  var elTot=document.getElementById('stat-total');
+  if(elHoy)elHoy.textContent=(daily[hoy]||0).toLocaleString();
+  if(elMes)elMes.textContent=(monthly[mes]||0).toLocaleString();
+  if(elTot)elTot.textContent=total.toLocaleString();
 
   // ── Gráfico de barras 7 días ──────────────────────────────────
   var chart=document.getElementById('stats-chart');
