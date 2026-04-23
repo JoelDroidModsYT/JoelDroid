@@ -10,7 +10,6 @@
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- ══ DATOS LOCALES — carga instantánea sin fetch ══════════════ -->
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Los Mejores MOD APK para Android</title>
@@ -123,7 +122,7 @@
     if(detected !== 'es'){
       document.documentElement.style.visibility = 'hidden';
       document.addEventListener('DOMContentLoaded', function(){
-        // La visibilidad se restaura en applyTranslations() o en el siguiente frame (rAF)
+        // La visibilidad se restaura en applyTranslations() o tras 400ms máx
         requestAnimationFrame(function(){ document.documentElement.style.visibility = ''; });
       });
     }
@@ -182,8 +181,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-:root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
-.light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
+:root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
+.light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:all .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
 #site-title-ui,#detail-site-title-ui{font-weight:900}
 #site-subtitle-ui,#detail-site-subtitle-ui{color:var(--subtitle-text-color)}
@@ -477,18 +476,18 @@ body{top:0!important}
 .install-play-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.85);}
 .install-video-active .install-thumb-container{display:none;}
 
-/* ── "También te puede gustar" — tarjeta horizontal compacta ── */
-.rec-item{display:flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:14px;padding:10px 12px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;-webkit-tap-highlight-color:transparent}
-.rec-item:active{transform:scale(.97)}
-.rec-item:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.25)}
-.rec-thumb{width:48px;height:48px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1px solid rgba(37,99,235,.18)}
+/* ── "También te puede gustar" — tarjeta horizontal compacta estilo AN1 ── */
+.rec-row{display:flex;align-items:center;gap:10px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:14px;padding:9px 12px;cursor:pointer;transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent}
+.rec-row:active{transform:scale(.97)}
+.rec-row:hover{box-shadow:0 4px 18px rgba(37,99,235,.22)}
+.rec-thumb{width:46px;height:46px;border-radius:11px;object-fit:cover;flex-shrink:0;border:1px solid rgba(37,99,235,.15)}
 .rec-info{flex:1;min-width:0}
-.rec-name{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rec-desc{font-size:9px;opacity:.55;font-weight:500;line-height:1.3;margin-top:2px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
-.rec-badge{font-size:8px;font-weight:800;color:var(--brand-color);text-transform:uppercase;letter-spacing:.04em;opacity:.8;display:block;margin-top:3px}
-.rec-dl-btn{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--brand-color),#06b6d4);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,.35);transition:all .18s;color:#fff}
-.rec-dl-btn:hover{transform:scale(1.1);box-shadow:0 4px 14px rgba(37,99,235,.5)}
-.rec-dl-btn:active{transform:scale(.9)}
+.rec-name{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.rec-meta{font-size:9px;opacity:.5;font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-ver{font-size:8px;font-weight:800;color:var(--brand-color);opacity:.75;margin-top:3px;display:block}
+.rec-dl-btn{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand-color),#06b6d4);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;transition:transform .15s,box-shadow .15s}
+.rec-dl-btn:hover{transform:scale(1.1);box-shadow:0 4px 12px rgba(37,99,235,.45)}
+.rec-dl-btn:active{transform:scale(.88)}
 
 [data-i18n]{transition:opacity .2s ease}
 /* ── Mejoras de realismo ── */
@@ -2763,16 +2762,20 @@ function renderRecommendedGames(currentId){
   if(shuffled.length===0){container.innerHTML='<p class="text-xs opacity-40 text-center">No hay más juegos disponibles.</p>';return;}
 
   container.innerHTML=shuffled.map(function(g){
-    var thumb=g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/56');
-    return'<div class="rec-item" onclick="showDetail(\''+g.id+'\')">'+
-      '<img src="'+thumb+'" class="rec-thumb notranslate" alt="'+g.name+'" loading="lazy">'+
+    var th=g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'');
+    var meta=(g.ver?'v'+g.ver+' ':'')+( g.size?g.size:'');
+    return'<div class="rec-row" onclick="showDetail(\''+g.id+'\')" role="button">'+
+      (th?'<img src="'+th+'" class="rec-thumb notranslate" alt="'+g.name+'" loading="lazy">':
+          '<div class="rec-thumb" style="background:rgba(37,99,235,.15);display:flex;align-items:center;justify-content:center;font-size:20px;">🎮</div>')+
       '<div class="rec-info">'+
         '<p class="rec-name notranslate">'+g.name+'</p>'+
-        '<p data-cdesc="'+g.id+'" class="rec-desc">'+g.description+'</p>'+
-        '<span class="rec-badge">'+siteState.verification.text+'</span>'+
+        '<p class="rec-meta">'+( meta.trim()||'MOD APK')+'</p>'+
+        '<span class="rec-ver">JoelDroid • '+siteState.verification.text+'</span>'+
       '</div>'+
-      '<button class="rec-dl-btn" onclick="event.stopPropagation();showDetailAndScroll('+g.id+')" title="Descargar">'+
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+      '<button class="rec-dl-btn" onclick="event.stopPropagation();showDetailAndScroll('+g.id+')" aria-label="Descargar">'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'+
+          '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'+
+        '</svg>'+
       '</button>'+
     '</div>';
   }).join('');
@@ -2897,12 +2900,21 @@ var _gamesPageSize = 12;
 var _gamesFiltered = [];
 var _gamesLoadMoreObserver = null;
 
+// ── Debounce timer para renderGames (evita re-renders consecutivos) ──
+var _renderDebounceTimer = null;
+
 function renderGames(){
+  // Debounce: si llega otra llamada en <60ms, cancelar la anterior
+  // Esto evita el parpadeo cuando caché + onSnapshot llegan casi simultáneos
+  clearTimeout(_renderDebounceTimer);
+  _renderDebounceTimer = setTimeout(_doRenderGames, 60);
+}
+
+function _doRenderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
 
-  // Sin datos: los skeletons ya están en el HTML desde el inicio (0ms)
-  // Solo mostrar skeletons adicionales si la lista quedó completamente vacía
+  // Sin datos: mantener skeletons visibles
   if(!siteState.gamesList || siteState.gamesList.length === 0){
     if(!list.querySelector('.jd-card') && !list.querySelector('.jd-skeleton-card')){
       _renderSkeletons(12);
@@ -2910,17 +2922,17 @@ function renderGames(){
     return;
   }
 
-  // Si el instant-loader ya pintó tarjetas del caché local,
-  // permitir que Firebase actualice sin bloquear (solo salta si los datos son idénticos)
-  var _alreadyHasCards = list.querySelector('.jd-card');
-  if(_alreadyHasCards && (list.dataset.instantLoaded==='1' || list.dataset.restLoaded==='1')){
-    list.dataset.instantLoaded = '0';
-    list.dataset.restLoaded = '0';
-    // Solo re-renderizar si los datos cambiaron
-    var _newHash = (siteState.gamesList||[]).length+'_'+((siteState.gamesList||[])[0]||{}).id;
-    if(list.dataset.lastHash === _newHash) return;
-    list.dataset.lastHash = _newHash;
+  // Hash robusto: longitud + IDs de todos los juegos visibles
+  // Evita re-renderizar si los datos no cambiaron realmente
+  var _visibleIds = (siteState.gamesList||[])
+    .filter(function(g){return g.visible;})
+    .map(function(g){return g.id;}).join(',');
+  var _newHash = _visibleIds.length + '_' + _visibleIds.slice(0,80);
+  var list2=document.getElementById('game-list');
+  if(list2 && list2.dataset.lastHash === _newHash && list2.querySelector('.jd-card')){
+    return; // datos idénticos — no re-renderizar
   }
+  if(list2) list2.dataset.lastHash = _newHash;
 
   // Filtro de búsqueda
   var q = searchQuery || '';
