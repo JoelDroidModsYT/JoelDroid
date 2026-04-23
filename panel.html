@@ -907,13 +907,6 @@ function _fbListenMods(){
     });
     siteState.gamesList=games;
     renderGameEditorList();
-    // Sincronizar Gist automáticamente cuando Firebase notifica cambios externos
-    // (cambios hechos desde otra sesión/dispositivo). Usamos un debounce de 1.5s
-    // para no disparar múltiples veces seguidas.
-    clearTimeout(window.__jdGistSyncTimer);
-    window.__jdGistSyncTimer = setTimeout(function(){
-      try{ _syncGamesToGist(); }catch(e){}
-    }, 1500);
   },function(err){if(err.code==='unavailable'||err.code==='failed-precondition')setTimeout(_fbListenMods,3000);});
 }
 
@@ -995,29 +988,61 @@ function fbMigrateLocalGames(){
 }
 
 function doFirebaseLogin(){
-  var email=(document.getElementById('fb-login-email')||{}).value||'';
-  var pass=(document.getElementById('fb-login-pass')||{}).value||'';
-  var status=document.getElementById('fb-login-status');
-  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
-  if(status)status.innerText='⏳ Iniciando sesión...';
-  if(!_fbReady||!_fbAuth){_initFirebase();setTimeout(doFirebaseLogin,1500);return;}
+  /* Capturar credenciales ANTES de cualquier setTimeout */
+  var emailEl=document.getElementById('fb-login-email');
+  var passEl =document.getElementById('fb-login-pass');
+  var status =document.getElementById('fb-login-status');
+  var email  =(emailEl||{}).value||'';
+  var pass   =(passEl||{}).value||'';
+
+  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa tu email y contraseña';return;}
+  if(status)status.innerText='⏳ Conectando a Firebase...';
+
+  if(!_fbReady||!_fbAuth){
+    /* Firebase aún no listo — esperar con credenciales ya capturadas */
+    _initFirebase();
+    var _tries=0;
+    var _wait=setInterval(function(){
+      _tries++;
+      if(_fbReady&&_fbAuth){clearInterval(_wait);_doLogin(email,pass,status);}
+      else if(_tries>=10){
+        clearInterval(_wait);
+        if(status)status.innerText='❌ Firebase no responde — verifica tu conexión a internet';
+      }
+    },500);
+    return;
+  }
+  _doLogin(email,pass,status);
+}
+
+function _doLogin(email,pass,status){
   _fbAuth.signInWithEmailAndPassword(email.trim(),pass)
     .then(function(cred){
       if(cred.user.uid===ADMIN_UID){
-        if(status)status.innerText='✅ Admin verificado';
+        if(status)status.innerText='✅ Acceso concedido — cargando panel...';
         setTimeout(function(){
           document.getElementById('login-screen').style.display='none';
           document.getElementById('admin-panel').classList.remove('hidden');
-          renderAdminUI();renderGameEditorList();_fillGHInputs();
+          renderAdminUI();
+          renderGameEditorList();
+          _fillGHInputs();
+          try{if(typeof _fillRepoInputs==='function')_fillRepoInputs();}catch(e){}
           try{if(_db)_listenStats();}catch(e){}
-        },500);
+        },400);
       }else{
-        if(status)status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
+        if(status)status.innerText='❌ Este email no es el admin del sitio.
+UID recibido: '+cred.user.uid;
         _fbAuth.signOut();
       }
     })
     .catch(function(err){
-      var msg=err.code==='auth/wrong-password'?'❌ Contraseña incorrecta':err.code==='auth/user-not-found'?'❌ Email no registrado':'❌ Error: '+err.message;
+      var msg='❌ ';
+      if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential')msg+='Contraseña incorrecta';
+      else if(err.code==='auth/user-not-found')  msg+='Email no registrado en Firebase';
+      else if(err.code==='auth/invalid-email')   msg+='Formato de email inválido';
+      else if(err.code==='auth/too-many-requests')msg+='Demasiados intentos — espera unos minutos';
+      else if(err.code==='auth/network-request-failed')msg+='Sin conexión a internet';
+      else msg+=err.message;
       if(status)status.innerText=msg;
     });
 }
@@ -1089,9 +1114,9 @@ function loadSettings(){
     }catch(e){}
   }
   _ghCfg=_loadGHConfig();
-  // NO llamamos _loadFromGitHub() al iniciar — eso causaba que el Gist principal
-  // sobreescribiera el siteState (incluyendo gamesList) cada vez que se abría el panel.
-  // El Gist principal se usa solo para GUARDAR cambios, no para cargar al arranque.
+  if(_ghCfg&&_ghCfg.gistId){
+    _loadFromGitHub(function(ok){if(ok)renderAdminUI();});
+  }
 }
 
 function _mergeState(remote){
@@ -1108,9 +1133,7 @@ function _mergeState(remote){
     youtubeUrl:remote.youtubeUrl||'',installYoutubeUrl:remote.installYoutubeUrl||'',
     youtubeVisible:remote.youtubeVisible!==false,installVisible:remote.installVisible!==false,
     showGeoShapes:remote.showGeoShapes!==false,activeScene:remote.activeScene||'none',
-    // gamesList NUNCA se toma del Gist principal (joeldroid_state.json)
-    // Los juegos vienen de Firestore onSnapshot o del editor local — nunca del estado remoto
-    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:[]
+    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:(remote.gamesList||[])
   });
 }
 
@@ -1552,25 +1575,12 @@ function processSaveGameData(editId,data){
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
-  // ── Actualizar siteState.gamesList AHORA con el juego nuevo/editado ──────
-  // Esto es crítico: _syncGamesToGist() usa siteState.gamesList para escribir
-  // el Gist. Si esperamos al onSnapshot de Firebase (~500-2000ms después),
-  // el Gist se sincroniza con datos VIEJOS. Actualizamos localmente primero.
-  function _applyGameToState(id, game){
-    var idx = siteState.gamesList.findIndex(function(g){ return String(g.id) === String(id); });
-    if(idx !== -1){ siteState.gamesList[idx] = Object.assign({}, siteState.gamesList[idx], game); }
-    else { siteState.gamesList.push(game); }
-  }
-
   if(_fbReady&&_db&&_isAdmin()){
     _fbSaveGame(newGame,editId?String(editId):null)
       .then(function(){
-        // 1. Actualizar lista local inmediatamente (no esperar onSnapshot)
-        _applyGameToState(gameId, newGame);
-        renderGameEditorList(); closeGameEditor();
-        // 2. Sincronizar Gist con datos ya actualizados
+        renderGameEditorList();closeGameEditor();
         try{_syncToGitHub();}catch(e){}
-        try{_syncGamesToGist();}catch(e){}
+        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
       })
       .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
   }else{
@@ -1579,10 +1589,9 @@ function processSaveGameData(editId,data){
       if(_fbReady&&_db&&_isAdmin()){
         _fbSaveGame(newGame,editId?String(editId):null)
           .then(function(){
-            _applyGameToState(gameId, newGame);
-            renderGameEditorList(); closeGameEditor();
+            renderGameEditorList();closeGameEditor();
             try{_syncToGitHub();}catch(e){}
-            try{_syncGamesToGist();}catch(e){}
+            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
           })
           .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
       }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
@@ -1632,11 +1641,15 @@ function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(
    Se llama automáticamente al guardar/eliminar un juego.
    Usa el mismo token del admin pero escribe al GIST de games.
    ════════════════════════════════════════════════════════════════════ */
-function _buildGamesPayload(){
-  // Incluimos TODOS los juegos (visibles e invisibles).
-  // El index.html ya filtra por visible:true por su cuenta.
-  // Si filtramos aquí y el campo visible no está seteado en Firestore → Gist queda vacío.
-  var games = (siteState.gamesList || []).map(function(g){
+function _syncGamesToGist(){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token) return; // Solo si admin tiene token configurado
+
+  // Tomar todos los juegos visibles del siteState
+  var games = (siteState.gamesList || []).filter(function(g){
+    return g.visible !== false;
+  }).map(function(g){
+    // Estructura limpia compatible con descarga.html y index.html
     return {
       id:                   String(g.id),
       name:                 g.name || g.nombre || '',
@@ -1676,32 +1689,15 @@ function _buildGamesPayload(){
       dlPageBtn2:           g.dlPageBtn2 || ''
     };
   });
-  return JSON.stringify({
+
+  var fileContent = JSON.stringify({
     _info:    'JoelDroid Mods YT — Auto-generado. No editar manualmente.',
     _updated: new Date().toISOString(),
     _count:   games.length,
     games:    games
   }, null, 2);
-}
 
-/* Versión silenciosa (auto-sync al guardar/eliminar) */
-function _syncGamesToGist(){
-  var cfg = _ghCfg || _loadGHConfig();
-  if(!cfg || !cfg.token) return;
-  _syncGamesToGistWithCallback(function(ok, msg){
-    if(ok){
-      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
-    } else {
-      _showGHStatus('⚠️ games.json: ' + msg, '#f59e0b');
-    }
-  });
-}
-
-/* Versión con callback — devuelve el resultado REAL del fetch */
-function _syncGamesToGistWithCallback(cb){
-  var cfg = _ghCfg || _loadGHConfig();
-  if(!cfg || !cfg.token){ if(cb) cb(false, 'Sin token GitHub'); return; }
-
+  // Escribir al Gist de games (GAMES_GIST_ID), NO al gistId principal
   fetch('https://api.github.com/gists/' + GAMES_GIST_ID, {
     method: 'PATCH',
     headers: {
@@ -1709,22 +1705,22 @@ function _syncGamesToGistWithCallback(cb){
       'Content-Type':  'application/json'
     },
     body: JSON.stringify({
-      files: { 'games.json': { content: _buildGamesPayload() } }
+      files: { 'games.json': { content: fileContent } }
     })
   })
   .then(function(r){
     if(r.ok){
-      if(cb) cb(true, '');
+      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
     } else {
       r.json().then(function(e){
-        if(cb) cb(false, 'Error ' + r.status + ' — ' + (e.message||'token inválido o sin permisos'));
+        _showGHStatus('⚠️ games.json: Error ' + r.status + ' — ' + (e.message||''), '#f59e0b');
       }).catch(function(){
-        if(cb) cb(false, 'Error ' + r.status);
+        _showGHStatus('⚠️ games.json: Error ' + r.status, '#f59e0b');
       });
     }
   })
   .catch(function(e){
-    if(cb) cb(false, 'Sin conexión — ' + e.message);
+    _showGHStatus('⚠️ games.json: Sin conexión — ' + e.message, '#f59e0b');
   });
 }
 
@@ -1758,36 +1754,15 @@ function syncGamesNow(){
     _setGamesGistStatus('❌ Primero conecta el token de GitHub arriba', '#ef4444');
     return;
   }
-
-  // Si Firestore aún no cargó los juegos, esperar hasta 6s
-  if(!siteState.gamesList || siteState.gamesList.length === 0){
-    _setGamesGistStatus('⏳ Esperando que Firestore cargue los juegos...', '#fbbf24');
-    var _tries = 0;
-    var _wait = setInterval(function(){
-      _tries++;
-      if(siteState.gamesList && siteState.gamesList.length > 0){
-        clearInterval(_wait);
-        _doSyncGamesNow(cfg);
-      } else if(_tries >= 12){ // 6 segundos (12 x 500ms)
-        clearInterval(_wait);
-        _setGamesGistStatus('❌ Firestore no devolvió juegos. Verifica que tienes juegos publicados.', '#ef4444');
-      }
-    }, 500);
-    return;
+  _setGamesGistStatus('⏳ Sincronizando games.json...', '#fbbf24');
+  try{
+    _syncGamesToGist();
+    setTimeout(function(){
+      _setGamesGistStatus('✅ games.json sincronizado — Carga instantánea activa 🚀', '#10b981');
+    }, 2000);
+  }catch(e){
+    _setGamesGistStatus('❌ Error: ' + e.message, '#ef4444');
   }
-
-  _doSyncGamesNow(cfg);
-}
-
-function _doSyncGamesNow(cfg){
-  _setGamesGistStatus('⏳ Sincronizando ' + siteState.gamesList.length + ' juegos...', '#fbbf24');
-  _syncGamesToGistWithCallback(function(ok, msg){
-    if(ok){
-      _setGamesGistStatus('✅ games.json sincronizado — ' + siteState.gamesList.length + ' juegos — Carga instantánea activa 🚀', '#10b981');
-    } else {
-      _setGamesGistStatus('❌ Error: ' + msg, '#ef4444');
-    }
-  });
 }
 
 function testGamesGist(){
@@ -1800,10 +1775,8 @@ function testGamesGist(){
     })
     .then(function(data){
       var games = Array.isArray(data) ? data : (data.games || []);
-      var total = games.length;
-      var visibles = games.filter(function(g){ return g.visible !== false; }).length;
-      if(total > 0){
-        _setGamesGistStatus('✅ Gist activo — ' + total + ' juegos (' + visibles + ' visibles) — Carga instantánea activa 🚀', '#10b981');
+      if(games.length > 0){
+        _setGamesGistStatus('✅ Gist activo — ' + games.length + ' juegos disponibles para carga instantánea 🚀', '#10b981');
       } else {
         _setGamesGistStatus('⚠️ games.json existe pero está vacío — presiona "Sincronizar" para llenarlo', '#f59e0b');
       }

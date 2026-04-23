@@ -9,10 +9,7 @@
 <link rel="dns-prefetch" href="https://www.gstatic.com">
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- ══ JUEGOS_DATA — catálogo local, carga instantánea ══════════════
-     26KB sin thumbs. El browser lo cachea permanentemente.
-     Se actualiza desde el Panel cuando guardas/eliminas un juego.
-════════════════════════════════════════════════════════════════ -->
+<!-- ══ DATOS LOCALES — carga instantánea sin fetch ══════════════ -->
 <script src="juegos_data.js"></script>
 
 <meta charset="UTF-8">
@@ -1103,172 +1100,70 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
-<!-- ══ SISTEMA DE CARGA INSTANTÁNEA — JoelDroid Mods YT ════════════════
-     NIVEL 0 (0ms):   JUEGOS_DATA de juegos_data.js (ya cargado en <head>)
-                      → Los juegos se pintan ANTES de DOMContentLoaded
-     NIVEL 1 (bg):    localStorage → thumbs de visitas anteriores (0ms)
-     NIVEL 2 (bg):    Firebase onSnapshot → actualiza versiones en vivo
-     NIVEL 3 (bg):    Gist CDN → descarga thumbs nuevos, guarda en localStorage
-     
-     El usuario ve los juegos en el milisegundo 1.
-     Firebase y el Gist trabajan silenciosamente en segundo plano.
-════════════════════════════════════════════════════════════════════════ -->
+<!-- ══ CARGA INSTANTÁNEA — lógica de render ══════════════════════ -->
 <script>
-/* ── FLAGS ─────────────────────────────────────────────────────────── */
-window.__JD_DONE      = false;
-window.__JD_REST_DONE = false;
+window.__JD_DONE=false;window.__JD_REST_DONE=false;
+var _JD_THUMB_PREFIX='jd_thumb_';
 
-/* ── CLAVE DE CACHÉ DE THUMBS ───────────────────────────────────────── */
-var _JD_THUMB_PREFIX = 'jd_thumb_';
-var _JD_CACHE_KEY    = 'jd_games_cache_v2';
-
-/* ── FUNCIÓN: obtener thumb (localStorage → placeholder) ────────────── */
 function _getThumb(id){
-  try{
-    var t = localStorage.getItem(_JD_THUMB_PREFIX + id);
-    if(t) return t;
-  }catch(e){}
-  /* Placeholder SVG gris mientras carga */
+  try{var t=localStorage.getItem(_JD_THUMB_PREFIX+id);if(t)return t;}catch(e){}
   return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23111827'/%3E%3C/svg%3E";
 }
 
-/* ── FUNCIÓN CENTRAL DE RENDER ──────────────────────────────────────── */
-window.__JD_RENDER = function(rawGames, silent){
-  if(window.__JD_DONE && !silent) return;
-  if(!rawGames || !rawGames.length) return;
-
-  var visible = rawGames.filter(function(g){ return g.visible !== false; });
-  visible.sort(function(a,b){
-    return b.timestamp !== a.timestamp
-      ? b.timestamp - a.timestamp
-      : (a.order||0) - (b.order||0);
-  });
-  if(!visible.length) return;
-
-  if(!silent){
-    window.__JD_DONE      = true;
-    window.__JD_REST_DONE = true;
-    window.__JD_STATIC_GAMES = visible;
+window.__JD_STATIC_GAMES=[];
+window.__JD_RENDER=function(rawGames,silent){
+  if(window.__JD_DONE&&!silent)return;
+  if(!rawGames||!rawGames.length)return;
+  var visible=rawGames.filter(function(g){return g.visible!==false;});
+  visible.sort(function(a,b){return b.timestamp!==a.timestamp?b.timestamp-a.timestamp:(a.order||0)-(b.order||0);});
+  if(!visible.length)return;
+  if(!silent){window.__JD_DONE=true;window.__JD_REST_DONE=true;window.__JD_STATIC_GAMES=visible;}
+  if(silent)return;
+  if(typeof siteState!=='undefined'&&typeof renderGames==='function'){
+    siteState.gamesList=visible.map(function(g){return Object.assign({},g,{thumb:g.thumb||_getThumb(g.id)});});
+    renderGames();return;
   }
-
-  /* Guardar en caché (sin thumbs para no saturar localStorage) */
-  try{
-    var compact = visible.map(function(g){
-      return Object.assign({}, g, {thumb: _getThumb(g.id)});
-    });
-    sessionStorage.setItem('jd_ss_games', JSON.stringify(compact));
-  }catch(e){}
-
-  if(silent) return;
-
-  /* Si renderGames ya existe (DOMContentLoaded pasó) usarla */
-  if(typeof siteState !== 'undefined' && typeof renderGames === 'function'){
-    siteState.gamesList = visible.map(function(g){
-      return Object.assign({}, g, {thumb: _getThumb(g.id)});
-    });
-    renderGames();
-    return;
-  }
-
-  /* Pintar directamente en #game-list */
   function _paint(){
-    var list = document.getElementById('game-list');
-    if(!list || list.querySelector('.jd-card')) return;
-    list.innerHTML = '';
-    var frag = document.createDocumentFragment();
-    visible.slice(0, 12).forEach(function(g, idx){
-      var mc  = g.modBadgeBgColor || '#ef4444';
-      var th  = _getThumb(g.id);
-      var isAboveFold = idx < 4;
-      var c = document.createElement('div');
-      c.className = 'jd-card';
-      c.setAttribute('onclick', "showDetail('" + g.id + "')");
-      c.innerHTML =
-        '<div class="jd-img-box">' +
-          '<img src="' + th + '"' +
-               ' class="jd-img' + (th.indexOf('svg') > -1 ? ' jd-thumb-pending' : ' icon-img-loaded loaded') + '"' +
-               ' alt="' + g.name + '"' +
-               ' data-game-id="' + g.id + '"' +
-               (isAboveFold
-                 ? ' loading="eager" fetchpriority="high"'
-                 : ' loading="lazy"') +
-          '>' +
-          '<span class="jd-mod-badge" style="background:linear-gradient(135deg,' + mc + ',' + mc + 'cc);">' +
-            (g.modBadgeText || 'MOD') +
-          '</span>' +
-          (g.updateBadgeVisible && g.updateBadgeText
-            ? '<span class="jd-upd-badge">' + g.updateBadgeText + '</span>'
-            : '') +
-        '</div>' +
-        '<div class="jd-info">' +
-          '<p class="jd-name notranslate">' + g.name + '</p>' +
-          '<p class="jd-mod-label">' + (g.features && g.features[0] || g.modBadgeText || 'MOD APK') + '</p>' +
-          '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
-          '<button class="jd-btn" onclick="event.stopPropagation();showDetail('' + g.id + '')">' +
-            '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
-              '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>' +
-              '<polyline points="7 10 12 15 17 10"/>' +
-              '<line x1="12" y1="15" x2="12" y2="3"/>' +
-            '</svg>' +
-            '<span>Descargar APK</span>' +
-          '</button>' +
-        '</div>';
+    var list=document.getElementById('game-list');
+    if(!list||list.querySelector('.jd-card'))return;
+    list.innerHTML='';
+    var frag=document.createDocumentFragment();
+    visible.slice(0,12).forEach(function(g,idx){
+      var mc=g.modBadgeBgColor||'#ef4444';
+      var th=g.thumb||_getThumb(g.id);
+      var c=document.createElement('div');
+      c.className='jd-card';c.setAttribute('onclick',"showDetail('"+g.id+"')");
+      c.innerHTML='<div class="jd-img-box">'+
+        '<img src="'+th+'" class="jd-img icon-img-loaded loaded" alt="'+g.name+'"'+
+        (idx<4?' loading="eager" fetchpriority="high"':' loading="lazy"')+' data-game-id="'+g.id+'">'+
+        '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
+        (g.updateBadgeVisible&&g.updateBadgeText?'<span class="jd-upd-badge">'+g.updateBadgeText+'</span>':'')+
+        '</div><div class="jd-info">'+
+        '<p class="jd-name notranslate">'+g.name+'</p>'+
+        '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
+        '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+        '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'')">'+
+        '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
+        '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
+        '<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
+        '<span>Descargar APK</span></button></div>';
       frag.appendChild(c);
     });
-    list.appendChild(frag);
-    list.dataset.instantLoaded = '1';
+    list.appendChild(frag);list.dataset.instantLoaded='1';
   }
-
-  if(document.readyState !== 'loading'){ _paint(); }
-  else{ document.addEventListener('DOMContentLoaded', _paint); }
+  if(document.readyState!=='loading'){_paint();}
+  else{document.addEventListener('DOMContentLoaded',_paint);}
 };
 
-/* ════════════════════════════════════════════════════════════════════
-   NIVEL 0 — JUEGOS_DATA (juegos_data.js ya cargado en <head>)
-   0ms, sin red, datos reales del panel
-   ════════════════════════════════════════════════════════════════ */
-window.__JD_STATIC_GAMES = [];
-if(window.__JD_DATA_READY && window.JUEGOS_DATA && window.JUEGOS_DATA.length){
+/* Nivel 0: juegos_data.js (ya cargado en head) */
+if(window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_DATA.length){
   window.__JD_RENDER(window.JUEGOS_DATA);
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   BACKGROUND: Gist CDN → descargar thumbs nuevos → guardar en localStorage
-   Se ejecuta silenciosamente. La próxima visita los thumbs son 0ms.
-   ════════════════════════════════════════════════════════════════ */
+/* Background: Firestore REST actualiza versiones silenciosamente */
 (function(){
-  var GIST_URL = 'https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json';
-  var PROJECT  = 'joeldroid-mods';
-  var API_KEY  = 'AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
-  var FS_URL   = 'https://firestore.googleapis.com/v1/projects/' + PROJECT +
-                 '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key=' + API_KEY;
-
-  /* ── Actualizar thumbs en pantalla desde localStorage ─────────── */
-  function _applyThumbs(games){
-    games.forEach(function(g){
-      if(!g.thumb || !g.id) return;
-      /* Guardar en localStorage */
-      try{ localStorage.setItem(_JD_THUMB_PREFIX + g.id, g.thumb); }catch(e){}
-      /* Actualizar img en pantalla si tiene placeholder */
-      var imgs = document.querySelectorAll('img.jd-thumb-pending[data-game-id="' + g.id + '"]');
-      imgs.forEach(function(img){
-        img.src = g.thumb;
-        img.classList.remove('jd-thumb-pending');
-        img.classList.add('icon-img-loaded','loaded');
-      });
-    });
-  }
-
-  /* ── Actualizar textos de versión en pantalla (Firebase sync) ─── */
-  function _applyVersionUpdates(games){
-    games.forEach(function(g){
-      document.querySelectorAll('[data-ver-id="' + g.id + '"]').forEach(function(el){
-        el.textContent = g.ver || '';
-      });
-    });
-  }
-
-  /* ── Parser Firestore REST ──────────────────────────────────────── */
+  var FS_URL='https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/mods?orderBy=order&pageSize=100&key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
+  var GIST_URL='https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json';
   function _parseDoc(doc){
     var f=doc.fields||{};
     function _s(x){if(!x)return '';return x.stringValue!==undefined?x.stringValue:String(x.integerValue||x.doubleValue||'');}
@@ -1289,51 +1184,33 @@ if(window.__JD_DATA_READY && window.JUEGOS_DATA && window.JUEGOS_DATA.length){
       timestamp:parseInt(_s(f.timestamp)||'0',10)||0,order:parseInt(_s(f.order)||'0',10)||0,
       visits:parseInt(_s(f.visits)||'0',10)||0};
   }
-
-  /* Ejecutar en background después de que el paint inicial ocurrió */
+  function _applyThumbs(games){
+    games.forEach(function(g){
+      if(!g.thumb||!g.id)return;
+      try{localStorage.setItem(_JD_THUMB_PREFIX+g.id,g.thumb);}catch(e){}
+      document.querySelectorAll('img[data-game-id="'+g.id+'"]').forEach(function(img){
+        if(img.src.indexOf('svg')>-1){img.src=g.thumb;img.classList.add('loaded');}
+      });
+    });
+  }
   setTimeout(function(){
-
-    /* Gist: descargar thumbs + datos actualizados */
-    fetch(GIST_URL, {cache:'default'})
-      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    fetch(GIST_URL,{cache:'default'})
+      .then(function(r){if(!r.ok)throw 0;return r.json();})
       .then(function(d){
-        var games = Array.isArray(d) ? d : (d.games || []);
-        if(!games.length) return;
-        _applyThumbs(games);
-        /* Si JUEGOS_DATA no tenía datos (juegos_data.js viejo/ausente), renderizar */
-        if(!window.__JD_DONE) window.__JD_RENDER(games);
-        else _applyVersionUpdates(games);
+        var g=Array.isArray(d)?d:(d.games||[]);
+        if(!g.length)return;
+        _applyThumbs(g);
+        if(!window.__JD_DONE)window.__JD_RENDER(g);
       }).catch(function(){});
-
-    /* Firestore REST: versiones y juegos nuevos */
-    fetch(FS_URL, {cache:'default'})
-      .then(function(r){ return r.json(); })
+    fetch(FS_URL,{cache:'default'})
+      .then(function(r){return r.json();})
       .then(function(d){
-        var docs = d.documents || [];
-        if(!docs.length) return;
-        var games = docs.map(_parseDoc);
+        var docs=d.documents||[];if(!docs.length)return;
+        var games=docs.map(_parseDoc);
         _applyThumbs(games);
-        if(!window.__JD_DONE) window.__JD_RENDER(games);
-        else _applyVersionUpdates(games);
+        if(!window.__JD_DONE)window.__JD_RENDER(games);
       }).catch(function(){});
-
-  }, 100); /* 100ms: permitir que el paint inicial ocurra primero */
-
-  /* Exponer para panel.html */
-  window.__jdSaveGamesToGist = function(games){
-    if(!games || !games.length) return;
-    try{
-      var cfg = JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');
-      if(!cfg || !cfg.token) return;
-      fetch('https://api.github.com/gists/5981d391897fe461dc5ac9ba7303b8f2',{
-        method:'PATCH',
-        headers:{'Authorization':'token '+cfg.token,'Content-Type':'application/json'},
-        body:JSON.stringify({files:{'games.json':{content:JSON.stringify({
-          _info:'JoelDroid Mods YT',_updated:new Date().toISOString(),
-          _count:games.length,games:games},null,2)}}})
-      }).catch(function(){});
-    }catch(e){}
-  };
+  },200);
 })();
 </script>
 <!-- HOME VIEW -->
@@ -1499,7 +1376,8 @@ if(window.__JD_DATA_READY && window.JUEGOS_DATA && window.JUEGOS_DATA.length){
         
       </div>
       <div class="text-center py-4 border-t border-[var(--border-color)]">
-
+        <!-- ══ AD SLOT 2: Banner detalle — arriba botones descarga ══ -->
+        
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2" data-i18n="official_links">Enlaces Oficiales</p>
         <h3 id="det-name-dl-secondary" class="text-xs font-black uppercase notranslate">JUEGO MOD APP</h3>
       </div>
@@ -1523,7 +1401,15 @@ if(window.__JD_DATA_READY && window.JUEGOS_DATA && window.JUEGOS_DATA.length){
           <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
         </div>
 
-
+        <!-- ════════════════════════════════════════════════════════════
+             ZONA DE ENLACES SECUNDARIOS
+             Pega aquí banners, iframes, botones extra o URLs adicionales.
+             Este bloque es seguro: está FUERA del JavaScript principal.
+             ════════════════════════════════════════════════════════════ -->
+   <div id="zona-de-fuego-ads" style="width:100%;display:flex;flex-direction:column;align-items:center;margin:20px 0 30px 0;clear:both;background:rgba(255,255,255,0.02);border-radius:12px;padding:15px 0;min-height:70px;">
+    <span style="font-size:8px;color:#888;font-family:sans-serif;font-weight:bold;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Publicidad Recomendada</span>
+    <!-- ══ AD SLOT 3: Banner zona-de-fuego — debajo botones descarga ══ -->
+    
 
       </div>
     </div>
@@ -5226,6 +5112,7 @@ function _shareExecCopy(url){
 function _trackVisit(){
   try{
     if(!_db)return;
+    /* Evitar doble conteo en misma sesión */
     var _k='jd_vt_'+new Date().toISOString().slice(0,10);
     if(sessionStorage.getItem(_k))return;
     sessionStorage.setItem(_k,'1');
@@ -5903,9 +5790,11 @@ function irADescarga(gameId, modo) {
   // URL robusta: ruta relativa desde la raíz del sitio
   var destUrl = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
 
-  // Navegar directo a la página de descarga
+  
+  // Sin modal: navegar directo (fallback)
   window.location.href = destUrl;
 }
+
 
 
 
@@ -6178,8 +6067,131 @@ window.onload=function(){
   ⚠️ Verifica tu correo para poder comentar
 </div>
 
+<span style="color: inherit; font-family: sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: 0.9;">PUBLICIDAD</span>
+    </div>
+
+    <div id="wrapper-auto" style="width: 100%; min-height: 80px; max-height: 200px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; border-radius: 15px; transition: all 0.3s ease;">
+        <div id="container-ec8e04f7f5f2b33bf58e0f40ba2b6c81" style="width: 100%;">
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ══ FIX: Anuncio adaptable — zoom automático, sin cortes ══
+       Si el iframe es más ancho que el contenedor, se escala para
+       que quepa completo. transform-origin: top center asegura que
+       el anuncio siempre se vea desde arriba sin cortar. */
+    
+    
+    
+    
+    /* ── Fondo adaptativo día/noche ── */
+    
+    .light-mode 
+    
+</style>
+<script>
+/* ══ AUTO-ZOOM ANUNCIO ADAPTABLE — escala el iframe para que siempre sea visible completo ══ */
+(function(){
+  function _fitAdIframe(){
+    var wrapper = document.getElementById('wrapper-auto');
+    if(!wrapper) return;
+    var iframes = wrapper.querySelectorAll('iframe');
+    iframes.forEach(function(f){
+      f.style.transform = ''; // reset
+      var iw = f.offsetWidth || f.scrollWidth || 320;
+      var cw = wrapper.offsetWidth || window.innerWidth;
+      if(iw > cw && cw > 0){
+        var scale = cw / iw;
+        f.style.transform = 'scale('+scale.toFixed(3)+')';
+        f.style.transformOrigin = 'top center';
+        // Ajustar altura del wrapper al tamaño real tras escala
+        var ih = f.offsetHeight || 90;
+        wrapper.style.minHeight = Math.ceil(ih * scale) + 'px';
+        wrapper.style.maxHeight = Math.ceil(ih * scale) + 'px';
+      } else {
+        wrapper.style.minHeight = '';
+        wrapper.style.maxHeight = '200px';
+      }
+    });
+  }
+  // Esperar a que el iframe cargue y luego ajustar
+  function _waitAndFit(){
+    var wrapper = document.getElementById('wrapper-auto');
+    if(!wrapper){ setTimeout(_waitAndFit, 200); return; }
+    // Observer para cuando se inserte el iframe dinámicamente
+    var obs = new MutationObserver(function(){ _fitAdIframe(); });
+    obs.observe(wrapper, { childList: true, subtree: true, attributes: true });
+    // También ajustar al resize
+    window.addEventListener('resize', _fitAdIframe, { passive: true });
+    // Intentar ajustar ahora y después de cargas
+    _fitAdIframe();
+    setTimeout(_fitAdIframe, 800);
+    setTimeout(_fitAdIframe, 2000);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', _waitAndFit);
+  } else {
+    _waitAndFit();
+  }
+})();
+</script>
+ 
+ <style>
+/* ══ SISTEMA PLAYMODS IDÉNTICO A descarga.html ══════════════════
+   
+
+/* Modo oscuro: mantener fondo blanco siempre — el anuncio necesita fondo blanco */
+body:not(.light-mode) 
+body:not(.light-mode) 
+@keyframes jd-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── Contenedor interno — sin overflow para no re-cortar ── */
+
+
+/* ── Iframe — sistema Playmods adaptado a 95px ──────────────────
+   scale(0.25) → iframe renderiza 380px internamente → visible 95px
+   width/height: 400% → llena exactamente el contenedor al 25%
+   El anuncio tiene 380px de espacio → se ve completo sin cortes.
+   ──────────────────────────────────────────────────────────────── */
+
+
+/* ── Overlay de clic (sobre el iframe, bajo la pestaña) ─────────── */
+
+
+/* ── Body: padding = altura banner (130px) + pestaña (20px) + margen ── */
+
+
+/* ── Pantallas muy pequeñas (<360px): JS controla la altura real ── */
+@media (max-width: 360px) {
+    
+}
+
+/* ── Tablets / desktop: añadir borde inferior y separación ──────── */
+@media (min-width: 480px) {
+    
+    
+    
+}
+</style>
+
+<!-- ══ MODAL ANUNCIO AL HACER CLIC EN DESCARGAR ══════════════════
+     Flujo: Clic "Descargar" → este modal → usuario cierra → descarga.html
+════════════════════════════════════════════════════════════════ -->
+<style>
 
 
 
+
+
+
+
+
+
+</style>
 </body>
 </html>
