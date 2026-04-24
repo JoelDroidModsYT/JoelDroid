@@ -1471,7 +1471,9 @@ window.__JD_REST_DONE = false;
         </div>
         
       </div>
-      <div style="text-align: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+      <div class="text-center py-4 border-t border-[var(--border-color)]">
+          </div>
+      </div> <div style="text-align: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1" data-i18n="official_links">
           Enlaces Oficiales
         </p>
@@ -1480,6 +1482,8 @@ window.__JD_REST_DONE = false;
         </h3>
         
         <div id="det-download-buttons" class="space-y-1.5" style="display: flex; flex-direction: column; align-items: center;">
+          </div>
+      </div>
         <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── (HTML estático — editar link aquí) -->
         <div class="space-y-1.5 text-center" id="btn-descarga-1-wrapper">
           <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
@@ -1496,9 +1500,7 @@ window.__JD_REST_DONE = false;
             <span id="btn-descarga-2-texto">Descargar Mod 2</span>
           </button>
           <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
-        </div><!-- /#btn-descarga-2-wrapper -->
-        </div><!-- /#det-download-buttons -->
-      </div><!-- /.official-links outer -->
+        </div>
 
         <!-- ════════════════════════════════════════════════════════════
              ZONA DE ENLACES SECUNDARIOS
@@ -2026,7 +2028,738 @@ function _refreshBgThemeUI(){
 
 // applyBgTheme se llama desde DOMContentLoaded después de loadSettings()
 
-// Traducciones cargadas desde js/traduccion.js (type="module")
+// ════════════════════════════════════════════════════════════════
+// SISTEMA DE TRADUCCIÓN PROFESIONAL FINAL
+// • Diccionario local (UI instantánea, 10 idiomas completos)
+// • MyMemory API para contenido dinámico (descripciones, anuncio,
+//   advertencias, copyright, verificado, botones globales)
+// • Caché RAM + localStorage (no repite llamadas)
+// • Auto-detección idioma navegador al cargar
+// • Retraduce cuando el admin cambia cualquier texto
+// ════════════════════════════════════════════════════════════════
+
+var currentLang='es';
+// ── Programador no-invasivo: ejecuta trabajo pesado en tiempo libre ──
+// Usa MessageChannel (microtask yield) como polyfill de rIC para Safari
+var _jdIdle = (function(){
+  if(typeof requestIdleCallback === 'function'){
+    return function(fn){ requestIdleCallback(fn, { timeout: 2000 }); };
+  }
+  // Fallback: MessageChannel da un yield antes del siguiente frame
+  var ch = new MessageChannel();
+  var queue = [];
+  ch.port1.onmessage = function(){ if(queue.length){ var fn=queue.shift(); try{fn();}catch(e){} } };
+  return function(fn){ queue.push(fn); ch.port2.postMessage(0); };
+})();
+
+var _trMem={};var _trQ={};
+
+var LANG_FLAGS={
+  es:'https://flagcdn.com/w40/es.png',en:'https://flagcdn.com/w40/us.png',
+  pt:'https://flagcdn.com/w40/br.png',de:'https://flagcdn.com/w40/de.png',
+  ru:'https://flagcdn.com/w40/ru.png','zh-CN':'https://flagcdn.com/w40/cn.png',
+  ja:'https://flagcdn.com/w40/jp.png',tr:'https://flagcdn.com/w40/tr.png',
+  hi:'https://flagcdn.com/w40/in.png',fr:'https://flagcdn.com/w40/fr.png'
+};
+
+// ══════════════════════════════════════════════════════════════════
+// 📖 DICCIONARIO JSON PROFESIONAL — JoelDroid Mods YT
+// Cubre TODA la UI: home, detalle, botones, advertencias, comentarios.
+// Para agregar un idioma nuevo: copiar el bloque 'en' y traducir valores.
+// Claves = texto original en español. Valor = traducción al idioma destino.
+// ══════════════════════════════════════════════════════════════════
+var TR={
+es:{
+  'Todo':'Todo','Actualizados':'Actualizados','Popular':'Popular',
+  'Buscar aplicaciones...':'Buscar aplicaciones...',
+  'Tutorial Oficial':'Tutorial Oficial','Tutorial de Instalación':'Tutorial de Instalación',
+  'Ver Tutorial':'Ver Tutorial','Guía Paso a Paso':'Guía Paso a Paso',
+  'Sigue el video para instalar correctamente el mod':'Sigue el video para instalar correctamente el mod',
+  'Atrás':'Atrás','Compartir':'Compartir',
+  'Descargar Mod Apk':'Descargar Mod Apk','Versión':'Versión','Peso':'Peso',
+  'Seguridad':'Seguridad','100% SEGURO':'100% SEGURO',
+  'Información del Juego':'Información del Juego',
+  'Características del Mod':'Características del Mod',
+  'Advertencia importante':'Advertencia importante',
+  '¡ADVERTENCIA IMPORTANTE!':'¡ADVERTENCIA IMPORTANTE!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.',
+  'Enlaces Oficiales':'Enlaces Oficiales','También te puede gustar':'También te puede gustar',
+  'HOME':'HOME','Regresar al panel principal.':'Regresar al panel principal.',
+  'Juegos':'Juegos','Nuestra colección de mods premium.':'Nuestra colección de mods premium.',
+  'Sobre Nosotros':'Sobre Nosotros','El equipo detrás de JoelDroid Mods.':'El equipo detrás de JoelDroid Mods.',
+  'Políticas y Condiciones':'Políticas y Condiciones','Términos de uso y privacidad.':'Términos de uso y privacidad.',
+  'Entrar':'Entrar','Cancelar':'Cancelar','Descargar APK':'Descargar APK',
+  'Ver Juego':'Ver Juego','Descargar Mod':'Descargar Mod',
+  'Descargar Mod 1':'Descargar Mod 1','Descargar Mod 2':'Descargar Mod 2',
+  'Mediafire-Seguro':'Mediafire-Seguro','Verificado':'Verificado',
+  'No hay más juegos disponibles.':'No hay más juegos disponibles.',
+  'CALIFICA ESTA APP':'CALIFICA ESTA APP',
+  'Comparte tu opinión con otros usuarios':'Comparte tu opinión con otros usuarios',
+  'Valoración':'Valoración','Comentarios':'Comentarios',
+  'Escribe un comentario...':'Escribe un comentario...',
+  'Publicar':'Publicar','Sé el primero en comentar':'Sé el primero en comentar',
+  'Share':'Compartir'
+},
+en:{
+  'Todo':'All','Actualizados':'Updated','Popular':'Popular',
+  'Buscar aplicaciones...':'Search apps...',
+  'Tutorial Oficial':'Official Tutorial','Tutorial de Instalación':'Installation Tutorial',
+  'Ver Tutorial':'Watch Tutorial','Guía Paso a Paso':'Step by Step Guide',
+  'Sigue el video para instalar correctamente el mod':'Follow the video to install the mod correctly',
+  'Atrás':'Back','Compartir':'Share',
+  'Descargar Mod Apk':'Download Mod Apk','Versión':'Version','Peso':'Size',
+  'Seguridad':'Security','100% SEGURO':'100% SAFE',
+  'Información del Juego':'Game Information',
+  'Características del Mod':'Mod Features',
+  'Advertencia importante':'Important Warning',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ IMPORTANT WARNING!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'If the game has installation issues, make sure to uninstall any previous version from the Google Play Store to avoid conflicts.',
+  'Enlaces Oficiales':'Official Links','También te puede gustar':'You may also like',
+  'HOME':'HOME','Regresar al panel principal.':'Return to main panel.',
+  'Juegos':'Games','Nuestra colección de mods premium.':'Our premium mod collection.',
+  'Sobre Nosotros':'About Us','El equipo detrás de JoelDroid Mods.':'The team behind JoelDroid Mods.',
+  'Políticas y Condiciones':'Policies & Terms','Términos de uso y privacidad.':'Terms of use and privacy.',
+  'Entrar':'Login','Cancelar':'Cancel','Descargar APK':'Download APK',
+  'Ver Juego':'View Game','Descargar Mod':'Download Mod',
+  'Descargar Mod 1':'Download Mod 1','Descargar Mod 2':'Download Mod 2',
+  'Mediafire-Seguro':'Mediafire-Safe','Verificado':'Verified',
+  'No hay más juegos disponibles.':'No more games available.',
+  'CALIFICA ESTA APP':'RATE THIS APP',
+  'Comparte tu opinión con otros usuarios':'Share your opinion with other users',
+  'Valoración':'Rating','Comentarios':'Comments',
+  'Escribe un comentario...':'Write a comment...',
+  'Publicar':'Post','Sé el primero en comentar':'Be the first to comment',
+  'Share':'Share'
+},
+pt:{
+  'Todo':'Tudo','Actualizados':'Atualizados','Popular':'Popular',
+  'Buscar aplicaciones...':'Buscar aplicativos...',
+  'Tutorial Oficial':'Tutorial Oficial','Tutorial de Instalación':'Tutorial de Instalação',
+  'Ver Tutorial':'Ver Tutorial','Guía Paso a Paso':'Guia Passo a Passo',
+  'Sigue el video para instalar correctamente el mod':'Siga o vídeo para instalar o mod corretamente',
+  'Atrás':'Voltar','Compartir':'Compartilhar',
+  'Descargar Mod Apk':'Baixar Mod Apk','Versión':'Versão','Peso':'Tamanho',
+  'Seguridad':'Segurança','100% SEGURO':'100% SEGURO',
+  'Información del Juego':'Informações do Jogo',
+  'Características del Mod':'Recursos do Mod',
+  'Advertencia importante':'Aviso importante',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ AVISO IMPORTANTE!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'Se o jogo tiver problemas de instalação, desinstale versões anteriores da Google Play Store para evitar conflitos.',
+  'Enlaces Oficiales':'Links Oficiais','También te puede gustar':'Você também pode gostar',
+  'HOME':'INÍCIO','Regresar al panel principal.':'Voltar ao painel principal.',
+  'Juegos':'Jogos','Nuestra colección de mods premium.':'Nossa coleção de mods premium.',
+  'Sobre Nosotros':'Sobre Nós','El equipo detrás de JoelDroid Mods.':'A equipe por trás do JoelDroid Mods.',
+  'Políticas y Condiciones':'Políticas e Termos','Términos de uso y privacidad.':'Termos de uso e privacidade.',
+  'Entrar':'Entrar','Cancelar':'Cancelar','Descargar APK':'Baixar APK',
+  'Ver Juego':'Ver Jogo','Descargar Mod':'Baixar Mod',
+  'Descargar Mod 1':'Baixar Mod 1','Descargar Mod 2':'Baixar Mod 2',
+  'Mediafire-Seguro':'Mediafire-Seguro','Verificado':'Verificado',
+  'No hay más juegos disponibles.':'Não há mais jogos.',
+  'CALIFICA ESTA APP':'AVALIE ESTE APP',
+  'Comparte tu opinión con otros usuarios':'Compartilhe sua opinião com outros usuários',
+  'Valoración':'Avaliação','Comentarios':'Comentários',
+  'Escribe un comentario...':'Escreva um comentário...',
+  'Publicar':'Publicar','Sé el primero en comentar':'Seja o primeiro a comentar',
+  'Share':'Compartilhar'
+},
+de:{
+  'Todo':'Alle','Actualizados':'Aktualisiert','Popular':'Beliebt',
+  'Buscar aplicaciones...':'Apps suchen...',
+  'Tutorial Oficial':'Offizielles Tutorial','Tutorial de Instalación':'Installations-Tutorial',
+  'Ver Tutorial':'Tutorial ansehen','Guía Paso a Paso':'Schritt-für-Schritt-Anleitung',
+  'Sigue el video para instalar correctamente el mod':'Folge dem Video zur korrekten Mod-Installation',
+  'Atrás':'Zurück','Compartir':'Teilen',
+  'Descargar Mod Apk':'Mod Apk herunterladen','Versión':'Version','Peso':'Größe',
+  'Seguridad':'Sicherheit','100% SEGURO':'100% SICHER',
+  'Información del Juego':'Spielinformationen',
+  'Características del Mod':'Mod-Funktionen',
+  'Advertencia importante':'Wichtiger Hinweis',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ WICHTIGER HINWEIS!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'Bei Installationsproblemen, deinstalliere vorherige Versionen aus dem Google Play Store.',
+  'Enlaces Oficiales':'Offizielle Links','También te puede gustar':'Das könnte dir gefallen',
+  'HOME':'START','Regresar al panel principal.':'Zur Hauptseite zurück.',
+  'Juegos':'Spiele','Nuestra colección de mods premium.':'Unsere Premium-Mod-Sammlung.',
+  'Sobre Nosotros':'Über uns','El equipo detrás de JoelDroid Mods.':'Das Team hinter JoelDroid Mods.',
+  'Políticas y Condiciones':'Richtlinien & Bedingungen','Términos de uso y privacidad.':'Nutzungsbedingungen & Datenschutz.',
+  'Entrar':'Einloggen','Cancelar':'Abbrechen','Descargar APK':'APK Herunterladen',
+  'Ver Juego':'Spiel ansehen','Descargar Mod':'Mod herunterladen',
+  'Descargar Mod 1':'Mod 1 herunterladen','Descargar Mod 2':'Mod 2 herunterladen',
+  'Mediafire-Seguro':'Mediafire-Sicher','Verificado':'Verifiziert',
+  'No hay más juegos disponibles.':'Keine weiteren Spiele.',
+  'CALIFICA ESTA APP':'APP BEWERTEN',
+  'Comparte tu opinión con otros usuarios':'Teile deine Meinung mit anderen Nutzern',
+  'Valoración':'Bewertung','Comentarios':'Kommentare',
+  'Escribe un comentario...':'Kommentar schreiben...',
+  'Publicar':'Veröffentlichen','Sé el primero en comentar':'Sei der Erste, der kommentiert',
+  'Share':'Teilen'
+},
+ru:{
+  'Todo':'Все','Actualizados':'Обновлённые','Popular':'Популярные',
+  'Buscar aplicaciones...':'Поиск приложений...',
+  'Tutorial Oficial':'Официальный туториал','Tutorial de Instalación':'Руководство по установке',
+  'Ver Tutorial':'Смотреть туториал','Guía Paso a Paso':'Пошаговая инструкция',
+  'Sigue el video para instalar correctamente el mod':'Следуйте видео для правильной установки мода',
+  'Atrás':'Назад','Compartir':'Поделиться',
+  'Descargar Mod Apk':'Скачать Mod Apk','Versión':'Версия','Peso':'Размер',
+  'Seguridad':'Безопасность','100% SEGURO':'100% БЕЗОПАСНО',
+  'Información del Juego':'Информация об игре',
+  'Características del Mod':'Возможности мода',
+  'Advertencia importante':'Важное предупреждение',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ ВАЖНОЕ ПРЕДУПРЕЖДЕНИЕ!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'При проблемах с установкой удалите предыдущие версии из Google Play Store.',
+  'Enlaces Oficiales':'Официальные ссылки','También te puede gustar':'Вам также понравится',
+  'HOME':'ГЛАВНАЯ','Regresar al panel principal.':'Вернуться на главную.',
+  'Juegos':'Игры','Nuestra colección de mods premium.':'Коллекция премиум-модов.',
+  'Sobre Nosotros':'О нас','El equipo detrás de JoelDroid Mods.':'Команда JoelDroid Mods.',
+  'Políticas y Condiciones':'Политика и условия','Términos de uso y privacidad.':'Условия использования и конфиденциальность.',
+  'Entrar':'Войти','Cancelar':'Отмена','Descargar APK':'Скачать APK',
+  'Ver Juego':'Смотреть игру','Descargar Mod':'Скачать Mod',
+  'Descargar Mod 1':'Скачать Mod 1','Descargar Mod 2':'Скачать Mod 2',
+  'Mediafire-Seguro':'Mediafire-Безопасно','Verificado':'Проверено',
+  'No hay más juegos disponibles.':'Нет больше игр.',
+  'CALIFICA ESTA APP':'ОЦЕНИТЕ ПРИЛОЖЕНИЕ',
+  'Comparte tu opinión con otros usuarios':'Поделитесь мнением с другими пользователями',
+  'Valoración':'Рейтинг','Comentarios':'Комментарии',
+  'Escribe un comentario...':'Написать комментарий...',
+  'Publicar':'Опубликовать','Sé el primero en comentar':'Будьте первым, кто прокомментирует',
+  'Share':'Поделиться'
+},
+'zh-CN':{
+  'Todo':'全部','Actualizados':'已更新','Popular':'热门',
+  'Buscar aplicaciones...':'搜索应用...',
+  'Tutorial Oficial':'官方教程','Tutorial de Instalación':'安装教程',
+  'Ver Tutorial':'观看教程','Guía Paso a Paso':'步骤指南',
+  'Sigue el video para instalar correctamente el mod':'按视频正确安装Mod',
+  'Atrás':'返回','Compartir':'分享',
+  'Descargar Mod Apk':'下载 Mod Apk','Versión':'版本','Peso':'大小',
+  'Seguridad':'安全性','100% SEGURO':'100% 安全',
+  'Información del Juego':'游戏信息',
+  'Características del Mod':'MOD特性',
+  'Advertencia importante':'重要警告',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ 重要警告！',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'如遇安装问题，请先从Google Play商店卸载旧版本以避免冲突。',
+  'Enlaces Oficiales':'官方链接','También te puede gustar':'您可能还喜欢',
+  'HOME':'主页','Regresar al panel principal.':'返回主面板。',
+  'Juegos':'游戏','Nuestra colección de mods premium.':'高级MOD合集。',
+  'Sobre Nosotros':'关于我们','El equipo detrás de JoelDroid Mods.':'JoelDroid Mods团队。',
+  'Políticas y Condiciones':'政策和条款','Términos de uso y privacidad.':'使用条款和隐私。',
+  'Entrar':'登录','Cancelar':'取消','Descargar APK':'下载 APK',
+  'Ver Juego':'查看游戏','Descargar Mod':'下载Mod',
+  'Descargar Mod 1':'下载 Mod 1','Descargar Mod 2':'下载 Mod 2',
+  'Mediafire-Seguro':'Mediafire-安全','Verificado':'已验证',
+  'No hay más juegos disponibles.':'没有更多游戏。',
+  'CALIFICA ESTA APP':'评价此应用',
+  'Comparte tu opinión con otros usuarios':'与其他用户分享您的意见',
+  'Valoración':'评分','Comentarios':'评论',
+  'Escribe un comentario...':'写评论...',
+  'Publicar':'发布','Sé el primero en comentar':'成为第一个评论的人',
+  'Share':'分享'
+},
+ja:{
+  'Todo':'すべて','Actualizados':'更新済み','Popular':'人気',
+  'Buscar aplicaciones...':'アプリを検索...',
+  'Tutorial Oficial':'公式チュートリアル','Tutorial de Instalación':'インストールガイド',
+  'Ver Tutorial':'チュートリアルを見る','Guía Paso a Paso':'ステップガイド',
+  'Sigue el video para instalar correctamente el mod':'動画に従ってModを正しくインストール',
+  'Atrás':'戻る','Compartir':'共有',
+  'Descargar Mod Apk':'Mod Apkをダウンロード','Versión':'バージョン','Peso':'サイズ',
+  'Seguridad':'セキュリティ','100% SEGURO':'100% 安全',
+  'Información del Juego':'ゲーム情報',
+  'Características del Mod':'MOD機能',
+  'Advertencia importante':'重要な警告',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ 重要な警告！',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'インストールに問題がある場合は、Google PlayストアからAPKの旧バージョンをアンインストールしてください。',
+  'Enlaces Oficiales':'公式リンク','También te puede gustar':'おすすめ',
+  'HOME':'ホーム','Regresar al panel principal.':'メインパネルへ戻る。',
+  'Juegos':'ゲーム','Nuestra colección de mods premium.':'プレミアムMODコレクション。',
+  'Sobre Nosotros':'私たちについて','El equipo detrás de JoelDroid Mods.':'JoelDroid Modsチーム。',
+  'Políticas y Condiciones':'ポリシーと条件','Términos de uso y privacidad.':'利用規約とプライバシー。',
+  'Entrar':'ログイン','Cancelar':'キャンセル','Descargar APK':'APKをダウンロード',
+  'Ver Juego':'ゲームを見る','Descargar Mod':'Modをダウンロード',
+  'Descargar Mod 1':'Mod 1をダウンロード','Descargar Mod 2':'Mod 2をダウンロード',
+  'Mediafire-Seguro':'Mediafire-安全','Verificado':'認証済み',
+  'No hay más juegos disponibles.':'ゲームなし。',
+  'CALIFICA ESTA APP':'このアプリを評価',
+  'Comparte tu opinión con otros usuarios':'他のユーザーと意見を共有',
+  'Valoración':'評価','Comentarios':'コメント',
+  'Escribe un comentario...':'コメントを書く...',
+  'Publicar':'投稿','Sé el primero en comentar':'最初のコメントを書く',
+  'Share':'共有'
+},
+tr:{
+  'Todo':'Tümü','Actualizados':'Güncellenenler','Popular':'Popüler',
+  'Buscar aplicaciones...':'Uygulama ara...',
+  'Tutorial Oficial':'Resmi Eğitim','Tutorial de Instalación':'Kurulum Rehberi',
+  'Ver Tutorial':'Eğitimi İzle','Guía Paso a Paso':'Adım Adım Rehber',
+  'Sigue el video para instalar correctamente el mod':'Modu doğru yüklemek için videoyu izle',
+  'Atrás':'Geri','Compartir':'Paylaş',
+  'Descargar Mod Apk':'Mod Apk İndir','Versión':'Sürüm','Peso':'Boyut',
+  'Seguridad':'Güvenlik','100% SEGURO':'%100 GÜVENLİ',
+  'Información del Juego':'Oyun Bilgisi',
+  'Características del Mod':'Mod Özellikleri',
+  'Advertencia importante':'Önemli Uyarı',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ ÖNEMLİ UYARI!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'Kurulum sorunlarında Google Play Store önceki sürümünü kaldırın.',
+  'Enlaces Oficiales':'Resmi Bağlantılar','También te puede gustar':'Bunları da beğenebilirsin',
+  'HOME':'ANA SAYFA','Regresar al panel principal.':'Ana panele dön.',
+  'Juegos':'Oyunlar','Nuestra colección de mods premium.':'Premium mod koleksiyonumuz.',
+  'Sobre Nosotros':'Hakkımızda','El equipo detrás de JoelDroid Mods.':'JoelDroid Mods ekibi.',
+  'Políticas y Condiciones':'Politika ve Koşullar','Términos de uso y privacidad.':'Kullanım şartları ve gizlilik.',
+  'Entrar':'Giriş','Cancelar':'İptal','Descargar APK':'APK İndir',
+  'Ver Juego':'Oyunu Gör','Descargar Mod':'Mod İndir',
+  'Descargar Mod 1':'Mod 1 İndir','Descargar Mod 2':'Mod 2 İndir',
+  'Mediafire-Seguro':'Mediafire-Güvenli','Verificado':'Doğrulandı',
+  'No hay más juegos disponibles.':'Daha fazla oyun yok.',
+  'CALIFICA ESTA APP':'UYGULAMAYI DEĞERLENDIR',
+  'Comparte tu opinión con otros usuarios':'Görüşünü diğer kullanıcılarla paylaş',
+  'Valoración':'Değerlendirme','Comentarios':'Yorumlar',
+  'Escribe un comentario...':'Yorum yaz...',
+  'Publicar':'Yayınla','Sé el primero en comentar':'İlk yorum yapan sen ol',
+  'Share':'Paylaş'
+},
+hi:{
+  'Todo':'सभी','Actualizados':'अपडेटेड','Popular':'लोकप्रिय',
+  'Buscar aplicaciones...':'ऐप खोजें...',
+  'Tutorial Oficial':'आधिकारिक ट्यूटोरियल','Tutorial de Instalación':'इंस्टॉलेशन गाइड',
+  'Ver Tutorial':'ट्यूटोरियल देखें','Guía Paso a Paso':'चरण-दर-चरण गाइड',
+  'Sigue el video para instalar correctamente el mod':'Mod सही तरीके से इंस्टॉल करने के लिए वीडियो देखें',
+  'Atrás':'वापस','Compartir':'साझा करें',
+  'Descargar Mod Apk':'Mod Apk डाउनलोड करें','Versión':'संस्करण','Peso':'आकार',
+  'Seguridad':'सुरक्षा','100% SEGURO':'100% सुरक्षित',
+  'Información del Juego':'गेम जानकारी',
+  'Características del Mod':'Mod विशेषताएँ',
+  'Advertencia importante':'महत्वपूर्ण चेतावनी',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ महत्वपूर्ण चेतावनी!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'इंस्टॉलेशन समस्याओं के लिए Google Play Store से पुराना संस्करण अनइंस्टॉल करें।',
+  'Enlaces Oficiales':'आधिकारिक लिंक','También te puede gustar':'आपको यह भी पसंद आ सकता है',
+  'HOME':'होम','Regresar al panel principal.':'मुख्य पैनल पर वापस।',
+  'Juegos':'गेम्स','Nuestra colección de mods premium.':'प्रीमियम मॉड संग्रह।',
+  'Sobre Nosotros':'हमारे बारे में','El equipo detrás de JoelDroid Mods.':'JoelDroid Mods टीम।',
+  'Políticas y Condiciones':'नीतियां और शर्तें','Términos de uso y privacidad.':'उपयोग की शर्तें और गोपनीयता।',
+  'Entrar':'प्रवेश करें','Cancelar':'रद्द करें','Descargar APK':'APK डाउनलोड करें',
+  'Ver Juego':'गेम देखें','Descargar Mod':'Mod डाउनलोड करें',
+  'Descargar Mod 1':'Mod 1 डाउनलोड करें','Descargar Mod 2':'Mod 2 डाउनलोड करें',
+  'Mediafire-Seguro':'Mediafire-सुरक्षित','Verificado':'सत्यापित',
+  'No hay más juegos disponibles.':'कोई और गेम नहीं।',
+  'CALIFICA ESTA APP':'इस ऐप को रेट करें',
+  'Comparte tu opinión con otros usuarios':'अन्य उपयोगकर्ताओं के साथ अपनी राय साझा करें',
+  'Valoración':'रेटिंग','Comentarios':'टिप्पणियाँ',
+  'Escribe un comentario...':'टिप्पणी लिखें...',
+  'Publicar':'प्रकाशित करें','Sé el primero en comentar':'पहले टिप्पणी करने वाले बनें',
+  'Share':'साझा करें'
+},
+fr:{
+  'Todo':'Tout','Actualizados':'Mis à jour','Popular':'Populaire',
+  'Buscar aplicaciones...':'Rechercher des apps...',
+  'Tutorial Oficial':'Tutoriel Officiel','Tutorial de Instalación':'Tutoriel d\'Installation',
+  'Ver Tutorial':'Voir le Tutoriel','Guía Paso a Paso':'Guide Pas à Pas',
+  'Sigue el video para instalar correctamente el mod':'Suivez la vidéo pour installer le mod correctement',
+  'Atrás':'Retour','Compartir':'Partager',
+  'Descargar Mod Apk':'Télécharger Mod Apk','Versión':'Version','Peso':'Taille',
+  'Seguridad':'Sécurité','100% SEGURO':'100% SÛR',
+  'Información del Juego':'Informations sur le Jeu',
+  'Características del Mod':'Fonctionnalités du Mod',
+  'Advertencia importante':'Avertissement important',
+  '¡ADVERTENCIA IMPORTANTE!':'⚠ AVERTISSEMENT IMPORTANT!',
+  'Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.':'En cas de problème d\'installation, désinstallez les versions précédentes du Google Play Store pour éviter les conflits.',
+  'Enlaces Oficiales':'Liens Officiels','También te puede gustar':'Vous aimerez aussi',
+  'HOME':'ACCUEIL','Regresar al panel principal.':'Retour au panneau principal.',
+  'Juegos':'Jeux','Nuestra colección de mods premium.':'Notre collection de mods premium.',
+  'Sobre Nosotros':'À propos','El equipo detrás de JoelDroid Mods.':'L\'équipe derrière JoelDroid Mods.',
+  'Políticas y Condiciones':'Politiques et Conditions','Términos de uso y privacidad.':'Conditions d\'utilisation et confidentialité.',
+  'Entrar':'Entrer','Cancelar':'Annuler','Descargar APK':'Télécharger APK',
+  'Ver Juego':'Voir le Jeu','Descargar Mod':'Télécharger Mod',
+  'Descargar Mod 1':'Télécharger Mod 1','Descargar Mod 2':'Télécharger Mod 2',
+  'Mediafire-Seguro':'Mediafire-Sûr','Verificado':'Vérifié',
+  'No hay más juegos disponibles.':'Aucun autre jeu.',
+  'CALIFICA ESTA APP':'ÉVALUER CETTE APP',
+  'Comparte tu opinión con otros usuarios':'Partagez votre avis avec d\'autres utilisateurs',
+  'Valoración':'Évaluation','Comentarios':'Commentaires',
+  'Escribe un comentario...':'Écrire un commentaire...',
+  'Publicar':'Publier','Sé el primero en comentar':'Soyez le premier à commenter',
+  'Share':'Partager'
+}
+};
+
+// ── Traducción instantánea por clave de diccionario ───────────────
+function tStr(es){
+  if(currentLang==='es') return es;
+  var d=TR[currentLang];
+  return(d&&d[es]!==undefined)?d[es]:es;
+}
+// Alias para i18n keys heredados
+function t(key){
+  var MAP={
+    home_download_btn:'Descargar APK',download_mod_btn:'Descargar Mod Apk',
+    rec_visit_btn:'Ver Juego',rec_download_btn:'Descargar Mod',
+    safe_label:'Mediafire-Seguro',verification_text:'Verificado',
+    download_btn1:'Descargar Mod 1',download_btn2:'Descargar Mod 2',
+    filter_all:'Todo',filter_updated:'Actualizados',filter_popular:'Popular',
+    back_btn:'Atrás',banner_title:null,banner_subtitle:null,ann_text:null
+  };
+  var es=MAP[key];
+  if(es===null||es===undefined) return key;
+  return tStr(es);
+}
+
+// ── MyMemory API: contenido dinamico con fallback robusto ───────────
+// Si la API falla (limite excedido, sin conexion), muestra el texto
+// ORIGINAL de Firebase. NUNCA muestra mensajes de error de la API.
+function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
+function trAPI(text,cb){
+  if(!text||!text.trim()||currentLang==='es'){cb(text);return;}
+  // Diccionario local de terminos clave — funciona sin API
+  var _localDict={
+    en:{'Descargar':'Download','Descarga':'Download','Versión':'Version',
+        'Peso':'Size','Seguridad':'Security','Verificado':'Verified',
+        'Actualizados':'Updated','Popular':'Popular','Todo':'All',
+        'Requisitos':'Requirements','Características':'Features',
+        'Gratis':'Free','Mod':'Mod','Juego':'Game'},
+    pt:{'Descargar':'Baixar','Descarga':'Download','Versión':'Versão',
+        'Peso':'Tamanho','Seguridad':'Segurança','Verificado':'Verificado',
+        'Actualizados':'Atualizados','Todo':'Tudo','Gratis':'Grátis'},
+    de:{'Descargar':'Herunterladen','Descarga':'Download','Versión':'Version',
+        'Peso':'Größe','Seguridad':'Sicherheit','Verificado':'Verifiziert',
+        'Actualizados':'Aktualisiert','Todo':'Alle','Gratis':'Kostenlos'},
+    ru:{'Descargar':'Скачать','Descarga':'Скачать','Versión':'Версия',
+        'Peso':'Размер','Seguridad':'Безопасность','Verificado':'Проверено',
+        'Actualizados':'Обновлено','Todo':'Все','Gratis':'Бесплатно'},
+    fr:{'Descargar':'Télécharger','Descarga':'Télécharger','Versión':'Version',
+        'Peso':'Taille','Seguridad':'Sécurité','Verificado':'Vérifié',
+        'Actualizados':'Mis à jour','Todo':'Tout','Gratis':'Gratuit'}
+  };
+  var ck=_ck(currentLang,text);
+  // 1) Cache en memoria
+  if(_trMem[ck]){cb(_trMem[ck]);return;}
+  // 2) Cache en localStorage
+  try{var s=localStorage.getItem('_t_'+ck);if(s&&s!=='NULL'&&s.indexOf('MYMEMORY')<0){_trMem[ck]=s;cb(s);return;}}catch(e){}
+  // 3) Deduplicar peticiones en vuelo
+  if(_trQ[ck]){_trQ[ck].push(cb);return;}
+  _trQ[ck]=[cb];
+  var lc={'zh-CN':'zh'}; var lk=lc[currentLang]||currentLang;
+  // Timeout de seguridad: si la API tarda mas de 4s, usar texto original
+  var _done=false;
+  var _fallbackTimer=setTimeout(function(){
+    if(_done)return; _done=true;
+    (_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];
+  },4000);
+  fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=es|'+lk)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(_done)return; _done=true; clearTimeout(_fallbackTimer);
+      var tr=text; // default: texto original (NUNCA mensaje de error)
+      if(d&&d.responseData&&d.responseData.translatedText){
+        var t2=d.responseData.translatedText;
+        // Rechazar respuestas que son mensajes de error de MyMemory
+        var isErr=(t2==='NULL'||t2.indexOf('MYMEMORY')>=0||t2.indexOf('QUERY LENGTH')>=0||t2.indexOf('PLEASE')>=0||t2.length<1);
+        if(!isErr) tr=t2;
+      }
+      _trMem[ck]=tr;
+      try{localStorage.setItem('_t_'+ck,tr);}catch(e){}
+      (_trQ[ck]||[]).forEach(function(f){f(tr);});delete _trQ[ck];
+    })
+    .catch(function(){
+      if(_done)return; _done=true; clearTimeout(_fallbackTimer);
+      // Error de red → texto original, sin mensajes de error visibles
+      (_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];
+    });
+}
+// Helper: traduce un elemento por ID y actualiza innerText
+function trEl(id,text){
+  if(!text) return;
+  var el=document.getElementById(id); if(!el) return;
+  el.innerText=text;
+  trAPI(text,function(tr){var e=document.getElementById(id);if(e)e.innerText=tr;});
+}
+
+// ── Detectar idioma del navegador/dispositivo ─────────────────────
+function detectBrowserLanguage(){
+  // Revisar todos los idiomas preferidos del navegador/dispositivo
+  var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||navigator.userLanguage||'es'];
+  var supported=['es','en','pt','de','ru','zh-CN','ja','tr','hi','fr'];
+  for(var li=0;li<langs.length;li++){
+    var bl=(langs[li]||'').toLowerCase();
+    if(bl.startsWith('zh'))return'zh-CN';
+    for(var i=0;i<supported.length;i++){
+      if(bl.startsWith(supported[i].toLowerCase().split('-')[0]))return supported[i];
+    }
+  }
+  return'es';
+}
+
+// ── Mapa key → español para data-i18n heredados ───────────────────
+var LANG_FLAGS_KEYS={search_placeholder:'Buscar aplicaciones...',
+  filter_all:'Todo',filter_updated:'Actualizados',filter_popular:'Popular',
+  video_title:'Tutorial Oficial',install_tutorial_title:'Tutorial de Instalación',
+  install_play_label:'Ver Tutorial',install_step_label:'Guía Paso a Paso',
+  install_step_desc:'Sigue el video para instalar correctamente el mod',
+  back_btn:'Atrás',download_mod_btn:'Descargar Mod Apk',
+  label_version:'Versión',label_size:'Peso',label_security:'Seguridad',label_safe:'100% SEGURO',
+  game_info_title:'Información del Juego',mod_features_title:'Características del Mod',
+  warning_title:'Advertencia importante',official_links:'Enlaces Oficiales',
+  recommended_title:'También te puede gustar',
+  nav_home:'HOME',nav_home_desc:'Regresar al panel principal.',
+  nav_games:'Juegos',nav_games_desc:'Nuestra colección de mods premium.',
+  nav_about:'Sobre Nosotros',nav_about_desc:'El equipo detrás de JoelDroid Mods.',
+  nav_policies:'Políticas y Condiciones',nav_policies_desc:'Términos de uso y privacidad.',
+  login_btn:'Entrar',cancel_btn:'Cancelar',home_download_btn:'Descargar APK',
+  rec_visit_btn:'Ver Juego',rec_download_btn:'Descargar Mod',
+  safe_label:'Mediafire-Seguro',verification_text:'Verificado'
+};
+
+// ── applyTranslations: Sistema profesional — diccionario + API fallback ──
+// PARTE CRÍTICA (síncrona, <1ms): idioma + visibilidad + filtros visibles
+// PARTE DIFERIDA (idle): querySelectorAll pesados, trAPI calls a la red
+function applyTranslations(lang){
+  currentLang = lang;
+  localStorage.setItem('selectedLang', lang);
+  // Restaurar visibilidad si fue ocultada por el script pre-lang del <head>
+  if(document.documentElement.style.visibility === 'hidden'){
+    document.documentElement.style.visibility = '';
+  }
+
+  // ── CRÍTICO INMEDIATO: solo los elementos visibles above-the-fold ──
+  // Filtros (siempre visibles)
+  var chips = {all:'Todo', updated:'Actualizados', popular:'Popular'};
+  Object.keys(chips).forEach(function(k){
+    var el = document.getElementById('filter-'+k);
+    if(el){ var sp=el.querySelector('span'); if(sp) sp.textContent=tStr(chips[k]); }
+  });
+  // Placeholder del buscador
+  var sb = document.getElementById('search-bar');
+  if(sb) sb.placeholder = tStr('Buscar aplicaciones...');
+  // Bandera activa
+  var fg = document.getElementById('current-flag');
+  if(fg && LANG_FLAGS[lang]) fg.src = LANG_FLAGS[lang];
+  // Botones de descarga de las tarjetas (siempre visibles)
+  document.querySelectorAll('.global-dl-btn-text').forEach(function(el){
+    var adminTxt = (typeof siteState!=='undefined'&&siteState.buttonSettings&&siteState.buttonSettings.globalHomeButtonText)||'';
+    var defaults = ['Descargar APK','Download APK','Baixar APK','APK Herunterladen',
+      'Скачать APK','下载 APK','APKをダウンロード','APK İndir','APK डाउनलोड करें','Télécharger APK',''];
+    el.textContent = (defaults.indexOf(adminTxt)>=0) ? tStr('Descargar APK') : adminTxt;
+  });
+  // Modo claro (inmediato para evitar flash de color)
+  applyLightColors();
+
+  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea los anuncios ──
+  _jdIdle(function(){
+    // 1) Todos los [data-i18n] del DOM
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if(key==='banner_title'||key==='banner_subtitle'||key==='ann_text') return;
+      var es = LANG_FLAGS_KEYS[key];
+      if(!es) return;
+      el.textContent = tStr(es);
+    });
+    // 2) Placeholders extra
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-placeholder');
+      var es = LANG_FLAGS_KEYS[key]||key;
+      el.placeholder = tStr(es);
+    });
+    // 3) Botón compartir detalle
+    var shareSpan = document.querySelector('#detail-view button[onclick="shareGame()"] span');
+    if(shareSpan) shareSpan.textContent = tStr('Compartir');
+    // 4) Textos detalle estáticos
+    var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
+    if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
+    var warnBody = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
+    if(warnBody) warnBody.textContent = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
+    // 5) Rating labels
+    var ratingLbl = document.querySelector('.ps-vote-lbl');
+    if(ratingLbl) ratingLbl.textContent = tStr('CALIFICA ESTA APP');
+    var ratingSubLbl = document.querySelector('.ps-vote-sublbl');
+    if(ratingSubLbl) ratingSubLbl.textContent = tStr('Comparte tu opinión con otros usuarios');
+    // 6) Botón descarga detalle
+    var dlBtns = document.querySelectorAll('[data-i18n="download_mod_btn"]');
+    dlBtns.forEach(function(el){
+      var custom = typeof siteState!=='undefined' && siteState.buttonSettings && siteState.buttonSettings.globalDetailButtonText;
+      if(custom && custom !== 'Descargar Mod Apk'){
+        trAPI(custom, function(tr){ if(tr) el.textContent = tr; });
+      } else {
+        el.textContent = tStr('Descargar Mod Apk');
+      }
+    });
+  });
+
+  if(lang === 'es'){
+    _jdStopObserver();
+    return;
+  }
+
+  // ── DIFERIDO AL IDLE: llamadas a la API de traducción (red) ───────
+  _jdIdle(function(){
+    // Comunicado de anuncio
+    var ann = document.getElementById('ann-text-ui');
+    if(ann){
+      var orig = ann.dataset.orig || ann.innerText.trim();
+      if(!ann.dataset.orig && orig) ann.dataset.orig = orig;
+      trAPI(orig, function(tr){ var e=document.getElementById('ann-text-ui'); if(e) e.innerText=tr; });
+    }
+    // Copyright
+    ['copyright-text-ui','copyright-text-det'].forEach(function(id){
+      var el = document.getElementById(id); if(!el) return;
+      var orig = el.dataset.orig || el.innerText.trim();
+      if(!el.dataset.orig && orig) el.dataset.orig = orig;
+      trAPI(orig, function(tr){ var e=document.getElementById(id); if(e) e.innerText=tr; });
+    });
+    // Descripción del detalle abierto
+    if(currentDetailId){
+      var descEl = document.getElementById('det-desc');
+      if(descEl && descEl.dataset.esOrig){
+        trAPI(descEl.dataset.esOrig, function(tr){ var e=document.getElementById('det-desc'); if(e) e.innerText=tr; });
+      }
+    }
+    // Observer + traducción de tarjetas Firebase
+    _jdStartObserver();
+    _jdTranslateNewCards();
+  });
+}
+
+// ── selectLanguage: cambia idioma al instante y actualiza todo ─────
+function selectLanguage(langCode, flagUrl){
+  var m = document.getElementById('lang-menu');
+  if(m) m.classList.remove('active');
+  applyTranslations(langCode);
+  renderGames();
+  // Si hay un detalle abierto: re-renderizarlo con el nuevo idioma
+  if(currentDetailId) showDetail(currentDetailId);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   JD FIREBASE TRANSLATOR — MutationObserver edition v2
+   ───────────────────────────────────────────────────────────────────
+   • Watches #game-list AND #detail-view for Firebase-injected content
+   • Translates [data-jd-tr] elements (mod labels, descriptions, menus)
+   • Translates download button labels (Descargar Mod 1 / Mod 2)
+   • Auto-detects browser language on first visit (no saved preference)
+   • NEVER touches .notranslate elements (game names stay original)
+   • Never modifies data-*, href, onclick, id or any JS variable
+   ═══════════════════════════════════════════════════════════════════ */
+var _jdObserver    = null;
+var _jdDetObserver = null;
+var _jdObsBusy     = false;
+
+/* Translate a single translatable element safely */
+function _jdTranslateEl(el){
+  if(!el || el.classList.contains('notranslate')) return;
+  if(currentLang === 'es') return;
+  var orig = el.dataset.orig || el.innerText.trim();
+  if(!orig || orig.length < 2) return;
+  if(!el.dataset.orig) el.dataset.orig = orig;
+  trAPI(orig, function(tr){
+    if(tr && tr !== orig){
+      /* Only update visible text, never attribute or dataset values */
+      el.innerText = tr;
+    }
+  });
+}
+
+/* Translate all [data-jd-tr] elements already in #game-list */
+function _jdTranslateNewCards(){
+  if(currentLang === 'es') return;
+  var gl = document.getElementById('game-list');
+  if(!gl) return;
+  gl.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+  /* Also retranslate download button labels */
+  gl.querySelectorAll('.global-dl-btn-text').forEach(function(el){
+    el.textContent = tStr('Descargar APK');
+  });
+}
+
+/* Translate detail-view dynamic content injected by Firebase/showDetail */
+function _jdTranslateDetailView(){
+  if(currentLang === 'es') return;
+  /* Description */
+  var descEl = document.getElementById('det-desc');
+  if(descEl && descEl.dataset.esOrig){
+    trAPI(descEl.dataset.esOrig, function(tr){
+      var e = document.getElementById('det-desc'); if(e) e.innerText = tr;
+    });
+  }
+  /* Download button 1 */
+  var btn1txt = document.getElementById('btn-descarga-1-texto');
+  if(btn1txt){
+    var orig1 = btn1txt.dataset.orig || btn1txt.textContent.trim();
+    if(!btn1txt.dataset.orig) btn1txt.dataset.orig = orig1;
+    if(orig1) trAPI(orig1, function(tr){ var e=document.getElementById('btn-descarga-1-texto'); if(e) e.textContent=tr; });
+  }
+  /* Download button 2 */
+  var btn2txt = document.getElementById('btn-descarga-2-texto');
+  if(btn2txt){
+    var orig2 = btn2txt.dataset.orig || btn2txt.textContent.trim();
+    if(!btn2txt.dataset.orig) btn2txt.dataset.orig = orig2;
+    if(orig2) trAPI(orig2, function(tr){ var e=document.getElementById('btn-descarga-2-texto'); if(e) e.textContent=tr; });
+  }
+  /* Mod features tags */
+  document.querySelectorAll('#det-mod-features .mod-tag').forEach(function(el){ _jdTranslateEl(el); });
+  /* Warning text in download section */
+  var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
+  if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
+  var warnBody  = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
+  if(warnBody)  warnBody.textContent  = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
+  /* Mediafire-Seguro labels */
+  document.querySelectorAll('#det-download-buttons p.text-blue-500\\/60').forEach(function(el){
+    el.textContent = tStr('Mediafire-Seguro');
+  });
+}
+
+/* Start the MutationObserver on #game-list */
+function _jdStartObserver(){
+  if(_jdObserver) return;
+  var gl = document.getElementById('game-list');
+  if(!gl) return;
+  _jdObserver = new MutationObserver(function(muts){
+    if(currentLang === 'es') return;
+    if(_jdObsBusy) return;
+    _jdObsBusy = true;
+    /* Debounce: translate in next microtask to batch multiple mutations */
+    setTimeout(function(){
+      _jdObsBusy = false;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(node){
+          if(node.nodeType !== 1) return;
+          /* Translate translatable children of the new card */
+          node.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+          /* Translate button label */
+          node.querySelectorAll('.global-dl-btn-text').forEach(function(b){
+            b.textContent = tStr('Descargar APK');
+          });
+        });
+      });
+    }, 60);
+  });
+  _jdObserver.observe(gl, { childList: true, subtree: false });
+  /* Also watch the detail view for Firebase-injected content */
+  _jdStartDetailObserver();
+}
+
+/* Start observer on the detail-view to catch Firebase-injected content */
+function _jdStartDetailObserver(){
+  if(_jdDetObserver) return;
+  var dv = document.getElementById('detail-view');
+  if(!dv) return;
+  _jdDetObserver = new MutationObserver(function(muts){
+    if(currentLang === 'es') return;
+    var hasRelevant = muts.some(function(m){
+      return m.addedNodes.length > 0 || m.type === 'characterData';
+    });
+    if(!hasRelevant) return;
+    /* Debounce 80ms to let Firebase finish injecting the batch */
+    clearTimeout(_jdDetObserver._t);
+    _jdDetObserver._t = setTimeout(function(){
+      _jdTranslateDetailView();
+    }, 80);
+  });
+  _jdDetObserver.observe(dv, { childList: true, subtree: true });
+}
+
+/* Stop the observer (when switching back to Spanish) */
+function _jdStopObserver(){
+  if(_jdObserver){ _jdObserver.disconnect(); _jdObserver = null; }
+  if(_jdDetObserver){ _jdDetObserver.disconnect(); _jdDetObserver = null; }
+}
+
 
 // ============================================================
 // FIX 3: INSTALL TUTORIAL SECTION
@@ -5448,9 +6181,8 @@ window.onload=function(){
 <!-- ══ NOTIF VERIFICACIÓN EMAIL (toast especial) ═══════════════ -->
 <div id="verify-banner" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:500;background:linear-gradient(135deg,#f59e0b,#f97316);color:white;padding:10px 20px;border-radius:12px;font-size:10px;font-weight:900;box-shadow:0 4px 20px rgba(245,158,11,.4);white-space:nowrap;animation:fadeIn .3s ease">
   ⚠️ Verifica tu correo para poder comentar
-</div>
+    
 
-<!-- ══ SISTEMA DE TRADUCCIONES EXTERNO ══════════════════════════ -->
-<script type="module" src="js/traduccion.js"></script>
+
 </body>
 </html>
