@@ -1136,17 +1136,33 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   Si Firebase falla → initialGames de emergencia a los 4s
 ════════════════════════════════════════════════════════════════ -->
 <script>
-(function(){
-  function _jdGetSrc(){
-    return (window.JUEGOS_DATA&&window.JUEGOS_DATA.length)?window.JUEGOS_DATA
-          :(window.juegos_data&&window.juegos_data.length)?window.juegos_data:null;
-  }
-  function _jdTryRender(){
-    var src=_jdGetSrc(); if(!src)return false;
-    window.__JD_DATA_READY=true;
-    if(window.__JD_DONE)return true;
-    if(typeof siteState!=='undefined'&&typeof renderGames==='function'){
-      siteState.gamesList=src; renderGames(); return true;
+// 1. Verificación de seguridad de datos
+function _jdGetSrc() {
+    if (window.JUEGOS_DATA && window.JUEGOS_DATA.length > 0) {
+        return window.JUEGOS_DATA;
+    }
+    return null;
+}
+
+// 2. Renderizado inmediato
+function _jdTryRender() {
+    var src = _jdGetSrc();
+    if (!src) {
+        console.warn("Esperando archivo data.js con JUEGOS_DATA...");
+        return false;
+    }
+    
+    if (typeof renderGames === 'function') {
+        renderGames(src);
+        window.__JD_DONE = true;
+        return true;
+    }
+    return false;
+}
+
+// 3. Ejecución
+document.addEventListener('DOMContentLoaded', _jdTryRender);
+</script>
     }
     if(typeof window.__JD_RENDER==='function'){
       window.__JD_RENDER(src); return true;
