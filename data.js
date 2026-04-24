@@ -1,11 +1,13 @@
 // data.js — JoelDroid Mods YT
-// Generado: 2026-04-23T00:00:00.000Z
-// Carga instantánea sin Firebase ni Gist
 // ─────────────────────────────────────────────────────────────────
-// INSTRUCCIONES:
-//   1. Sube este archivo al mismo directorio que index.html en GitHub Pages
-//   2. Para agregar/editar juegos: usa el Panel de Control → "Descargar data.js"
-//      y reemplaza este archivo con el nuevo generado
+// ESTE ARCHIVO ES EL RESPALDO LOCAL — SE USA CUANDO:
+//   • Firebase no responde (conexión lenta / primera visita)
+//   • Gist no está disponible
+//   • El usuario visita el sitio offline (caché del navegador)
+//
+// PARA ACTUALIZAR:
+//   Panel de Control → sección "data.js" → botón "⬇️ Descargar data.js"
+//   Luego sube el archivo descargado a GitHub reemplazando este.
 // ─────────────────────────────────────────────────────────────────
 
 window.JUEGOS_DATA = [
@@ -42,7 +44,7 @@ window.JUEGOS_DATA = [
     "warningText": "Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.",
     "downloadNameSecondary": "GLOBAL TRUCK ONLINE MOD APP",
     "visits": 1250,
-    "timestamp": 1716220800000,
+    "timestamp": 1745000000001,
     "order": 0
   },
   {
@@ -78,7 +80,7 @@ window.JUEGOS_DATA = [
     "warningText": "Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.",
     "downloadNameSecondary": "TRUCKER OF EUROPE MOD APP",
     "visits": 890,
-    "timestamp": 1704844800000,
+    "timestamp": 1745000000000,
     "order": 1
   },
   {
@@ -114,13 +116,13 @@ window.JUEGOS_DATA = [
     "warningText": "",
     "downloadNameSecondary": "BUS SIMULATOR ULTIMATE MOD",
     "visits": 2100,
-    "timestamp": 1745000000000,
+    "timestamp": 1744900000000,
     "order": 2
   },
   {
     "id": "euro-truck-driver",
     "name": "Euro Truck Driver",
-    "description": "Recorre las carreteras de Europa al volante de los camiones más potentes. MOD con combustible infinito, todo desbloqueado y sin restricciones de velocidad. Experiencia de conducción definitiva.",
+    "description": "Recorre las carreteras de Europa al volante de los camiones más potentes. MOD con combustible infinito, todo desbloqueado y sin restricciones. Experiencia de conducción definitiva.",
     "thumb": "https://play-lh.googleusercontent.com/8UtfBwp5L9j3lFLumRlXpPpPW6tV3vfmqOlWMPJMklz6QVQB15A7D7n4OU1-W0WIGA=w240-h480-rw",
     "ver": "v4.2",
     "size": "290 MB",
@@ -150,13 +152,13 @@ window.JUEGOS_DATA = [
     "warningText": "",
     "downloadNameSecondary": "EURO TRUCK DRIVER MOD",
     "visits": 750,
-    "timestamp": 1712000000000,
+    "timestamp": 1744800000000,
     "order": 3
   },
   {
     "id": "truck-simulator-pro",
     "name": "Truck Simulator PRO 2016",
-    "description": "El clásico simulador de camiones con gráficos mejorados y física de conducción avanzada. MOD desbloqueado con todos los vehículos disponibles desde el principio sin necesidad de dinero.",
+    "description": "El clásico simulador de camiones con gráficos mejorados. MOD desbloqueado con todos los vehículos disponibles sin necesidad de dinero. Física de conducción avanzada.",
     "thumb": "https://play-lh.googleusercontent.com/AzJAQqEHarYqBbYRJJxf_3fHWQ63K1g97E1bkO7eqmS3H9CGRLJfP7UzMp-Gvrl-fQ=w240-h480-rw",
     "ver": "v1.8",
     "size": "450 MB",
@@ -186,13 +188,13 @@ window.JUEGOS_DATA = [
     "warningText": "",
     "downloadNameSecondary": "TRUCK SIMULATOR PRO MOD",
     "visits": 620,
-    "timestamp": 1700000000000,
+    "timestamp": 1744700000000,
     "order": 4
   },
   {
-    "id": "grand-truck-simulator",
+    "id": "grand-truck-simulator-2",
     "name": "Grand Truck Simulator 2",
-    "description": "Simula la vida real de un camionero brasileño con entregas, rutas y gestión de flota. MOD con dinero infinito, combustible ilimitado y todo el contenido premium desbloqueado.",
+    "description": "Simula la vida real de un camionero con entregas, rutas y gestión de flota. MOD con dinero infinito, combustible ilimitado y todo el contenido premium desbloqueado.",
     "thumb": "https://play-lh.googleusercontent.com/Z9k4XN7Ht7I9Ml6b3u0Y1RFQN2YnFfnXuVIzFq3bKj7WlNxWs5WJqU5AqBKBOKvA=w240-h480-rw",
     "ver": "v1.0.34f3",
     "size": "335 MB",
@@ -222,7 +224,7 @@ window.JUEGOS_DATA = [
     "warningText": "Desinstala la versión oficial antes de instalar este MOD para evitar conflictos.",
     "downloadNameSecondary": "GRAND TRUCK SIMULATOR 2 MOD",
     "visits": 410,
-    "timestamp": 1740000000000,
+    "timestamp": 1744600000000,
     "order": 5
   }
 ];
@@ -230,7 +232,7 @@ window.JUEGOS_DATA = [
 // ── Señal para index.html ──────────────────────────────────────
 window.__JD_DATA_READY = true;
 
-// ── Auto-render si index.html ya cargó __JD_RENDER ────────────
+// ── Auto-render si index.html ya inicializó __JD_RENDER ────────
 if (typeof window.__JD_RENDER === 'function' && !window.__JD_DONE) {
   window.__JD_RENDER(window.JUEGOS_DATA);
 }

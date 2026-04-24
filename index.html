@@ -35,9 +35,7 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="dns-prefetch" href="https://www.gstatic.com">
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
-<!-- GOOGLE FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-<!-- FONT AWESOME -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8">
@@ -1128,50 +1126,53 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
-<!-- ══ DATA.JS — carga local instantánea ══ -->
-<script>window.__JD_DATA_READY=false;</script>
-<script src="data.js" onerror="console.warn('[JD] data.js no encontrado — usando fallback')"></script>
-<!-- ══ RENDER BULLETPROOF — dispara renderGames en cuanto hay datos, sin importar el orden ══ -->
+<!-- ══ DATA.JS — Carga local instantánea (0ms) ══════════════════ -->
+<script>window.__JD_DATA_READY=false;window.__JD_DONE=false;window.__JD_REST_DONE=false;</script>
+<script src="data.js" onerror="console.warn('[JD] data.js no encontrado')"></script>
+<!-- ══ RENDER BULLETPROOF — 3 intentos garantizados ══════════════
+  Intento 1: inmediato tras data.js (0ms)
+  Intento 2: DOMContentLoaded (cuando siteState ya existe)
+  Intento 3: 100ms después (último seguro)
+  Si Firebase falla → initialGames de emergencia a los 4s
+════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
+  function _jdGetSrc(){
+    return (window.JUEGOS_DATA&&window.JUEGOS_DATA.length)?window.JUEGOS_DATA
+          :(window.juegos_data&&window.juegos_data.length)?window.juegos_data:null;
+  }
   function _jdTryRender(){
-    // Acepta JUEGOS_DATA (mayúsculas) O juegos_data (minúsculas)
-    var src = (window.JUEGOS_DATA && window.JUEGOS_DATA.length) ? window.JUEGOS_DATA
-            : (window.juegos_data && window.juegos_data.length) ? window.juegos_data
-            : null;
-    if(!src) return false;
-    window.__JD_DATA_READY = true;
-    if(window.__JD_DONE) return true;
-    // Si siteState ya existe (JS principal cargado), usarlo directamente
-    if(typeof siteState !== 'undefined' && typeof renderGames === 'function'){
-      siteState.gamesList = src;
-      renderGames();
-      return true;
+    var src=_jdGetSrc(); if(!src)return false;
+    window.__JD_DATA_READY=true;
+    if(window.__JD_DONE)return true;
+    if(typeof siteState!=='undefined'&&typeof renderGames==='function'){
+      siteState.gamesList=src; renderGames(); return true;
     }
-    // Sino, pasar por __JD_RENDER (render mínimo pre-DOM)
-    if(typeof window.__JD_RENDER === 'function'){
-      window.__JD_RENDER(src);
-      return true;
+    if(typeof window.__JD_RENDER==='function'){
+      window.__JD_RENDER(src); return true;
     }
     return false;
   }
-  // Intento inmediato (data.js ya cargó en modo síncrono)
+  // Intento 1: inmediato
   if(!_jdTryRender()){
-    // Intento en DOMContentLoaded (data.js cargó pero siteState aún no)
-    document.addEventListener('DOMContentLoaded', function(){
+    // Intento 2: DOMContentLoaded
+    document.addEventListener('DOMContentLoaded',function(){
       if(!_jdTryRender()){
-        // Último intento 50ms después (todo debería estar listo)
-        setTimeout(_jdTryRender, 50);
+        setTimeout(function(){ _jdTryRender(); },100); // Intento 3
       }
-    }, {once:true});
+      // Intento 4 (emergencia): si Firebase no cargó en 4s → usar initialGames
+      setTimeout(function(){
+        if(!window.__JD_DONE){
+          var em=_jdGetSrc()||(typeof initialGames!=='undefined'?initialGames:null);
+          if(em&&typeof siteState!=='undefined'&&typeof renderGames==='function'){
+            siteState.gamesList=em; renderGames();
+          }
+        }
+      },4000);
+    },{once:true});
   }
 })();
 </script>
-<!-- ══ RENDER INSTANTÁNEO — sin fetch bloqueante, sin setInterval ════
-     Nivel 0: juegos_data.js (local en repo, 0ms)
-     Nivel 1: sessionStorage (visitas repetidas, 0ms)  
-     Nivel 2: Gist + Firestore REST en background (300ms, invisible)
-════════════════════════════════════════════════════════════════════ -->
 <script>
 window.__JD_DONE=false;window.__JD_REST_DONE=false;
 var _JD_TK='jd_thumb_';
@@ -1224,12 +1225,15 @@ if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_
   // Fetch inmediato — sin retraso
   fetch(G,{cache:'default'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){var g=Array.isArray(d)?d:(d.games||[]);_at(g);if(!window.__JD_DONE)window.__JD_RENDER(g);}).catch(function(){});
   fetch(F,{cache:'default'}).then(function(r){return r.json();}).then(function(d){var g=(d.documents||[]).map(_pd);_at(g);if(!window.__JD_DONE)window.__JD_RENDER(g);}).catch(function(){});
-  // Fallback duro: si en 7s no llegaron datos, usar initialGames para que no quede en blanco
+  // Fallback duro: si en 3s no llegaron datos de Firebase/Gist, usar data.js o initialGames
   setTimeout(function(){
-    if(!window.__JD_DONE&&typeof initialGames!=='undefined'&&initialGames.length){
-      window.__JD_RENDER(initialGames);
+    if(!window.__JD_DONE){
+      var fb = (window.JUEGOS_DATA&&window.JUEGOS_DATA.length)?window.JUEGOS_DATA
+              :(window.juegos_data&&window.juegos_data.length)?window.juegos_data
+              :(typeof initialGames!=='undefined'&&initialGames.length?initialGames:null);
+      if(fb) window.__JD_RENDER(fb);
     }
-  },7000);
+  },3000);
   window.__jdSaveGamesToGist=function(games){try{var c=JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');if(!c||!c.token)return;fetch('https://api.github.com/gists/5981d391897fe461dc5ac9ba7303b8f2',{method:'PATCH',headers:{'Authorization':'token '+c.token,'Content-Type':'application/json'},body:JSON.stringify({files:{'games.json':{content:JSON.stringify({_updated:new Date().toISOString(),games:games},null,2)}}})}).catch(function(){});}catch(e){}};
 })();
 </script>
@@ -1631,10 +1635,10 @@ if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js">
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js">
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 
 <script>
