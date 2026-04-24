@@ -35,10 +35,10 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="dns-prefetch" href="https://www.gstatic.com">
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
-<!-- ══ GOOGLE FONTS — Inter (fuente principal del sitio) ══ -->
+<!-- GOOGLE FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-<!-- ══ FONT AWESOME — iconos de descarga, redes sociales, UI ══ -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<!-- FONT AWESOME -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1128,9 +1128,45 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
-<!-- ══ DATA.JS — Juegos embebidos localmente (carga 0ms si existe) ══ -->
+<!-- ══ DATA.JS — carga local instantánea ══ -->
 <script>window.__JD_DATA_READY=false;</script>
-<script src="data.js" onerror="void 0"></script>
+<script src="data.js" onerror="console.warn('[JD] data.js no encontrado — usando fallback')"></script>
+<!-- ══ RENDER BULLETPROOF — dispara renderGames en cuanto hay datos, sin importar el orden ══ -->
+<script>
+(function(){
+  function _jdTryRender(){
+    // Acepta JUEGOS_DATA (mayúsculas) O juegos_data (minúsculas)
+    var src = (window.JUEGOS_DATA && window.JUEGOS_DATA.length) ? window.JUEGOS_DATA
+            : (window.juegos_data && window.juegos_data.length) ? window.juegos_data
+            : null;
+    if(!src) return false;
+    window.__JD_DATA_READY = true;
+    if(window.__JD_DONE) return true;
+    // Si siteState ya existe (JS principal cargado), usarlo directamente
+    if(typeof siteState !== 'undefined' && typeof renderGames === 'function'){
+      siteState.gamesList = src;
+      renderGames();
+      return true;
+    }
+    // Sino, pasar por __JD_RENDER (render mínimo pre-DOM)
+    if(typeof window.__JD_RENDER === 'function'){
+      window.__JD_RENDER(src);
+      return true;
+    }
+    return false;
+  }
+  // Intento inmediato (data.js ya cargó en modo síncrono)
+  if(!_jdTryRender()){
+    // Intento en DOMContentLoaded (data.js cargó pero siteState aún no)
+    document.addEventListener('DOMContentLoaded', function(){
+      if(!_jdTryRender()){
+        // Último intento 50ms después (todo debería estar listo)
+        setTimeout(_jdTryRender, 50);
+      }
+    }, {once:true});
+  }
+})();
+</script>
 <!-- ══ RENDER INSTANTÁNEO — sin fetch bloqueante, sin setInterval ════
      Nivel 0: juegos_data.js (local en repo, 0ms)
      Nivel 1: sessionStorage (visitas repetidas, 0ms)  
@@ -1179,21 +1215,7 @@ window.__JD_RENDER=function(raw,silent){
   if(document.readyState!=='loading'){_p();}else{document.addEventListener('DOMContentLoaded',_p);}
 };
 if(window.__JD_STATIC_GAMES.length)window.__JD_RENDER(window.__JD_STATIC_GAMES);
-// ══ FIX: Render JUEGOS_DATA inmediatamente — ignora __JD_DATA_READY (puede no estar seteado)
-if(!window.__JD_DONE&&window.JUEGOS_DATA&&window.JUEGOS_DATA.length){window.__JD_DATA_READY=true;window.__JD_RENDER(window.JUEGOS_DATA);}
-// Fallback: minúsculas (compatibilidad)
-if(!window.__JD_DONE&&window.juegos_data&&window.juegos_data.length){window.__JD_DATA_READY=true;window.__JD_RENDER(window.juegos_data);}
-// Garantía post-DOM: si siteState ya existe, forzar renderGames()
-document.addEventListener('DOMContentLoaded',function(){
-  var _src=window.JUEGOS_DATA||window.juegos_data;
-  if(!window.__JD_DONE&&_src&&_src.length){
-    window.__JD_DATA_READY=true;
-    if(typeof siteState!=='undefined'&&typeof renderGames==='function'){
-      if(!siteState.gamesList||!siteState.gamesList.length)siteState.gamesList=_src;
-      renderGames();
-    }else{window.__JD_RENDER(_src);}
-  }
-},{once:true});
+if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_DATA.length)window.__JD_RENDER(window.JUEGOS_DATA);
 (function(){
   var G='https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json';
   var F='https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/mods?orderBy=order&pageSize=100&key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
