@@ -206,12 +206,10 @@ body{
     <div style="margin-bottom:12px">
       <input type="email" id="fb-login-email" class="admin-input" placeholder="gamerssimulacionjl@gmail.com"
         style="width:100%;margin-bottom:10px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
-        autocomplete="email" value=""
-        onkeydown="if(event.key==='Enter')document.getElementById('fb-login-pass').focus()">
+        autocomplete="email" value="">
       <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña de Firebase"
         style="width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
-        autocomplete="current-password"
-        onkeydown="if(event.key==='Enter')doFirebaseLogin()">
+        autocomplete="current-password">
     </div>
     <div id="fb-login-status" style="font-size:10px;color:#f87171;min-height:20px;text-align:center;margin-bottom:12px"></div>
     <button onclick="doFirebaseLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#fb923c,#ef4444);color:white;border:none;border-radius:12px;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;margin-bottom:8px">
@@ -329,27 +327,6 @@ body{
         </button>
         <button onclick="testGamesGist()" style="width:100%;padding:10px;border:1px solid rgba(251,191,36,.3);border-radius:14px;background:transparent;color:#fbbf24;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:4px">
           📡 Probar Gist de juegos
-        </button>
-      </div>
-
-      <!-- DATA.JS — CARGA LOCAL INSTANTÁNEA -->
-      <div class="space-y-2 p-4 border rounded-xl" style="border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.04)">
-        <h3 class="font-bold uppercase flex items-center gap-2" style="color:#34d399">
-          📦 data.js — Carga Local Instantánea
-        </h3>
-        <p style="font-size:9px;color:rgba(52,211,153,.7);font-weight:600;line-height:1.6">
-          Genera un archivo <code style="background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px">data.js</code> con todos los juegos embebidos. Súbelo junto a <b>index.html</b> en tu servidor para carga instantánea sin depender de Firebase ni Gist.<br><br>
-          ✅ El <b>index.html</b> ya detecta <code>data.js</code> automáticamente si está en el mismo servidor.<br>
-          🚀 Carga <b>0ms</b> — sin peticiones externas para los juegos.
-        </p>
-        <div id="datajs-status" style="padding:10px 12px;border-radius:10px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);font-size:10px;font-weight:800;color:#34d399">
-          📊 <span id="datajs-count">—</span> juegos en memoria
-        </div>
-        <button onclick="generateAndDownloadDataJs()" style="width:100%;padding:13px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#34d399);color:#000;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(52,211,153,.4);margin-top:4px">
-          ⬇️ Descargar data.js
-        </button>
-        <button onclick="previewDataJs()" style="width:100%;padding:10px;border:1px solid rgba(52,211,153,.3);border-radius:14px;background:transparent;color:#34d399;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:4px">
-          👁️ Vista previa (consola)
         </button>
       </div>
 
@@ -890,15 +867,6 @@ function _initFirebase(){
       _updateAdminBtns(user);
       if(user&&ADMIN_UID&&user.uid===ADMIN_UID){
         _updateSyncUI(true,'✅ Admin activo: '+user.email);
-        // Auto-mostrar panel si la sesión se restauró automáticamente
-        var ls=document.getElementById('login-screen');
-        var ap=document.getElementById('admin-panel');
-        if(ls&&ap&&ls.style.display!=='none'){
-          ls.style.display='none';
-          ap.classList.remove('hidden');
-          renderAdminUI();renderGameEditorList();
-          try{if(_db)_listenStats();}catch(e){}
-        }
         setTimeout(function(){
           if(!_isAdmin())return;
           _db.collection('mods').limit(1).get()
@@ -1020,62 +988,29 @@ function fbMigrateLocalGames(){
 }
 
 function doFirebaseLogin(){
-  var email  =(document.getElementById('fb-login-email')||{}).value||'';
-  var pass   =(document.getElementById('fb-login-pass')||{}).value||'';
-  var status =document.getElementById('fb-login-status');
-
+  var email=(document.getElementById('fb-login-email')||{}).value||'';
+  var pass=(document.getElementById('fb-login-pass')||{}).value||'';
+  var status=document.getElementById('fb-login-status');
   if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
-  if(status)status.innerText='⏳ Conectando...';
-
-  if(!_fbReady||!_fbAuth){
-    if(status)status.innerText='⏳ Iniciando Firebase...';
-    _initFirebase();
-    var _tries=0;
-    var _wait=setInterval(function(){
-      _tries++;
-      if(status)status.innerText='⏳ Conectando... ('+_tries+'/15)';
-      if(_fbReady&&_fbAuth){clearInterval(_wait);_doLogin(email,pass,status);}
-      else if(_tries>=15){
-        clearInterval(_wait);
-        if(status)status.innerText='❌ Sin respuesta de Firebase. Verifica tu internet e intenta de nuevo.';
-      }
-    },600);
-    return;
-  }
-  _doLogin(email,pass,status);
-}
-
-function _doLogin(email,pass,status){
+  if(status)status.innerText='⏳ Iniciando sesión...';
+  if(!_fbReady||!_fbAuth){_initFirebase();setTimeout(doFirebaseLogin,1500);return;}
   _fbAuth.signInWithEmailAndPassword(email.trim(),pass)
     .then(function(cred){
       if(cred.user.uid===ADMIN_UID){
-        if(status)status.innerText='✅ Acceso concedido — cargando panel...';
-        var ls=document.getElementById('login-screen');
-        var ap=document.getElementById('admin-panel');
+        if(status)status.innerText='✅ Admin verificado';
         setTimeout(function(){
-          if(ls)ls.style.display='none';
-          if(ap)ap.classList.remove('hidden');
-          renderAdminUI();
-          renderGameEditorList();
-          _fillGHInputs();
+          document.getElementById('login-screen').style.display='none';
+          document.getElementById('admin-panel').classList.remove('hidden');
+          renderAdminUI();renderGameEditorList();_fillGHInputs();
           try{if(_db)_listenStats();}catch(e){}
-        },300);
+        },500);
       }else{
-        if(status)status.innerText='❌ UID no coincide. UID: '+cred.user.uid+' | Esperado: '+ADMIN_UID;
+        if(status)status.innerText='❌ UID no coincide. UID actual: '+cred.user.uid;
         _fbAuth.signOut();
       }
     })
     .catch(function(err){
-      var msg='❌ ';
-      switch(err.code){
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential': msg+='Contraseña incorrecta'; break;
-        case 'auth/user-not-found':     msg+='Email no registrado en Firebase'; break;
-        case 'auth/invalid-email':      msg+='Email inválido'; break;
-        case 'auth/too-many-requests':  msg+='Demasiados intentos. Espera unos minutos.'; break;
-        case 'auth/network-request-failed': msg+='Sin conexión a internet'; break;
-        default: msg+=err.message;
-      }
+      var msg=err.code==='auth/wrong-password'?'❌ Contraseña incorrecta':err.code==='auth/user-not-found'?'❌ Email no registrado':'❌ Error: '+err.message;
       if(status)status.innerText=msg;
     });
 }
@@ -1147,9 +1082,9 @@ function loadSettings(){
     }catch(e){}
   }
   _ghCfg=_loadGHConfig();
-  if(_ghCfg&&_ghCfg.gistId){
-    _loadFromGitHub(function(ok){if(ok)renderAdminUI();});
-  }
+  // NO llamamos _loadFromGitHub() al iniciar — eso causaba que el Gist principal
+  // sobreescribiera el siteState (incluyendo gamesList) cada vez que se abría el panel.
+  // El Gist principal se usa solo para GUARDAR cambios, no para cargar al arranque.
 }
 
 function _mergeState(remote){
@@ -1166,7 +1101,9 @@ function _mergeState(remote){
     youtubeUrl:remote.youtubeUrl||'',installYoutubeUrl:remote.installYoutubeUrl||'',
     youtubeVisible:remote.youtubeVisible!==false,installVisible:remote.installVisible!==false,
     showGeoShapes:remote.showGeoShapes!==false,activeScene:remote.activeScene||'none',
-    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:(remote.gamesList||[])
+    // gamesList NUNCA se toma del Gist principal (joeldroid_state.json)
+    // Los juegos vienen de Firestore onSnapshot o del editor local — nunca del estado remoto
+    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:[]
   });
 }
 
@@ -1651,7 +1588,6 @@ function renderGameEditorList(){
     '</div>';
   }).join(''):'<p style="font-size:10px;opacity:.4;text-align:center;padding:12px">Sin juegos. Agrega el primero.</p>')+
   (_isAdmin()?'<button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:10px;cursor:pointer;">🌍 Publicar todos los juegos</button>':'');
-  _updateDataJsCount();
 }
 
 function deleteGameGlobal(gameId){
@@ -1662,59 +1598,6 @@ function deleteGameGlobal(gameId){
   });}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
-
-// ════════════════════════════════════════════════════════════════
-// DATA.JS — Generador de archivo local de juegos
-// ════════════════════════════════════════════════════════════════
-function _getGamesForDataJs(){
-  // Priorizar Firestore (ya cargados en siteState), luego localStorage
-  var games = (siteState.gamesList||[]).filter(function(g){return g.visible!==false;});
-  if(!games.length){
-    try{var s=localStorage.getItem('siteState');if(s){var p=JSON.parse(s);games=(p.gamesList||[]).filter(function(g){return g.visible!==false;});}}catch(e){}
-  }
-  return games;
-}
-
-function generateAndDownloadDataJs(){
-  var games = _getGamesForDataJs();
-  if(!games.length){showToast('⚠️ No hay juegos en memoria. Asegúrate de estar conectado a Firebase.');return;}
-  var content = '// data.js — JoelDroid Mods YT\n// Generado: '+new Date().toISOString()+'\n// '+games.length+' juegos — carga instantánea sin Firebase ni Gist\n\n';
-  content += 'window.JUEGOS_DATA = '+JSON.stringify(games, null, 2)+';\n\n';
-  content += '// Señal para que index.html use este archivo en lugar de esperar Firebase\n';
-  content += 'window.__JD_DATA_READY = true;\n';
-  content += 'if(typeof window.__JD_RENDER === "function" && !window.__JD_DONE){\n';
-  content += '  window.__JD_RENDER(window.JUEGOS_DATA);\n';
-  content += '}\n';
-  var blob = new Blob([content], {type:'application/javascript'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href=url;a.download='data.js';a.style.display='none';
-  document.body.appendChild(a);a.click();
-  setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
-  showToast('✅ data.js descargado — '+games.length+' juegos');
-  _updateDataJsCount();
-}
-
-function previewDataJs(){
-  var games = _getGamesForDataJs();
-  console.log('[JoelDroid] data.js preview — '+games.length+' juegos:');
-  console.table(games.map(function(g){return{id:g.id,name:g.name,visible:g.visible,timestamp:g.timestamp};}));
-  showToast('📋 Ver consola del navegador (F12)');
-}
-
-function _updateDataJsCount(){
-  var el=document.getElementById('datajs-count');
-  if(!el)return;
-  var games=_getGamesForDataJs();
-  el.textContent=games.length;
-}
-
-// Actualizar contador al cargar juegos de Firestore
-(function(){
-  var _origRenderList=window.renderGameEditorList;
-  // Se re-define después de declararse, así que se llama desde el arranque
-  setTimeout(function(){_updateDataJsCount();},2000);
-})();
 
 // ════════════════════════════════════════════════════════════════
 // GITHUB SYNC
@@ -1728,15 +1611,10 @@ function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(
    Se llama automáticamente al guardar/eliminar un juego.
    Usa el mismo token del admin pero escribe al GIST de games.
    ════════════════════════════════════════════════════════════════════ */
-function _syncGamesToGist(){
-  var cfg = _ghCfg || _loadGHConfig();
-  if(!cfg || !cfg.token) return; // Solo si admin tiene token configurado
-
-  // Tomar todos los juegos visibles del siteState
+function _buildGamesPayload(){
   var games = (siteState.gamesList || []).filter(function(g){
     return g.visible !== false;
   }).map(function(g){
-    // Estructura limpia compatible con descarga.html y index.html
     return {
       id:                   String(g.id),
       name:                 g.name || g.nombre || '',
@@ -1776,15 +1654,32 @@ function _syncGamesToGist(){
       dlPageBtn2:           g.dlPageBtn2 || ''
     };
   });
-
-  var fileContent = JSON.stringify({
+  return JSON.stringify({
     _info:    'JoelDroid Mods YT — Auto-generado. No editar manualmente.',
     _updated: new Date().toISOString(),
     _count:   games.length,
     games:    games
   }, null, 2);
+}
 
-  // Escribir al Gist de games (GAMES_GIST_ID), NO al gistId principal
+/* Versión silenciosa (auto-sync al guardar/eliminar) */
+function _syncGamesToGist(){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token) return;
+  _syncGamesToGistWithCallback(function(ok, msg){
+    if(ok){
+      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
+    } else {
+      _showGHStatus('⚠️ games.json: ' + msg, '#f59e0b');
+    }
+  });
+}
+
+/* Versión con callback — devuelve el resultado REAL del fetch */
+function _syncGamesToGistWithCallback(cb){
+  var cfg = _ghCfg || _loadGHConfig();
+  if(!cfg || !cfg.token){ if(cb) cb(false, 'Sin token GitHub'); return; }
+
   fetch('https://api.github.com/gists/' + GAMES_GIST_ID, {
     method: 'PATCH',
     headers: {
@@ -1792,22 +1687,22 @@ function _syncGamesToGist(){
       'Content-Type':  'application/json'
     },
     body: JSON.stringify({
-      files: { 'games.json': { content: fileContent } }
+      files: { 'games.json': { content: _buildGamesPayload() } }
     })
   })
   .then(function(r){
     if(r.ok){
-      _showGHStatus('✅ games.json actualizado — Carga instantánea activa 🚀', '#10b981');
+      if(cb) cb(true, '');
     } else {
       r.json().then(function(e){
-        _showGHStatus('⚠️ games.json: Error ' + r.status + ' — ' + (e.message||''), '#f59e0b');
+        if(cb) cb(false, 'Error ' + r.status + ' — ' + (e.message||'token inválido o sin permisos'));
       }).catch(function(){
-        _showGHStatus('⚠️ games.json: Error ' + r.status, '#f59e0b');
+        if(cb) cb(false, 'Error ' + r.status);
       });
     }
   })
   .catch(function(e){
-    _showGHStatus('⚠️ games.json: Sin conexión — ' + e.message, '#f59e0b');
+    if(cb) cb(false, 'Sin conexión — ' + e.message);
   });
 }
 
@@ -1842,14 +1737,14 @@ function syncGamesNow(){
     return;
   }
   _setGamesGistStatus('⏳ Sincronizando games.json...', '#fbbf24');
-  try{
-    _syncGamesToGist();
-    setTimeout(function(){
+  // Llamamos directamente al fetch real y mostramos el resultado verdadero
+  _syncGamesToGistWithCallback(function(ok, msg){
+    if(ok){
       _setGamesGistStatus('✅ games.json sincronizado — Carga instantánea activa 🚀', '#10b981');
-    }, 2000);
-  }catch(e){
-    _setGamesGistStatus('❌ Error: ' + e.message, '#ef4444');
-  }
+    } else {
+      _setGamesGistStatus('❌ Error: ' + msg, '#ef4444');
+    }
+  });
 }
 
 function testGamesGist(){
@@ -2200,6 +2095,16 @@ window.addEventListener('DOMContentLoaded',function(){
   renderAdminUI();
   renderGameEditorList();
   _initFirebase();
+
+  // Verificar si ya hay sesión admin guardada (login persistente)
+  setTimeout(function(){
+    if(_isAdmin()){
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('admin-panel').classList.remove('hidden');
+      renderAdminUI();renderGameEditorList();
+      try{if(_db)_listenStats();}catch(e){}
+    }
+  },1500);
 });
 </script>
 </body>
