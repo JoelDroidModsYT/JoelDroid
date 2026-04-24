@@ -1123,6 +1123,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   </div>
 </nav>
 
+<!-- ══ DATA.JS — Juegos embebidos localmente (carga 0ms si existe) ══ -->
+<script>window.__JD_DATA_READY=false;</script>
+<script src="data.js" onerror="void 0"></script>
 <!-- ══ RENDER INSTANTÁNEO — sin fetch bloqueante, sin setInterval ════
      Nivel 0: juegos_data.js (local en repo, 0ms)
      Nivel 1: sessionStorage (visitas repetidas, 0ms)  
@@ -1186,7 +1189,7 @@ if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_
 </script>
 <!-- HOME VIEW -->
 <main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
-<!-- ══ AD SLOT 1: Banner superior home (468×60) ══════════════════ --><div id="site-announcement" class="hidden">
+<div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
       <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
     </div>
@@ -1346,7 +1349,6 @@ if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_
         
       </div>
       <div class="text-center py-4 border-t border-[var(--border-color)]">
-        <!-- ══ AD SLOT 2: Banner detalle — arriba botones descarga ══ -->
         
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-2" data-i18n="official_links">Enlaces Oficiales</p>
         <h3 id="det-name-dl-secondary" class="text-xs font-black uppercase notranslate">JUEGO MOD APP</h3>
@@ -1371,17 +1373,7 @@ if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_
           <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
         </div>
 
-        <!-- ════════════════════════════════════════════════════════════
-             ZONA DE ENLACES SECUNDARIOS
-             Pega aquí banners, iframes, botones extra o URLs adicionales.
-             Este bloque es seguro: está FUERA del JavaScript principal.
-             ════════════════════════════════════════════════════════════ -->
-   <div id="zona-de-fuego-ads" style="width:100%;display:flex;flex-direction:column;align-items:center;margin:20px 0 30px 0;clear:both;background:rgba(255,255,255,0.02);border-radius:12px;padding:15px 0;min-height:70px;">
-    <span style="font-size:8px;color:#888;font-family:sans-serif;font-weight:bold;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase;">Publicidad Recomendada</span>
-    <!-- ══ AD SLOT 3: Banner zona-de-fuego — debajo botones descarga ══ -->
-    
 
-      </div>
     </div>
 
     <!-- ══ RATING + COMENTARIOS POR JUEGO ══════════════════════ -->

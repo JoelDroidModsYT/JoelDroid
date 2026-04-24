@@ -330,6 +330,27 @@ body{
         </button>
       </div>
 
+      <!-- DATA.JS — CARGA LOCAL INSTANTÁNEA -->
+      <div class="space-y-2 p-4 border rounded-xl" style="border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.04)">
+        <h3 class="font-bold uppercase flex items-center gap-2" style="color:#34d399">
+          📦 data.js — Carga Local Instantánea
+        </h3>
+        <p style="font-size:9px;color:rgba(52,211,153,.7);font-weight:600;line-height:1.6">
+          Genera un archivo <code style="background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px">data.js</code> con todos los juegos embebidos. Súbelo junto a <b>index.html</b> en tu servidor para carga instantánea sin depender de Firebase ni Gist.<br><br>
+          ✅ El <b>index.html</b> ya detecta <code>data.js</code> automáticamente si está en el mismo servidor.<br>
+          🚀 Carga <b>0ms</b> — sin peticiones externas para los juegos.
+        </p>
+        <div id="datajs-status" style="padding:10px 12px;border-radius:10px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);font-size:10px;font-weight:800;color:#34d399">
+          📊 <span id="datajs-count">—</span> juegos en memoria
+        </div>
+        <button onclick="generateAndDownloadDataJs()" style="width:100%;padding:13px;border:none;border-radius:14px;background:linear-gradient(135deg,#10b981,#34d399);color:#000;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(52,211,153,.4);margin-top:4px">
+          ⬇️ Descargar data.js
+        </button>
+        <button onclick="previewDataJs()" style="width:100%;padding:10px;border:1px solid rgba(52,211,153,.3);border-radius:14px;background:transparent;color:#34d399;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:4px">
+          👁️ Vista previa (consola)
+        </button>
+      </div>
+
       <!-- SINCRONIZACIÓN GLOBAL — Firebase -->
       <div class="space-y-2 p-4 border rounded-xl border-orange-500/40 bg-orange-500/5">
         <h3 class="font-bold uppercase text-orange-400 flex items-center gap-2">🌐 Sincronización Global</h3>
@@ -867,6 +888,15 @@ function _initFirebase(){
       _updateAdminBtns(user);
       if(user&&ADMIN_UID&&user.uid===ADMIN_UID){
         _updateSyncUI(true,'✅ Admin activo: '+user.email);
+        // Auto-mostrar panel si la sesión se restauró automáticamente
+        var ls=document.getElementById('login-screen');
+        var ap=document.getElementById('admin-panel');
+        if(ls&&ap&&ls.style.display!=='none'){
+          ls.style.display='none';
+          ap.classList.remove('hidden');
+          renderAdminUI();renderGameEditorList();
+          try{if(_db)_listenStats();}catch(e){}
+        }
         setTimeout(function(){
           if(!_isAdmin())return;
           _db.collection('mods').limit(1).get()
@@ -1618,6 +1648,7 @@ function renderGameEditorList(){
     '</div>';
   }).join(''):'<p style="font-size:10px;opacity:.4;text-align:center;padding:12px">Sin juegos. Agrega el primero.</p>')+
   (_isAdmin()?'<button onclick="fbMigrateLocalGames()" style="width:100%;margin-top:8px;padding:8px;font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(249,115,22,.15);color:#fb923c;border:1px solid rgba(249,115,22,.3);border-radius:10px;cursor:pointer;">🌍 Publicar todos los juegos</button>':'');
+  _updateDataJsCount();
 }
 
 function deleteGameGlobal(gameId){
@@ -1628,6 +1659,59 @@ function deleteGameGlobal(gameId){
   });}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
+
+// ════════════════════════════════════════════════════════════════
+// DATA.JS — Generador de archivo local de juegos
+// ════════════════════════════════════════════════════════════════
+function _getGamesForDataJs(){
+  // Priorizar Firestore (ya cargados en siteState), luego localStorage
+  var games = (siteState.gamesList||[]).filter(function(g){return g.visible!==false;});
+  if(!games.length){
+    try{var s=localStorage.getItem('siteState');if(s){var p=JSON.parse(s);games=(p.gamesList||[]).filter(function(g){return g.visible!==false;});}}catch(e){}
+  }
+  return games;
+}
+
+function generateAndDownloadDataJs(){
+  var games = _getGamesForDataJs();
+  if(!games.length){showToast('⚠️ No hay juegos en memoria. Asegúrate de estar conectado a Firebase.');return;}
+  var content = '// data.js — JoelDroid Mods YT\n// Generado: '+new Date().toISOString()+'\n// '+games.length+' juegos — carga instantánea sin Firebase ni Gist\n\n';
+  content += 'window.JUEGOS_DATA = '+JSON.stringify(games, null, 2)+';\n\n';
+  content += '// Señal para que index.html use este archivo en lugar de esperar Firebase\n';
+  content += 'window.__JD_DATA_READY = true;\n';
+  content += 'if(typeof window.__JD_RENDER === "function" && !window.__JD_DONE){\n';
+  content += '  window.__JD_RENDER(window.JUEGOS_DATA);\n';
+  content += '}\n';
+  var blob = new Blob([content], {type:'application/javascript'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url;a.download='data.js';a.style.display='none';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+  showToast('✅ data.js descargado — '+games.length+' juegos');
+  _updateDataJsCount();
+}
+
+function previewDataJs(){
+  var games = _getGamesForDataJs();
+  console.log('[JoelDroid] data.js preview — '+games.length+' juegos:');
+  console.table(games.map(function(g){return{id:g.id,name:g.name,visible:g.visible,timestamp:g.timestamp};}));
+  showToast('📋 Ver consola del navegador (F12)');
+}
+
+function _updateDataJsCount(){
+  var el=document.getElementById('datajs-count');
+  if(!el)return;
+  var games=_getGamesForDataJs();
+  el.textContent=games.length;
+}
+
+// Actualizar contador al cargar juegos de Firestore
+(function(){
+  var _origRenderList=window.renderGameEditorList;
+  // Se re-define después de declararse, así que se llama desde el arranque
+  setTimeout(function(){_updateDataJsCount();},2000);
+})();
 
 // ════════════════════════════════════════════════════════════════
 // GITHUB SYNC
@@ -2113,16 +2197,6 @@ window.addEventListener('DOMContentLoaded',function(){
   renderAdminUI();
   renderGameEditorList();
   _initFirebase();
-
-  // Verificar si ya hay sesión admin guardada (login persistente)
-  setTimeout(function(){
-    if(_isAdmin()){
-      document.getElementById('login-screen').style.display='none';
-      document.getElementById('admin-panel').classList.remove('hidden');
-      renderAdminUI();renderGameEditorList();
-      try{if(_db)_listenStats();}catch(e){}
-    }
-  },1500);
 });
 </script>
 </body>
