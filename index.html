@@ -1180,10 +1180,15 @@ if(!window.__JD_DONE&&window.__JD_DATA_READY&&window.JUEGOS_DATA&&window.JUEGOS_
   var F='https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/mods?orderBy=order&pageSize=100&key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
   function _pd(d){var f=d.fields||{};var _s=function(x){return x?x.stringValue!==undefined?x.stringValue:String(x.integerValue||x.doubleValue||''):''};var _b=function(x,dv){return x?x.booleanValue!==false:dv!==false};var _a=function(x){return x&&x.arrayValue?(x.arrayValue.values||[]).map(function(v){return _s(v)}).filter(Boolean):[]};var id=(d.name||'').split('/').pop();return{id:id,name:_s(f.name||f.nombre),description:_s(f.description||f.descripcion),thumb:_s(f.thumb||f.imagen||f.icon),ver:_s(f.ver||f.version),size:_s(f.size||f.peso),visible:_b(f.visible),downloadButtonLink1:_s(f.downloadButtonLink1||f.enlace||f.link),downloadButtonLink2:_s(f.downloadButtonLink2||f.enlace2),downloadButtonText1:_s(f.downloadButtonText1)||'Descargar MOD APK',downloadButtonText2:_s(f.downloadButtonText2),downloadButtonVisible1:_b(f.downloadButtonVisible1),downloadButtonVisible2:_b(f.downloadButtonVisible2,false),modBadgeText:_s(f.modBadgeText)||'MOD',modBadgeBgColor:_s(f.modBadgeBgColor)||'#ef4444',modBadgeVisible:_b(f.modBadgeVisible),updateBadgeText:_s(f.updateBadgeText),updateBadgeVisible:_b(f.updateBadgeVisible,false),updateBadgeBgColor:_s(f.updateBadgeBgColor)||'#10b981',homeButtonVisible:_b(f.homeButtonVisible),features:_a(f.features),timestamp:parseInt(_s(f.timestamp)||'0',10)||0,order:parseInt(_s(f.order)||'0',10)||0,visits:parseInt(_s(f.visits)||'0',10)||0};}
   function _at(games){games.forEach(function(g){if(!g.thumb||!g.id)return;try{localStorage.setItem(_JD_TK+g.id,g.thumb);}catch(e){}document.querySelectorAll('img[data-gid="'+g.id+'"]').forEach(function(img){if(!img.src||img.src.length<50){img.src=g.thumb;img.classList.add('loaded');}});});}
+  // Fetch inmediato — sin retraso
+  fetch(G,{cache:'default'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){var g=Array.isArray(d)?d:(d.games||[]);_at(g);if(!window.__JD_DONE)window.__JD_RENDER(g);}).catch(function(){});
+  fetch(F,{cache:'default'}).then(function(r){return r.json();}).then(function(d){var g=(d.documents||[]).map(_pd);_at(g);if(!window.__JD_DONE)window.__JD_RENDER(g);}).catch(function(){});
+  // Fallback duro: si en 7s no llegaron datos, usar initialGames para que no quede en blanco
   setTimeout(function(){
-    fetch(G,{cache:'default'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){var g=Array.isArray(d)?d:(d.games||[]);_at(g);if(!window.__JD_DONE)window.__JD_RENDER(g);}).catch(function(){});
-    fetch(F,{cache:'default'}).then(function(r){return r.json();}).then(function(d){var g=(d.documents||[]).map(_pd);_at(g);if(!window.__JD_DONE)window.__JD_RENDER(g);}).catch(function(){});
-  },300);
+    if(!window.__JD_DONE&&typeof initialGames!=='undefined'&&initialGames.length){
+      window.__JD_RENDER(initialGames);
+    }
+  },7000);
   window.__jdSaveGamesToGist=function(games){try{var c=JSON.parse(localStorage.getItem('jd_gh_cfg')||'null');if(!c||!c.token)return;fetch('https://api.github.com/gists/5981d391897fe461dc5ac9ba7303b8f2',{method:'PATCH',headers:{'Authorization':'token '+c.token,'Content-Type':'application/json'},body:JSON.stringify({files:{'games.json':{content:JSON.stringify({_updated:new Date().toISOString(),games:games},null,2)}}})}).catch(function(){});}catch(e){}};
 })();
 </script>

@@ -206,10 +206,12 @@ body{
     <div style="margin-bottom:12px">
       <input type="email" id="fb-login-email" class="admin-input" placeholder="gamerssimulacionjl@gmail.com"
         style="width:100%;margin-bottom:10px;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
-        autocomplete="email" value="">
+        autocomplete="email" value=""
+        onkeydown="if(event.key==='Enter')document.getElementById('fb-login-pass').focus()">
       <input type="password" id="fb-login-pass" class="admin-input" placeholder="Contraseña de Firebase"
         style="width:100%;background:rgba(0,0,0,.4);border:1px solid rgba(0,212,255,.2);border-radius:10px;padding:12px;color:#fff;font-size:12px"
-        autocomplete="current-password">
+        autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doFirebaseLogin()">
     </div>
     <div id="fb-login-status" style="font-size:10px;color:#f87171;min-height:20px;text-align:center;margin-bottom:12px"></div>
     <button onclick="doFirebaseLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#fb923c,#ef4444);color:white;border:none;border-radius:12px;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;text-transform:uppercase;margin-bottom:8px">
@@ -1018,28 +1020,26 @@ function fbMigrateLocalGames(){
 }
 
 function doFirebaseLogin(){
-  /* Capturar credenciales ANTES de cualquier setTimeout */
-  var emailEl=document.getElementById('fb-login-email');
-  var passEl =document.getElementById('fb-login-pass');
+  var email  =(document.getElementById('fb-login-email')||{}).value||'';
+  var pass   =(document.getElementById('fb-login-pass')||{}).value||'';
   var status =document.getElementById('fb-login-status');
-  var email  =(emailEl||{}).value||'';
-  var pass   =(passEl||{}).value||'';
 
-  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa tu email y contraseña';return;}
-  if(status)status.innerText='⏳ Conectando a Firebase...';
+  if(!email||!pass){if(status)status.innerText='⚠️ Ingresa email y contraseña';return;}
+  if(status)status.innerText='⏳ Conectando...';
 
   if(!_fbReady||!_fbAuth){
-    /* Firebase aún no listo — esperar con credenciales ya capturadas */
+    if(status)status.innerText='⏳ Iniciando Firebase...';
     _initFirebase();
     var _tries=0;
     var _wait=setInterval(function(){
       _tries++;
+      if(status)status.innerText='⏳ Conectando... ('+_tries+'/15)';
       if(_fbReady&&_fbAuth){clearInterval(_wait);_doLogin(email,pass,status);}
-      else if(_tries>=10){
+      else if(_tries>=15){
         clearInterval(_wait);
-        if(status)status.innerText='❌ Firebase no responde — verifica tu conexión a internet';
+        if(status)status.innerText='❌ Sin respuesta de Firebase. Verifica tu internet e intenta de nuevo.';
       }
-    },500);
+    },600);
     return;
   }
   _doLogin(email,pass,status);
@@ -1050,29 +1050,32 @@ function _doLogin(email,pass,status){
     .then(function(cred){
       if(cred.user.uid===ADMIN_UID){
         if(status)status.innerText='✅ Acceso concedido — cargando panel...';
+        var ls=document.getElementById('login-screen');
+        var ap=document.getElementById('admin-panel');
         setTimeout(function(){
-          document.getElementById('login-screen').style.display='none';
-          document.getElementById('admin-panel').classList.remove('hidden');
+          if(ls)ls.style.display='none';
+          if(ap)ap.classList.remove('hidden');
           renderAdminUI();
           renderGameEditorList();
           _fillGHInputs();
-          try{if(typeof _fillRepoInputs==='function')_fillRepoInputs();}catch(e){}
           try{if(_db)_listenStats();}catch(e){}
-        },400);
+        },300);
       }else{
-        if(status)status.innerText='❌ Este email no es el admin del sitio.
-UID recibido: '+cred.user.uid;
+        if(status)status.innerText='❌ UID no coincide. UID: '+cred.user.uid+' | Esperado: '+ADMIN_UID;
         _fbAuth.signOut();
       }
     })
     .catch(function(err){
       var msg='❌ ';
-      if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential')msg+='Contraseña incorrecta';
-      else if(err.code==='auth/user-not-found')  msg+='Email no registrado en Firebase';
-      else if(err.code==='auth/invalid-email')   msg+='Formato de email inválido';
-      else if(err.code==='auth/too-many-requests')msg+='Demasiados intentos — espera unos minutos';
-      else if(err.code==='auth/network-request-failed')msg+='Sin conexión a internet';
-      else msg+=err.message;
+      switch(err.code){
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential': msg+='Contraseña incorrecta'; break;
+        case 'auth/user-not-found':     msg+='Email no registrado en Firebase'; break;
+        case 'auth/invalid-email':      msg+='Email inválido'; break;
+        case 'auth/too-many-requests':  msg+='Demasiados intentos. Espera unos minutos.'; break;
+        case 'auth/network-request-failed': msg+='Sin conexión a internet'; break;
+        default: msg+=err.message;
+      }
       if(status)status.innerText=msg;
     });
 }
