@@ -121,7 +121,14 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
     }
     document.documentElement.lang = detected;
     window.__JD_PRELANG = detected;
-    // Google Translate traduce después del render — no necesitamos ocultar el body
+    // Si no es español, ocultar body 120ms para evitar flash de texto en ES
+    if(detected !== 'es'){
+      document.documentElement.style.visibility = 'hidden';
+      document.addEventListener('DOMContentLoaded', function(){
+        // La visibilidad se restaura en applyTranslations() o tras 400ms máx
+        setTimeout(function(){ document.documentElement.style.visibility = ''; }, 400);
+      });
+    }
   } catch(e) {}
 })();
 </script>
@@ -1039,80 +1046,10 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 }
 .light-mode .jd-lang-opt:hover { background: rgba(37,99,235,.09); }
 
-/* ══ OCULTAR INTERFAZ NATIVA DE GOOGLE TRANSLATE ══════════════════
-   Suprime: barra superior "Traducido al:", widget inferior "Texto original",
-   el iframe interno, el combo selector y cualquier overlay que GT inyecte.
-   La traducción funciona en segundo plano — la UI no debe ser visible.
-   ═══════════════════════════════════════════════════════════════════ */
-.skiptranslate,
-#goog-gt-tt,
-.goog-te-banner-frame,
-.goog-te-balloon-frame,
-.goog-te-ftab-frame,
-.goog-te-menu-frame,
-.goog-te-gadget,
-.goog-te-gadget-simple,
-.goog-te-gadget-icon,
-.goog-logo-link,
-.goog-te-spinner,
-#google_translate_element,
-#google_translate_element *,
-.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
-.VIpgJd-ZVi9od-aZ2wEe-OiiCO,
-.VIpgJd-ZVi9od-SmfZ,
-.VIpgJd-ZVi9od-xl07Ob,
-font[face="Arial"] { display: none !important; visibility: hidden !important; }
-
-/* Evitar que GT empuje el body hacia abajo con el banner */
-body { top: 0 !important; position: static !important; }
-.goog-te-banner-frame { height: 0 !important; }
-
-/* Ocultar el tooltip/popup de feedback que aparece abajo */
-#goog-gt-tt, .goog-te-balloon-frame,
-.goog-tooltip, .goog-tooltip-card { display: none !important; }
-
 </style>
 </head>
 <body class="no-scrollbar">
 <div id="google_translate_element" style="display:none;"></div>
-
-<script>
-// ══ SUPRESOR DE UI DE GOOGLE TRANSLATE ══════════════════════════
-// Google Translate inyecta su barra/widget DINÁMICAMENTE después de cargar.
-// Este observer los detecta y los oculta en el mismo frame — sin parpadeo.
-(function(){
-  function _hideGTElements(){
-    // Ocultar barra superior "Traducido al: X"
-    var banner = document.querySelector('.goog-te-banner-frame, .skiptranslate iframe');
-    if(banner){ banner.style.cssText='display:none!important;height:0!important;'; }
-    // Ocultar widget inferior "Texto original / Califica esta traducción"
-    var tooltip = document.getElementById('goog-gt-tt');
-    if(tooltip){ tooltip.style.cssText='display:none!important;'; }
-    // Forzar body.top = 0 (GT lo desplaza para hacer espacio a su barra)
-    document.body.style.top = '0px';
-    document.body.style.position = '';
-    // Ocultar el frame de feedback
-    var frames = document.querySelectorAll('.goog-te-balloon-frame, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf');
-    frames.forEach(function(f){ f.style.cssText='display:none!important;'; });
-  }
-
-  // Ejecutar inmediatamente y periódicamente hasta que GT haya cargado
-  _hideGTElements();
-  var _gtKillObs = new MutationObserver(function(){ _hideGTElements(); });
-  _gtKillObs.observe(document.documentElement, { childList: true, subtree: true, attributes: false });
-
-  // Detener el observer 5 segundos después de carga (GT ya no inyecta nada nuevo)
-  window.addEventListener('load', function(){
-    _hideGTElements();
-    setTimeout(function(){
-      _gtKillObs.disconnect();
-      _hideGTElements(); // última pasada
-    }, 5000);
-  });
-})();
-// ════════════════════════════════════════════════════════════════
-</script>
-
 
 <!-- FIX 2: OPTIMIZED ANIMATED BACKGROUND (RAF-driven, max 150 shapes) -->
 <div class="animated-background" id="animated-bg"></div>
@@ -2197,7 +2134,10 @@ var LANG_FLAGS_KEYS={search_placeholder:'Buscar aplicaciones...',
 function applyTranslations(lang){
   currentLang = lang;
   localStorage.setItem('selectedLang', lang);
-  // (visibilidad: Google Translate no oculta el body)
+  // Restaurar visibilidad si fue ocultada por el script pre-lang del <head>
+  if(document.documentElement.style.visibility === 'hidden'){
+    document.documentElement.style.visibility = '';
+  }
 
   // ── CRÍTICO INMEDIATO: solo los elementos visibles above-the-fold ──
   // Filtros (siempre visibles)
@@ -2316,17 +2256,104 @@ function _jdTranslateEl(el){
   });
 }
 
-/* _jdTranslateNewCards: no-op — Google Translate maneja todo */
-function _jdTranslateNewCards(){ /* no-op */ }
+/* Translate all [data-jd-tr] elements already in #game-list */
+function _jdTranslateNewCards(){
+  if(currentLang === 'es') return;
+  var gl = document.getElementById('game-list');
+  if(!gl) return;
+  gl.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+  /* Also retranslate download button labels */
+  gl.querySelectorAll('.global-dl-btn-text').forEach(function(el){
+    el.textContent = tStr('Descargar APK');
+  });
+}
 
 /* Translate detail-view dynamic content injected by Firebase/showDetail */
-/* _jdTranslateDetailView: no-op — Google Translate maneja el detalle */
-function _jdTranslateDetailView(){ /* no-op */ }
-/* MutationObserver desactivado — Google Translate maneja traducciones automáticamente */
-function _jdStartObserver(){ /* no-op: GT traduce al vuelo sin observer */ }
+function _jdTranslateDetailView(){
+  if(currentLang === 'es') return;
+  /* Description */
+  var descEl = document.getElementById('det-desc');
+  if(descEl && descEl.dataset.esOrig){
+    trAPI(descEl.dataset.esOrig, function(tr){
+      var e = document.getElementById('det-desc'); if(e) e.innerText = tr;
+    });
+  }
+  /* Download button 1 */
+  var btn1txt = document.getElementById('btn-descarga-1-texto');
+  if(btn1txt){
+    var orig1 = btn1txt.dataset.orig || btn1txt.textContent.trim();
+    if(!btn1txt.dataset.orig) btn1txt.dataset.orig = orig1;
+    if(orig1) trAPI(orig1, function(tr){ var e=document.getElementById('btn-descarga-1-texto'); if(e) e.textContent=tr; });
+  }
+  /* Download button 2 */
+  var btn2txt = document.getElementById('btn-descarga-2-texto');
+  if(btn2txt){
+    var orig2 = btn2txt.dataset.orig || btn2txt.textContent.trim();
+    if(!btn2txt.dataset.orig) btn2txt.dataset.orig = orig2;
+    if(orig2) trAPI(orig2, function(tr){ var e=document.getElementById('btn-descarga-2-texto'); if(e) e.textContent=tr; });
+  }
+  /* Mod features tags */
+  document.querySelectorAll('#det-mod-features .mod-tag').forEach(function(el){ _jdTranslateEl(el); });
+  /* Warning text in download section */
+  var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
+  if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
+  var warnBody  = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
+  if(warnBody)  warnBody.textContent  = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
+  /* Mediafire-Seguro labels */
+  document.querySelectorAll('#det-download-buttons p.text-blue-500\\/60').forEach(function(el){
+    el.textContent = tStr('Mediafire-Seguro');
+  });
+}
 
-/* Detail observer desactivado — Google Translate traduce el detalle automáticamente */
-function _jdStartDetailObserver(){ /* no-op */ }
+/* Start the MutationObserver on #game-list */
+function _jdStartObserver(){
+  if(_jdObserver) return;
+  var gl = document.getElementById('game-list');
+  if(!gl) return;
+  _jdObserver = new MutationObserver(function(muts){
+    if(currentLang === 'es') return;
+    if(_jdObsBusy) return;
+    _jdObsBusy = true;
+    /* Debounce: translate in next microtask to batch multiple mutations */
+    setTimeout(function(){
+      _jdObsBusy = false;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(node){
+          if(node.nodeType !== 1) return;
+          /* Translate translatable children of the new card */
+          node.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+          /* Translate button label */
+          node.querySelectorAll('.global-dl-btn-text').forEach(function(b){
+            b.textContent = tStr('Descargar APK');
+          });
+        });
+      });
+    }, 60);
+  });
+  _jdObserver.observe(gl, { childList: true, subtree: false });
+  /* Also watch the detail view for Firebase-injected content */
+  _jdStartDetailObserver();
+}
+
+/* Start observer on the detail-view to catch Firebase-injected content */
+function _jdStartDetailObserver(){
+  if(_jdDetObserver) return;
+  var dv = document.getElementById('detail-view');
+  if(!dv) return;
+  _jdDetObserver = new MutationObserver(function(muts){
+    if(currentLang === 'es') return;
+    var hasRelevant = muts.some(function(m){
+      return m.addedNodes.length > 0 || m.type === 'characterData';
+    });
+    if(!hasRelevant) return;
+    /* Debounce 80ms to let Firebase finish injecting the batch */
+    clearTimeout(_jdDetObserver._t);
+    _jdDetObserver._t = setTimeout(function(){
+      _jdTranslateDetailView();
+    }, 80);
+  });
+  _jdDetObserver.observe(dv, { childList: true, subtree: true });
+}
 
 /* Stop the observer (when switching back to Spanish) */
 function _jdStopObserver(){
@@ -3029,7 +3056,10 @@ function showDetail(id){
 
   renderRecommendedGames(id);
   applyTranslations(currentLang);
-  /* Google Translate traduce el detalle automáticamente */
+  /* Re-translate detail content injected by Firebase (download btns, desc, features) */
+  if(currentLang !== 'es'){
+    setTimeout(function(){ _jdTranslateDetailView(); }, 120);
+  }
   refreshIcons();
   initDetRatingsComments(id);
 }
