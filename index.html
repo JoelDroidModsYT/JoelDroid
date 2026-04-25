@@ -10,6 +10,10 @@
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8">
+<!-- Cache-Control: evita que el navegador sirva index.html obsoleto -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Los Mejores MOD APK para Android</title>
 
@@ -92,6 +96,67 @@
 <script>
 // Favicon embebido en base64 — no necesita cache-busting ni archivos externos
 // El logo de JoelDroid está hardcodeado en los link[rel=icon] del <head>
+</script>
+<!-- ══ AUTO-UPDATE SYSTEM — Cache Busting para GitHub Pages ═══════════════════════
+     Cada vez que se hace push a GitHub, cambia SITE_VERSION.
+     Los usuarios (nuevos y recurrentes) reciben la actualización
+     automáticamente al entrar al navegador.
+     ════════════════════════════════════════════════════════════════ -->
+<script>
+(function _jdAutoUpdate(){
+  // ── VERSIÓN DEL SITIO — CAMBIAR ESTE NÚMERO EN CADA DEPLOY/PUSH ──
+  // Formato: YYYYMMDD_HHMM  (fecha y hora del último push a GitHub)
+  var SITE_VERSION = '20250425_1200';
+  var CACHE_KEY    = 'jd_site_version';
+
+  try {
+    var storedVersion = localStorage.getItem(CACHE_KEY);
+
+    if(storedVersion && storedVersion !== SITE_VERSION){
+      // ── Nueva versión detectada: limpiar caché de juegos y configuración ──
+      // Se preservan datos del usuario: sesión, ratings, comentarios, preferencias
+      var keysToKeep = ['jd_users','jd_session','jd_rcodes','jd_emailjs','selectedLang','jd_theme'];
+      var ratingsPrefix  = 'jd_gr_';
+      var commentsPrefix = 'jd_gc_';
+
+      var toDelete = [];
+      for(var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if(!k) continue;
+        var isUserData = keysToKeep.indexOf(k) >= 0
+          || k.indexOf(ratingsPrefix)  === 0
+          || k.indexOf(commentsPrefix) === 0;
+        if(!isUserData) toDelete.push(k);
+      }
+      toDelete.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+      try{ sessionStorage.clear(); }catch(e){}
+
+      // Guardar nueva versión
+      localStorage.setItem(CACHE_KEY, SITE_VERSION);
+
+      // Limpiar Service Worker caches si existen
+      if(window.caches){
+        caches.keys().then(function(names){
+          names.forEach(function(name){ caches.delete(name); });
+        }).catch(function(){});
+      }
+      // Recarga forzada sin caché (equivale a Ctrl+Shift+R)
+      window.location.reload(true);
+      return;
+    }
+
+    // Primera visita o versión correcta: guardar versión actual
+    localStorage.setItem(CACHE_KEY, SITE_VERSION);
+
+  } catch(e) {}
+
+  // ── Desregistrar SW viejos que puedan servir contenido obsoleto ──
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){ r.unregister(); });
+    }).catch(function(){});
+  }
+})();
 </script>
 <!-- ════════════════════════════════════════════════════════════════ -->
 <script>
@@ -3212,10 +3277,21 @@ function _renderGamesBatch(list, start, count, replace){
   });
   // ── Swap sin flash: si replace=true sustituir cards existentes en un solo frame ──
   if(replace){
-    // Quitar solo .jd-card y .jd-skeleton-card anteriores, preservar el sentinel
-    var oldCards = list.querySelectorAll('.jd-card, .jd-skeleton-card');
-    oldCards.forEach(function(c){ c.parentNode && c.parentNode.removeChild(c); });
-    list.insertBefore(frag, list.firstChild);
+    // Construir nuevo contenido como array de nodos (fragment ya tiene los cards)
+    var newNodes = Array.from(frag.childNodes);
+    // Obtener nodos a eliminar: solo .jd-card y .jd-skeleton-card
+    var toRemove = Array.from(list.querySelectorAll('.jd-card, .jd-skeleton-card'));
+    // Hacer el swap atómico en un solo requestAnimationFrame para eliminar el frame vacío
+    // que causaba el parpadeo visible en la 3ra fila y siguientes
+    if('replaceChildren' in list && toRemove.length === list.children.length){
+      // replaceChildren() es atómico — sin frames vacíos, sin parpadeo
+      list.replaceChildren(frag);
+    } else {
+      // Fallback: insertar nuevo contenido ANTES de eliminar el viejo (sin frame vacío)
+      var firstOld = toRemove[0] || null;
+      list.insertBefore(frag, firstOld);
+      toRemove.forEach(function(c){ if(c.parentNode) c.parentNode.removeChild(c); });
+    }
   } else {
     list.appendChild(frag);
   }
