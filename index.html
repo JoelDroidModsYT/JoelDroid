@@ -789,6 +789,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   padding: 2px 0 16px;
+  contain: layout;
 }
 @media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
 @media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
@@ -804,6 +805,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   display: flex;
   flex-direction: column;
   transition: transform .18s, box-shadow .18s;
+  contain: layout style;
 }
 .jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
 .jd-card:active { transform: scale(.97); }
@@ -2615,13 +2617,14 @@ function applyTranslations(lang){
   });
 }
 
-// ── selectLanguage: cambia idioma al instante y actualiza todo ─────
+// ── selectLanguage: cambia idioma sin re-renderizar cards (evita parpadeo) ──
 function selectLanguage(langCode, flagUrl){
   var m = document.getElementById('lang-menu');
   if(m) m.classList.remove('active');
   applyTranslations(langCode);
-  renderGames();
-  // Si hay un detalle abierto: re-renderizarlo con el nuevo idioma
+  // NO llamar renderGames() aquí — causa parpadeo innecesario.
+  // applyTranslations() ya actualiza filtros, botones y lanza _jdTranslateNewCards().
+  // Solo re-renderizar la vista de detalle si está abierta.
   if(currentDetailId) showDetail(currentDetailId);
 }
 
@@ -3104,9 +3107,10 @@ function renderGames(){
   _gamesFiltered = games;
   _gamesPage = 0;
 
-  // Renderizar primera página
-  list.innerHTML = '';
-  _renderGamesBatch(list, 0, _gamesPageSize);
+  // ── Renderizar SIN vaciar primero → elimina el flash/parpadeo ──
+  // Pintamos el nuevo lote en un fragment fuera del DOM,
+  // luego hacemos el swap en un solo replaceChildren() sin frame vacío.
+  _renderGamesBatch(list, 0, _gamesPageSize, true /* replace */);
   _gamesPage = 1;
 
   // Sentinel para infinite scroll
@@ -3128,12 +3132,15 @@ function renderGames(){
   }
 }
 
-function _renderGamesBatch(list, start, count){
+function _renderGamesBatch(list, start, count, replace){
   if(!list || !_gamesFiltered) return;
   var end = Math.min(start + count, _gamesFiltered.length);
   var games = _gamesFiltered.slice(start, end);
   if(!games.length){
-    if(start === 0) list.innerHTML = '<p class="text-center opacity-40 text-xs py-8">No hay juegos disponibles.</p>';
+    if(start === 0){
+      // Vaciar solo cuando no hay resultados — no hay nada que parpadear
+      list.innerHTML = '<p class="text-center opacity-40 text-xs py-8">No hay juegos disponibles.</p>';
+    }
     return;
   }
   var _adminBtn = siteState.buttonSettings.globalHomeButtonText || '';
@@ -3203,7 +3210,15 @@ function _renderGamesBatch(list, start, count){
       '</div>';
     frag.appendChild(card);
   });
-  list.appendChild(frag);
+  // ── Swap sin flash: si replace=true sustituir cards existentes en un solo frame ──
+  if(replace){
+    // Quitar solo .jd-card y .jd-skeleton-card anteriores, preservar el sentinel
+    var oldCards = list.querySelectorAll('.jd-card, .jd-skeleton-card');
+    oldCards.forEach(function(c){ c.parentNode && c.parentNode.removeChild(c); });
+    list.insertBefore(frag, list.firstChild);
+  } else {
+    list.appendChild(frag);
+  }
   _initLazyImages();
   /* Signal the translator that new Firebase content arrived */
   if(typeof _jdTranslateNewCards === 'function') _jdTranslateNewCards();
@@ -5835,82 +5850,43 @@ function irADescarga(gameId, modo) {
     ? siteState.gamesList.find(function(g){ return String(g.id) === String(gameId); })
     : null;
 
-  // Serializar TODOS los campos → sessionStorage (tab actual) + localStorage (fallback cross-tab)
+  // Serializar TODOS los campos → sessionStorage + localStorage (doble respaldo)
   if (game) {
     try {
       var _slug = (typeof slugifyTitle === 'function')
         ? slugifyTitle(game.name || game.nombre || '')
         : String(gameId);
-      var _name  = game.name  || game.nombre  || '';
-      var _ver   = game.ver   || game.version  || '';
-      var _size  = game.size  || game.peso     || '';
       var _link1 = game.downloadButtonLink1 || game.enlace || game.link || '#';
       var _link2 = game.downloadButtonLink2 || game.enlace2 || _link1;
       var payload = {
         id:    String(game.id),
         modo:  String(modo || 1),
         slug:  _slug,
-        name:  _name,
-        thumb: game.thumb || game.imagen || game.icon || '',
-        ver:   _ver,
-        size:  _size,
+        name:  game.name  || game.nombre  || '',
+        thumb: game.thumb || game.imagen  || game.icon || '',
+        ver:   game.ver   || game.version  || '',
+        size:  game.size  || game.peso     || '',
         link1: _link1,
         link2: _link2,
-        // Campos con nombres que descarga.html busca primero
         downloadButtonLink1: _link1,
         downloadButtonLink2: _link2,
-        // Campos extra por si descarga.html los necesita
         features: JSON.stringify(game.features || []),
         description: game.description || game.descripcion || '',
         ts: Date.now()
       };
       var payloadStr = JSON.stringify(payload);
-      // Doble respaldo: sessionStorage (rápido) + localStorage (cross-tab, misma clave)
       try { sessionStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
       try { localStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
       try { localStorage.setItem('jd_dl_payload_bk', payloadStr); } catch(e){}
     } catch(e) {}
   }
 
-  // URL robusta: ruta relativa desde la raíz del sitio
-  var destUrl = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
-
-  // ── MODAL DE ANUNCIO antes de redirigir ──────────────────────
-  var modal = document.getElementById('jd-modal-ad-descarga');
-  if (modal) {
-    modal.style.display = 'flex';
-    modal.dataset.destUrl = destUrl;
-    var btnCont = document.getElementById('jd-modal-ad-btn');
-    var reloj   = document.getElementById('jd-modal-ad-timer');
-    // Reset estado del modal (puede haber quedado de una llamada anterior)
-    if (reloj) { reloj.textContent = 'Espera 5s'; reloj.style.display = ''; }
-    if (btnCont) { btnCont.disabled = true; btnCont.style.opacity = '0.4'; btnCont.textContent = 'Espera...'; }
-    var s = 5;
-    var iv = setInterval(function() {
-      s--;
-      if (s > 0) {
-        if (reloj) reloj.textContent = 'Espera ' + s + 's';
-      } else {
-        clearInterval(iv);
-        if (reloj) reloj.style.display = 'none';
-        if (btnCont) { btnCont.disabled = false; btnCont.style.opacity = '1'; btnCont.textContent = 'Continuar →'; }
-      }
-    }, 1000);
-    return;
-  }
-
-  // Sin modal: navegar directo (fallback)
-  window.location.href = destUrl;
+  // Navegar directo a descarga — sin modal, sin espera
+  window.location.href = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
 }
 
-// ── Cerrar modal de anuncio y navegar a descarga ──────────────
-function jdCerrarModalAd() {
-  var modal = document.getElementById('jd-modal-ad-descarga');
-  if (!modal) return;
-  var dest = modal.dataset.destUrl || '';
-  modal.style.display = 'none';
-  if (dest) window.location.href = dest;
-}
+// Alias (compatibilidad)
+function jdCerrarModalAd() {}
 
 
 // Alias de compatibilidad por si algún código antiguo llama a ejecutarDescarga
@@ -6088,27 +6064,6 @@ window.onload=function(){
 
 </script>
 
-
-<!-- ══ MODAL ANUNCIO DESCARGA — 5s timer antes de redirigir ════════ -->
-<div id="jd-modal-ad-descarga" style="display:none;position:fixed;inset:0;z-index:9100;background:rgba(2,4,8,.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;flex-direction:column;gap:0" onclick="if(event.target===this){}">
-  <div style="background:linear-gradient(135deg,#0d1a2e,#0a0f18);border:1.5px solid rgba(37,99,235,.4);border-radius:24px;padding:28px 22px;max-width:360px;width:100%;box-shadow:0 0 40px rgba(37,99,235,.25);text-align:center;position:relative;overflow:hidden">
-    <!-- Línea neon superior -->
-    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2563eb,#06b6d4,#8b5cf6)"></div>
-    <!-- Icono y título -->
-    <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 0 20px rgba(37,99,235,.5)">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    </div>
-    <p style="font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#fff;margin-bottom:6px">Preparando descarga</p>
-    <p style="font-size:10px;opacity:.5;font-weight:600;margin-bottom:20px;line-height:1.5">Tu descarga comenzará en unos segundos...</p>
-    <!-- Zona de anuncio — aquí puedes pegar tu código de Monetag -->
-    <!-- AD SLOT MONETAG -->
-    <!-- /AD SLOT -->
-    <button id="jd-modal-ad-btn" disabled onclick="jdCerrarModalAd()" style="width:100%;padding:13px;border-radius:13px;border:none;cursor:not-allowed;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;background:linear-gradient(135deg,#2563eb,#06b6d4);color:white;box-shadow:0 4px 14px rgba(37,99,235,.35);opacity:0.4;transition:opacity .3s,box-shadow .3s;margin-top:14px">
-      Espera...
-    </button>
-    <p id="jd-modal-ad-timer" style="font-size:9px;opacity:.35;margin-top:8px;font-weight:700">Espera 5s</p>
-  </div>
-</div>
 <!-- ══ FAB USUARIO (abajo derecha) ══════════════════════════════ -->
 <button id="user-fab" onclick="openUserMenu()" title="Mi cuenta">
   <div id="user-fab-avatar">
