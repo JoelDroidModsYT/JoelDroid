@@ -440,114 +440,38 @@ html{scroll-behavior:smooth}
 .color-option{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .2s,box-shadow .2s}
 .color-option.active{transform:scale(1.1);box-shadow:0 0 10px rgba(var(--brand-color-rgb),.8),inset 0 0 5px rgba(255,255,255,.5);border-color:white}
 body{top:0!important}
-/* ══ SCROLL FIX — touch-action global para evitar scroll bloqueado ══ */
-html, body {
+
+/* ══ DETAIL-VIEW SCROLL FIX ════════════════════════════════════════
+   Garantiza que el scroll táctil funcione en toda la vista de detalle.
+   El elemento raíz #detail-view tiene overflow-y:auto + touch atribs.
+   Sus hijos deben dejar pasar los eventos de scroll al padre.
+   ════════════════════════════════════════════════════════════════ */
+#detail-view {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+/* El inner wrapper no debe crear un stacking context que atrape touch */
+#detail-view > div {
   touch-action: pan-y;
-  overscroll-behavior-y: none;
 }
-/* ══ BOTONES DE DESCARGA FUTURISTAS ════════════════════════════════ */
-.jd-dl-btn-futurista {
+/* El header sticky no debe interceptar swipes fuera de sus botones */
+#detail-view .sticky {
+  touch-action: none; /* el sticky solo responde a taps, no swipes */
+}
+#detail-view .sticky button,
+#detail-view .sticky a > div {
+  touch-action: manipulation;
+}
+/* El área de descarga y rating no deben tener overflow oculto innecesario */
+#download-section {
   position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 18px;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  color: #fff;
-  font-family: inherit;
-  overflow: hidden;
-  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, filter .15s ease;
-  box-shadow: 0 4px 18px rgba(37,99,235,.45), 0 0 0 1px rgba(255,255,255,.10) inset;
-  -webkit-tap-highlight-color: transparent;
-  text-align: left;
+  z-index: 1;
 }
-.jd-dl-btn-futurista::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 60%);
-  border-radius: inherit;
-  pointer-events: none;
+#det-rating-comments {
+  position: relative;
+  z-index: 1;
 }
-.jd-dl-btn-futurista:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 8px 28px rgba(37,99,235,.6), 0 0 0 1px rgba(255,255,255,.18) inset;
-  filter: brightness(1.08);
-}
-.jd-dl-btn-futurista:active {
-  transform: scale(.96);
-  box-shadow: 0 2px 10px rgba(37,99,235,.35);
-}
-.jd-dl-btn-glow {
-  position: absolute;
-  top: -30px; left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 60px;
-  background: rgba(255,255,255,.12);
-  border-radius: 50%;
-  filter: blur(14px);
-  pointer-events: none;
-  animation: dlBtnGlowPulse 2.8s ease-in-out infinite alternate;
-}
-@keyframes dlBtnGlowPulse {
-  0% { opacity: .4; transform: translateX(-50%) scale(.9); }
-  100% { opacity: .9; transform: translateX(-50%) scale(1.15); }
-}
-.jd-dl-btn-icon-wrap {
-  width: 38px; height: 38px;
-  border-radius: 12px;
-  background: rgba(255,255,255,.18);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 0 10px rgba(255,255,255,.12);
-  backdrop-filter: blur(4px);
-}
-.jd-dl-btn-text-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-}
-.jd-dl-btn-label {
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: .15em;
-  opacity: .7;
-  text-transform: uppercase;
-  line-height: 1;
-}
-.jd-dl-btn-main-text {
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  line-height: 1.2;
-}
-.jd-dl-btn-arrow {
-  font-size: 22px;
-  font-weight: 900;
-  opacity: .6;
-  margin-left: auto;
-  flex-shrink: 0;
-  line-height: 1;
-  transition: transform .18s ease, opacity .18s;
-}
-.jd-dl-btn-futurista:hover .jd-dl-btn-arrow {
-  transform: translateX(3px);
-  opacity: 1;
-}
-/* Variante botón 2 — tono ligeramente distinto */
-.jd-dl-btn-alt::before {
-  background: linear-gradient(135deg, rgba(6,182,212,.22) 0%, rgba(255,255,255,0) 60%);
-}
-.jd-dl-btn-alt .jd-dl-btn-glow {
-  background: rgba(6,182,212,.18);
-}
-/* ══════════════════════════════════════════════════════════════════ */
+/* ═════════════════════════════════════════════════════════════════ */
 #home-view.announcement-hidden{padding-top:.25rem !important;}
 
 /* ══ FORMA DEL LOGO — CUADRADO OVALADO (20%) — NUNCA redondo ════ */
@@ -1561,20 +1485,20 @@ window.__JD_REST_DONE = false;
 
   <div id="game-list" class="jd-grid"><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div></div>
 
-  <footer class="pt-10 pb-10 text-center" style="background:var(--bg-color,#020408);">
+  <footer class="pt-10 pb-10 text-center">
     <p id="copyright-text-ui" class="copyright-text">Copyright © <span id="current-year"></span> JoelDroid Mods YT. All rights reserved.</p>
   </footer>
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto" style="overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;">
   <div class="max-w-md mx-auto min-h-screen pb-24">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
       </button>
-      <a href="#home-view" onclick="closeDetail()" class="absolute inset-x-0 flex justify-center items-center h-full z-10">
-        <div class="flex items-center gap-2">
+      <a href="#home-view" onclick="closeDetail()" class="absolute inset-x-0 flex justify-center items-center h-full z-10" style="pointer-events:none;">
+        <div class="flex items-center gap-2" style="pointer-events:auto;">
           <div id="detail-logo-container" class="w-8 h-8 flex items-center justify-center overflow-hidden" style="border-radius:20%;box-shadow:0 0 10px rgba(37,99,235,.5);background:#020408;">
             <img id="detail-logo-svg" src="data:image/webp;base64,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" alt="JoelDroid" style="width:100%;height:100%;object-fit:cover;border-radius:20%;display:block;" class="notranslate">
             <img id="detail-logo-img" src="data:image/webp;base64,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" alt="JoelDroid" style="width:100%;height:100%;object-fit:cover;border-radius:20%;display:none;" class="notranslate">
@@ -1635,68 +1559,52 @@ window.__JD_REST_DONE = false;
     </div>
 
     <div id="download-section" class="px-6 mt-10 space-y-4">
-      <div style="background:rgba(239,68,68,0.10);border:1.5px solid rgba(239,68,68,0.35);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="background:#dc2626;border-radius:50%;padding:8px;flex-shrink:0;animation:pulse-red 1.5s infinite;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <div>
-            <p style="font-size:10px;font-weight:900;color:#ef4444;text-transform:uppercase;margin:0 0 3px 0;letter-spacing:0.05em;">¡ADVERTENCIA IMPORTANTE!</p>
-            <p style="font-size:9px;font-weight:700;color:#ef4444;opacity:0.8;margin:0;line-height:1.5;">Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.</p>
-          </div>
+
+      <!-- Advertencia -->
+      <div style="background:rgba(239,68,68,0.10);border:1.5px solid rgba(239,68,68,0.35);border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+        <div style="background:#dc2626;border-radius:50%;padding:8px;flex-shrink:0;animation:pulse-red 1.5s infinite;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
-        
+        <div>
+          <p style="font-size:10px;font-weight:900;color:#ef4444;text-transform:uppercase;margin:0 0 3px 0;letter-spacing:0.05em;">¡ADVERTENCIA IMPORTANTE!</p>
+          <p style="font-size:9px;font-weight:700;color:#ef4444;opacity:0.8;margin:0;line-height:1.5;">Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.</p>
+        </div>
       </div>
-      <div class="text-center py-4 border-t border-[var(--border-color)]">
-          </div>
-      </div> <div style="text-align: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+
+      <!-- Encabezado enlaces -->
+      <div style="text-align:center;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1);">
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1" data-i18n="official_links">
           Enlaces Oficiales
         </p>
         <h3 id="det-name-dl-secondary" class="text-xs font-black uppercase notranslate mb-4">
           JUEGO MOD APP
         </h3>
-        
-        <div id="det-download-buttons" class="space-y-1.5" style="display: flex; flex-direction: column; align-items: center;">
-          </div>
+        <div id="det-download-buttons" style="display:none;"></div>
       </div>
-        <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── (HTML estático — editar link aquí) -->
-        <div class="space-y-1.5 text-center" id="btn-descarga-1-wrapper">
-          <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="jd-dl-btn-futurista" style="background-color:#3b82f6">
-            <span class="jd-dl-btn-glow"></span>
-            <span class="jd-dl-btn-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
-            </span>
-            <span class="jd-dl-btn-text-wrap">
-              <span class="jd-dl-btn-label">OPCIÓN 1</span>
-              <span id="btn-descarga-1-texto" class="jd-dl-btn-main-text">Descargar Mod 1</span>
-            </span>
-            <span class="jd-dl-btn-arrow">›</span>
-          </button>
-          <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
-        </div>
 
-        <!-- ── BOTÓN 2: DESCARGAR MOD 2 (Mediafire-Seguro) ── (HTML estático — editar link aquí) -->
-        <div class="space-y-1.5 text-center" id="btn-descarga-2-wrapper">
-          <button id="btn-descarga-2" onclick="irADescarga(currentDetailId,2)" data-link="#" class="jd-dl-btn-futurista jd-dl-btn-alt" style="background-color:#3b82f6">
-            <span class="jd-dl-btn-glow"></span>
-            <span class="jd-dl-btn-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </span>
-            <span class="jd-dl-btn-text-wrap">
-              <span class="jd-dl-btn-label">OPCIÓN 2</span>
-              <span id="btn-descarga-2-texto" class="jd-dl-btn-main-text">Descargar Mod 2</span>
-            </span>
-            <span class="jd-dl-btn-arrow">›</span>
-          </button>
-          <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
-        </div>
+      <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── -->
+      <div class="space-y-1.5 text-center" id="btn-descarga-1-wrapper">
+        <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+          <span id="btn-descarga-1-texto">Descargar Mod 1</span>
+        </button>
+        <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+      </div>
 
-        <!-- ════════════════════════════════════════════════════════════
-             ZONA DE ENLACES SECUNDARIOS
-             Pega aquí banners, iframes, botones extra o URLs adicionales.
-             Este bloque es seguro: está FUERA del JavaScript principal.
-             ════════════════════════════════════════════════════════════ -->             
+      <!-- ── BOTÓN 2: DESCARGAR MOD 2 ── -->
+      <div class="space-y-1.5 text-center" id="btn-descarga-2-wrapper">
+        <button id="btn-descarga-2" onclick="irADescarga(currentDetailId,2)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span id="btn-descarga-2-texto">Descargar Mod 2</span>
+        </button>
+        <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════
+           ZONA DE ENLACES SECUNDARIOS
+           Pega aquí banners, iframes, botones extra o URLs adicionales.
+           Este bloque es seguro: está FUERA del JavaScript principal.
+           ════════════════════════════════════════════════════════════ -->             
     <!-- ══ RATING + COMENTARIOS POR JUEGO ══════════════════════ -->
     <div id="det-rating-comments" class="mt-8" style="background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);border-radius:24px;overflow:hidden">
 
@@ -3400,18 +3308,16 @@ function _renderGamesBatch(list, start, count, replace){
     frag.appendChild(card);
   });
   // ── Swap sin flash: si replace=true sustituir cards existentes en un solo frame ──
+  // IMPORTANTE: desconectar el MutationObserver ANTES de tocar el DOM para evitar
+  // que las mutaciones de traducción disparen un bucle observer→translate→mutate→observer
+  var _obsPaused = false;
+  if(_jdObserver){ _jdObserver.disconnect(); _obsPaused = true; }
+
   if(replace){
-    // Construir nuevo contenido como array de nodos (fragment ya tiene los cards)
-    var newNodes = Array.from(frag.childNodes);
-    // Obtener nodos a eliminar: solo .jd-card y .jd-skeleton-card
     var toRemove = Array.from(list.querySelectorAll('.jd-card, .jd-skeleton-card'));
-    // Hacer el swap atómico en un solo requestAnimationFrame para eliminar el frame vacío
-    // que causaba el parpadeo visible en la 3ra fila y siguientes
     if('replaceChildren' in list && toRemove.length === list.children.length){
-      // replaceChildren() es atómico — sin frames vacíos, sin parpadeo
       list.replaceChildren(frag);
     } else {
-      // Fallback: insertar nuevo contenido ANTES de eliminar el viejo (sin frame vacío)
       var firstOld = toRemove[0] || null;
       list.insertBefore(frag, firstOld);
       toRemove.forEach(function(c){ if(c.parentNode) c.parentNode.removeChild(c); });
@@ -3419,9 +3325,41 @@ function _renderGamesBatch(list, start, count, replace){
   } else {
     list.appendChild(frag);
   }
+
+  // Reconectar observer DESPUÉS del swap, en el siguiente microtask
+  // para que el observer vea un DOM estable y no haga doble-traducción
+  if(_obsPaused){
+    setTimeout(function(){
+      var gl = document.getElementById('game-list');
+      if(gl && _jdObserver === null){
+        _jdObserver = new MutationObserver(function(muts){
+          if(currentLang === 'es') return;
+          if(_jdObsBusy) return;
+          _jdObsBusy = true;
+          setTimeout(function(){
+            _jdObsBusy = false;
+            muts.forEach(function(m){
+              m.addedNodes.forEach(function(node){
+                if(node.nodeType !== 1) return;
+                node.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
+                node.querySelectorAll('.global-dl-btn-text').forEach(function(b){
+                  b.textContent = tStr('Descargar APK');
+                });
+              });
+            });
+          }, 60);
+        });
+        _jdObserver.observe(gl, { childList: true, subtree: false });
+      }
+    }, 0);
+  }
   _initLazyImages();
-  /* Signal the translator that new Firebase content arrived */
-  if(typeof _jdTranslateNewCards === 'function') _jdTranslateNewCards();
+  /* Signal the translator that new content arrived — defer so it runs AFTER
+     the observer is reconnected (setTimeout 0 above) and not in the same frame,
+     preventing the mutation→translate→mutation repaint loop */
+  if(typeof _jdTranslateNewCards === 'function'){
+    setTimeout(_jdTranslateNewCards, 20);
+  }
 }
 function _setupLoadMoreSentinel(list){
   // Eliminar sentinel anterior
