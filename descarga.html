@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <script src="https://quge5.com/88/tag.min.js" data-zone="233199" async data-cfasync="false"></script>   
+<script src="https://quge5.com/88/tag.min.js" data-zone="233199" async data-cfasync="false"></script>    
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
   <title>Descarga - JOELDROID MODS YT</title>
   <link rel="icon" type="image/png" href="/logo.png">
   <meta name="theme-color" content="#007bff">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -60,7 +61,7 @@
     .dl-nav-logo-sub{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.38em;opacity:.55;color:rgba(255,255,255,.7)}
 
     /* ── Body ── */
-    .dl-body{flex:1;width:100%;max-width:480px;margin:0 auto;padding:12px 16px 24px;display:flex;flex-direction:column;gap:0}
+    .dl-body{flex:1;width:100%;max-width:480px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:0}
 
     /* ── Hero ── */
     .dl-hero{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;margin-bottom:8px}
@@ -118,9 +119,19 @@
     .dl-btn-game-title{font-size:12px;font-weight:700;line-height:1.25;color:#fff;white-space:normal;word-break:break-word;max-width:100%;letter-spacing:-.01em;overflow-wrap:break-word}
     .dl-btn-size-badge{flex-shrink:0;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 10px;font-size:8px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
 
-    /* ── Zona banners ── */
-    .dl-ad-lower-slot{width:100%;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:10px}
-
+    /* ── Zona de anuncios Monetag ── */
+    /*
+     * Esta zona está completamente libre: sin display:none, sin z-index que tape,
+     * sin overflow:hidden que recorte, sin pointer-events bloqueados.
+     * Monetag puede renderizar banners, popunders y formatos nativos sin restricciones.
+     */
+    .monetag-slot{
+      width:100%;
+      display:block;
+      text-align:center;
+      margin-top:16px;
+      /* Sin min-height forzado — Monetag define su propio tamaño */
+    }
 
   </style>
 </head>
@@ -208,7 +219,7 @@
         </div>
       </div>
 
-      <!-- Botón final — PUNTO 1: href="#" siempre; URL en data-real-url post-timer -->
+      <!-- Botón final — URL en data-real-url post-timer -->
       <a href="#" id="dl-btn-final" class="dl-btn-final" rel="noopener noreferrer">
         <div class="dl-btn-icon-wrap">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -217,7 +228,6 @@
             <line x1="12" y1="15" x2="12" y2="3"/>
           </svg>
         </div>
-        <!-- PUNTO 2: línea 1 fija / línea 2 dinámica desde Firebase -->
         <div class="dl-btn-text-col">
           <span class="dl-btn-label-top">✓ Enlace listo · Click para descargar</span>
           <span id="dl-btn-final-texto" class="dl-btn-game-title">Cargando archivo...</span>
@@ -226,11 +236,6 @@
       </a>
 
     </div><!-- /dl-counter-section -->
-
-    <div class="dl-ad-lower-slot" id="dl-ad-lower">
-      <div id="jd-ad-banner-1" style="display:flex;justify-content:center;margin-bottom:10px;min-height:50px;width:100%"></div>
-      <div id="jd-ad-banner-2" style="display:flex;justify-content:center;min-height:50px;width:100%"></div>
-    </div>    
 
   </div><!-- /dl-body -->
 </div><!-- /dl-page -->
@@ -275,7 +280,6 @@
     var params = new URLSearchParams(window.location.search);
     var gid    = (params.get('id') || '').trim();
     if (!gid) return;
-    // Leer desde sessionStorage primero; si falla, desde localStorage (cross-tab / Safari privado)
     var raw = sessionStorage.getItem('jd_dl_payload')
            || localStorage.getItem('jd_dl_payload')
            || localStorage.getItem('jd_dl_payload_bk');
@@ -283,20 +287,16 @@
     var p = JSON.parse(raw);
     if (String(p.id) !== String(gid)) return;
     if (Date.now() - (p.ts || 0) > 300000) return;
-    /* Inyectar antes de DOMContentLoaded para cero FOUC */
     var n = p.name || p.nombre || '';
     var v = p.ver  || p.version || '';
     var s = p.size || p.peso   || '';
     var t = p.thumb || p.imagen || p.icon || '';
     function _esc(x){ return String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    /* Precargar icono en caché anticipadamente */
     if (t) { try { window._jdCacheImg(t); } catch(e){} }
     document.addEventListener('DOMContentLoaded', function(){
       var el = document.getElementById('dl-page-icon');
       var ph = document.getElementById('dl-icon-ph');
-      /* Cargar icono desde caché (instantáneo en segunda visita) */
       if (t) { try { window._jdGetCachedImg(t, el, ph); } catch(e){ if(el){el.src=t; el.onload=function(){el.style.display=''; if(ph) ph.style.display='none';}; el.onerror=function(){el.style.display='none'; if(ph) ph.style.display='flex';};} } }
-      /* Textos */
       var nameEl = document.getElementById('dl-page-name');
       var vc = String(v||'').replace(/^v+/i,'');
       if (nameEl && n) nameEl.innerHTML = '<strong style="opacity:1;transition:opacity .2s">' + _esc(n) + ' (Mod Dinero Infinito)</strong><br><span style="font-weight:400;font-size:.9em;color:rgba(226,232,240,.7)">' + (vc ? 'v'+vc : '') + '.apk</span>';
@@ -316,7 +316,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   JOELDROID MODS YT — descarga.html v6 (limpio)
+   JOELDROID MODS YT — descarga.html (limpio + Monetag ready)
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -341,41 +341,33 @@
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
-  /* Navegación: pushState diferido para no interferir con la carga inicial */
-  /* Se hace SOLO una vez y SOLO cuando el DOM esté listo */
-
   document.addEventListener('DOMContentLoaded', function () {
 
-    var numEl         = document.getElementById('dl-counter-num');
-    var ringFg        = document.getElementById('dl-ring-fg');
-    var barEl         = document.getElementById('dl-progress-bar');
-    var pctEl         = document.getElementById('dl-progress-pct');
-    var waitTxt       = document.getElementById('dl-waiting-text');
-    var ringWrap      = document.getElementById('dl-ring-wrap');
-    var btnFinal      = document.getElementById('dl-btn-final');
-    var nameEl        = document.getElementById('dl-page-name');
-    var iconEl        = document.getElementById('dl-page-icon');
-    var iconPh        = document.getElementById('dl-icon-ph');
-    var statVer       = document.getElementById('dl-stat-ver');
-    var statSize      = document.getElementById('dl-stat-size');
-    var btnTexto      = document.getElementById('dl-btn-final-texto');
-    var btnBadge      = document.getElementById('dl-btn-size-badge');
-    var closeOverlay  = null; /* overlay eliminado */
-    var closeBtnNinos = null;
+    var numEl    = document.getElementById('dl-counter-num');
+    var ringFg   = document.getElementById('dl-ring-fg');
+    var barEl    = document.getElementById('dl-progress-bar');
+    var pctEl    = document.getElementById('dl-progress-pct');
+    var waitTxt  = document.getElementById('dl-waiting-text');
+    var ringWrap = document.getElementById('dl-ring-wrap');
+    var btnFinal = document.getElementById('dl-btn-final');
+    var nameEl   = document.getElementById('dl-page-name');
+    var iconEl   = document.getElementById('dl-page-icon');
+    var iconPh   = document.getElementById('dl-icon-ph');
+    var statVer  = document.getElementById('dl-stat-ver');
+    var statSize = document.getElementById('dl-stat-size');
+    var btnTexto = document.getElementById('dl-btn-final-texto');
+    var btnBadge = document.getElementById('dl-btn-size-badge');
 
     if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM);
 
     function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    /* héroe 2 líneas — fade-in al recibir datos */
     function _buildHeroTitle(n, v) {
       var vc = _cleanVer(v);
       return '<strong style="opacity:1;transition:opacity .2s">' + _esc(n) + ' (Mod Dinero Infinito)</strong><br><span style="font-weight:400;font-size:.9em;color:rgba(226,232,240,.7)">' + (vc ? 'v' + vc : '') + '.apk</span>';
     }
-    /* PUNTO 3: eliminar 'v' duplicada — se limpia en _applyData */
     function _cleanVer(v) { return String(v||'').replace(/^v+/i,''); }
 
-    /* PUNTO 2: botón — nombre dinámico en línea 2 */
     function _buildBtnText(n, v, s) {
       var vc = _cleanVer(v);
       var t = n + ' (Mod Dinero Infinito)';
@@ -394,7 +386,6 @@
       if (pctEl) pctEl.textContent = pct + '%';
     }
 
-    /* PUNTO 1: botón activo SÓLO al terminar el timer */
     function _finishTimer() {
       timerDone = true;
       if (waitTxt)  waitTxt.style.display  = 'none';
@@ -403,7 +394,6 @@
         if (realUrl) btnFinal.setAttribute('data-real-url', realUrl);
         btnFinal.classList.add('visible');
       }
-      if (closeOverlay) closeOverlay.classList.add('visible'); /* PUNTO 4 */
     }
 
     function _startTimer() {
@@ -417,7 +407,6 @@
       }, 1000);
     }
 
-    /* PUNTO 3: Aplicar datos Firebase */
     function _applyData(d) {
       var n = d.name  || d.nombre  || 'MOD APK';
       var v = d.ver   || d.version || '';
@@ -454,7 +443,6 @@
 
     function _trySessionStorage() {
       try {
-        // Intentar sessionStorage primero (mismo tab), luego localStorage (cross-tab / Safari privado)
         var raw = sessionStorage.getItem('jd_dl_payload')
                || localStorage.getItem('jd_dl_payload')
                || localStorage.getItem('jd_dl_payload_bk');
@@ -466,7 +454,6 @@
       } catch(e) { return false; }
     }
 
-    /* PUNTO 3: onSnapshot — escucha cambios en tiempo real */
     function _fetchFirebase() {
       try {
         if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
@@ -477,7 +464,7 @@
       } catch(e) { console.warn('[descarga] Firebase:', e.message); if (!timerRunning) _startTimer(); }
     }
 
-    /* Clic en botón → abre directamente el enlace de Mediafire */
+    /* Clic en botón → abre directamente el enlace */
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
@@ -489,18 +476,7 @@
       });
     }
 
-    /* PUNTO 4: nuestro CLOSE/X activa la X original del banner inferior */
-    if (closeBtnNinos) {
-      function _cerrarBanner() {
-        var xOrig = document.getElementById('botonCerrarPlaymods');
-        if (xOrig) xOrig.click();
-        if (closeOverlay) closeOverlay.classList.remove('visible');
-      }
-      closeBtnNinos.addEventListener('click', _cerrarBanner);
-      closeBtnNinos.addEventListener('keydown', function(e) { if (e.key==='Enter'||e.key===' ') _cerrarBanner(); });
-    }
-
-        if (gameId) {
+    if (gameId) {
       if (_trySessionStorage()) { _startTimer(); _fetchFirebase(); }
       else if (typeof firebase !== 'undefined') { _fetchFirebase(); }
       else {
@@ -510,7 +486,6 @@
         setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startTimer(); }, 2500);
       }
     } else { _startTimer(); }
-
 
   });
 })();
