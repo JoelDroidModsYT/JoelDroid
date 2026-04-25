@@ -1103,9 +1103,11 @@ iframe[id^="google_translate"], iframe[name^="google_translate"] { display: none
     document.querySelectorAll('.goog-te-balloon-frame,.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,.VIpgJd-ZVi9od-SmfZ').forEach(function(f){
       f.style.cssText='display:none!important;';
     });
-    // 5) Solo iframes de Google Translate — nunca tocar iframes de terceros (anunciantes)
-    document.querySelectorAll('iframe[src*="translate.google"],iframe[id^="google_translate"],iframe[name^="google_translate"]').forEach(function(fr){
-      fr.style.cssText='display:none!important;height:0!important;';
+    // 5) Iframes inyectados por GT
+    document.querySelectorAll('iframe').forEach(function(fr){
+      if(fr.src && fr.src.indexOf('translate.google') >= 0){
+        fr.style.cssText='display:none!important;height:0!important;';
+      }
     });
   }
 
@@ -1576,6 +1578,11 @@ window.__JD_REST_DONE = false;
           <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
         </div>
 
+        <!-- ════════════════════════════════════════════════════════════
+             ZONA DE ENLACES SECUNDARIOS
+             Pega aquí banners, iframes, botones extra o URLs adicionales.
+             Este bloque es seguro: está FUERA del JavaScript principal.
+             ════════════════════════════════════════════════════════════ -->             
     <!-- ══ RATING + COMENTARIOS POR JUEGO ══════════════════════ -->
     <div id="det-rating-comments" class="mt-8" style="background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);border-radius:24px;overflow:hidden">
 
