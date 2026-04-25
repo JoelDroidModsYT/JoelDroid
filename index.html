@@ -447,14 +447,16 @@ body{top:0!important}
 
 /* 1. Scroll táctil — el contenedor raíz scrollea, nada más */
 #detail-view {
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll !important;          /* scroll forzado: evita que Android lo anule */
+  -webkit-overflow-scrolling: touch;      /* Honor X7B usa GPU para mover la página    */
   overscroll-behavior: contain;
-  touch-action: pan-y;
+  touch-action: pan-y !important;         /* solo scroll vertical, sin interferencia    */
   pointer-events: auto !important;
   will-change: transform;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
+  /* Crear stacking context propio para aislar de capas de anuncios externos */
+  isolation: isolate;
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
@@ -1522,7 +1524,7 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;pointer-events:auto;">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-scroll" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;pointer-events:auto;will-change:transform;transform:translateZ(0);isolation:isolate;">
   <div class="max-w-md mx-auto min-h-screen pb-24">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
@@ -3606,17 +3608,21 @@ function showDetail(id){
   if(dtSub)dtSub.innerText=siteState.ui.subtitle;
 
   if(dv)dv.classList.remove('hidden');
-  document.body.style.overflow='hidden';
+  /* NO bloquear body.overflow — en Android/Chrome bloquear el body puede
+     impedir que el hijo (#detail-view) reciba eventos de scroll táctil.
+     El detail-view ocupa fixed inset-0, así que visualmente ya aísla el fondo. */
+  document.body.style.overflow = '';
   /* Garantizar scroll táctil en iOS/Android — se re-aplica en cada apertura
      porque algunas versiones de Safari/Chrome restablecen estos valores */
   if(dv){
-    dv.style.overflowY      = 'auto';
-    dv.style.webkitOverflowScrolling = 'touch';
-    dv.style.overscrollBehavior = 'contain';
-    dv.style.touchAction    = 'pan-y';
-    dv.style.pointerEvents  = 'auto';
-    dv.style.willChange     = 'transform';
-    dv.style.transform      = 'translateZ(0)';
+    dv.style.overflowY               = 'scroll';   /* forzado: no 'auto' */
+    dv.style.webkitOverflowScrolling  = 'touch';
+    dv.style.overscrollBehavior       = 'contain';
+    dv.style.touchAction              = 'pan-y';
+    dv.style.pointerEvents            = 'auto';
+    dv.style.willChange               = 'transform';
+    dv.style.transform                = 'translateZ(0)';
+    dv.scrollTop                      = 0;          /* reinicia scroll al abrir */
     // Passive listeners locales — el navegador prioriza el dedo sobre cualquier carga
     if(!dv._passiveListenersAdded){
       dv.addEventListener('touchstart', function(){}, {passive: true, capture: false});
