@@ -1064,18 +1064,14 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 font[face="Arial"] { display: none !important; visibility: hidden !important; }
 
 /* Evitar que GT empuje el body hacia abajo con el banner */
-body { top: 0 !important; position: static !important; margin-top: 0 !important; }
-.goog-te-banner-frame { height: 0 !important; display: none !important; }
-iframe.goog-te-banner-frame { display: none !important; }
-/* Bloquear el iframe de GT que aparece como overlay */
-iframe[id^="google_translate"], iframe[name^="google_translate"] { display: none !important; }
+body { top: 0 !important; position: static !important; }
+.goog-te-banner-frame { height: 0 !important; }
 
 /* Ocultar el tooltip/popup de feedback que aparece abajo */
 #goog-gt-tt, .goog-te-balloon-frame,
 .goog-tooltip, .goog-tooltip-card { display: none !important; }
 
 </style>
-<meta name="referrer" content="no-referrer-when-downgrade">
 </head>
 <body class="no-scrollbar">
 <div id="google_translate_element" style="display:none;"></div>
@@ -1086,29 +1082,18 @@ iframe[id^="google_translate"], iframe[name^="google_translate"] { display: none
 // Este observer los detecta y los oculta en el mismo frame — sin parpadeo.
 (function(){
   function _hideGTElements(){
-    // 1) Barra "Traducido al: X" (frame superior)
-    document.querySelectorAll('.goog-te-banner-frame, .skiptranslate').forEach(function(el){
-      if(el.tagName !== 'FONT') el.style.cssText='display:none!important;height:0!important;visibility:hidden!important;';
-    });
-    // 2) Widget inferior "Texto original / Califica esta traducción"
-    var tt = document.getElementById('goog-gt-tt');
-    if(tt) tt.style.cssText='display:none!important;';
-    // 3) Forzar body.top = 0 sin parpadeo
-    if(document.body){
-      document.body.style.setProperty('top','0px','important');
-      document.body.style.setProperty('position','','important');
-      document.body.style.setProperty('margin-top','0px','important');
-    }
-    // 4) Frames de feedback y balloon
-    document.querySelectorAll('.goog-te-balloon-frame,.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,.VIpgJd-ZVi9od-SmfZ').forEach(function(f){
-      f.style.cssText='display:none!important;';
-    });
-    // 5) Iframes inyectados por GT
-    document.querySelectorAll('iframe').forEach(function(fr){
-      if(fr.src && fr.src.indexOf('translate.google') >= 0){
-        fr.style.cssText='display:none!important;height:0!important;';
-      }
-    });
+    // Ocultar barra superior "Traducido al: X"
+    var banner = document.querySelector('.goog-te-banner-frame, .skiptranslate iframe');
+    if(banner){ banner.style.cssText='display:none!important;height:0!important;'; }
+    // Ocultar widget inferior "Texto original / Califica esta traducción"
+    var tooltip = document.getElementById('goog-gt-tt');
+    if(tooltip){ tooltip.style.cssText='display:none!important;'; }
+    // Forzar body.top = 0 (GT lo desplaza para hacer espacio a su barra)
+    document.body.style.top = '0px';
+    document.body.style.position = '';
+    // Ocultar el frame de feedback
+    var frames = document.querySelectorAll('.goog-te-balloon-frame, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf');
+    frames.forEach(function(f){ f.style.cssText='display:none!important;'; });
   }
 
   // Ejecutar inmediatamente y periódicamente hasta que GT haya cargado
@@ -1790,74 +1775,12 @@ window.__JD_REST_DONE = false;
 <!-- ══ GOOGLE TRANSLATE — sistema de traducción ══ -->
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <script>
-// ══ GOOGLE TRANSLATE ENGINE ══════════════════════════════════════
-var _gtReady = false;
-var _gtPendingLang = null;
-
 function googleTranslateElementInit(){
   new google.translate.TranslateElement({
-    pageLanguage: 'es',
-    autoDisplay:  false,
-    multilanguagePage: false
-  }, 'google_translate_element');
-  _gtReady = true;
-  // Si applyTranslations llamó antes de que GT cargara, ejecutar ahora
-  if(_gtPendingLang){ _gtApplyLang(_gtPendingLang); _gtPendingLang = null; }
+    pageLanguage:'es',
+    autoDisplay:false
+  },'google_translate_element');
 }
-
-// Mapa de códigos JoelDroid → códigos que GT acepta en el combo
-var _gtLangMap = {
-  'es':'es','en':'en','pt':'pt','de':'de','ru':'ru',
-  'zh-CN':'zh-CN','ja':'ja','tr':'tr','hi':'hi','fr':'fr'
-};
-
-function _gtApplyLang(lang){
-  if(!_gtReady){ _gtPendingLang = lang; return; }
-
-  if(lang === 'es'){
-    // Restaurar idioma original — usar la función nativa de GT
-    var el = document.querySelector('.goog-te-combo');
-    if(el){
-      el.value = '';
-      el.dispatchEvent(new Event('change'));
-    }
-    // Método alternativo: cookie de GT
-    var expires = new Date(Date.now() - 86400000).toUTCString();
-    document.cookie = 'googtrans=; expires=' + expires + '; path=/';
-    document.cookie = 'googtrans=; expires=' + expires + '; path=/; domain=.' + location.hostname;
-    // Recargar traducción a español (idioma original)
-    var iframe = document.querySelector('.goog-te-banner-frame');
-    if(iframe && iframe.contentWindow){
-      try{
-        var restore = iframe.contentWindow.document.querySelector('.goog-te-button button');
-        if(restore) restore.click();
-      }catch(e){}
-    }
-    // Si nada funcionó: última opción limpia de cookie + reload silencioso
-    if(document.documentElement.lang && document.documentElement.lang !== 'es'){
-      document.cookie = 'googtrans=/es/es; path=/';
-      document.cookie = 'googtrans=/es/es; path=/; domain=.' + location.hostname;
-      setTimeout(function(){ location.reload(); }, 80);
-    }
-    return;
-  }
-
-  // Idioma distinto al español: activar GT via combo
-  var gtCode = _gtLangMap[lang] || lang;
-  var attempts = 0;
-  function _tryCombo(){
-    var combo = document.querySelector('.goog-te-combo');
-    if(combo){
-      combo.value = gtCode;
-      combo.dispatchEvent(new Event('change'));
-    } else if(attempts < 20){
-      attempts++;
-      setTimeout(_tryCombo, 150);
-    }
-  }
-  _tryCombo();
-}
-// ════════════════════════════════════════════════════════════════
 </script>
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- Firebase SDK — preload + defer para máxima velocidad -->
@@ -2276,16 +2199,80 @@ function applyTranslations(lang){
   localStorage.setItem('selectedLang', lang);
   // (visibilidad: Google Translate no oculta el body)
 
-  // Actualizar bandera activa y modo de color
+  // ── CRÍTICO INMEDIATO: solo los elementos visibles above-the-fold ──
+  // Filtros (siempre visibles)
+  var chips = {all:'Todo', updated:'Actualizados', popular:'Popular'};
+  Object.keys(chips).forEach(function(k){
+    var el = document.getElementById('filter-'+k);
+    if(el){ var sp=el.querySelector('span'); if(sp) sp.textContent=tStr(chips[k]); }
+  });
+  // Placeholder del buscador
+  var sb = document.getElementById('search-bar');
+  if(sb) sb.placeholder = tStr('Buscar aplicaciones...');
+  // Bandera activa
   var fg = document.getElementById('current-flag');
   if(fg && LANG_FLAGS[lang]) fg.src = LANG_FLAGS[lang];
+  // Botones de descarga de las tarjetas (siempre visibles)
+  document.querySelectorAll('.global-dl-btn-text').forEach(function(el){
+    var adminTxt = (typeof siteState!=='undefined'&&siteState.buttonSettings&&siteState.buttonSettings.globalHomeButtonText)||'';
+    var defaults = ['Descargar APK','Download APK','Baixar APK','APK Herunterladen',
+      'Скачать APK','下载 APK','APKをダウンロード','APK İndir','APK डाउनलोड करें','Télécharger APK',''];
+    el.textContent = (defaults.indexOf(adminTxt)>=0) ? tStr('Descargar APK') : adminTxt;
+  });
+  // Modo claro (inmediato para evitar flash de color)
   applyLightColors();
 
-  // Google Translate maneja data-i18n — bloque de traducción manual eliminado
-
-  // ── Google Translate: delegar toda la traducción al engine ──
+  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea los anuncios ──
   _jdIdle(function(){
-    _gtApplyLang(lang);
+    // 1) Todos los [data-i18n] del DOM
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if(key==='banner_title'||key==='banner_subtitle'||key==='ann_text') return;
+      var es = LANG_FLAGS_KEYS[key];
+      if(!es) return;
+      el.textContent = tStr(es);
+    });
+    // 2) Placeholders extra
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-placeholder');
+      var es = LANG_FLAGS_KEYS[key]||key;
+      el.placeholder = tStr(es);
+    });
+    // 3) Botón compartir detalle
+    var shareSpan = document.querySelector('#detail-view button[onclick="shareGame()"] span');
+    if(shareSpan) shareSpan.textContent = tStr('Compartir');
+    // 4) Textos detalle estáticos
+    var warnTitle = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:900"]');
+    if(warnTitle) warnTitle.textContent = tStr('¡ADVERTENCIA IMPORTANTE!');
+    var warnBody = document.querySelector('#download-section [style*="color:#ef4444"][style*="font-weight:700"][style*="opacity"]');
+    if(warnBody) warnBody.textContent = tStr('Si el juego presenta problemas al instalar, asegúrate de desinstalar cualquier versión previa de la Google Play Store para evitar conflictos.');
+    // 5) Rating labels
+    var ratingLbl = document.querySelector('.ps-vote-lbl');
+    if(ratingLbl) ratingLbl.textContent = tStr('CALIFICA ESTA APP');
+    var ratingSubLbl = document.querySelector('.ps-vote-sublbl');
+    if(ratingSubLbl) ratingSubLbl.textContent = tStr('Comparte tu opinión con otros usuarios');
+    // 6) Botón descarga detalle
+    var dlBtns = document.querySelectorAll('[data-i18n="download_mod_btn"]');
+    dlBtns.forEach(function(el){
+      var custom = typeof siteState!=='undefined' && siteState.buttonSettings && siteState.buttonSettings.globalDetailButtonText;
+      if(custom && custom !== 'Descargar Mod Apk'){
+        trAPI(custom, function(tr){ if(tr) el.textContent = tr; });
+      } else {
+        el.textContent = tStr('Descargar Mod Apk');
+      }
+    });
+  });
+
+  // ── Google Translate: cambiar idioma via goog-te-combo ──
+  _jdIdle(function(){
+    if(lang !== 'es'){
+      var combo = document.querySelector('.goog-te-combo');
+      if(combo){ combo.value = lang; combo.dispatchEvent(new Event('change')); }
+      _jdStartObserver();
+      _jdTranslateNewCards();
+    } else {
+      _jdStopObserver();
+    }
     renderGames();
   });
 }
