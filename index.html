@@ -452,12 +452,16 @@ body{top:0!important}
   overscroll-behavior: contain;
   touch-action: pan-y;
   pointer-events: auto !important;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
 #detail-view > div {
   pointer-events: auto;
   position: relative;
+  overflow: visible;
   /* Sin overflow:hidden — dejaría de propagar el scroll al padre */
 }
 
@@ -913,6 +917,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   gap: 6px;
   padding: 2px 0 16px;
   contain: layout;
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 @media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
 @media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
@@ -1539,7 +1546,7 @@ window.__JD_REST_DONE = false;
       </button>
     </div>
 
-    <div class="px-6 flex gap-5 items-start" style="margin-top:70px;">
+    <div class="px-6 flex gap-5 items-start" style="margin-top:80px;">
       <img id="det-icon" src="" class="ios-icon-large icon-img-loaded" loading="lazy">
       <div class="flex-grow">
         <h2 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1 notranslate">---</h2>
@@ -3608,6 +3615,14 @@ function showDetail(id){
     dv.style.overscrollBehavior = 'contain';
     dv.style.touchAction    = 'pan-y';
     dv.style.pointerEvents  = 'auto';
+    dv.style.willChange     = 'transform';
+    dv.style.transform      = 'translateZ(0)';
+    // Passive listeners locales — el navegador prioriza el dedo sobre cualquier carga
+    if(!dv._passiveListenersAdded){
+      dv.addEventListener('touchstart', function(){}, {passive: true, capture: false});
+      dv.addEventListener('touchmove',  function(){}, {passive: true, capture: false});
+      dv._passiveListenersAdded = true;
+    }
   }
 
   renderRecommendedGames(id);
@@ -6052,6 +6067,14 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // Manejar redireccionamiento desde 404.html
   if(_handle404Redirect()) return;
+
+  // ── PASSIVE LISTENERS — prioridad de scroll en móvil ──────────
+  // Registrar touchstart/touchmove como pasivos para que el navegador
+  // priorice el movimiento del dedo sin esperar callbacks de JS.
+  document.addEventListener('touchstart', function(){}, {passive: true, capture: false});
+  document.addEventListener('touchmove',  function(){}, {passive: true, capture: false});
+  window.addEventListener('scroll',       function(){}, {passive: true});
+  // ──────────────────────────────────────────────────────────────
 
   // ── PASO 0: Carga ultra-rápida — 3 capas de caché ──────────────
   // Capa 1: __JD_STATIC_GAMES (sessionStorage+localStorage ya en memoria)
