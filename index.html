@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+/* JD-CACHE-BUST v20260426 — Fuerza recarga limpia en todos los dispositivos.
+   Elimina Service Workers anteriores y borra caches del navegador. */
+(function(){
+  try{
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(r){ r.unregister(); });
+      });
+    }
+    if('caches' in window){
+      caches.keys().then(function(keys){
+        keys.forEach(function(k){ caches.delete(k); });
+      });
+    }
+  }catch(e){}
+})();
+</script>
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>    
     
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
@@ -261,6 +282,10 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
 .light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:background-color .4s ease,color .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
+/* CRÍTICO: NO usar overflow:hidden en body con detail-view fixed.
+   En Android Chrome eso congela el scroll del hijo después de 5-6 gestos.
+   position:fixed en el body es el método correcto (Twitter/Instagram/Google). */
+body.detail-open{position:fixed;width:100%;overflow-y:scroll;}
 #site-title-ui,#detail-site-title-ui{font-weight:900}
 #site-subtitle-ui,#detail-site-subtitle-ui{color:var(--subtitle-text-color)}
 .game-card{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);transition:transform .25s ease,box-shadow .25s ease,border-color .25s;cursor:pointer}.game-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.45),inset 0 0 8px rgba(37,99,235,.2);border-color:var(--brand-color)}
@@ -2869,23 +2894,22 @@ function _jdStartDetailObserver(){
   if(!dv) return;
   _jdDetObserver = new MutationObserver(function(muts){
     if(currentLang === 'es'){
-      /* Español — no necesita traducción, desconectar inmediatamente */
       _jdDetObserver.disconnect(); _jdDetObserver = null; return;
     }
     var hasRelevant = muts.some(function(m){
       return m.addedNodes.length > 0 || m.type === 'characterData';
     });
     if(!hasRelevant) return;
-    /* Debounce 400ms — más holgado para no dispararse durante el scroll */
     clearTimeout(_jdDetObserver._t);
     _jdDetObserver._t = setTimeout(function(){
       _jdTranslateDetailView();
-      /* Auto-desconectar tras traducir: el contenido ya está fijo */
+      /* Auto-desconectar: el contenido ya está traducido,
+         no necesita seguir vigilando (evita reflows por anuncios) */
       if(_jdDetObserver){ _jdDetObserver.disconnect(); _jdDetObserver = null; }
     }, 400);
   });
-  /* subtree:false — solo hijos directos, NO toda la subárbol.
-     subtree:true dispara con cada mutación de anuncios y congela el scroll. */
+  /* subtree:false — CRÍTICO: subtree:true dispara con cada
+     mutación de anuncios Monetag y congela el scroll */
   _jdDetObserver.observe(dv, { childList: true, subtree: false });
 }
 
@@ -3609,9 +3633,12 @@ function showDetail(id){
   if(dtSub)dtSub.innerText=siteState.ui.subtitle;
 
   if(dv)dv.classList.remove('hidden');
-  document.body.style.overflow='hidden';
-  /* Garantizar scroll táctil en iOS/Android — se re-aplica en cada apertura
-     porque algunas versiones de Safari/Chrome restablecen estos valores */
+  /* CRÍTICO ANDROID: body.overflow='hidden' + position:fixed child
+     congela el scroll después de 5-6 gestos (Chromium bug #546068).
+     Solución estándar de la industria: position:fixed en el body. */
+  var _scrollY = window.scrollY;
+  document.body.classList.add('detail-open');
+  document.body.style.top = '-' + _scrollY + 'px';
   if(dv){
     dv.style.overflowY               = 'auto';
     dv.style.webkitOverflowScrolling  = 'touch';
@@ -3621,9 +3648,6 @@ function showDetail(id){
     dv.style.willChange               = 'transform';
     dv.style.transform                = 'translateZ(0)';
     dv.scrollTop                      = 0;
-    /* Passive listeners — registrar una sola vez por elemento.
-       Garantiza que el dedo del usuario tenga prioridad absoluta
-       sobre cualquier script externo (Monetag, Firebase, etc.) */
     if(!dv._passiveSet){
       dv.addEventListener('touchstart', function(){}, {passive:true});
       dv.addEventListener('touchmove',  function(){}, {passive:true});
@@ -3644,7 +3668,11 @@ function showDetail(id){
 function closeDetail(){
   var dv=document.getElementById('detail-view');
   if(dv)dv.classList.add('hidden');
-  document.body.style.overflow='';
+  /* Restaurar posición de scroll del body al cerrar detail-view */
+  var scrollY = parseInt(document.body.style.top || '0') * -1;
+  document.body.classList.remove('detail-open');
+  document.body.style.top = '';
+  window.scrollTo(0, scrollY);
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
@@ -6137,14 +6165,12 @@ window.addEventListener('DOMContentLoaded', function() {
     
       // 2) Detectar DevTools (básico) — si se abre la consola ralentizar
       var _devCheck=function(){
-        /* Versión sin layout-reflow: outerHeight/innerHeight forzaban
-           un recálculo de layout completo en Android cada 3s durante el scroll.
-           La protección de DevTools se mantiene pero sin leer dimensiones. */
+        /* outerHeight/innerHeight eliminados: forzaban layout reflow
+           completo en Android cada 3s, congelando el scroll */
         var fields=['gh-token-in','sec-current-code','sec-new-code'];
         fields.forEach(function(id){
           var el=document.getElementById(id);
-          /* Solo limpiar si el campo es visible y tiene valor — sin leer layout */
-          if(el && el.value && el.offsetParent !== null) el.value='';
+          if(el && el.value && el.offsetParent!==null) el.value='';
         });
       };
       setInterval(_devCheck,3000);
