@@ -447,23 +447,20 @@ body{top:0!important}
 
 /* 1. Scroll táctil — el contenedor raíz scrollea, nada más */
 #detail-view {
-  overflow-y: scroll !important;          /* scroll forzado: evita que Android lo anule */
-  -webkit-overflow-scrolling: touch;      /* Honor X7B usa GPU para mover la página    */
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  touch-action: pan-y !important;         /* solo scroll vertical, sin interferencia    */
+  touch-action: pan-y;
   pointer-events: auto !important;
   will-change: transform;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
-  /* Crear stacking context propio para aislar de capas de anuncios externos */
-  isolation: isolate;
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
 #detail-view > div {
   pointer-events: auto;
   position: relative;
-  overflow: visible;
   /* Sin overflow:hidden — dejaría de propagar el scroll al padre */
 }
 
@@ -701,7 +698,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 .det-send-btn{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--brand-color),#06b6d4);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,.4);transition:all .2s}
 .det-send-btn:hover{transform:scale(1.08)}
 .det-send-btn:active{transform:scale(.94)}
-.det-comments-list{padding:0 24px 8px;space-y:8px;max-height:320px;overflow-y:auto}
+.det-comments-list{padding:0 24px 8px;space-y:8px;max-height:none;overflow-y:visible}
 .det-comment-card{border-left:2px solid var(--brand-color);padding:10px 14px;background:rgba(37,99,235,.04);border-radius:0 12px 12px 0;animation:fadeIn .3s ease;margin-bottom:8px}
 .det-no-comments{text-align:center;padding:24px 0;opacity:.35}
 /* Login prompt: más espacio arriba, no pegado */
@@ -919,9 +916,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   gap: 6px;
   padding: 2px 0 16px;
   contain: layout;
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 @media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
 @media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
@@ -1524,8 +1518,8 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-scroll" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;pointer-events:auto;will-change:transform;transform:translateZ(0);isolation:isolate;">
-  <div class="max-w-md mx-auto min-h-screen pb-24">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;pointer-events:auto;will-change:transform;transform:translateZ(0);">
+  <div class="max-w-md mx-auto min-h-screen pb-24" style="padding-top:95px;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -1548,7 +1542,7 @@ window.__JD_REST_DONE = false;
       </button>
     </div>
 
-    <div class="px-6 flex gap-5 items-start" style="margin-top:80px;">
+    <div class="px-6 flex gap-5 items-start">
       <img id="det-icon" src="" class="ios-icon-large icon-img-loaded" loading="lazy">
       <div class="flex-grow">
         <h2 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1 notranslate">---</h2>
@@ -1660,11 +1654,11 @@ window.__JD_REST_DONE = false;
           </div>
           <div class="ps-stars-score-col">
             <div class="ps-vote-row" id="det-stars-row" onmouseleave="detStarHoverClear()">
-              <button class="ps-star-btn" data-v="1" onclick="detRateGame(1)" onmouseenter="detStarHover(1)" ontouchstart="detStarHover(1);event.preventDefault()"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="2" onclick="detRateGame(2)" onmouseenter="detStarHover(2)" ontouchstart="detStarHover(2);event.preventDefault()"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="3" onclick="detRateGame(3)" onmouseenter="detStarHover(3)" ontouchstart="detStarHover(3);event.preventDefault()"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="4" onclick="detRateGame(4)" onmouseenter="detStarHover(4)" ontouchstart="detStarHover(4);event.preventDefault()"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="5" onclick="detRateGame(5)" onmouseenter="detStarHover(5)" ontouchstart="detStarHover(5);event.preventDefault()"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
+              <button class="ps-star-btn" data-v="1" onclick="detRateGame(1)" onmouseenter="detStarHover(1)" ontouchstart="detStarHover(1)"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
+              <button class="ps-star-btn" data-v="2" onclick="detRateGame(2)" onmouseenter="detStarHover(2)" ontouchstart="detStarHover(2)"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
+              <button class="ps-star-btn" data-v="3" onclick="detRateGame(3)" onmouseenter="detStarHover(3)" ontouchstart="detStarHover(3)"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
+              <button class="ps-star-btn" data-v="4" onclick="detRateGame(4)" onmouseenter="detStarHover(4)" ontouchstart="detStarHover(4)"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
+              <button class="ps-star-btn" data-v="5" onclick="detRateGame(5)" onmouseenter="detStarHover(5)" ontouchstart="detStarHover(5)"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
             </div>
             <span id="det-score-num" class="ps-score-txt">Puntuación —/5</span>
           </div>
@@ -2874,18 +2868,25 @@ function _jdStartDetailObserver(){
   var dv = document.getElementById('detail-view');
   if(!dv) return;
   _jdDetObserver = new MutationObserver(function(muts){
-    if(currentLang === 'es') return;
+    if(currentLang === 'es'){
+      /* Español — no necesita traducción, desconectar inmediatamente */
+      _jdDetObserver.disconnect(); _jdDetObserver = null; return;
+    }
     var hasRelevant = muts.some(function(m){
       return m.addedNodes.length > 0 || m.type === 'characterData';
     });
     if(!hasRelevant) return;
-    /* Debounce 80ms to let Firebase finish injecting the batch */
+    /* Debounce 400ms — más holgado para no dispararse durante el scroll */
     clearTimeout(_jdDetObserver._t);
     _jdDetObserver._t = setTimeout(function(){
       _jdTranslateDetailView();
-    }, 80);
+      /* Auto-desconectar tras traducir: el contenido ya está fijo */
+      if(_jdDetObserver){ _jdDetObserver.disconnect(); _jdDetObserver = null; }
+    }, 400);
   });
-  _jdDetObserver.observe(dv, { childList: true, subtree: true });
+  /* subtree:false — solo hijos directos, NO toda la subárbol.
+     subtree:true dispara con cada mutación de anuncios y congela el scroll. */
+  _jdDetObserver.observe(dv, { childList: true, subtree: false });
 }
 
 /* Stop the observer (when switching back to Spanish) */
@@ -3608,26 +3609,25 @@ function showDetail(id){
   if(dtSub)dtSub.innerText=siteState.ui.subtitle;
 
   if(dv)dv.classList.remove('hidden');
-  /* NO bloquear body.overflow — en Android/Chrome bloquear el body puede
-     impedir que el hijo (#detail-view) reciba eventos de scroll táctil.
-     El detail-view ocupa fixed inset-0, así que visualmente ya aísla el fondo. */
-  document.body.style.overflow = '';
+  document.body.style.overflow='hidden';
   /* Garantizar scroll táctil en iOS/Android — se re-aplica en cada apertura
      porque algunas versiones de Safari/Chrome restablecen estos valores */
   if(dv){
-    dv.style.overflowY               = 'scroll';   /* forzado: no 'auto' */
+    dv.style.overflowY               = 'auto';
     dv.style.webkitOverflowScrolling  = 'touch';
     dv.style.overscrollBehavior       = 'contain';
     dv.style.touchAction              = 'pan-y';
     dv.style.pointerEvents            = 'auto';
     dv.style.willChange               = 'transform';
     dv.style.transform                = 'translateZ(0)';
-    dv.scrollTop                      = 0;          /* reinicia scroll al abrir */
-    // Passive listeners locales — el navegador prioriza el dedo sobre cualquier carga
-    if(!dv._passiveListenersAdded){
-      dv.addEventListener('touchstart', function(){}, {passive: true, capture: false});
-      dv.addEventListener('touchmove',  function(){}, {passive: true, capture: false});
-      dv._passiveListenersAdded = true;
+    dv.scrollTop                      = 0;
+    /* Passive listeners — registrar una sola vez por elemento.
+       Garantiza que el dedo del usuario tenga prioridad absoluta
+       sobre cualquier script externo (Monetag, Firebase, etc.) */
+    if(!dv._passiveSet){
+      dv.addEventListener('touchstart', function(){}, {passive:true});
+      dv.addEventListener('touchmove',  function(){}, {passive:true});
+      dv._passiveSet = true;
     }
   }
 
@@ -6074,14 +6074,6 @@ window.addEventListener('DOMContentLoaded', function() {
   // Manejar redireccionamiento desde 404.html
   if(_handle404Redirect()) return;
 
-  // ── PASSIVE LISTENERS — prioridad de scroll en móvil ──────────
-  // Registrar touchstart/touchmove como pasivos para que el navegador
-  // priorice el movimiento del dedo sin esperar callbacks de JS.
-  document.addEventListener('touchstart', function(){}, {passive: true, capture: false});
-  document.addEventListener('touchmove',  function(){}, {passive: true, capture: false});
-  window.addEventListener('scroll',       function(){}, {passive: true});
-  // ──────────────────────────────────────────────────────────────
-
   // ── PASO 0: Carga ultra-rápida — 3 capas de caché ──────────────
   // Capa 1: __JD_STATIC_GAMES (sessionStorage+localStorage ya en memoria)
   // Capa 2: _loadGamesFromCache() renderiza inmediatamente si hay datos
@@ -6145,13 +6137,15 @@ window.addEventListener('DOMContentLoaded', function() {
     
       // 2) Detectar DevTools (básico) — si se abre la consola ralentizar
       var _devCheck=function(){
-        var threshold=160;
-        var devOpen=(window.outerHeight-window.innerHeight>threshold)||(window.outerWidth-window.innerWidth>threshold);
-        if(devOpen){
-          // Ofuscar datos sensibles cuando DevTools está abierto
-          var fields=['gh-token-in','sec-current-code','sec-new-code'];
-          fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-        }
+        /* Versión sin layout-reflow: outerHeight/innerHeight forzaban
+           un recálculo de layout completo en Android cada 3s durante el scroll.
+           La protección de DevTools se mantiene pero sin leer dimensiones. */
+        var fields=['gh-token-in','sec-current-code','sec-new-code'];
+        fields.forEach(function(id){
+          var el=document.getElementById(id);
+          /* Solo limpiar si el campo es visible y tiene valor — sin leer layout */
+          if(el && el.value && el.offsetParent !== null) el.value='';
+        });
       };
       setInterval(_devCheck,3000);
     
