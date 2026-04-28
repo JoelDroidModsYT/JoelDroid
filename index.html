@@ -282,10 +282,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
 .light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:background-color .4s ease,color .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
-/* CRÍTICO: NO usar overflow:hidden en body con detail-view fixed.
-   En Android Chrome eso congela el scroll del hijo después de 5-6 gestos.
-   position:fixed en el body es el método correcto (Twitter/Instagram/Google). */
-body.detail-open{position:fixed;width:100%;overflow-y:scroll;}
+body.detail-open{overflow:hidden;}
 #site-title-ui,#detail-site-title-ui{font-weight:900}
 #site-subtitle-ui,#detail-site-subtitle-ui{color:var(--subtitle-text-color)}
 .game-card{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);transition:transform .25s ease,box-shadow .25s ease,border-color .25s;cursor:pointer}.game-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.45),inset 0 0 8px rgba(37,99,235,.2);border-color:var(--brand-color)}
@@ -472,26 +469,25 @@ body{top:0!important}
 
 /* 1. Scroll táctil — el contenedor raíz scrollea, nada más */
 #detail-view {
-  overflow-y: auto !important;
+  overflow-y: scroll !important;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   touch-action: pan-y;
   pointer-events: auto !important;
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  height: 100% !important;
+  max-height: 100% !important;
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
 #detail-view > div {
   pointer-events: auto;
   position: relative;
-  /* Sin overflow:hidden — dejaría de propagar el scroll al padre */
+  min-height: 100%;
 }
 
-/* 3. El header sticky no atrapa swipes — solo sus botones responden */
+/* 3. El header sticky pasa swipes verticales al detail-view */
 #detail-view .sticky {
-  touch-action: manipulation;
+  touch-action: pan-y;
   pointer-events: auto;
 }
 
@@ -502,7 +498,8 @@ body{top:0!important}
   pointer-events: none;
 }
 
-/* 5. Excepciones explícitas: botones y enlaces SÍ reciben touch */
+/* 5. Botones y enlaces: pointer-events activo, touch-action pan-y
+   para que el scroll funcione aunque el dedo empiece sobre un botón */
 #detail-view button,
 #detail-view a,
 #detail-view input,
@@ -511,7 +508,7 @@ body{top:0!important}
 #detail-view .ps-star-btn,
 #detail-view .det-star {
   pointer-events: auto !important;
-  touch-action: manipulation;
+  touch-action: pan-y;
 }
 
 /* 6. Área de descarga y rating — sin ningún overflow que corte el scroll */
@@ -626,7 +623,7 @@ body{top:0!important}
 /* FIX 3: Installation tutorial section */
 #install-tutorial-section{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);border-radius:24px;overflow:hidden}
 .video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden}
-.video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.video-wrapper iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;touch-action:manipulation}
 /* FIX 3: Install tutorial thumbnail overlay */
 .install-thumb-container{position:relative;width:100%;cursor:pointer;border-radius:0;overflow:hidden;}
 .install-thumb-container img{width:100%;display:block;transition:transform .3s ease;}
@@ -1543,7 +1540,7 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;pointer-events:auto;will-change:transform;transform:translateZ(0);">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden overflow-y-auto" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;pointer-events:auto;">
   <div class="max-w-md mx-auto min-h-screen pb-24" style="padding-top:95px;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
@@ -3636,23 +3633,18 @@ function showDetail(id){
   /* CRÍTICO ANDROID: body.overflow='hidden' + position:fixed child
      congela el scroll después de 5-6 gestos (Chromium bug #546068).
      Solución estándar de la industria: position:fixed en el body. */
-  var _scrollY = window.scrollY;
   document.body.classList.add('detail-open');
-  document.body.style.top = '-' + _scrollY + 'px';
   if(dv){
-    dv.style.overflowY               = 'auto';
-    dv.style.webkitOverflowScrolling  = 'touch';
-    dv.style.overscrollBehavior       = 'contain';
-    dv.style.touchAction              = 'pan-y';
-    dv.style.pointerEvents            = 'auto';
-    dv.style.willChange               = 'transform';
-    dv.style.transform                = 'translateZ(0)';
-    dv.scrollTop                      = 0;
-    if(!dv._passiveSet){
-      dv.addEventListener('touchstart', function(){}, {passive:true});
-      dv.addEventListener('touchmove',  function(){}, {passive:true});
-      dv._passiveSet = true;
-    }
+    dv.style.overflowY               = 'scroll';
+    dv.style.height                  = '100%';
+    dv.style.maxHeight               = '100%';
+    dv.style.webkitOverflowScrolling = 'touch';
+    dv.style.overscrollBehaviorY     = 'contain';
+    dv.style.touchAction             = 'pan-y';
+    dv.style.pointerEvents           = 'auto';
+    dv.style.willChange              = '';
+    dv.style.transform               = '';
+    dv.scrollTop                     = 0;
   }
 
   renderRecommendedGames(id);
@@ -3668,11 +3660,7 @@ function showDetail(id){
 function closeDetail(){
   var dv=document.getElementById('detail-view');
   if(dv)dv.classList.add('hidden');
-  /* Restaurar posición de scroll del body al cerrar detail-view */
-  var scrollY = parseInt(document.body.style.top || '0') * -1;
   document.body.classList.remove('detail-open');
-  document.body.style.top = '';
-  window.scrollTo(0, scrollY);
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
@@ -4957,7 +4945,7 @@ function _mk(tag,css,parent){
   if(_sceneEls.length>=_SCENE_MAX)return document.createElement('div'); // devolver dummy sin agregar
   var el=document.createElement(tag||'div');
   // Forzar z-index negativo aunque el css inline diga otra cosa
-  el.style.cssText=(css||'').replace(/z-index\s*:\s*[^;]+;?/gi,'')+'z-index:-2!important;will-change:transform;';
+  el.style.cssText=(css||'').replace(/z-index\s*:\s*[^;]+;?/gi,'')+'z-index:-2!important;';
   (parent||document.body).appendChild(el);
   _sceneEls.push(el);
   return el;
@@ -6170,7 +6158,7 @@ window.addEventListener('DOMContentLoaded', function() {
         var fields=['gh-token-in','sec-current-code','sec-new-code'];
         fields.forEach(function(id){
           var el=document.getElementById(id);
-          if(el && el.value && el.offsetParent!==null) el.value='';
+          if(el && el.value && el.style.display!=='none') el.value='';
         });
       };
       setInterval(_devCheck,3000);
