@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">    
+<html lang="es">
 <head>
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <script>
-/* JD-CACHE-BUST v20260426 — Fuerza recarga limpia en todos los dispositivos.
-   Elimina Service Workers anteriores y borra caches del navegador. */
+/* JD-CACHE-BUST v20260426 */
 (function(){
   try{
     if('serviceWorker' in navigator){
@@ -16,13 +16,17 @@
     }
     if('caches' in window){
       caches.keys().then(function(keys){
-        keys.forEach(function(k){ caches.delete(k); });
+        keys.forEach(function(k){
+          /* No borrar caches de redes publicitarias */
+          if(k.indexOf('monetag')===-1 && k.indexOf('quge5')===-1 && k.indexOf('6opo')===-1){
+            caches.delete(k);
+          }
+        });
       });
     }
   }catch(e){}
 })();
 </script>
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>    
     
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -129,7 +133,7 @@
 (function _jdAutoUpdate(){
   // ── VERSIÓN DEL SITIO — CAMBIAR ESTE NÚMERO EN CADA DEPLOY/PUSH ──
   // Formato: YYYYMMDD_HHMM  (fecha y hora del último push a GitHub)
-  var SITE_VERSION = '20260501_0800';
+  var SITE_VERSION = '20260501_1900';
   var CACHE_KEY    = 'jd_site_version';
 
   try {
@@ -1541,7 +1545,7 @@ window.__JD_REST_DONE = false;
 
 <!-- DETAIL VIEW -->
 <div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:scroll;height:100%;max-height:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;">
-  <div class="max-w-md mx-auto min-h-screen pb-24" style="padding-top:95px;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -6137,19 +6141,8 @@ window.addEventListener('DOMContentLoaded', function() {
   // ── Seguridad anti-hack (dentro de DOM listo)
   try{
     (function _antiHack(){
-      // 1) Bloquear clickjacking — compatible con redes publicitarias (Monetag, etc.)
-      // NO se destruye el body: los ad networks usan iframes internos para algunos formatos.
-      if(window.top!==window.self){
-        try{
-          var _topOrigin=window.top.location.hostname;
-          if(_topOrigin===window.location.hostname) return; // iframe legítimo del mismo sitio
-          window.top.location=window.location;
-        }catch(e){
-          // SecurityError: origen cruzado desconocido — redirigir sin destruir DOM
-          try{ window.top.location.replace(window.location.href); }catch(e2){}
-        }
-        return;
-      }
+      // Anti-clickjacking ELIMINADO: interfería con iframes de Monetag
+      // causando freeze del scroll táctil y bloqueo de anuncios.
     
       // 2) Detectar DevTools (básico) — si se abre la consola ralentizar
       var _devCheck=function(){
