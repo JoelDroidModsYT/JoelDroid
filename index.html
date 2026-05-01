@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es">    
 <head>
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -17,8 +17,7 @@
     if('caches' in window){
       caches.keys().then(function(keys){
         keys.forEach(function(k){
-          /* No borrar caches de redes publicitarias */
-          if(k.indexOf('monetag')===-1 && k.indexOf('quge5')===-1 && k.indexOf('6opo')===-1){
+          if(k.indexOf('monetag')===-1&&k.indexOf('quge5')===-1&&k.indexOf('6opo')===-1){
             caches.delete(k);
           }
         });
@@ -26,7 +25,7 @@
     }
   }catch(e){}
 })();
-</script>
+</script>    
     
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -133,7 +132,7 @@
 (function _jdAutoUpdate(){
   // ── VERSIÓN DEL SITIO — CAMBIAR ESTE NÚMERO EN CADA DEPLOY/PUSH ──
   // Formato: YYYYMMDD_HHMM  (fecha y hora del último push a GitHub)
-  var SITE_VERSION = '20260501_1900';
+  var SITE_VERSION = '20260501_2000';
   var CACHE_KEY    = 'jd_site_version';
 
   try {
@@ -621,7 +620,7 @@ body{top:0!important}
 #admin-panel label,#admin-panel h3{font-size:10px}
 #admin-panel .admin-input{font-size:10px}
 #admin-panel .color-selector{font-size:10px}
-.icon-img-loaded{opacity:0;transition:opacity .4s ease}
+.icon-img-loaded{opacity:1}
 .icon-img-loaded.loaded{opacity:1}
 #video-section{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);border-radius:24px;overflow:hidden}
 /* FIX 3: Installation tutorial section */
