@@ -124,48 +124,78 @@
      ════════════════════════════════════════════════════════════════ -->
 <script>
 (function _jdAutoUpdate(){
-  // ── VERSIÓN DEL SITIO — CAMBIAR ESTE NÚMERO EN CADA DEPLOY/PUSH ──
-  // Formato: YYYYMMDD_HHMM  (fecha y hora del último push a GitHub)
+  // ══ VERSIÓN — CAMBIAR EN CADA PUSH A GITHUB ══════════════════════
   var SITE_VERSION = '20260502_1800';
   var CACHE_KEY    = 'jd_site_version';
+  var RELOAD_KEY   = 'jd_reload_ts';
+
+  // Protección anti-bucle: si recargamos hace menos de 8 segundos, parar
+  try{
+    var lastReload = parseInt(localStorage.getItem(RELOAD_KEY)||'0');
+    if(Date.now() - lastReload < 8000){
+      localStorage.setItem(CACHE_KEY, SITE_VERSION);
+      localStorage.removeItem(RELOAD_KEY);
+      return;
+    }
+  }catch(e){}
 
   try {
     var storedVersion = localStorage.getItem(CACHE_KEY);
 
-    if(storedVersion && storedVersion !== SITE_VERSION){
-      // ── Nueva versión detectada: limpiar caché de juegos y configuración ──
-      // Se preservan datos del usuario: sesión, ratings, comentarios, preferencias
+    // SIEMPRE verificar — con o sin versión guardada
+    if(storedVersion !== SITE_VERSION){
+      // Limpiar localStorage (preservar datos del usuario)
       var keysToKeep = ['jd_users','jd_session','jd_rcodes','jd_emailjs','selectedLang','jd_theme'];
       var ratingsPrefix  = 'jd_gr_';
       var commentsPrefix = 'jd_gc_';
-
       var toDelete = [];
       for(var i = 0; i < localStorage.length; i++){
         var k = localStorage.key(i);
         if(!k) continue;
         var isUserData = keysToKeep.indexOf(k) >= 0
           || k.indexOf(ratingsPrefix)  === 0
-          || k.indexOf(commentsPrefix) === 0;
+          || k.indexOf(commentsPrefix) === 0
+          || k === RELOAD_KEY;
         if(!isUserData) toDelete.push(k);
       }
       toDelete.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
       try{ sessionStorage.clear(); }catch(e){}
 
-      // Guardar nueva versión
-      localStorage.setItem(CACHE_KEY, SITE_VERSION);
+      // Limpiar Service Worker y caches del navegador
+      try{
+        if(navigator.serviceWorker){
+          navigator.serviceWorker.getRegistrations().then(function(regs){
+            regs.forEach(function(r){ r.unregister(); });
+          });
+        }
+        if(window.caches){
+          caches.keys().then(function(names){
+            names.forEach(function(name){
+              if(name.indexOf('monetag')===-1 && name.indexOf('quge5')===-1){
+                caches.delete(name);
+              }
+            });
+          });
+        }
+      }catch(e){}
 
-      // Limpiar Service Worker caches si existen
-      if(window.caches){
-        caches.keys().then(function(names){
-          names.forEach(function(name){ caches.delete(name); });
-        }).catch(function(){});
-      }
-      // Recarga forzada sin caché (equivale a Ctrl+Shift+R)
-      window.location.reload(true);
+      // Guardar ANTES de recargar para evitar bucle
+      localStorage.setItem(CACHE_KEY, SITE_VERSION);
+      localStorage.setItem(RELOAD_KEY, String(Date.now()));
+
+      // Forzar recarga bypass CDN GitHub con ?v= timestamp
+      // location.reload(true) está deprecado — este método sí funciona
+      var sep = window.location.href.indexOf('?') >= 0 ? '&' : '?';
+      var cleanUrl = window.location.href.replace(/[?&]_jdv=[^&]*/g,'');
+      window.location.replace(cleanUrl + sep + '_jdv=' + SITE_VERSION);
       return;
     }
 
-    // Primera visita o versión correcta: guardar versión actual
+    // Versión correcta: limpiar parámetro _jdv de la URL si existe
+    if(window.location.search.indexOf('_jdv=') >= 0){
+      var url = window.location.href.replace(/[?&]_jdv=[^&]*/g,'').replace(/[?&]$/,'');
+      window.history.replaceState(null,'',url);
+    }
     localStorage.setItem(CACHE_KEY, SITE_VERSION);
 
   } catch(e) {}
@@ -471,13 +501,8 @@ body{top:0!important}
   overscroll-behavior-y: contain;
   touch-action: pan-y;
   pointer-events: auto !important;
-  height: 100dvh !important;
-  max-height: 100dvh !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  position: fixed !important;
+  height: 100% !important;
+  max-height: 100% !important;
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
@@ -1542,8 +1567,8 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:scroll;height:100dvh;max-height:100dvh;min-height:100%;top:0;left:0;right:0;bottom:0;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;background:var(--overlay-bg);">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:scroll;height:100%;max-height:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -3637,12 +3662,8 @@ function showDetail(id){
     dv.style.opacity = '0';
     dv.classList.remove('hidden');
     dv.style.setProperty('overflow-y','scroll','important');
-    dv.style.setProperty('height','100dvh','important');
-    dv.style.setProperty('max-height','100dvh','important');
-    dv.style.setProperty('top','0','important');
-    dv.style.setProperty('left','0','important');
-    dv.style.setProperty('right','0','important');
-    dv.style.setProperty('bottom','0','important');
+    dv.style.setProperty('height','100%','important');
+    dv.style.setProperty('max-height','100%','important');
     dv.style.setProperty('touch-action','pan-y','important');
     dv.style.setProperty('pointer-events','auto','important');
     dv.style.webkitOverflowScrolling = 'touch';
