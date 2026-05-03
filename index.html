@@ -60,10 +60,10 @@
 <meta property="og:description" content="Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados por JoelDroid Mods YT.">
 <meta property="og:image"       content="https://joeldroidmods.com/logo.png">
 <meta property="og:image:width" content="512">
-<meta property="og:image:height"content="512">
+<meta property="og:image:height" content="512">
 <meta name="twitter:card"       content="summary_large_image">
 <meta name="twitter:title"      content="JoelDroid Mods YT | MOD APK para Android">
-<meta name="twitter:description"content="Descarga gratis los mejores MOD APK para Android. Mods verificados por JoelDroid Mods YT.">
+<meta name="twitter:description" content="Descarga gratis los mejores MOD APK para Android. Mods verificados por JoelDroid Mods YT.">
 <meta name="twitter:image"      content="https://joeldroidmods.com/logo.png">
 <!-- ══ CANONICAL URL — evita contenido duplicado en Google ════════ -->
 <link rel="canonical" href="https://joeldroidmods.com/">
@@ -309,7 +309,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
 .light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:color .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
-body.detail-open{overflow:hidden;}
+body.detail-open{overflow-x:hidden;overflow-y:auto;}
 #site-title-ui,#detail-site-title-ui{font-weight:900}
 #site-subtitle-ui,#detail-site-subtitle-ui{color:var(--subtitle-text-color)}
 .game-card{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);transition:transform .25s ease,box-shadow .25s ease,border-color .25s;cursor:pointer}.game-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.45),inset 0 0 8px rgba(37,99,235,.2);border-color:var(--brand-color)}
@@ -496,13 +496,15 @@ body{top:0!important}
 
 /* 1. Scroll táctil — el contenedor raíz scrollea, nada más */
 #detail-view {
-  overflow-y: scroll !important;
+  overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y pinch-zoom;
   pointer-events: auto !important;
-  height: 100% !important;
-  max-height: 100% !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  isolation: auto !important;
+  contain: none !important;
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
@@ -547,6 +549,15 @@ body{top:0!important}
   pointer-events: auto;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ANDROID ADS/SCROLL SAFETY — no sandbox, no body lock, no ghost layers
+   ═══════════════════════════════════════════════════════════════ */
+html,body{overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;}
+#detail-view.hidden{display:none!important;}
+#detail-view:not(.hidden){display:block!important;opacity:1!important;visibility:visible!important;}
+#detail-view .sticky{overscroll-behavior:auto;}
+.jd-img,.jd-img-box,.jd-skeleton-card,.jd-sk-img,.jd-sk-line,.jd-sk-btn{background-color:var(--card-bg);}
+@media (prefers-reduced-motion: reduce){.jd-sk-img,.jd-sk-line,.jd-sk-btn{animation:none!important;}}
 /* ═══════════════════════════════════════════════════════════════ */
 #home-view.announcement-hidden{padding-top:.25rem !important;}
 
@@ -964,7 +975,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   padding: 2px 0 16px;
-  contain: layout;
+  contain: none;
 }
 @media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
 @media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
@@ -980,7 +991,9 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   display: flex;
   flex-direction: column;
   transition: transform .18s, box-shadow .18s;
-  contain: layout style;
+  contain: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
 .jd-card:active { transform: scale(.97); }
@@ -1325,7 +1338,7 @@ window.__JD_STATIC_GAMES = (function(){
           '<p class="jd-name notranslate">'+g.name+'</p>'+
           '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
           '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
-          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(''+g.id+'');">'+
+          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
             '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
             '<polyline points="7 10 12 15 17 10"/>'+
@@ -1567,7 +1580,7 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:scroll;height:100%;max-height:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:auto;height:100dvh;max-height:100dvh;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;pointer-events:auto;isolation:auto;contain:none;">
   <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
@@ -3356,8 +3369,8 @@ function _renderGamesBatch(list, start, count, replace){
     var card = document.createElement('div');
     card.className = 'jd-card';
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
-    /* Las primeras 6 imágenes cargan directo (above the fold = sin espera) */
-    var _isAboveFold = (start + _gIdx) < 6;
+    /* Primeras 4 filas cargan directo en Android: evita parpadeo negro/blanco en la 3ra fila */
+    var _isAboveFold = (start + _gIdx) < 12;
     var _imgHtml = _isAboveFold
       ? '<img src="'+(g.thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
               ' class="jd-img icon-img-loaded loaded" alt="'+g.name+'" loading="eager">'
@@ -3656,26 +3669,24 @@ function showDetail(id){
   var dtSub=document.getElementById('detail-site-subtitle-ui');
   if(dtSub)dtSub.innerText=siteState.ui.subtitle;
 
-  /* Mostrar sin flash negro: primero invisible, contenido renderiza,
-     luego aparece en el siguiente frame */
+  /* Mostrar detalle sin capa transparente ni bloqueo de body.
+     Android + anuncios externos necesitan scroll libre y sin opacity gates. */
   if(dv){
-    dv.style.opacity = '0';
     dv.classList.remove('hidden');
-    dv.style.setProperty('overflow-y','scroll','important');
-    dv.style.setProperty('height','100%','important');
-    dv.style.setProperty('max-height','100%','important');
-    dv.style.setProperty('touch-action','pan-y','important');
+    dv.style.removeProperty('opacity');
+    dv.style.transition = 'none';
+    dv.style.setProperty('overflow-y','auto','important');
+    dv.style.setProperty('height','100dvh','important');
+    dv.style.setProperty('max-height','100dvh','important');
+    dv.style.setProperty('touch-action','pan-y pinch-zoom','important');
     dv.style.setProperty('pointer-events','auto','important');
+    dv.style.setProperty('isolation','auto','important');
+    dv.style.setProperty('contain','none','important');
     dv.style.webkitOverflowScrolling = 'touch';
-    dv.style.overscrollBehaviorY     = 'contain';
+    dv.style.overscrollBehaviorY     = 'auto';
     dv.style.willChange              = '';
     dv.style.transform               = '';
     dv.scrollTop                     = 0;
-    /* Esperar un frame para que el contenido se pinte, luego mostrar */
-    requestAnimationFrame(function(){
-      dv.style.transition = 'opacity 0.15s ease';
-      dv.style.opacity    = '1';
-    });
   }
   document.body.classList.add('detail-open');
 
@@ -3775,7 +3786,7 @@ function openSettings(){
   jdStUpdateLangBtns();
   // Drawer desde izquierda
   overlay.style.display='flex';
-  document.body.style.overflow='hidden';
+  document.body.style.overflowX='hidden';
   refreshIcons();
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){ overlay.classList.add('show'); });
@@ -3787,7 +3798,7 @@ function closeSettings(){
   overlay.classList.remove('show');
   setTimeout(function(){
     overlay.style.display='none';
-    document.body.style.overflow='';
+    document.body.style.overflowX='';
   },300);
 }
 function jdStDetail(key){
@@ -4537,13 +4548,13 @@ function openAuthModal(tab){
   var m=document.getElementById('auth-modal');
   if(!m)return;
   m.style.display='flex';
-  document.body.style.overflow='hidden';
+  document.body.style.overflowX='hidden';
   if(_AUTH.isLoggedIn()){showAuthTab('profile');}else{showAuthTab(tab||'login');}
 }
 function closeAuthModal(){
   var m=document.getElementById('auth-modal');
   if(m)m.style.display='none';
-  document.body.style.overflow='';
+  document.body.style.overflowX='';
 }
 function openUserMenu(){
   openAuthModal(_AUTH.isLoggedIn()?'profile':'login');
