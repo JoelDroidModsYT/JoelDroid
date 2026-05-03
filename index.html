@@ -1239,6 +1239,48 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 }
 .light-mode .jd-lang-opt:hover { background: rgba(37,99,235,.09); }
 
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DETAIL COMO PÁGINA REAL — NO CAPA FLOTANTE, NO BLOQUEO DE ANUNCIOS
+   ═══════════════════════════════════════════════════════════════ */
+body.detail-open{
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  padding-bottom:0!important;
+}
+body.detail-open > nav,
+body.detail-open #home-view,
+body.detail-open #user-fab,
+body.detail-open #share-fab{
+  display:none!important;
+}
+#detail-view{
+  position:relative!important;
+  inset:auto!important;
+  z-index:auto!important;
+  width:100%!important;
+  min-height:100dvh!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  -webkit-overflow-scrolling:auto!important;
+  overscroll-behavior-y:auto!important;
+  touch-action:auto!important;
+  isolation:auto!important;
+  contain:none!important;
+}
+#detail-view.hidden{display:none!important;}
+#detail-view:not(.hidden){display:block!important;opacity:1!important;visibility:visible!important;}
+#detail-view > div{
+  min-height:100dvh!important;
+  padding-top:140px!important;
+}
+#detail-view .sticky{
+  top:0!important;
+  z-index:30!important;
+}
+
 </style>
 </head>
 <body class="no-scrollbar">
@@ -1580,8 +1622,8 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:auto;height:100dvh;max-height:100dvh;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;pointer-events:auto;isolation:auto;contain:none;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;">
+<div id="detail-view" class="bg-[var(--overlay-bg)] hidden" style="position:relative;width:100%;min-height:100dvh;overflow:visible;pointer-events:auto;isolation:auto;contain:none;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:140px;min-height:100dvh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -3669,26 +3711,31 @@ function showDetail(id){
   var dtSub=document.getElementById('detail-site-subtitle-ui');
   if(dtSub)dtSub.innerText=siteState.ui.subtitle;
 
-  /* Mostrar detalle sin capa transparente ni bloqueo de body.
-     Android + anuncios externos necesitan scroll libre y sin opacity gates. */
+  /* Mostrar detalle como página real, no como modal/capa flotante.
+     Monetag queda intacto: no se ocultan iframes, no se tocan sandbox ni overlays. */
+  document.body.classList.add('detail-open');
   if(dv){
     dv.classList.remove('hidden');
     dv.style.removeProperty('opacity');
     dv.style.transition = 'none';
-    dv.style.setProperty('overflow-y','auto','important');
-    dv.style.setProperty('height','100dvh','important');
-    dv.style.setProperty('max-height','100dvh','important');
-    dv.style.setProperty('touch-action','pan-y pinch-zoom','important');
+    dv.style.setProperty('position','relative','important');
+    dv.style.setProperty('inset','auto','important');
+    dv.style.setProperty('z-index','auto','important');
+    dv.style.setProperty('width','100%','important');
+    dv.style.setProperty('min-height','100dvh','important');
+    dv.style.setProperty('height','auto','important');
+    dv.style.setProperty('max-height','none','important');
+    dv.style.setProperty('overflow','visible','important');
+    dv.style.setProperty('touch-action','auto','important');
     dv.style.setProperty('pointer-events','auto','important');
     dv.style.setProperty('isolation','auto','important');
     dv.style.setProperty('contain','none','important');
-    dv.style.webkitOverflowScrolling = 'touch';
+    dv.style.webkitOverflowScrolling = 'auto';
     dv.style.overscrollBehaviorY     = 'auto';
     dv.style.willChange              = '';
     dv.style.transform               = '';
-    dv.scrollTop                     = 0;
   }
-  document.body.classList.add('detail-open');
+  try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){ window.scrollTo(0,0); }
 
   renderRecommendedGames(id);
   applyTranslations(currentLang);
@@ -3704,6 +3751,7 @@ function closeDetail(){
   var dv=document.getElementById('detail-view');
   if(dv)dv.classList.add('hidden');
   document.body.classList.remove('detail-open');
+  try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){}
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
@@ -6376,6 +6424,24 @@ window.onload=function(){
 <div id="verify-banner" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:500;background:linear-gradient(135deg,#f59e0b,#f97316);color:white;padding:10px 20px;border-radius:12px;font-size:10px;font-weight:900;box-shadow:0 4px 20px rgba(245,158,11,.4);white-space:nowrap;animation:fadeIn .3s ease">
   ⚠️ Verifica tu correo para poder comentar
 </div>
+
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DETALLE EN MODO PÁGINA — compatibilidad limpia con Monetag
+   No neutraliza anuncios, no modifica iframes y no elimina sandbox.
+   ═══════════════════════════════════════════════════════════════ */
+(function JDDetailPageMode(){
+  function sync(){
+    var dv=document.getElementById('detail-view');
+    var open=!!(dv && !dv.classList.contains('hidden'));
+    document.body.classList.toggle('detail-open', open);
+  }
+  window.JDDetailPageMode={sync:sync};
+  document.addEventListener('DOMContentLoaded', sync);
+})();
+</script>
 
 </body>
 </html>
