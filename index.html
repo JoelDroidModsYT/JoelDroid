@@ -126,7 +126,7 @@
 (function _jdAutoUpdate(){
   // ── VERSIÓN DEL SITIO — CAMBIAR ESTE NÚMERO EN CADA DEPLOY/PUSH ──
   // Formato: YYYYMMDD_HHMM  (fecha y hora del último push a GitHub)
-  var SITE_VERSION = '20260502_1600';
+  var SITE_VERSION = '20260502_1800';
   var CACHE_KEY    = 'jd_site_version';
 
   try {
@@ -279,7 +279,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
 .light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:color .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
-body.detail-open{}
+body.detail-open{overflow:hidden;}
 #site-title-ui,#detail-site-title-ui{font-weight:900}
 #site-subtitle-ui,#detail-site-subtitle-ui{color:var(--subtitle-text-color)}
 .game-card{background:var(--card-bg);border:1.5px solid var(--border-color);box-shadow:var(--neon-border);transition:transform .25s ease,box-shadow .25s ease,border-color .25s;cursor:pointer}.game-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.45),inset 0 0 8px rgba(37,99,235,.2);border-color:var(--brand-color)}
@@ -471,8 +471,13 @@ body{top:0!important}
   overscroll-behavior-y: contain;
   touch-action: pan-y;
   pointer-events: auto !important;
-  height: 100% !important;
-  max-height: 100% !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  position: fixed !important;
 }
 
 /* 2. El inner wrapper no crea stacking context extra ni bloquea touch */
@@ -1537,8 +1542,8 @@ window.__JD_REST_DONE = false;
 </main>
 
 <!-- DETAIL VIEW -->
-<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:scroll;height:100%;max-height:100%;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;">
+<div id="detail-view" class="fixed inset-0 z-[60] bg-[var(--overlay-bg)] hidden" style="overflow-y:scroll;height:100dvh;max-height:100dvh;min-height:100%;top:0;left:0;right:0;bottom:0;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;pointer-events:auto;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:95px;min-height:150vh;background:var(--overlay-bg);">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -3632,8 +3637,12 @@ function showDetail(id){
     dv.style.opacity = '0';
     dv.classList.remove('hidden');
     dv.style.setProperty('overflow-y','scroll','important');
-    dv.style.setProperty('height','100%','important');
-    dv.style.setProperty('max-height','100%','important');
+    dv.style.setProperty('height','100dvh','important');
+    dv.style.setProperty('max-height','100dvh','important');
+    dv.style.setProperty('top','0','important');
+    dv.style.setProperty('left','0','important');
+    dv.style.setProperty('right','0','important');
+    dv.style.setProperty('bottom','0','important');
     dv.style.setProperty('touch-action','pan-y','important');
     dv.style.setProperty('pointer-events','auto','important');
     dv.style.webkitOverflowScrolling = 'touch';
@@ -3647,10 +3656,6 @@ function showDetail(id){
       dv.style.opacity    = '1';
     });
   }
-  /* Scroll-lock sin overflow:hidden en body.
-     overflow:hidden corta los anuncios fixed de Monetag en Android Chrome.
-     Solución: guardar scrollY y usar solo la clase CSS vacía. */
-  window._dvScrollY = window.scrollY || window.pageYOffset || 0;
   document.body.classList.add('detail-open');
 
   renderRecommendedGames(id);
@@ -3665,15 +3670,8 @@ function showDetail(id){
 
 function closeDetail(){
   var dv=document.getElementById('detail-view');
-  if(dv){
-    dv.style.opacity = '1';
-    dv.classList.add('hidden');
-  }
+  if(dv)dv.classList.add('hidden');
   document.body.classList.remove('detail-open');
-  if(typeof window._dvScrollY === 'number'){
-    window.scrollTo(0, window._dvScrollY);
-    window._dvScrollY = 0;
-  }
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
