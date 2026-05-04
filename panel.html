@@ -567,6 +567,8 @@ body{
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Gestión de Juegos</h3>
         <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px" onclick="openGameEditor()">Agregar Nuevo Juego</button>
+        <button style="width:100%;padding:11px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(16,185,129,.12);color:#34d399;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:8px" onclick="migrateGameIconsToStorage()">🚀 Optimizar iconos a Firebase Storage</button>
+        <div id="icon-migration-status" style="display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#34d399;font-size:10px;font-weight:800;line-height:1.45"></div>
         <div id="game-list-editor" class="mt-4 space-y-2"></div>
       </div>
 
@@ -620,8 +622,9 @@ body{
         <input type="url" id="editor-icon-url" class="ged-input" placeholder="https://play-lh.googleusercontent.com/..." style="margin-bottom:10px"
           oninput="(function(v){var p=document.getElementById('ged-icon-preview');if(v){p.src=v;p.className='ged-icon-preview show';}else{p.className='ged-icon-preview';}})(this.value)">
         <label class="ged-label">— o sube desde tu dispositivo —</label>
-        <input type="file" id="editor-icon-file" accept="image/*" style="display:none" onchange="(function(f){if(f.files&&f.files[0]){var r=new FileReader();r.onload=function(e){var p=document.getElementById('ged-icon-preview');p.src=e.target.result;p.className='ged-icon-preview show';};r.readAsDataURL(f.files[0]);}})(this)">
+        <input type="file" id="editor-icon-file" accept="image/*" style="display:none" onchange="(function(f){if(f.files&&f.files[0]){var p=document.getElementById('ged-icon-preview');p.src=URL.createObjectURL(f.files[0]);p.className='ged-icon-preview show';}})(this)">
         <div class="ged-file-btn" onclick="document.getElementById('editor-icon-file').click()">📂 Seleccionar imagen local</div>
+        <p style="font-size:8px;color:rgba(16,185,129,.75);font-weight:800;margin-top:8px;line-height:1.4">Las imágenes nuevas se suben a Firebase Storage y se guardan como URL ligera, no como base64.</p>
       </div>
       <div class="ged-section">
         <div class="ged-section-title">Advertencia al Usuario</div>
@@ -843,6 +846,48 @@ function showToast(message){
 }
 
 function refreshIcons(){if(window.lucide)window.lucide.createIcons();}
+function _safeFileName(name){return String(name||'icon').replace(/[^a-zA-Z0-9._-]/g,'_').slice(0,80);}
+function _isDataImage(src){return /^data:image\//i.test(String(src||''));}
+function _dataURLToBlob(dataURL){
+  var parts=String(dataURL).split(',');
+  var meta=parts[0]||'';
+  var mime=(meta.match(/data:([^;]+)/)||[])[1]||'image/png';
+  var bin=atob(parts[1]||'');
+  var len=bin.length;
+  var arr=new Uint8Array(len);
+  for(var i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime});
+}
+function _storageReady(){
+  return typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&typeof firebase.storage==='function';
+}
+function _uploadIconBlob(blob, gameId, fileName){
+  if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
+  var ext='png';
+  if(blob&&blob.type){
+    if(blob.type.indexOf('webp')>=0) ext='webp';
+    else if(blob.type.indexOf('jpeg')>=0||blob.type.indexOf('jpg')>=0) ext='jpg';
+    else if(blob.type.indexOf('gif')>=0) ext='gif';
+  }
+  var path='game-icons/'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+Date.now()+'_'+_safeFileName(fileName||('icon.'+ext));
+  if(path.indexOf('.')<0) path+='.'+ext;
+  return firebase.storage().ref(path).put(blob,{contentType:(blob&&blob.type)||'image/png'})
+    .then(function(snap){return snap.ref.getDownloadURL();});
+}
+function _uploadIconFile(file, gameId){
+  return _uploadIconBlob(file, gameId, file&&file.name||'icon');
+}
+function _uploadDataIcon(dataURL, gameId){
+  return _uploadIconBlob(_dataURLToBlob(dataURL), gameId, 'icon_from_base64.png');
+}
+function _setIconMigrationStatus(msg,color){
+  var el=document.getElementById('icon-migration-status');
+  if(!el)return;
+  el.style.display='block';
+  el.style.color=color||'#34d399';
+  el.style.borderColor=(color||'#34d399')+'55';
+  el.innerText=msg;
+}
 
 // ════════════════════════════════════════════════════════════════
 // FIREBASE
@@ -1522,9 +1567,22 @@ function saveGame(){
     };
   };
   if(fileInput.files.length>0){
-    var r=new FileReader();
-    r.onload=function(e){processSaveGameData(editId,Object.assign({},collectData(),{thumb:e.target.result}));};
-    r.readAsDataURL(fileInput.files[0]);
+    var file=fileInput.files[0];
+    var preview=document.getElementById('ged-icon-preview');
+    if(preview){ preview.src=URL.createObjectURL(file); preview.className='ged-icon-preview show'; }
+    showToast('⏳ Subiendo icono a Firebase Storage...');
+    if(!_storageReady()&&typeof _initFirebase==='function') _initFirebase();
+    _uploadIconFile(file, editId||Date.now())
+      .then(function(url){
+        document.getElementById('editor-icon-url').value=url;
+        processSaveGameData(editId,Object.assign({},collectData(),{thumb:url}));
+      })
+      .catch(function(e){
+        showToast('⚠️ Storage falló, usando URL/base64 temporal: '+e.message);
+        var r=new FileReader();
+        r.onload=function(ev){processSaveGameData(editId,Object.assign({},collectData(),{thumb:ev.target.result}));};
+        r.readAsDataURL(file);
+      });
   }else{
     processSaveGameData(editId,Object.assign({},collectData(),{thumb:document.getElementById('editor-icon-url').value}));
   }
@@ -1597,6 +1655,34 @@ function deleteGameGlobal(gameId){
     try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json al eliminar
   });}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
+}
+
+function migrateGameIconsToStorage(){
+  if(!_fbReady||!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin y espera Firebase');return;}
+  if(!_storageReady()){try{_initFirebase();}catch(e){} showToast('⏳ Preparando Firebase Storage...');}
+  var games=(siteState.gamesList||[]).filter(function(g){return _isDataImage(g.thumb||g.imagen||g.icon||'');});
+  if(!games.length){_setIconMigrationStatus('✅ No hay iconos base64 pendientes. Tu games.json ya está ligero.','#10b981');showToast('✅ Sin iconos base64 pendientes');return;}
+  if(!confirm('Se subirán '+games.length+' iconos base64 a Firebase Storage y luego se actualizará games.json. ¿Continuar?'))return;
+  var i=0, ok=0, fail=0;
+  _setIconMigrationStatus('⏳ Migrando 0/'+games.length+' iconos...','#fbbf24');
+  function next(){
+    if(i>=games.length){
+      _setIconMigrationStatus('✅ Migración terminada: '+ok+' iconos optimizados, '+fail+' errores. Sincronizando games.json...','#10b981');
+      try{_syncGamesToGistWithCallback(function(done,msg){
+        _setIconMigrationStatus(done?'✅ games.json actualizado con URLs ligeras. Próximas visitas cargan más rápido.':'⚠️ Iconos migrados, pero games.json no sincronizó: '+msg, done?'#10b981':'#f59e0b');
+      });}catch(e){_setIconMigrationStatus('⚠️ Iconos migrados, presiona sincronizar games.json manualmente.','#f59e0b');}
+      renderGameEditorList();
+      return;
+    }
+    var g=games[i++];
+    var src=g.thumb||g.imagen||g.icon||'';
+    _setIconMigrationStatus('⏳ Migrando '+i+'/'+games.length+': '+(g.name||g.id||'juego'),'#fbbf24');
+    _uploadDataIcon(src,g.id).then(function(url){
+      g.thumb=url; delete g.imagen; delete g.icon;
+      return _db.collection('mods').doc(String(g.id)).set({thumb:url,imagen:firebase.firestore.FieldValue.delete(),icon:firebase.firestore.FieldValue.delete(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }).then(function(){ok++;setTimeout(next,120);}).catch(function(e){fail++;console.warn('Icon migration failed',g&&g.id,e);setTimeout(next,120);});
+  }
+  next();
 }
 
 // ════════════════════════════════════════════════════════════════
