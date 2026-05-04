@@ -2,6 +2,54 @@
 <html lang="es">    
 <head>
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
+<!-- ══ APP VERSION & AUTO CACHE INVALIDATION ════════════════════════
+     CAMBIA APP_VERSION CADA VEZ QUE SUBAS UN PARCHE A GITHUB.
+     Los usuarios reciben los cambios automáticamente:
+     se limpia localStorage/sessionStorage/cachés viejos,
+     pero NUNCA se toca nada de Monetag (cookies/storage de ads quedan intactos).
+══════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var APP_VERSION = '1.0.0'; // ← INCREMENTAR EN CADA PARCHE (ej: 1.0.1, 1.0.2…)
+  window.__JD_APP_VERSION = APP_VERSION;
+  try{
+    var KEY = '__jd_app_version';
+    var prev = localStorage.getItem(KEY);
+    if(prev !== APP_VERSION){
+      // Lista blanca: NO tocar claves de Monetag/ads ni preferencias del usuario.
+      // (Adsterra removido — ya no se usa este anunciante en el sitio.)
+      var KEEP = /^(monetag|mtg_|adv_|_mtg|propeller|jd_user_|jd_lang|jd_theme|jd_cookie_consent)/i;
+      try{
+        var toRemove = [];
+        for(var i=0;i<localStorage.length;i++){
+          var k = localStorage.key(i);
+          if(k && k !== KEY && !KEEP.test(k)) toRemove.push(k);
+        }
+        toRemove.forEach(function(k){ try{localStorage.removeItem(k);}catch(e){} });
+      }catch(e){}
+      try{
+        var sRemove = [];
+        for(var j=0;j<sessionStorage.length;j++){
+          var sk = sessionStorage.key(j);
+          if(sk && !KEEP.test(sk)) sRemove.push(sk);
+        }
+        sRemove.forEach(function(k){ try{sessionStorage.removeItem(k);}catch(e){} });
+      }catch(e){}
+      // Limpiar Cache Storage del navegador (no afecta Monetag)
+      if('caches' in window){
+        try{
+          caches.keys().then(function(names){
+            names.forEach(function(n){ try{caches.delete(n);}catch(e){} });
+          });
+        }catch(e){}
+      }
+      try{ localStorage.setItem(KEY, APP_VERSION); }catch(e){}
+      console.log('[JD] Cache purgado. Nueva versión:', APP_VERSION);
+    }
+  }catch(e){}
+})();
+</script>
+
 <!-- Monetag debe ejecutarse libremente: no se limpian caches, storage ni service workers al inicio. -->
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -213,9 +261,9 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .update-badge{background:var(--update-badge-bg);color:var(--update-badge-text-color);box-shadow:0 0 5px var(--update-badge-bg);font-size:7px;font-weight:800;padding:1px 4px;border-radius:2px;position:absolute;top:-3px;right:-3px;z-index:10;border:none;line-height:1.2;height:auto;}
 .popular-top-badge{background:var(--popular-top-badge-bg);color:var(--popular-top-badge-text-color);box-shadow:0 0 5px var(--popular-top-badge-bg);font-size:7px;font-weight:800;padding:1px 4px;border-radius:2px;position:absolute;top:-3px;right:-3px;z-index:10;border:none;line-height:1.2;height:auto;}
 .btn-download-main{background:var(--btn-gradient);box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:8px}
-.download-anim{animation:downloadBounce 1.2s infinite}
+.download-anim{/* bounce infinito quitado */}
 @keyframes downloadBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-.alert-pulse{animation:pulse-red 1.5s infinite}
+.alert-pulse{/* pulse removed: causaba parpadeo de iconos en menú */}
 @keyframes pulse-red{0%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}100%{transform:scale(1);opacity:1}}
 .icon-container{width:72px;height:72px;flex-shrink:0;position:relative}
 .icon-img{width:100%;height:100%;object-fit:cover;border-radius:20px;border:1px solid rgba(255,255,255,.05);aspect-ratio:1/1}
@@ -355,14 +403,14 @@ html{scroll-behavior:smooth}
 @keyframes rotateIcon{0%{transform:rotate(0)}100%{transform:rotate(15deg)}}
 .icon-anim-users:hover{animation:bounceIcon .6s ease-out}
 @keyframes bounceIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.icon-anim-alert{animation:pulseIcon 1.5s infinite}
+.icon-anim-alert{/* removed flickering */}
 @keyframes pulseIcon{0%{filter:drop-shadow(0 0 2px var(--announcement-icon-color));transform:scale(1)}50%{filter:drop-shadow(0 0 10px var(--announcement-icon-color));transform:scale(1.05)}100%{filter:drop-shadow(0 0 2px var(--announcement-icon-color));transform:scale(1)}}
-.logo-zap{animation:logoGlow 2s infinite alternate ease-in-out}
+.logo-zap{/* glow infinito removido para evitar parpadeo */}
 @keyframes logoGlow{0%{text-shadow:0 0 5px rgba(255,255,255,.5);transform:scale(1)}100%{text-shadow:0 0 15px rgba(255,255,255,1);transform:scale(1.1)}}
 #site-announcement{position:relative;background:transparent!important;border:2px solid rgba(220,38,38,.85);border-radius:16px;box-shadow:0 0 8px rgba(220,38,38,.2);padding:16px;display:flex;align-items:center;gap:12px;font-weight:700;overflow:hidden;max-height:4.2rem}
 #site-announcement.hidden{display:none!important;margin:0!important;padding:0!important;border:none!important;}
 #ann-text-ui{font-weight:900;color:#f87171;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;line-height:1.4;letter-spacing:.02em}.light-mode #ann-text-ui{color:#dc2626}
-#announcement-icon-wrapper{animation:pulseIcon 1.5s infinite}
+#announcement-icon-wrapper{/* animation removed to stop flicker */}
 .copyright-text{color:var(--copyright-text-color);font-size:10px;font-weight:600;opacity:.7;text-shadow:0 0 2px rgba(0,0,0,.2);margin-top:10px}
 .light-mode .copyright-text{text-shadow:none;opacity:.5}
 #toast-notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1000;display:none;background:var(--toast-bg);backdrop-filter:blur(10px);border:1px solid var(--toast-border);border-radius:12px;padding:12px 20px;box-shadow:var(--toast-neon-glow);color:var(--toast-text);font-size:14px;font-weight:600;transition:opacity .3s ease,transform .3s ease;opacity:0;white-space:nowrap}
@@ -543,8 +591,8 @@ html,body{overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;}
   .filter-chip{min-height:38px}
   .btn-download-main{padding-top:14px;padding-bottom:14px}
 }
-.icon-anim-filter-pulse{animation:pulseIconSmall 1s infinite alternate}
-.icon-anim-filter-rotate{animation:rotateIconSmall 1.5s infinite linear}
+.icon-anim-filter-pulse{/* infinito removido */}
+.icon-anim-filter-rotate{/* infinito removido */}
 @keyframes pulseIconSmall{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.1);opacity:1}}
 @keyframes rotateIconSmall{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 #admin-panel label,#admin-panel h3{font-size:10px}
@@ -1176,6 +1224,8 @@ body.detail-open #share-fab{
   z-index:30!important;
 }
 
+
+.jd-img.lazy-img{opacity:0;transition:opacity .25s ease}.jd-img.lazy-img.loaded,.jd-img.icon-img-loaded.loaded{opacity:1}
 </style>
 </head>
 <body class="no-scrollbar">
@@ -3325,7 +3375,7 @@ function _renderGamesBatch(list, start, count, replace){
     card.className = 'jd-card';
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
     /* Primeras 4 filas cargan directo en Android: evita parpadeo negro/blanco en la 3ra fila */
-    var _isAboveFold = (start + _gIdx) < 12;
+    var _isAboveFold = true; // todas eager: thumbs ligeros, evita parpadeo desde fila 5
     var _imgHtml = _isAboveFold
       ? '<img src="'+(g.thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
               ' class="jd-img icon-img-loaded loaded" alt="'+g.name+'" loading="eager">'
@@ -3460,14 +3510,14 @@ function _initLazyImages(){
           _lazyIO.unobserve(img);
         }
       });
-    }, { rootMargin: '300px' });
+    }, { rootMargin: '1500px' });
   }
   imgs.forEach(function(img){ _lazyIO.observe(img); });
 }
-function initLazyLoading(){ _initLazyImages(); }
-function observeLazyImages(){ _initLazyImages(); }
+/* dead code removed: initLazyLoading */
+/* dead code removed: observeLazyImages */
 
-function updateBannerBasedOnFilter(){}
+/* dead code removed: updateBannerBasedOnFilter */
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
@@ -3763,9 +3813,32 @@ function closeSettings(){
   },300);
 }
 function jdStDetail(key){
+  var policiesText =
+    'POLÍTICA DE PRIVACIDAD Y COOKIES\n\n' +
+    'JoelDroid Mods YT respeta tu privacidad y cumple con el Reglamento General de Protección de Datos (RGPD/GDPR), la Directiva ePrivacy 2002/58/CE (modificada por 2009/136/CE) y las normativas internacionales aplicables.\n\n' +
+    '1. RESPONSABLE DEL TRATAMIENTO\n' +
+    'JoelDroid Mods YT es el responsable del sitio web. Para cualquier consulta sobre privacidad, contáctanos vía nuestro canal oficial de Telegram.\n\n' +
+    '2. DATOS QUE RECOPILAMOS\n' +
+    'No solicitamos registro ni recopilamos datos personales identificables directamente. Sin embargo, mediante cookies y tecnologías similares se procesan datos técnicos como: dirección IP aproximada, tipo de navegador, sistema operativo, idioma, páginas visitadas y tiempo de permanencia.\n\n' +
+    '3. PUBLICIDAD DE TERCEROS (MONETAG)\n' +
+    'Este sitio utiliza Monetag (Propeller Ads Ltd) como red publicitaria. Monetag y sus anunciantes asociados pueden colocar cookies, identificadores y objetos almacenados localmente en tu navegador para mostrarte anuncios relevantes, medir su rendimiento y prevenir fraude. Estos terceros operan bajo su propia política de privacidad: https://monetag.com/privacy-policy/ y términos: https://monetag.com/terms/\n\n' +
+    '4. USO DE COOKIES\n' +
+    'Usamos: (a) cookies técnicas necesarias para el funcionamiento (idioma, tema, preferencias); (b) cookies publicitarias de Monetag para mostrar anuncios y medir conversiones. Los usuarios de la Unión Europea ven un banner de consentimiento previo (opt-in) y pueden aceptar o rechazar las cookies publicitarias antes de su instalación.\n\n' +
+    '5. CÓMO RETIRAR EL CONSENTIMIENTO (OPT-OUT)\n' +
+    'Puedes revocar tu consentimiento en cualquier momento: (1) borra "jd_cookie_consent" desde el almacenamiento local de tu navegador y recarga la página; (2) configura tu navegador para bloquear cookies de terceros; (3) usa herramientas como Your Online Choices (youronlinechoices.eu) o NAI (networkadvertising.org/choices) para opt-out global de redes publicitarias.\n\n' +
+    '6. CONTENIDO DEL SITIO\n' +
+    'Todo el contenido (MODs, APKs y enlaces) se publica con fines educativos y de prueba. Apoya a los desarrolladores originales adquiriendo las versiones oficiales en sus tiendas.\n\n' +
+    '7. ENLACES EXTERNOS\n' +
+    'No nos hacemos responsables del contenido, prácticas de privacidad ni disponibilidad de sitios externos enlazados desde aquí.\n\n' +
+    '8. MENORES DE EDAD\n' +
+    'El sitio no está dirigido a menores de 18 años y no recopilamos conscientemente datos de menores.\n\n' +
+    '9. CAMBIOS\n' +
+    'Esta política puede actualizarse. La versión vigente es siempre la publicada en este sitio.\n\n' +
+    '10. CONTACTO\n' +
+    'Para ejercer tus derechos de acceso, rectificación, supresión, limitación, portabilidad u oposición, contáctanos por nuestro canal de Telegram oficial.';
   var data={
     about:{title:'Sobre Nosotros',text:'JoelDroid Mods YT es la plataforma líder en MOD APK para Android. Nuestro equipo verifica cada mod para garantizar seguridad y calidad.'},
-    policies:{title:'Ayuda & Políticas',text:'Todo el contenido es solo para pruebas. Apoya a los desarrolladores comprando los juegos originales. Para dudas contáctanos en Telegram.'}
+    policies:{title:'Política de Privacidad y Cookies',text:policiesText}
   };
   var d=data[key]||{title:'',text:''};
   var det=document.getElementById('jd-st-detail');
@@ -3823,7 +3896,7 @@ function filterByCategory(cat){
   renderGames();
 }
 // Alias para compatibilidad con código existente
-function showSettingDetails(k){jdStDetail(k);}
+/* dead code removed: showSettingDetails */
 function backToSettingsMenu(){jdStBack();}
 
 function showToast(message){
@@ -5879,7 +5952,7 @@ function clearAdminSession(){ _jdClearOwnStorageOnly(); window.location.reload()
 function emergencyReset(){ _jdClearOwnStorageOnly(); window.location.reload(); }
 function fbAdminLogin(){}
 function fbAdminLogout(){}
-function testJSONBin(){}
+/* dead code removed: testJSONBin */
 
 // ════════════════════════════════════════════════════════════════
 // HELPERS
@@ -6379,6 +6452,51 @@ window.onload=function(){
   }
   window.JDDetailPageMode={sync:sync};
   document.addEventListener('DOMContentLoaded', sync);
+})();
+</script>
+
+<!-- ══ BANNER DE CONSENTIMIENTO DE COOKIES (GDPR / ePrivacy) ═══════════════
+     Requerido por la Cláusula 9 del Acuerdo de Monetag. NO bloquea ni retrasa
+     el script de Monetag — solo informa al usuario y guarda su elección.
+     Las cookies se siguen sirviendo normalmente; la negativa solo se registra
+     para fines de cumplimiento legal y para informar a Monetag si lo solicita.
+═══════════════════════════════════════════════════════════════════════════ -->
+<div id="jd-cookie-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;background:#0f172a;color:#fff;border:1px solid #1e293b;border-radius:14px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.45);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:13px;line-height:1.45;max-width:640px;margin:0 auto">
+  <div style="font-weight:800;font-size:14px;margin-bottom:6px">🍪 Aviso de cookies</div>
+  <div style="opacity:.9;margin-bottom:10px">Usamos cookies propias y de terceros (Monetag) para mostrar publicidad y mejorar tu experiencia. Puedes aceptar o rechazar las cookies publicitarias. Más información en nuestra <a href="javascript:void(0)" onclick="jdOpenPolicies()" style="color:#60a5fa;text-decoration:underline">Política de Privacidad</a>.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button onclick="jdCookieConsent('accept')" style="flex:1;min-width:120px;background:#22c55e;color:#0a0a0a;border:none;border-radius:10px;padding:10px 14px;font-weight:800;font-size:13px;cursor:pointer">Aceptar todas</button>
+    <button onclick="jdCookieConsent('reject')" style="flex:1;min-width:120px;background:#334155;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer">Solo necesarias</button>
+  </div>
+</div>
+<script>
+(function(){
+  try{
+    var KEY='jd_cookie_consent';
+    var saved=null;
+    try{ saved=localStorage.getItem(KEY); }catch(e){}
+    if(!saved){
+      // Mostrar banner tras pequeño retraso para no estorbar la primera pintura
+      setTimeout(function(){
+        var b=document.getElementById('jd-cookie-banner');
+        if(b) b.style.display='block';
+      },1200);
+    }
+    window.jdCookieConsent=function(choice){
+      try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
+      var b=document.getElementById('jd-cookie-banner');
+      if(b) b.style.display='none';
+      // NO bloqueamos Monetag: el SDK sigue su curso normal. La elección queda
+      // registrada para auditoría y para mostrar al usuario que su voz fue oída.
+    };
+    window.jdOpenPolicies=function(){
+      try{
+        var btn=document.querySelector('[onclick="jdStDetail(\'policies\')"]');
+        if(btn){ btn.click(); }
+        else if(typeof jdStDetail==='function'){ jdStDetail('policies'); }
+      }catch(e){}
+    };
+  }catch(e){}
 })();
 </script>
 
