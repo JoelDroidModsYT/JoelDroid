@@ -2,30 +2,7 @@
 <html lang="es">    
 <head>
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<script>
-(function(){
-  try{
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.getRegistrations().then(function(regs){
-        regs.forEach(function(r){ r.unregister(); });
-      });
-    }
-    if('caches' in window){
-      caches.keys().then(function(keys){
-        keys.forEach(function(k){
-          if(k.indexOf('monetag')===-1&&k.indexOf('quge5')===-1&&k.indexOf('6opo')===-1){
-            caches.delete(k);
-          }
-        });
-      });
-    }
-  }catch(e){}
-})();
-</script>    
-    
+<!-- Monetag debe ejecutarse libremente: no se limpian caches, storage ni service workers al inicio. -->
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -35,10 +12,7 @@
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8">
-<!-- Cache-Control: evita que el navegador sirva index.html obsoleto -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<!-- Cache-Control agresivo removido: permite que navegador/ads conserven caché normal. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JoelDroid Mods YT | Los Mejores MOD APK para Android</title>
 
@@ -117,95 +91,16 @@
 // Favicon embebido en base64 — no necesita cache-busting ni archivos externos
 // El logo de JoelDroid está hardcodeado en los link[rel=icon] del <head>
 </script>
-<!-- ══ AUTO-UPDATE SYSTEM — Cache Busting para GitHub Pages ═══════════════════════
-     Cada vez que se hace push a GitHub, cambia SITE_VERSION.
-     Los usuarios (nuevos y recurrentes) reciben la actualización
-     automáticamente al entrar al navegador.
+<!-- ══ AUTO-UPDATE SEGURO — NO toca Monetag ni borra cachés ═══════════════
+     Antes este bloque limpiaba localStorage/sessionStorage/caches y service workers.
+     Eso puede borrar señales de frecuencia/caché de anuncios y bajar CPM.
+     Ahora solo guarda la versión propia del sitio, sin recargar ni limpiar nada.
      ════════════════════════════════════════════════════════════════ -->
 <script>
-(function _jdAutoUpdate(){
-  // ══ VERSIÓN — CAMBIAR EN CADA PUSH A GITHUB ══════════════════════
-  var SITE_VERSION = '20260503_INSTANT_v3';
-  var CACHE_KEY    = 'jd_site_version';
-  var RELOAD_KEY   = 'jd_reload_ts';
-
-  // Protección anti-bucle: si recargamos hace menos de 8 segundos, parar
+(function _jdSafeVersionMarker(){
   try{
-    var lastReload = parseInt(localStorage.getItem(RELOAD_KEY)||'0');
-    if(Date.now() - lastReload < 8000){
-      localStorage.setItem(CACHE_KEY, SITE_VERSION);
-      localStorage.removeItem(RELOAD_KEY);
-      return;
-    }
+    localStorage.setItem('jd_site_version','20260504_ADS_SAFE_v1');
   }catch(e){}
-
-  try {
-    var storedVersion = localStorage.getItem(CACHE_KEY);
-
-    // SIEMPRE verificar — con o sin versión guardada
-    if(storedVersion !== SITE_VERSION){
-      // Limpiar localStorage (preservar datos del usuario)
-      var keysToKeep = ['jd_users','jd_session','jd_rcodes','jd_emailjs','selectedLang','jd_theme'];
-      var ratingsPrefix  = 'jd_gr_';
-      var commentsPrefix = 'jd_gc_';
-      var toDelete = [];
-      for(var i = 0; i < localStorage.length; i++){
-        var k = localStorage.key(i);
-        if(!k) continue;
-        var isUserData = keysToKeep.indexOf(k) >= 0
-          || k.indexOf(ratingsPrefix)  === 0
-          || k.indexOf(commentsPrefix) === 0
-          || k === RELOAD_KEY;
-        if(!isUserData) toDelete.push(k);
-      }
-      toDelete.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
-      try{ sessionStorage.clear(); }catch(e){}
-
-      // Limpiar Service Worker y caches del navegador
-      try{
-        if(navigator.serviceWorker){
-          navigator.serviceWorker.getRegistrations().then(function(regs){
-            regs.forEach(function(r){ r.unregister(); });
-          });
-        }
-        if(window.caches){
-          caches.keys().then(function(names){
-            names.forEach(function(name){
-              if(name.indexOf('monetag')===-1 && name.indexOf('quge5')===-1){
-                caches.delete(name);
-              }
-            });
-          });
-        }
-      }catch(e){}
-
-      // Guardar ANTES de recargar para evitar bucle
-      localStorage.setItem(CACHE_KEY, SITE_VERSION);
-      localStorage.setItem(RELOAD_KEY, String(Date.now()));
-
-      // Forzar recarga bypass CDN GitHub con ?v= timestamp
-      // location.reload(true) está deprecado — este método sí funciona
-      var sep = window.location.href.indexOf('?') >= 0 ? '&' : '?';
-      var cleanUrl = window.location.href.replace(/[?&]_jdv=[^&]*/g,'');
-      window.location.replace(cleanUrl + sep + '_jdv=' + SITE_VERSION);
-      return;
-    }
-
-    // Versión correcta: limpiar parámetro _jdv de la URL si existe
-    if(window.location.search.indexOf('_jdv=') >= 0){
-      var url = window.location.href.replace(/[?&]_jdv=[^&]*/g,'').replace(/[?&]$/,'');
-      window.history.replaceState(null,'',url);
-    }
-    localStorage.setItem(CACHE_KEY, SITE_VERSION);
-
-  } catch(e) {}
-
-  // ── Desregistrar SW viejos que puedan servir contenido obsoleto ──
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-      regs.forEach(function(r){ r.unregister(); });
-    }).catch(function(){});
-  }
 })();
 </script>
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -5958,8 +5853,30 @@ function fbMigrateLocalGames(){
   _autoMigrateToFirestore();
 }
 
-function clearAdminSession(){ localStorage.clear(); sessionStorage.clear(); window.location.reload(); }
-function emergencyReset(){ localStorage.clear(); sessionStorage.clear(); window.location.reload(true); }
+function _jdClearOwnStorageOnly(){
+  var keepPrefixes=['firebase:','_grecaptcha','__Secure-','__Host-'];
+  var removePrefixes=['jd_','_t_'];
+  var removeExact=['siteState','selectedLang','currentLang'];
+  try{
+    var keys=[];
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i); if(!k) continue;
+      var own=removeExact.indexOf(k)>=0 || removePrefixes.some(function(p){return k.indexOf(p)===0;});
+      var protectedKey=keepPrefixes.some(function(p){return k.indexOf(p)===0;});
+      if(own && !protectedKey) keys.push(k);
+    }
+    keys.forEach(function(k){ localStorage.removeItem(k); });
+  }catch(e){}
+  try{
+    var skeys=[];
+    for(var j=0;j<sessionStorage.length;j++){
+      var s=sessionStorage.key(j); if(s && (s.indexOf('jd_')===0 || s.indexOf('_t_')===0)) skeys.push(s);
+    }
+    skeys.forEach(function(k){ sessionStorage.removeItem(k); });
+  }catch(e){}
+}
+function clearAdminSession(){ _jdClearOwnStorageOnly(); window.location.reload(); }
+function emergencyReset(){ _jdClearOwnStorageOnly(); window.location.reload(); }
 function fbAdminLogin(){}
 function fbAdminLogout(){}
 function testJSONBin(){}
@@ -6189,7 +6106,7 @@ var _appInited = false;
 window.addEventListener('DOMContentLoaded', function() {
   // Reset de emergencia por URL: abre el sitio con ?reset=1 para limpiar sesión
   if(window.location.search.indexOf('reset=1') >= 0){
-    try{ localStorage.clear(); sessionStorage.clear(); }catch(e){}
+    try{ if(typeof _jdClearOwnStorageOnly==='function') _jdClearOwnStorageOnly(); }catch(e){}
     window.location.replace(window.location.pathname);
     return;
   }
@@ -6224,8 +6141,8 @@ window.addEventListener('DOMContentLoaded', function() {
     || detectBrowserLanguage();
   currentLang = savedLang;
 
-  // ── Renderizar interfaz con datos locales
-  renderGames();
+  // ── Renderizar interfaz con datos locales sin repintar si el cargador instantáneo ya pintó tarjetas
+  if(!_cacheHit || !_list || !_list.querySelector('.jd-card')) renderGames();
   applyUIChanges();
   applyTranslations(savedLang);
   checkDeepLink();
@@ -6332,7 +6249,11 @@ window.onload=function(){
   var sl=localStorage.getItem("selectedLang")
     ||(typeof window.__JD_PRELANG!=='undefined'?window.__JD_PRELANG:null)
     ||detectBrowserLanguage();
-  currentLang=sl;renderGames();applyUIChanges();applyTranslations(sl);checkDeepLink();
+  currentLang=sl;
+  var _wlList=document.getElementById('game-list');
+  var _wlCacheHit=!!(_wlList&&_wlList.querySelector('.jd-card'));
+  if(!_wlCacheHit) renderGames();
+  applyUIChanges();applyTranslations(sl);checkDeepLink();
   var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
   var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
   setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
