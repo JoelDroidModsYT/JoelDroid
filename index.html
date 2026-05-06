@@ -16,7 +16,7 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.0.3'; // ← INCREMENTAR EN CADA PARCHE (ej: 1.0.1, 1.0.2…)
+  var APP_VERSION = '1.0.4'; // ← INCREMENTAR EN CADA PARCHE (ej: 1.0.1, 1.0.2…)
   window.__JD_APP_VERSION = APP_VERSION;
   try{
     var KEY = '__jd_app_version';
@@ -41,14 +41,7 @@
         }
         sRemove.forEach(function(k){ try{sessionStorage.removeItem(k);}catch(e){} });
       }catch(e){}
-      // Limpiar Cache Storage del navegador (no afecta Monetag)
-      if('caches' in window){
-        try{
-          caches.keys().then(function(names){
-            names.forEach(function(n){ try{caches.delete(n);}catch(e){} });
-          });
-        }catch(e){}
-      }
+      // No se limpian Cache Storage ni Service Workers: deja libres cachés del navegador y anuncios.
       try{ localStorage.setItem(KEY, APP_VERSION); }catch(e){}
       console.log('[JD] Cache purgado. Nueva versión:', APP_VERSION);
     }
@@ -207,16 +200,43 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
       document.documentElement.style.visibility = 'hidden';
       document.addEventListener('DOMContentLoaded', function(){
         // La visibilidad se restaura en applyTranslations() o tras 400ms máx
-        setTimeout(function(){ document.documentElement.style.visibility = ''; }, 400);
+        setTimeout(function(){ document.documentElement.style.visibility = ''; }, 200);
       });
     }
   } catch(e) {}
 })();
 </script>
-<!-- Scripts de UI con baja prioridad para no competir con Monetag -->
-<script defer fetchpriority="low" src="https://cdn.tailwindcss.com"></script>
-<script defer fetchpriority="low" src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
-<script defer fetchpriority="low" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- ══ FIX FOUC: ocultar body hasta que Tailwind aplique estilos.
+     Monetag NO se ve afectado: su script ya cargó arriba con prioridad alta
+     y sigue ejecutándose en paralelo. -->
+<style id="jd-fouc-guard">
+  html.jd-booting body{visibility:hidden!important}
+  html.jd-booting{background:#020408}
+</style>
+<script>
+  (function(){
+    try{
+      document.documentElement.classList.add('jd-booting');
+      var revealed=false;
+      function reveal(){
+        if(revealed)return; revealed=true;
+        document.documentElement.classList.remove('jd-booting');
+      }
+      setTimeout(reveal,250); // failsafe ultra-rápido: prioridad de carga UI
+      document.addEventListener('DOMContentLoaded',function(){ reveal(); });
+      window.addEventListener('load',reveal);
+      window.__jdReveal=reveal;
+    }catch(e){
+      try{document.documentElement.classList.remove('jd-booting');}catch(_){}
+    }
+  })();
+</script>
+<!-- Tailwind/Lucide/EmailJS: prioridad normal para evitar pantalla "fea"
+     antes de aplicar estilos. Monetag conserva prioridad alta porque
+     se carga ANTES (línea 10) en paralelo (async). -->
+<script src="https://cdn.tailwindcss.com" onload="window.__jdReveal&&window.__jdReveal()"></script>
+<script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
 
 <script>
@@ -301,7 +321,8 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .admin-input{background:rgba(255,255,255,.05);border:1px solid var(--border-color);padding:12px;border-radius:12px;width:100%;color:inherit}.light-mode .admin-input{background:rgba(0,0,0,.06);border-color:rgba(37,99,235,.3);color:#0f172a}.light-mode #admin-panel{background:#f1f5f9;color:#0f172a}.light-mode #admin-panel h3{color:#1e40af}.light-mode #admin-panel label{color:#334155}.light-mode #admin-panel .text-gray-300{color:#475569!important}.light-mode #admin-panel .text-gray-400{color:#64748b!important}.light-mode #admin-panel .bg-gray-700\/50{background:rgba(203,213,225,.5)!important}.light-mode #admin-panel .text-white{color:#0f172a!important}
 html{scroll-behavior:smooth}
 .no-scrollbar::-webkit-scrollbar{display:none}
-#settings-view{overflow-y:auto}
+#settings-view{overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;max-height:100dvh}
+#settings-view *,#settings-view button,#settings-view a{touch-action:pan-y}
 #admin-panel{overflow-y:auto}
 .settings-description-box{background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px;padding:16px;box-shadow:var(--neon-border);transition:background .3s ease,box-shadow .3s ease}
 /* ══ SETTINGS — Drawer lateral izquierdo estilo Androeed ════════════
@@ -1257,6 +1278,62 @@ body.detail-open #share-fab{
 }
 
 
+/* ══ POLÍTICAS COMO PÁGINA REAL — no modal flotante, scroll propio del documento ══ */
+body.policies-open{
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  padding-bottom:0!important;
+}
+body.policies-open > nav,
+body.policies-open #home-view,
+body.policies-open #detail-view,
+body.policies-open #user-fab,
+body.policies-open #share-fab{
+  display:none!important;
+}
+#policies-view{
+  display:none;
+  position:relative!important;
+  z-index:auto!important;
+  width:100%;
+  min-height:100dvh;
+  background:var(--overlay-bg);
+  color:var(--text-main);
+  overflow:visible;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y pinch-zoom;
+}
+#policies-view:not(.hidden){display:block!important;}
+/* ══ POLÍTICAS — REDISEÑO FUTURISTA NEÓN ══ */
+.jd-policy-shell{max-width:760px;margin:0 auto;min-height:100dvh;padding:130px 18px 120px;position:relative;}
+.jd-policy-shell::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at top,rgba(37,99,235,.18),transparent 55%),radial-gradient(ellipse at bottom,rgba(139,92,246,.14),transparent 60%),var(--overlay-bg);pointer-events:none;}
+.jd-policy-shell::after{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(59,130,246,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.06) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);pointer-events:none;}
+.jd-policy-header{position:sticky;top:0;z-index:30;margin:-130px -18px 22px;padding:18px 18px 16px;background:linear-gradient(180deg,color-mix(in srgb,var(--overlay-bg) 92%,transparent),color-mix(in srgb,var(--overlay-bg) 70%,transparent));backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid rgba(59,130,246,.25);display:flex;align-items:center;gap:14px;box-shadow:0 4px 30px rgba(0,0,0,.35),inset 0 -1px 0 rgba(59,130,246,.15);}
+.jd-policy-back{border:1px solid rgba(59,130,246,.55);background:linear-gradient(135deg,rgba(37,99,235,.18),rgba(59,130,246,.08));color:#60a5fa;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.04em;text-transform:uppercase;transition:all .25s ease;box-shadow:0 0 18px rgba(59,130,246,.25),inset 0 0 12px rgba(59,130,246,.08);}
+.jd-policy-back:hover,.jd-policy-back:active{background:linear-gradient(135deg,rgba(37,99,235,.35),rgba(99,102,241,.25));box-shadow:0 0 28px rgba(59,130,246,.55),inset 0 0 18px rgba(99,102,241,.18);transform:translateY(-1px);}
+.jd-policy-title{min-width:0;flex:1;}
+.jd-policy-title h1{font-size:20px;line-height:1.1;font-weight:900;margin:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.01em;text-shadow:0 0 30px rgba(96,165,250,.35);}
+.jd-policy-title p{font-size:11px;margin:4px 0 0;color:var(--text-secondary);font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.jd-policy-card{position:relative;background:linear-gradient(160deg,rgba(15,23,42,.85),rgba(2,6,23,.92));border:1px solid rgba(59,130,246,.28);border-radius:18px;padding:22px 20px;margin-bottom:18px;box-shadow:0 10px 40px rgba(0,0,0,.45),0 0 0 1px rgba(59,130,246,.05) inset,0 0 22px rgba(37,99,235,.18);overflow:hidden;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease;}
+.jd-policy-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,rgba(96,165,250,.55),transparent 40%,rgba(167,139,250,.5) 90%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.7;}
+.jd-policy-card::after{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(96,165,250,.08),transparent 40%);pointer-events:none;animation:jdPolicyGlow 8s ease-in-out infinite;}
+@keyframes jdPolicyGlow{0%,100%{transform:translate(0,0);}50%{transform:translate(20%,15%);}}
+.jd-policy-card:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.55);box-shadow:0 16px 50px rgba(0,0,0,.55),0 0 32px rgba(59,130,246,.32);}
+.jd-policy-card h2{position:relative;font-size:13px;font-weight:900;text-transform:uppercase;margin:0 0 14px;color:#60a5fa;letter-spacing:.08em;display:flex;align-items:center;gap:10px;text-shadow:0 0 14px rgba(96,165,250,.45);}
+.jd-policy-card h2::before{content:"";width:6px;height:18px;border-radius:3px;background:linear-gradient(180deg,#60a5fa,#a78bfa);box-shadow:0 0 12px rgba(96,165,250,.7);}
+.jd-policy-card p,.jd-policy-card li{position:relative;font-size:13.5px;line-height:1.72;color:var(--text-secondary);margin:0 0 10px;}
+.jd-policy-card ul{padding-left:20px;margin:0;}
+.jd-policy-card li{list-style:none;padding-left:18px;}
+.jd-policy-card li::before{content:"▸";position:absolute;left:0;color:#60a5fa;font-weight:900;}
+.jd-policy-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
+.jd-policy-action{flex:1;min-width:155px;text-align:center;text-decoration:none;border:none;border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#2563eb,#3b82f6,#60a5fa);color:#fff;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 10px 28px rgba(37,99,235,.45),0 0 24px rgba(59,130,246,.35),inset 0 1px 0 rgba(255,255,255,.25);transition:all .25s ease;position:relative;overflow:hidden;}
+.jd-policy-action::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);transition:transform .6s ease;}
+.jd-policy-action:hover::after,.jd-policy-action:active::after{transform:translateX(100%);}
+.jd-policy-action:hover,.jd-policy-action:active{transform:translateY(-2px);box-shadow:0 14px 36px rgba(37,99,235,.6),0 0 36px rgba(96,165,250,.55);}
+.jd-policy-action.secondary{background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(30,41,59,.85));color:#60a5fa;border:1px solid rgba(96,165,250,.5);box-shadow:0 6px 20px rgba(0,0,0,.4),inset 0 0 18px rgba(59,130,246,.08);}
+.jd-policy-action.secondary:hover,.jd-policy-action.secondary:active{background:linear-gradient(135deg,rgba(30,41,59,.95),rgba(15,23,42,.95));border-color:#60a5fa;box-shadow:0 10px 28px rgba(0,0,0,.5),0 0 24px rgba(96,165,250,.4);}
+
+
 .jd-img.lazy-img{opacity:0;transition:opacity .25s ease}.jd-img.lazy-img.loaded,.jd-img.icon-img-loaded.loaded{opacity:1}
 </style>
 </head>
@@ -1628,6 +1705,59 @@ window.__JD_REST_DONE = false;
   </footer>
 </main>
 
+<!-- POLICIES VIEW — página real, no ventana flotante -->
+<section id="policies-view" class="hidden" aria-labelledby="jd-policy-main-title">
+  <div class="jd-policy-shell">
+    <header class="jd-policy-header">
+      <button class="jd-policy-back" onclick="jdClosePolicies()" aria-label="Volver">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Atrás
+      </button>
+      <div class="jd-policy-title">
+        <h1 id="jd-policy-main-title">Políticas y Condiciones</h1>
+        <p>Privacidad, cookies, publicidad y uso responsable del sitio</p>
+      </div>
+    </header>
+
+    <article class="jd-policy-card">
+      <h2>Privacidad y datos técnicos</h2>
+      <p>JoelDroid Mods YT no solicita registro obligatorio ni recopila datos personales identificables directamente para navegar. El sitio puede procesar datos técnicos habituales, como IP aproximada, navegador, sistema operativo, idioma, páginas visitadas y tiempo de permanencia.</p>
+      <p>Estos datos se usan para funcionamiento, seguridad, medición básica y prevención de abuso, cumpliendo RGPD/GDPR, ePrivacy, CCPA y LGPD cuando resulten aplicables.</p>
+    </article>
+
+    <article class="jd-policy-card">
+      <h2>Publicidad de terceros — Monetag</h2>
+      <p>Este sitio utiliza Monetag como red publicitaria. Monetag y sus anunciantes asociados pueden usar cookies, identificadores, almacenamiento local y tecnologías similares para servir anuncios, medir rendimiento, limitar frecuencia, detectar fraude y mantener la seguridad del ecosistema publicitario.</p>
+      <ul>
+        <li>Política de privacidad de Monetag: https://monetag.com/privacy-policy/</li>
+        <li>Términos de Monetag: https://monetag.com/terms/</li>
+      </ul>
+      <p>JoelDroid no modifica el script de Monetag, no bloquea sus recursos y no interfiere con sus verificaciones o bots.</p>
+    </article>
+
+    <article class="jd-policy-card">
+      <h2>Cookies y consentimiento</h2>
+      <p>Usamos cookies técnicas necesarias para idioma, tema y preferencias del sitio. También pueden existir cookies publicitarias de Monetag para mostrar anuncios y medir conversiones.</p>
+      <p>Puedes aceptar todas las cookies o usar solo las necesarias desde el aviso de cookies. También puedes revocar tu elección borrando el consentimiento guardado en este navegador y recargando el sitio.</p>
+    </article>
+
+    <article class="jd-policy-card">
+      <h2>Condiciones de uso</h2>
+      <p>El contenido se publica con fines informativos, educativos y de prueba. Cada usuario es responsable de cumplir las leyes de su país y respetar a los desarrolladores originales.</p>
+      <p>Los enlaces externos, archivos o servicios de terceros pueden tener sus propias condiciones y políticas. JoelDroid no controla ni garantiza servicios externos ajenos al sitio.</p>
+    </article>
+
+    <article class="jd-policy-card">
+      <h2>Seguridad, menores y contacto</h2>
+      <p>El sitio no está dirigido a menores de 18 años. No recopilamos conscientemente datos de menores. Para consultas de privacidad, retirada de consentimiento o derechos de acceso, rectificación, supresión, limitación, portabilidad u oposición, usa el canal oficial de Telegram de JoelDroid Mods YT.</p>
+      <div class="jd-policy-actions">
+        <button type="button" class="jd-policy-action" onclick="jdCookieConsent('accept',true)">✓ Aceptar cookies</button>
+        <button type="button" class="jd-policy-action secondary" onclick="jdCookieConsent('reject',true)">Solo necesarias</button>
+      </div>
+    </article>
+  </div>
+</section>
+
 <!-- DETAIL VIEW -->
 <div id="detail-view" class="bg-[var(--overlay-bg)] hidden" style="position:relative;width:100%;min-height:100dvh;overflow:visible;pointer-events:auto;isolation:auto;contain:none;">
   <div class="max-w-md mx-auto pb-24" style="padding-top:140px;min-height:100dvh;">
@@ -1846,13 +1976,21 @@ window.__JD_REST_DONE = false;
       <button class="jd-st-close" onclick="closeSettings()">×</button>
     </div>
 
-    <!-- Sección idioma — ES, EN, PT (los 3 más usados) -->
-    <div class="jd-st-lang-section">
-      <span class="jd-st-lang-label">Idioma:</span>
-      <div class="jd-st-lang-btns" id="jd-st-lang-btns">
-        <button class="jd-st-lang-btn" id="jd-stlb-es" onclick="jdStLang('es')">ES</button>
-        <button class="jd-st-lang-btn inactive" id="jd-stlb-en" onclick="jdStLang('en')">EN</button>
-        <button class="jd-st-lang-btn inactive" id="jd-stlb-pt" onclick="jdStLang('pt')">PT</button>
+    <!-- Configuración funcional del usuario -->
+    <div class="jd-st-lang-section" style="align-items:flex-start;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px;width:100%">
+        <span class="jd-st-lang-label">Idioma:</span>
+        <div class="jd-st-lang-btns" id="jd-st-lang-btns">
+          <button class="jd-st-lang-btn" id="jd-stlb-es" onclick="jdStLang('es')">ES</button>
+          <button class="jd-st-lang-btn inactive" id="jd-stlb-en" onclick="jdStLang('en')">EN</button>
+          <button class="jd-st-lang-btn inactive" id="jd-stlb-pt" onclick="jdStLang('pt')">PT</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%">
+        <button class="jd-st-lang-btn inactive" id="jd-st-theme-btn" onclick="jdStToggleTheme()" style="border-radius:12px;padding:10px 8px">Tema</button>
+        <button class="jd-st-lang-btn inactive" id="jd-st-geo-btn" onclick="jdStToggleGeo()" style="border-radius:12px;padding:10px 8px">Fondo</button>
+        <button class="jd-st-lang-btn inactive" onclick="jdStResetCookieConsent()" style="border-radius:12px;padding:10px 8px">Cookies</button>
+        <button class="jd-st-lang-btn inactive" onclick="closeSettings();jdOpenPolicies()" style="border-radius:12px;padding:10px 8px">Legal</button>
       </div>
     </div>
 
@@ -1930,7 +2068,7 @@ window.__JD_REST_DONE = false;
       </a>
 
       <!-- Políticas -->
-      <div class="jd-st-item" onclick="jdStDetail('policies')">
+      <div class="jd-st-item" onclick="closeSettings();jdOpenPolicies()">
         <div class="jd-st-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -3333,10 +3471,15 @@ function renderGames(){
     list.dataset.lastHash = _newHash;
   }
 
-  // Filtro de búsqueda
+  // Filtro de búsqueda + categoría funcional desde configuración
   var q = searchQuery || '';
+  var cat = window.jdCurrentCategory || 'all';
   var games = siteState.gamesList.filter(function(g){
-    return g.visible && (g.name||'').toLowerCase().indexOf(q) !== -1;
+    var visible = g.visible !== false;
+    var haystack = [g.name,g.description,g.category,g.categoria,g.type,g.tipo,(g.features||[]).join(' ')].join(' ').toLowerCase();
+    var matchSearch = !q || haystack.indexOf(q) !== -1;
+    var matchCat = cat==='all' || _jdGameCategory(g)===cat;
+    return visible && matchSearch && matchCat;
   });
 
   // Ordenamiento — prioridad: timestamp desc (siempre mueve los más nuevos/editados arriba)
@@ -3840,22 +3983,18 @@ function slugifyTitle(title){
 function openSettings(){
   var overlay=document.getElementById('settings-overlay');
   if(!overlay) return;
-  // Reset: mostrar lista, ocultar detalle
   var det=document.getElementById('jd-st-detail');
   var list=overlay.querySelector('.jd-st-list');
   var langSec=overlay.querySelector('.jd-st-lang-section');
   if(det){det.style.display='none';}
   if(list){list.style.display='';}
   if(langSec){langSec.style.display='';}
-  // Actualizar botones de idioma activo
   jdStUpdateLangBtns();
-  // Drawer desde izquierda
+  jdStUpdateToggles();
   overlay.style.display='flex';
   document.body.style.overflowX='hidden';
   refreshIcons();
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){ overlay.classList.add('show'); });
-  });
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ overlay.classList.add('show'); }); });
 }
 function closeSettings(){
   var overlay=document.getElementById('settings-overlay');
@@ -3867,32 +4006,9 @@ function closeSettings(){
   },300);
 }
 function jdStDetail(key){
-  var policiesText =
-    'POLÍTICA DE PRIVACIDAD Y COOKIES\n\n' +
-    'JoelDroid Mods YT respeta tu privacidad y cumple con el Reglamento General de Protección de Datos (RGPD/GDPR), la Directiva ePrivacy 2002/58/CE (modificada por 2009/136/CE) y las normativas internacionales aplicables.\n\n' +
-    '1. RESPONSABLE DEL TRATAMIENTO\n' +
-    'JoelDroid Mods YT es el responsable del sitio web. Para cualquier consulta sobre privacidad, contáctanos vía nuestro canal oficial de Telegram.\n\n' +
-    '2. DATOS QUE RECOPILAMOS\n' +
-    'No solicitamos registro ni recopilamos datos personales identificables directamente. Sin embargo, mediante cookies y tecnologías similares se procesan datos técnicos como: dirección IP aproximada, tipo de navegador, sistema operativo, idioma, páginas visitadas y tiempo de permanencia.\n\n' +
-    '3. PUBLICIDAD DE TERCEROS (MONETAG)\n' +
-    'Este sitio utiliza Monetag (Propeller Ads Ltd) como red publicitaria. Monetag y sus anunciantes asociados pueden colocar cookies, identificadores y objetos almacenados localmente en tu navegador para mostrarte anuncios relevantes, medir su rendimiento y prevenir fraude. Estos terceros operan bajo su propia política de privacidad: https://monetag.com/privacy-policy/ y términos: https://monetag.com/terms/\n\n' +
-    '4. USO DE COOKIES\n' +
-    'Usamos: (a) cookies técnicas necesarias para el funcionamiento (idioma, tema, preferencias); (b) cookies publicitarias de Monetag para mostrar anuncios y medir conversiones. Los usuarios de la Unión Europea ven un banner de consentimiento previo (opt-in) y pueden aceptar o rechazar las cookies publicitarias antes de su instalación.\n\n' +
-    '5. CÓMO RETIRAR EL CONSENTIMIENTO (OPT-OUT)\n' +
-    'Puedes revocar tu consentimiento en cualquier momento: (1) borra "jd_cookie_consent" desde el almacenamiento local de tu navegador y recarga la página; (2) configura tu navegador para bloquear cookies de terceros; (3) usa herramientas como Your Online Choices (youronlinechoices.eu) o NAI (networkadvertising.org/choices) para opt-out global de redes publicitarias.\n\n' +
-    '6. CONTENIDO DEL SITIO\n' +
-    'Todo el contenido (MODs, APKs y enlaces) se publica con fines educativos y de prueba. Apoya a los desarrolladores originales adquiriendo las versiones oficiales en sus tiendas.\n\n' +
-    '7. ENLACES EXTERNOS\n' +
-    'No nos hacemos responsables del contenido, prácticas de privacidad ni disponibilidad de sitios externos enlazados desde aquí.\n\n' +
-    '8. MENORES DE EDAD\n' +
-    'El sitio no está dirigido a menores de 18 años y no recopilamos conscientemente datos de menores.\n\n' +
-    '9. CAMBIOS\n' +
-    'Esta política puede actualizarse. La versión vigente es siempre la publicada en este sitio.\n\n' +
-    '10. CONTACTO\n' +
-    'Para ejercer tus derechos de acceso, rectificación, supresión, limitación, portabilidad u oposición, contáctanos por nuestro canal de Telegram oficial.';
+  if(key==='policies'){ closeSettings(); jdOpenPolicies(); return; }
   var data={
-    about:{title:'Sobre Nosotros',text:'JoelDroid Mods YT es la plataforma líder en MOD APK para Android. Nuestro equipo verifica cada mod para garantizar seguridad y calidad.'},
-    policies:{title:'Política de Privacidad y Cookies',text:policiesText}
+    about:{title:'Sobre Nosotros',text:'JoelDroid Mods YT es una comunidad enfocada en información, pruebas y recursos para Android. Verificamos la presentación del contenido, mantenemos enlaces organizados y damos prioridad a una experiencia rápida, seria y compatible con publicidad legítima.'}
   };
   var d=data[key]||{title:'',text:''};
   var det=document.getElementById('jd-st-detail');
@@ -3913,41 +4029,62 @@ function jdStBack(){
   if(langSec){langSec.style.display='';}
 }
 function jdStLang(code){
-  // Reutiliza selectLanguage existente con la bandera correcta
   var flags={es:'https://flagcdn.com/w40/es.png',en:'https://flagcdn.com/w40/us.png',pt:'https://flagcdn.com/w40/br.png'};
   selectLanguage(code, flags[code]||'https://flagcdn.com/w40/es.png');
   jdStUpdateLangBtns();
+  try{showToast('✅ Idioma aplicado');}catch(e){}
 }
 function jdStUpdateLangBtns(){
-  var active=localStorage.getItem('selectedLang')||'es';
+  var active=localStorage.getItem('selectedLang')||currentLang||'es';
   ['es','en','pt'].forEach(function(c){
     var btn=document.getElementById('jd-stlb-'+c);
     if(btn) btn.className='jd-st-lang-btn'+(active===c?'':' inactive');
   });
 }
+function jdStUpdateToggles(){
+  var tb=document.getElementById('jd-st-theme-btn');
+  if(tb){ tb.textContent=isDarkMode?'Tema oscuro':'Tema claro'; tb.className='jd-st-lang-btn'+(isDarkMode?'':' inactive'); }
+  var gb=document.getElementById('jd-st-geo-btn');
+  var geo=siteState.showGeoShapes!==false;
+  if(gb){ gb.textContent=geo?'Fondo ON':'Fondo OFF'; gb.className='jd-st-lang-btn'+(geo?'':' inactive'); }
+}
+function jdStToggleTheme(){
+  toggleTheme();
+  jdStUpdateToggles();
+  try{showToast('✅ Tema aplicado');}catch(e){}
+}
+function jdStToggleGeo(){
+  toggleSceneGeo(siteState.showGeoShapes===false);
+  jdStUpdateToggles();
+  try{showToast(siteState.showGeoShapes!==false?'✅ Fondo activado':'✅ Fondo desactivado');}catch(e){}
+}
+function jdStResetCookieConsent(){
+  try{localStorage.removeItem('jd_cookie_consent');}catch(e){}
+  var b=document.getElementById('jd-cookie-banner');
+  if(b)b.style.display='block';
+  try{showToast('🍪 Preferencia de cookies reiniciada');}catch(e){}
+}
 function filterChip(type){
-  // Activar el chip correspondiente en home
   var chipMap={popular:'popular',updated:'updated',all:'all'};
-  var allBtns=document.querySelectorAll('.filter-chip');
-  allBtns.forEach(function(b){b.classList.remove('active');});
-  if(type==='popular'){
-    var btn=Array.from(allBtns).find(function(b){return b.textContent.toLowerCase().includes('popular');});
-    if(btn){btn.classList.add('active');activeFilter='popular';renderGames();}
-  } else if(type==='updated'){
-    var btn=Array.from(allBtns).find(function(b){return b.textContent.toLowerCase().includes('actual');});
-    if(btn){btn.classList.add('active');activeFilter='updated';renderGames();}
-  }
+  setFilter(chipMap[type]||'all');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function _jdGameCategory(g){
+  var raw=[g.category,g.categoria,g.type,g.tipo,g.platform,g.name,g.description,(g.features||[]).join(' ')].join(' ').toLowerCase();
+  if(/\b(app|apps|aplicaci[oó]n|herramienta|tool|vpn|editor|launcher)\b/.test(raw)) return 'apps';
+  if(/\b(game|juego|juegos|simulator|truck|bus|car|racing|mod)\b/.test(raw)) return 'games';
+  return 'games';
 }
 function filterByCategory(cat){
-  // Activa filtro de categoría si existe, sino resetea
-  activeFilter='all';
-  var allBtns=document.querySelectorAll('.filter-chip');
-  allBtns.forEach(function(b){b.classList.remove('active');});
-  var first=allBtns[0];if(first)first.classList.add('active');
-  searchQuery=cat==='mods'?'mod':'';
-  var sb=document.getElementById('search-bar');
-  if(sb)sb.value=searchQuery;
+  window.jdCurrentCategory=cat||'all';
+  currentFilter='all';
+  document.querySelectorAll('.filter-chip').forEach(function(b){b.classList.remove('active');});
+  var all=document.getElementById('filter-all'); if(all)all.classList.add('active');
+  searchQuery='';
+  var sb=document.getElementById('search-bar'); if(sb)sb.value='';
   renderGames();
+  window.scrollTo({top:0,behavior:'smooth'});
+  try{showToast(cat==='apps'?'📱 Aplicaciones':'🎮 Juegos y mods');}catch(e){}
 }
 // Alias para compatibilidad con código existente
 /* dead code removed: showSettingDetails */
@@ -4406,14 +4543,14 @@ function checkDeepLink(){
       }
       // Reintentar mientras Firebase carga los juegos — intervalos cortos al principio
       if(++retries < maxRetries){
-        // Primeros intentos más rápidos (100ms), luego más lentos para no saturar
-        var delay = retries < 10 ? 100 : retries < 20 ? 200 : 500;
+        // Apertura ultra-rápida: poll agresivo al inicio para abrir <1s
+        var delay = retries < 15 ? 50 : retries < 25 ? 150 : 400;
         setTimeout(openGame, delay);
       }
     };
-    // Intentar al instante si ya hay juegos en caché, o con mínimo delay
-    var delay = (siteState.gamesList && siteState.gamesList.length > 0) ? 0 : 50;
-    setTimeout(openGame, delay);
+    // Apertura instantánea: si hay caché, ejecuta YA; si no, microtask sin delay perceptible
+    if(siteState.gamesList && siteState.gamesList.length > 0){ openGame(); }
+    else { Promise.resolve().then(openGame); }
   }catch(e){}
 }
 
@@ -6299,6 +6436,7 @@ window.addEventListener('DOMContentLoaded', function() {
   applyUIChanges();
   applyTranslations(savedLang);
   checkDeepLink();
+  if(location.hash==='#policies') setTimeout(function(){ try{jdOpenPolicies();}catch(e){} },0);
 
   // ── Elementos seguros: ya existen porque DOMContentLoaded garantiza DOM listo
   var cy = document.getElementById('current-year');
@@ -6407,6 +6545,7 @@ window.onload=function(){
   var _wlCacheHit=!!(_wlList&&_wlList.querySelector('.jd-card'));
   if(!_wlCacheHit) renderGames();
   applyUIChanges();applyTranslations(sl);checkDeepLink();
+  if(location.hash==='#policies') setTimeout(function(){ try{jdOpenPolicies();}catch(e){} },0);
   var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
   var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
   setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
@@ -6556,74 +6695,48 @@ window.onload=function(){
     var saved=null;
     try{ saved=localStorage.getItem(KEY); }catch(e){}
     if(!saved){
-      // Mostrar banner tras pequeño retraso para no estorbar la primera pintura
       setTimeout(function(){
         var b=document.getElementById('jd-cookie-banner');
         if(b) b.style.display='block';
-      },1200);
+      },600);
     }
-    window.jdCookieConsent=function(choice){
+    window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');
       if(b) b.style.display='none';
-      // NO bloqueamos Monetag: el SDK sigue su curso normal. La elección queda
-      // registrada para auditoría y para mostrar al usuario que su voz fue oída.
+      try{ if(typeof showToast==='function'){ showToast(choice==='accept'?'✓ Cookies aceptadas':'✓ Solo cookies necesarias'); } }catch(_t){}
+      if(returnHome){
+        try{ if(typeof window.jdClosePolicies==='function') window.jdClosePolicies(); }catch(_c){}
+        try{
+          var hv=document.getElementById('home-view');
+          if(hv){ hv.classList.remove('hidden'); hv.style.display=''; }
+          window.scrollTo({top:0,behavior:'smooth'});
+        }catch(_h){}
+      }
     };
     window.jdOpenPolicies=function(){
-      // Modal independiente — funciona aunque el menú de ajustes esté cerrado
-      var existing=document.getElementById('jd-policies-modal');
-      if(existing){ existing.remove(); }
-      var policiesText =
-        'POLÍTICA DE PRIVACIDAD Y COOKIES\n\n' +
-        'JoelDroid Mods YT respeta tu privacidad y cumple con el RGPD/GDPR (UE 2016/679), la Directiva ePrivacy 2002/58/CE, CCPA (California) y LGPD (Brasil).\n\n' +
-        '1. RESPONSABLE DEL TRATAMIENTO\n' +
-        'JoelDroid Mods YT — operador del sitio web joeldroidmods.com. Contacto oficial vía nuestro canal de Telegram verificado.\n\n' +
-        '2. DATOS QUE RECOPILAMOS\n' +
-        'No solicitamos registro ni recopilamos datos personales identificables directamente. Mediante cookies y tecnologías similares se procesan datos técnicos: IP aproximada, navegador, sistema operativo, idioma, páginas visitadas y tiempo de permanencia.\n\n' +
-        '3. PUBLICIDAD DE TERCEROS — MONETAG\n' +
-        'Este sitio utiliza Monetag (PropellerAds Ltd) como red publicitaria. Monetag y sus anunciantes asociados pueden colocar cookies, identificadores y objetos almacenados localmente para mostrar anuncios relevantes, medir su rendimiento y prevenir fraude. Más información:\n' +
-        '• Política Monetag: https://monetag.com/privacy-policy/\n' +
-        '• Términos Monetag: https://monetag.com/terms/\n\n' +
-        '4. USO DE COOKIES\n' +
-        '(a) Cookies técnicas necesarias (idioma, tema, preferencias).\n' +
-        '(b) Cookies publicitarias de Monetag (anuncios y conversiones).\n' +
-        'Los usuarios de la UE ven un banner de consentimiento previo (opt-in) y pueden aceptar o rechazar las cookies publicitarias.\n\n' +
-        '5. RETIRAR EL CONSENTIMIENTO (OPT-OUT)\n' +
-        'Puedes revocar tu consentimiento en cualquier momento:\n' +
-        '(1) Borra la clave "jd_cookie_consent" del almacenamiento local y recarga.\n' +
-        '(2) Bloquea cookies de terceros en la configuración de tu navegador.\n' +
-        '(3) Opt-out global: youronlinechoices.eu / networkadvertising.org/choices.\n\n' +
-        '6. CONTENIDO DEL SITIO\n' +
-        'Todo el contenido (MODs, APKs y enlaces) se publica con fines educativos y de prueba. Apoya a los desarrolladores originales comprando las versiones oficiales.\n\n' +
-        '7. ENLACES EXTERNOS\n' +
-        'No nos hacemos responsables del contenido, privacidad ni disponibilidad de sitios externos enlazados.\n\n' +
-        '8. MENORES DE EDAD\n' +
-        'Sitio no dirigido a menores de 18 años. No recopilamos conscientemente datos de menores.\n\n' +
-        '9. CAMBIOS\n' +
-        'Esta política puede actualizarse. La versión vigente es siempre la publicada aquí.\n\n' +
-        '10. CONTACTO\n' +
-        'Para ejercer derechos de acceso, rectificación, supresión, limitación, portabilidad u oposición: contáctanos por nuestro Telegram oficial.';
-      var modal=document.createElement('div');
-      modal.id='jd-policies-modal';
-      modal.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
-      modal.innerHTML=
-        '<div style="background:#0f172a;color:#fff;border:1px solid #1e293b;border-radius:16px;max-width:680px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6)">'+
-          '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1e293b">'+
-            '<div style="font-weight:900;font-size:15px;letter-spacing:.3px">🔒 Política de Privacidad y Cookies</div>'+
-            '<button id="jd-pol-close" style="background:#1e293b;color:#fff;border:none;border-radius:8px;width:32px;height:32px;font-size:18px;cursor:pointer;font-weight:900">×</button>'+
-          '</div>'+
-          '<div id="jd-pol-body" style="padding:18px 20px;overflow:auto;font-size:13px;line-height:1.6;white-space:pre-wrap;color:#cbd5e1"></div>'+
-          '<div style="padding:14px 20px;border-top:1px solid #1e293b;text-align:right">'+
-            '<button id="jd-pol-ok" style="background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:800;font-size:13px;cursor:pointer">Entendido</button>'+
-          '</div>'+
-        '</div>';
-      document.body.appendChild(modal);
-      document.getElementById('jd-pol-body').textContent=policiesText;
-      var close=function(){ modal.remove(); };
-      document.getElementById('jd-pol-close').onclick=close;
-      document.getElementById('jd-pol-ok').onclick=close;
-      modal.addEventListener('click',function(e){ if(e.target===modal) close(); });
+      var pv=document.getElementById('policies-view');
+      if(!pv) return;
+      try{ closeSettings(); }catch(_e){}
+      try{ closeDetail(); }catch(_e2){}
+      document.body.classList.add('policies-open');
+      pv.classList.remove('hidden');
+      pv.style.display='block';
+      var b=document.getElementById('jd-cookie-banner');
+      if(b) b.style.display='none';
+      try{ history.replaceState(null,'','#policies'); }catch(_e3){}
+      setTimeout(function(){ window.scrollTo(0,0); },0);
     };
+    window.jdClosePolicies=function(){
+      var pv=document.getElementById('policies-view');
+      if(pv){ pv.classList.add('hidden'); pv.style.display='none'; }
+      document.body.classList.remove('policies-open');
+      try{ history.replaceState(null,'',window.location.pathname); }catch(_e){}
+      setTimeout(function(){ window.scrollTo(0,0); },0);
+    };
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape' && document.body.classList.contains('policies-open')) window.jdClosePolicies();
+    });
   }catch(e){}
 })();
 </script>
