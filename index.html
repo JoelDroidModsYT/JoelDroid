@@ -8,48 +8,16 @@
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high" crossorigin>
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
-<!-- ══ APP VERSION & AUTO CACHE INVALIDATION ════════════════════════
-     CAMBIA APP_VERSION CADA VEZ QUE SUBAS UN PARCHE A GITHUB.
-     Los usuarios reciben los cambios automáticamente:
-     se limpia localStorage/sessionStorage/cachés viejos,
-     pero NUNCA se toca nada de Monetag (cookies/storage de ads quedan intactos).
+<!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
+     Se conserva una marca de versión propia del sitio,
+     sin limpiar storage ni ejecutar tareas pesadas al arranque.
+     Monetag queda libre para cargar antes que todo lo demás.
 ══════════════════════════════════════════════════════════════════ -->
 <script>
-/* Purge de versión diferido a idle: NO bloquea la carga del script de Monetag */
 (function(){
-  var APP_VERSION = '1.0.6'; // ← INCREMENTAR EN CADA PARCHE (ej: 1.0.1, 1.0.2…)
+  var APP_VERSION = '1.0.7';
   window.__JD_APP_VERSION = APP_VERSION;
-  var __run=function(){
-  try{
-    var KEY = '__jd_app_version';
-    var prev = localStorage.getItem(KEY);
-    if(prev !== APP_VERSION){
-      // Lista blanca: NO tocar claves de Monetag/ads ni preferencias del usuario.
-      // (Adsterra removido — ya no se usa este anunciante en el sitio.)
-      var KEEP = /^(monetag|mtg_|adv_|_mtg|propeller|jd_user_|jd_lang|jd_theme|jd_cookie_consent)/i;
-      try{
-        var toRemove = [];
-        for(var i=0;i<localStorage.length;i++){
-          var k = localStorage.key(i);
-          if(k && k !== KEY && !KEEP.test(k)) toRemove.push(k);
-        }
-        toRemove.forEach(function(k){ try{localStorage.removeItem(k);}catch(e){} });
-      }catch(e){}
-      try{
-        var sRemove = [];
-        for(var j=0;j<sessionStorage.length;j++){
-          var sk = sessionStorage.key(j);
-          if(sk && !KEEP.test(sk)) sRemove.push(sk);
-        }
-        sRemove.forEach(function(k){ try{sessionStorage.removeItem(k);}catch(e){} });
-      }catch(e){}
-      // No se limpian Cache Storage ni Service Workers: deja libres cachés del navegador y anuncios.
-      try{ localStorage.setItem(KEY, APP_VERSION); }catch(e){}
-      console.log('[JD] Cache purgado. Nueva versión:', APP_VERSION);
-    }
-  }catch(e){}
-  };
-  if('requestIdleCallback' in window){requestIdleCallback(__run,{timeout:2500});}else{setTimeout(__run,1500);}
+  try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
 </script>
 
@@ -81,76 +49,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="shortcut icon" href="/favicon.ico">
 
-<!-- ══ FAVICON FALLBACK EMBEBIDO — Logo JoelDroid (mientras subes los archivos) ══════════ -->
-<link id="favicon"     rel="icon"             type="image/x-icon"  href="data:image/x-icon;base64,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">
-<link id="favicon-png" rel="icon"             type="image/png" sizes="32x32"  href="data:image/webp;base64,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">
-<link id="favicon-192" rel="icon"             type="image/png" sizes="192x192" href="data:image/webp;base64,UklGRkwGAABXRUJQVlA4IEAGAABQGwCdASpQAFAAPqlCm0mmI6KhNHcOMMAVCWwAsSVBVb5LfjvNAtPYMjnQmdtn5gPOR9Jv9v3yD0Jf1m62zEPZJLaTDDNH2hZ9the1klgOY//UPRd0QNdUd++Nk6ll4lYu76zZk/fRarUgt99MIsOru4/eUepKGe4VzrTP7CTgRIbc6z3Z6GV+0uJid41o3J+Vp4y5BdfwASMNAqArRoEKoG071bReB30fkjPW9xO3Dm/BwQbT6+UqDQaiTgP2QyOlIldC9gqZtoC+lQoj4K8YmOoYwf++XmMqBXhfuAZHG6UhGAD+05SkgxMW7+mxulQJcdSVSInM1Pd/ikp7AuNi/xCEqz3Wg6zmxcfH73rIjAuguT22L3Qb3FR+bWOBGS2TUv5AtHPRNfeybp87GW2BFs4FxKoBkkY12GfOkt4i/yz7y+EXsJH1ZpbllcdijP/YlcfgdD8CGOQJ5sxTFNK3sGklv08TlkmECvUWEDL9x3eUYFQ8tSQTnLL6/UfnPI8IoYSVbm4KM0iQ24nIbri8chEYeH27Fq+Nxf03eDf8arcSF3Owx4ZdCHoAhw5xghYAtAe7JFaoJECw+9EAE7uNxsIAgjJx2KhoX2whipouEJi65A9N3YbaxApEWyK78iiO+ORG9yoOO+/z8aPchQKVpIgb2FhGwTMWxo3jKhDdOlLvXOb6ifHxAIZJ3wnri5dpbehMjdNMvuLuT4AJtwftLc+P2kr9Qk9HyawjTseh5NpjQjfZaGpi9PII07XgJiPtj0B3z5vsntFdqQ9m5gIPzDCGbFGrTeyvpdAZkwEnOo/3RJl4MwfhHqUEifnOOJh1BcHPrGxZ/aroh8l1giXsCV+rcKm6iP/iGdAeVdTxHXqJg8TBm2JKDr1kl8kdUAVLLPiwOQZYfcn8JTyQHzk36jyNCHIWT8I9JJXtvRWtZMA9WLhI5IgLLCMueTDCLvVzZqm7GkOhl1UI9se4PwwGfqQhAq6mQfq7o26nQ63gqBWjstSzAVz/nx1bF7edeXE3MkqjI+0ZEaOoHbILc4q6f7AvRRbsoomU8H8r2bGxR3oRnnhLbVqxemS4qngbbjVqmrl489kz/oRpXRID7FWxOlIKH8GVDe83QIqvsVb3pnlZCe20y2lmP/Fo5ThZvVfMDbzrfUBTlVq6uvPEP/OOuhMZhz+iFqUM7PMQ0W0CNteC6e8XbauQ3kuqUFpK3/JqjiMPCAZym7Su2IBeCEhGFXVp3YMVeT3vkqE5YG77dMlSsmn9y4rWfPyvioUyJy8HwYZG9d80ly6ZYuRqYz914FICPDfuh+x17gf9vAUqyQ8Rll3ppwJEebOMeu0qqHskd3ctdeRyFjueJWukejVc+5VNN1vj4PRNN2l262EsrvhAKvxnQlDHpTexLHfIz2aBOH/DtRLsncd1x+E+tFRM+J2jGoK3Ib508iSmpXs+0NFxgILMviAJ+EbJExcLYjj84rhdEB7oSPrA6lkrOHmoLT0VcBCsmWAcrQel+HAUIKEZx1Yp5HzidpgLw31Utyd7Y6DvaId7/5PgBOWcRZv0vO7auXkkLL79rTqaEyXkfcYr4Pbqvz65BQXep7yQuLueo3PjeACCJ2e+F9zEG/5nO/psdOAW5g+FTVUqYck2r9WJ4XrQJtKupThNCAGsQh/7pH+0SNsQFnDTNmwfi4+m6lFplKybFp2a8rmjW+NJHAp0ipGjrDQOUQdoiCcsWQDYkWvmaIHTBJolhGpTL5AJTGmWkZCBxMlLUZmZjZsyug6CRq8r7IrEqMVkVxeAf+q+p0K6dpSW9gEcO+e4jo4nyUyac3SaiBIPJKPMLEBoiAHrRA81wRLhlTI6FQtTtY3K9M+yCPzJEonw9b9ESJqASuZcUqnLv/EMiS2U97Grcm+cw9rHGJePZ6ppbEkC846Bn1UnjQwt8b/ieMurBn49P1MnFoB015WjWya4DLnAyAD9P9LqtAFPWFvaC0MCtWjvdH6q2AA3uXCShRSeCHfrR/Qz/2n7yhrj989MOeAAwKqQRflG0LwwZAwHEbNKaNGFZOzUUB06RKRB/40XqTpNebGyIKyRWpj6V8tC20lCCpR8xBSk/5LoO1hJFw9BhmKxPEG25JboIaR2Jbc0MAAA">
-<link id="favicon-512" rel="icon"             type="image/png" sizes="512x512" href="data:image/webp;base64,UklGRkwGAABXRUJQVlA4IEAGAABQGwCdASpQAFAAPqlCm0mmI6KhNHcOMMAVCWwAsSVBVb5LfjvNAtPYMjnQmdtn5gPOR9Jv9v3yD0Jf1m62zEPZJLaTDDNH2hZ9the1klgOY//UPRd0QNdUd++Nk6ll4lYu76zZk/fRarUgt99MIsOru4/eUepKGe4VzrTP7CTgRIbc6z3Z6GV+0uJid41o3J+Vp4y5BdfwASMNAqArRoEKoG071bReB30fkjPW9xO3Dm/BwQbT6+UqDQaiTgP2QyOlIldC9gqZtoC+lQoj4K8YmOoYwf++XmMqBXhfuAZHG6UhGAD+05SkgxMW7+mxulQJcdSVSInM1Pd/ikp7AuNi/xCEqz3Wg6zmxcfH73rIjAuguT22L3Qb3FR+bWOBGS2TUv5AtHPRNfeybp87GW2BFs4FxKoBkkY12GfOkt4i/yz7y+EXsJH1ZpbllcdijP/YlcfgdD8CGOQJ5sxTFNK3sGklv08TlkmECvUWEDL9x3eUYFQ8tSQTnLL6/UfnPI8IoYSVbm4KM0iQ24nIbri8chEYeH27Fq+Nxf03eDf8arcSF3Owx4ZdCHoAhw5xghYAtAe7JFaoJECw+9EAE7uNxsIAgjJx2KhoX2whipouEJi65A9N3YbaxApEWyK78iiO+ORG9yoOO+/z8aPchQKVpIgb2FhGwTMWxo3jKhDdOlLvXOb6ifHxAIZJ3wnri5dpbehMjdNMvuLuT4AJtwftLc+P2kr9Qk9HyawjTseh5NpjQjfZaGpi9PII07XgJiPtj0B3z5vsntFdqQ9m5gIPzDCGbFGrTeyvpdAZkwEnOo/3RJl4MwfhHqUEifnOOJh1BcHPrGxZ/aroh8l1giXsCV+rcKm6iP/iGdAeVdTxHXqJg8TBm2JKDr1kl8kdUAVLLPiwOQZYfcn8JTyQHzk36jyNCHIWT8I9JJXtvRWtZMA9WLhI5IgLLCMueTDCLvVzZqm7GkOhl1UI9se4PwwGfqQhAq6mQfq7o26nQ63gqBWjstSzAVz/nx1bF7edeXE3MkqjI+0ZEaOoHbILc4q6f7AvRRbsoomU8H8r2bGxR3oRnnhLbVqxemS4qngbbjVqmrl489kz/oRpXRID7FWxOlIKH8GVDe83QIqvsVb3pnlZCe20y2lmP/Fo5ThZvVfMDbzrfUBTlVq6uvPEP/OOuhMZhz+iFqUM7PMQ0W0CNteC6e8XbauQ3kuqUFpK3/JqjiMPCAZym7Su2IBeCEhGFXVp3YMVeT3vkqE5YG77dMlSsmn9y4rWfPyvioUyJy8HwYZG9d80ly6ZYuRqYz914FICPDfuh+x17gf9vAUqyQ8Rll3ppwJEebOMeu0qqHskd3ctdeRyFjueJWukejVc+5VNN1vj4PRNN2l262EsrvhAKvxnQlDHpTexLHfIz2aBOH/DtRLsncd1x+E+tFRM+J2jGoK3Ib508iSmpXs+0NFxgILMviAJ+EbJExcLYjj84rhdEB7oSPrA6lkrOHmoLT0VcBCsmWAcrQel+HAUIKEZx1Yp5HzidpgLw31Utyd7Y6DvaId7/5PgBOWcRZv0vO7auXkkLL79rTqaEyXkfcYr4Pbqvz65BQXep7yQuLueo3PjeACCJ2e+F9zEG/5nO/psdOAW5g+FTVUqYck2r9WJ4XrQJtKupThNCAGsQh/7pH+0SNsQFnDTNmwfi4+m6lFplKybFp2a8rmjW+NJHAp0ipGjrDQOUQdoiCcsWQDYkWvmaIHTBJolhGpTL5AJTGmWkZCBxMlLUZmZjZsyug6CRq8r7IrEqMVkVxeAf+q+p0K6dpSW9gEcO+e4jo4nyUyac3SaiBIPJKPMLEBoiAHrRA81wRLhlTI6FQtTtY3K9M+yCPzJEonw9b9ESJqASuZcUqnLv/EMiS2U97Grcm+cw9rHGJePZ6ppbEkC846Bn1UnjQwt8b/ieMurBn49P1MnFoB015WjWya4DLnAyAD9P9LqtAFPWFvaC0MCtWjvdH6q2AA3uXCShRSeCHfrR/Qz/2n7yhrj989MOeAAwKqQRflG0LwwZAwHEbNKaNGFZOzUUB06RKRB/40XqTpNebGyIKyRWpj6V8tC20lCCpR8xBSk/5LoO1hJFw9BhmKxPEG25JboIaR2Jbc0MAAA">
-<link id="favicon-180" rel="apple-touch-icon"                                  href="data:image/webp;base64,UklGRkwGAABXRUJQVlA4IEAGAABQGwCdASpQAFAAPqlCm0mmI6KhNHcOMMAVCWwAsSVBVb5LfjvNAtPYMjnQmdtn5gPOR9Jv9v3yD0Jf1m62zEPZJLaTDDNH2hZ9the1klgOY//UPRd0QNdUd++Nk6ll4lYu76zZk/fRarUgt99MIsOru4/eUepKGe4VzrTP7CTgRIbc6z3Z6GV+0uJid41o3J+Vp4y5BdfwASMNAqArRoEKoG071bReB30fkjPW9xO3Dm/BwQbT6+UqDQaiTgP2QyOlIldC9gqZtoC+lQoj4K8YmOoYwf++XmMqBXhfuAZHG6UhGAD+05SkgxMW7+mxulQJcdSVSInM1Pd/ikp7AuNi/xCEqz3Wg6zmxcfH73rIjAuguT22L3Qb3FR+bWOBGS2TUv5AtHPRNfeybp87GW2BFs4FxKoBkkY12GfOkt4i/yz7y+EXsJH1ZpbllcdijP/YlcfgdD8CGOQJ5sxTFNK3sGklv08TlkmECvUWEDL9x3eUYFQ8tSQTnLL6/UfnPI8IoYSVbm4KM0iQ24nIbri8chEYeH27Fq+Nxf03eDf8arcSF3Owx4ZdCHoAhw5xghYAtAe7JFaoJECw+9EAE7uNxsIAgjJx2KhoX2whipouEJi65A9N3YbaxApEWyK78iiO+ORG9yoOO+/z8aPchQKVpIgb2FhGwTMWxo3jKhDdOlLvXOb6ifHxAIZJ3wnri5dpbehMjdNMvuLuT4AJtwftLc+P2kr9Qk9HyawjTseh5NpjQjfZaGpi9PII07XgJiPtj0B3z5vsntFdqQ9m5gIPzDCGbFGrTeyvpdAZkwEnOo/3RJl4MwfhHqUEifnOOJh1BcHPrGxZ/aroh8l1giXsCV+rcKm6iP/iGdAeVdTxHXqJg8TBm2JKDr1kl8kdUAVLLPiwOQZYfcn8JTyQHzk36jyNCHIWT8I9JJXtvRWtZMA9WLhI5IgLLCMueTDCLvVzZqm7GkOhl1UI9se4PwwGfqQhAq6mQfq7o26nQ63gqBWjstSzAVz/nx1bF7edeXE3MkqjI+0ZEaOoHbILc4q6f7AvRRbsoomU8H8r2bGxR3oRnnhLbVqxemS4qngbbjVqmrl489kz/oRpXRID7FWxOlIKH8GVDe83QIqvsVb3pnlZCe20y2lmP/Fo5ThZvVfMDbzrfUBTlVq6uvPEP/OOuhMZhz+iFqUM7PMQ0W0CNteC6e8XbauQ3kuqUFpK3/JqjiMPCAZym7Su2IBeCEhGFXVp3YMVeT3vkqE5YG77dMlSsmn9y4rWfPyvioUyJy8HwYZG9d80ly6ZYuRqYz914FICPDfuh+x17gf9vAUqyQ8Rll3ppwJEebOMeu0qqHskd3ctdeRyFjueJWukejVc+5VNN1vj4PRNN2l262EsrvhAKvxnQlDHpTexLHfIz2aBOH/DtRLsncd1x+E+tFRM+J2jGoK3Ib508iSmpXs+0NFxgILMviAJ+EbJExcLYjj84rhdEB7oSPrA6lkrOHmoLT0VcBCsmWAcrQel+HAUIKEZx1Yp5HzidpgLw31Utyd7Y6DvaId7/5PgBOWcRZv0vO7auXkkLL79rTqaEyXkfcYr4Pbqvz65BQXep7yQuLueo3PjeACCJ2e+F9zEG/5nO/psdOAW5g+FTVUqYck2r9WJ4XrQJtKupThNCAGsQh/7pH+0SNsQFnDTNmwfi4+m6lFplKybFp2a8rmjW+NJHAp0ipGjrDQOUQdoiCcsWQDYkWvmaIHTBJolhGpTL5AJTGmWkZCBxMlLUZmZjZsyug6CRq8r7IrEqMVkVxeAf+q+p0K6dpSW9gEcO+e4jo4nyUyac3SaiBIPJKPMLEBoiAHrRA81wRLhlTI6FQtTtY3K9M+yCPzJEonw9b9ESJqASuZcUqnLv/EMiS2U97Grcm+cw9rHGJePZ6ppbEkC846Bn1UnjQwt8b/ieMurBn49P1MnFoB015WjWya4DLnAyAD9P9LqtAFPWFvaC0MCtWjvdH6q2AA3uXCShRSeCHfrR/Qz/2n7yhrj989MOeAAwKqQRflG0LwwZAwHEbNKaNGFZOzUUB06RKRB/40XqTpNebGyIKyRWpj6V8tC20lCCpR8xBSk/5LoO1hJFw9BhmKxPEG25JboIaR2Jbc0MAAA">
-<meta name="msapplication-TileImage"          content="data:image/webp;base64,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">
-<meta name="msapplication-TileColor"          content="#020408">
-<meta name="theme-color"                      content="#007bff">
-
-<!-- ══ SEO + OPEN GRAPH — logo en navegadores, Google, WhatsApp, Telegram ══ -->
-<meta name="description" content="JoelDroid Mods YT — Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados, seguros y actualizados.">
-<meta property="og:type"        content="website">
-<meta property="og:site_name"   content="JoelDroid Mods YT">
-<meta property="og:title"       content="JoelDroid Mods YT | Los Mejores MOD APK para Android">
-<meta property="og:description" content="Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados por JoelDroid Mods YT.">
-<meta property="og:image"       content="https://joeldroidmods.com/logo.png">
-<meta property="og:image:width" content="512">
-<meta property="og:image:height" content="512">
-<meta name="twitter:card"       content="summary_large_image">
-<meta name="twitter:title"      content="JoelDroid Mods YT | MOD APK para Android">
-<meta name="twitter:description" content="Descarga gratis los mejores MOD APK para Android. Mods verificados por JoelDroid Mods YT.">
-<meta name="twitter:image"      content="https://joeldroidmods.com/logo.png">
-<!-- ══ CANONICAL URL — evita contenido duplicado en Google ════════ -->
-<link rel="canonical" href="https://joeldroidmods.com/">
-<meta property="og:url" content="https://joeldroidmods.com/">
-<!-- favicon embebido en data:base64 — funciona sin archivos externos -->
-<!-- ══ JSON-LD STRUCTURED DATA — Organization + WebSite para Google ══ -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://joeldroidmods.com/#organization",
-      "name": "JoelDroid Mods YT",
-      "url": "https://joeldroidmods.com/",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://joeldroidmods.com/logo.png",
-        "width": 512,
-        "height": 512
-      },
-      "image": "https://joeldroidmods.com/logo.png",
-      "description": "JoelDroid Mods YT — Descarga gratis los mejores MOD APK para Android. Mods verificados, seguros y actualizados.",
-      "sameAs": [
-        "https://www.youtube.com/@JoelDroidYT"
-      ]
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://joeldroidmods.com/#website",
-      "url": "https://joeldroidmods.com/",
-      "name": "JoelDroid Mods YT",
-      "description": "Los Mejores MOD APK para Android",
-      "publisher": {
-        "@id": "https://joeldroidmods.com/#organization"
-      },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://joeldroidmods.com/?s={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    }
-  ]
-}
-</script>
+<!-- ══ FAVICON FALLBACK EMBEBIDO removido ═══════════════════════════
+     Se eliminan data-URIs pesados del head para reducir parseo inicial
+     y dejar más margen a la carga prioritaria de Monetag.
+     Se mantienen los favicons reales por ruta (/favicon.ico, /logo.png, /apple-touch-icon.png). -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 // Favicon embebido en base64 — no necesita cache-busting ni archivos externos
@@ -210,35 +112,17 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
   } catch(e) {}
 })();
 </script>
-<!-- ══ FIX FOUC: ocultar body hasta que Tailwind aplique estilos.
-     Monetag NO se ve afectado: su script ya cargó arriba con prioridad alta
-     y sigue ejecutándose en paralelo. -->
+<!-- ══ FIX FOUC SUAVE: no se oculta toda la página al arrancar ══
+     Así el primer render y los scripts publicitarios no esperan a Tailwind. -->
 <style id="jd-fouc-guard">
-  html.jd-booting body{visibility:hidden!important}
-  html.jd-booting{background:#020408}
+  html{background:#020408}
+  body{opacity:1}
 </style>
 <script>
-  (function(){
-    try{
-      document.documentElement.classList.add('jd-booting');
-      var revealed=false;
-      function reveal(){
-        if(revealed)return; revealed=true;
-        document.documentElement.classList.remove('jd-booting');
-      }
-      setTimeout(reveal,250); // failsafe ultra-rápido: prioridad de carga UI
-      document.addEventListener('DOMContentLoaded',function(){ reveal(); });
-      window.addEventListener('load',reveal);
-      window.__jdReveal=reveal;
-    }catch(e){
-      try{document.documentElement.classList.remove('jd-booting');}catch(_){}
-    }
-  })();
+  window.__jdReveal = function(){};
 </script>
-<!-- Tailwind/Lucide/EmailJS: prioridad normal para evitar pantalla "fea"
-     antes de aplicar estilos. Monetag conserva prioridad alta porque
-     se carga ANTES (línea 10) en paralelo (async). -->
-<script src="https://cdn.tailwindcss.com" onload="window.__jdReveal&&window.__jdReveal()"></script>
+<!-- Tailwind/Lucide/EmailJS: prioridad normal; Monetag queda arriba con prioridad alta. -->
+<script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -310,35 +194,36 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 @keyframes downloadBounce{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
 
 /* ═══ BOTÓN DESCARGA — Card compacto · Opción + nombre juego ═══ */
-.btn-dl-card{position:relative;width:100%;max-width:340px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#22d3ee 100%);box-shadow:0 8px 20px -10px rgba(37,99,235,.7),0 0 0 1px rgba(34,211,238,.18) inset;color:#fff;cursor:pointer;text-align:left;overflow:hidden;transition:transform .18s ease,filter .25s ease,box-shadow .25s ease;contain:layout paint}
-.btn-dl-card:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 12px 26px -8px rgba(37,99,235,.8),0 0 18px rgba(34,211,238,.3)}
+.btn-dl-card{position:relative;width:100%;max-width:86%;margin:0 auto;display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#22d3ee 100%);box-shadow:0 10px 22px -10px rgba(37,99,235,.78),0 0 0 1px rgba(34,211,238,.18) inset;color:#fff;cursor:pointer;text-align:left;overflow:hidden;transition:transform .18s ease,filter .25s ease,box-shadow .25s ease;contain:layout paint}
+.btn-dl-card:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 14px 28px -10px rgba(37,99,235,.85),0 0 18px rgba(34,211,238,.28)}
 .btn-dl-card:active{transform:scale(.97)}
-.btn-dl-card::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-100%);animation:btnDlShine 4s ease-in-out infinite;pointer-events:none;will-change:transform}
+.btn-dl-card::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 34%,rgba(255,255,255,.16) 50%,transparent 66%);transform:translateX(-100%);animation:btnDlShine 4.6s ease-in-out infinite;pointer-events:none;will-change:transform}
 @keyframes btnDlShine{0%{transform:translateX(-100%)}55%,100%{transform:translateX(100%)}}
-.btn-dl-icon{flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 0 10px rgba(255,255,255,.10);position:relative;z-index:1}
-.btn-dl-icon svg{width:18px;height:18px;color:#fff;animation:dlArrow 1.4s ease-in-out infinite;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
-@keyframes dlArrow{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
-.btn-dl-body{flex:1;min-width:0;position:relative;z-index:1;display:flex;flex-direction:column;gap:1px}
-.btn-dl-eyebrow{font-size:8px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:rgba(224,242,254,.95);line-height:1}
-.btn-dl-option{font-size:9px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#fde68a;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.4);margin-bottom:1px}
-.btn-dl-title{font-size:11.5px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:.01em;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-break:break-word;text-shadow:0 1px 3px rgba(0,0,0,.3)}
-.btn-dl-size{flex-shrink:0;position:relative;z-index:1;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.2);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.04em;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
-/* DESCARGA SEGURA pill — visible y bonita */
-.dl-safe-pill{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:0;background:none;color:#22c55e;font-size:8.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-family:'Inter','Segoe UI',system-ui,sans-serif;text-shadow:0 0 6px rgba(34,197,94,.35)}
-.dl-safe-pill svg{width:9px;height:9px;color:#22c55e}
-/* Heading nombre juego */
-.dl-game-heading{font-size:18px;font-weight:900;letter-spacing:.06em;line-height:1.2;background:linear-gradient(90deg,#22d3ee,#3b82f6,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;text-shadow:0 0 18px rgba(59,130,246,.25);font-family:'Inter','Segoe UI',system-ui,sans-serif}
-@media (max-width:360px){
-  .btn-dl-card{padding:8px 10px;gap:9px;border-radius:14px}
-  .btn-dl-icon{width:34px;height:34px;border-radius:10px}
-  .btn-dl-title{font-size:10.5px}
-  .btn-dl-size{font-size:9px;padding:4px 8px}
-  .dl-game-heading{font-size:15px}
+.btn-dl-icon{flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.20),0 0 14px rgba(255,255,255,.14);position:relative;z-index:1;animation:dlIconPulse 2s ease-in-out infinite}
+.btn-dl-icon svg{width:20px;height:20px;color:#fff;animation:dlArrow 1.1s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(255,255,255,.55))}
+@keyframes dlArrow{0%,100%{transform:translateY(-3px)}50%{transform:translateY(4px)}}
+@keyframes dlIconPulse{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.20),0 0 10px rgba(255,255,255,.14)}50%{box-shadow:inset 0 0 0 1px rgba(255,255,255,.30),0 0 22px rgba(255,255,255,.30)}}
+.btn-dl-body{flex:1;min-width:0;position:relative;z-index:1;display:flex;flex-direction:column;gap:3px}
+.btn-dl-eyebrow{font-size:8px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:rgba(224,242,254,.95);line-height:1}
+.btn-dl-option{font-size:9.5px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;background:linear-gradient(90deg,#a7f3d0,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;text-shadow:none;margin-bottom:2px;filter:drop-shadow(0 0 6px rgba(34,211,238,.45))}
+.btn-dl-title{font-size:12px;font-weight:900;color:#fff;line-height:1.18;letter-spacing:.01em;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-break:break-word;text-shadow:0 1px 3px rgba(0,0,0,.32)}
+.btn-dl-size{flex-shrink:0;position:relative;z-index:1;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.20);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.03em;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.dl-safe-pill{display:inline-flex;align-items:center;justify-content:center;gap:0;margin-top:8px;padding:0;background:none;color:#22c55e;font-size:8.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-family:'Inter','Segoe UI',system-ui,sans-serif;text-shadow:0 0 6px rgba(34,197,94,.32)}
+.dl-safe-pill svg{display:none}
+/* Espacio entre los dos botones de descarga */
+#btn-descarga-1,#btn-descarga-2{margin-bottom:2px}
+#btn-descarga-2{margin-top:14px}
+@media(max-width:380px){
+  .btn-dl-card{max-width:88%;padding:12px 12px;gap:10px;border-radius:16px}
+  .btn-dl-icon{width:38px;height:38px;border-radius:11px}
+  .btn-dl-icon svg{width:18px;height:18px}
+  .btn-dl-title{font-size:11px}
+  .btn-dl-size{font-size:9px;padding:4px 9px}
 }
-@media (prefers-reduced-motion:reduce){
-  .download-anim,.btn-dl-icon svg,.btn-dl-card::before{animation:none!important}
+@media(prefers-reduced-motion:reduce){
+  .download-anim,.btn-dl-icon svg,.btn-dl-card::before,.btn-dl-icon{animation:none!important}
 }
-.alert-pulse{/* pulse removed: causaba parpadeo de iconos en menú */}
+
 @keyframes pulse-red{0%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}100%{transform:scale(1);opacity:1}}
 .icon-container{width:72px;height:72px;flex-shrink:0;position:relative}
 .icon-img{width:100%;height:100%;object-fit:cover;border-radius:20px;border:1px solid rgba(255,255,255,.05);aspect-ratio:1/1}
@@ -1114,7 +999,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   opacity: .85;
 }
 /* ── STARS: always 5, gold when rated, dim when not ─────────────*/
-.jd-stars { display:flex; gap:1px; align-items:center; }
+.jd-stars { display:none !important; }
 .jd-star  { font-size:8px; line-height:1; }
 .jd-star.on  { color:#f59e0b; }
 .jd-star.off { color:rgba(255,255,255,.18); }
@@ -1467,7 +1352,6 @@ window.__JD_STATIC_GAMES = (function(){
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+g.name+'</p>'+
           '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-          '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
           '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
             '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
@@ -1579,7 +1463,6 @@ window.__JD_REST_DONE = false;
         '</div><div class="jd-info">'+
         '<p class="jd-name notranslate">'+g.name+'</p>'+
         '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-        '<div class="jd-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
         '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
         '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
         '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
@@ -1731,7 +1614,11 @@ window.__JD_REST_DONE = false;
         <span class="jd-cr-divider"></span>
         Sitio operado de forma independiente
         <span class="jd-cr-divider"></span>
-        <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies()">Privacidad &amp; Cookies</a>
+        <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('privacy')">Privacidad</a>
+        <span class="jd-cr-divider"></span>
+        <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Cookies</a>
+        <span class="jd-cr-divider"></span>
+        <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('terms')">Términos</a>
         <span class="jd-cr-divider"></span>
         Publicidad servida por <strong>Monetag</strong>
       </div>
@@ -1748,8 +1635,8 @@ window.__JD_REST_DONE = false;
         Atrás
       </button>
       <div class="jd-policy-title">
-        <h1 id="jd-policy-main-title">Políticas y Condiciones</h1>
-        <p>Privacidad, cookies, publicidad y uso responsable del sitio</p>
+        <h1 id="jd-policy-main-title">Privacidad, Cookies y Términos</h1>
+        <p>Todo el apartado legal dentro del mismo sitio, sin datos de contacto inventados</p>
       </div>
     </header>
 
@@ -1759,35 +1646,36 @@ window.__JD_REST_DONE = false;
       <p>Estos datos se usan para funcionamiento, seguridad, medición básica y prevención de abuso, cumpliendo RGPD/GDPR, ePrivacy, CCPA y LGPD cuando resulten aplicables.</p>
     </article>
 
-    <article class="jd-policy-card">
+    <article class="jd-policy-card" data-policy-section="privacy">
+      <h2>Privacidad y datos técnicos</h2>
+      <p>JoelDroid Mods YT no solicita registro obligatorio para navegar. El sitio puede procesar datos técnicos habituales como idioma, tipo de navegador, sistema operativo, páginas visitadas, tiempo de permanencia y eventos de interacción necesarios para funcionamiento, seguridad y medición básica.</p>
+      <p>No se publica ningún correo de contacto dentro de este apartado hasta que exista un canal oficial definido por el propietario del sitio.</p>
+    </article>
+
+    <article class="jd-policy-card" data-policy-section="ads">
       <h2>Publicidad de terceros — Monetag</h2>
-      <p>Este sitio utiliza Monetag como red publicitaria. Monetag y sus anunciantes asociados pueden usar cookies, identificadores, almacenamiento local y tecnologías similares para servir anuncios, medir rendimiento, limitar frecuencia, detectar fraude y mantener la seguridad del ecosistema publicitario.</p>
+      <p>Este sitio utiliza Monetag como red publicitaria. Monetag y sus socios pueden usar cookies, identificadores, almacenamiento local y tecnologías similares para servir anuncios, medir rendimiento, limitar frecuencia, detectar fraude y proteger la calidad del tráfico.</p>
       <ul>
-        <li>Política de privacidad de Monetag: https://monetag.com/privacy-policy/</li>
+        <li>Privacidad de Monetag: https://monetag.com/privacy-policy/</li>
         <li>Términos de Monetag: https://monetag.com/terms/</li>
       </ul>
-      <p>JoelDroid no modifica el script de Monetag, no bloquea sus recursos y no interfiere con sus verificaciones o bots.</p>
+      <p>El sitio mantiene intacto el script original de Monetag, prioriza su carga en el head y evita interferir con sus verificaciones automáticas.</p>
     </article>
 
-    <article class="jd-policy-card">
+    <article class="jd-policy-card" data-policy-section="cookies">
       <h2>Cookies y consentimiento</h2>
-      <p>Usamos cookies técnicas necesarias para idioma, tema y preferencias del sitio. También pueden existir cookies publicitarias de Monetag para mostrar anuncios y medir conversiones.</p>
-      <p>Puedes aceptar todas las cookies o usar solo las necesarias desde el aviso de cookies. También puedes revocar tu elección borrando el consentimiento guardado en este navegador y recargando el sitio.</p>
-    </article>
-
-    <article class="jd-policy-card">
-      <h2>Condiciones de uso</h2>
-      <p>El contenido se publica con fines informativos, educativos y de prueba. Cada usuario es responsable de cumplir las leyes de su país y respetar a los desarrolladores originales.</p>
-      <p>Los enlaces externos, archivos o servicios de terceros pueden tener sus propias condiciones y políticas. JoelDroid no controla ni garantiza servicios externos ajenos al sitio.</p>
-    </article>
-
-    <article class="jd-policy-card">
-      <h2>Seguridad, menores y contacto</h2>
-      <p>El sitio no está dirigido a menores de 18 años. No recopilamos conscientemente datos de menores. Para consultas de privacidad, retirada de consentimiento o derechos de acceso, rectificación, supresión, limitación, portabilidad u oposición, usa el canal oficial de Telegram de JoelDroid Mods YT.</p>
+      <p>Se usan cookies técnicas necesarias para idioma, tema y preferencias del sitio. También pueden existir cookies publicitarias de Monetag para mostrar anuncios, limitar frecuencia y medir conversiones.</p>
+      <p>El aviso de cookies permite aceptar todas o mantener solo las necesarias. La elección queda guardada localmente en este navegador.</p>
       <div class="jd-policy-actions">
         <button type="button" class="jd-policy-action" onclick="jdCookieConsent('accept',true)">✓ Aceptar cookies</button>
         <button type="button" class="jd-policy-action secondary" onclick="jdCookieConsent('reject',true)">Solo necesarias</button>
       </div>
+    </article>
+
+    <article class="jd-policy-card" data-policy-section="terms">
+      <h2>Términos de uso</h2>
+      <p>El contenido del sitio se muestra con fines informativos y de referencia. Cada usuario es responsable de revisar la legalidad del uso de software, archivos o enlaces externos según su país y respetar a los desarrolladores originales.</p>
+      <p>No se publica ads.txt dentro del sitio hasta contar con la información oficial entregada por la red publicitaria correspondiente.</p>
     </article>
   </div>
 </section>
@@ -1899,10 +1787,7 @@ window.__JD_REST_DONE = false;
             </span>
             <span class="btn-dl-size" id="btn-descarga-1-size">—</span>
           </button>
-          <span class="dl-safe-pill">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V5l9-4z"/></svg>
-            Descarga Segura
-          </span>
+          <span class="dl-safe-pill">Descarga Segura</span>
         </div>
 
         <!-- ── BOTÓN 2: DESCARGAR MOD 2 ── (HTML estático — editar link aquí) -->
@@ -1918,10 +1803,7 @@ window.__JD_REST_DONE = false;
             </span>
             <span class="btn-dl-size" id="btn-descarga-2-size">—</span>
           </button>
-          <span class="dl-safe-pill">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V5l9-4z"/></svg>
-            Descarga Segura
-          </span>
+          <span class="dl-safe-pill">Descarga Segura</span>
         </div>
 
         <!-- ════════════════════════════════════════════════════════════
@@ -2464,6 +2346,38 @@ function _refreshBgThemeUI(){
   });
   var noneBtn=document.getElementById('bgt-btn-none');
   if(noneBtn)noneBtn.classList.toggle('bgt-active',_bgActive==='none'||!_bgActive);
+}
+
+function jdOpenPolicies(section){
+  var view = document.getElementById('policies-view');
+  var main = document.getElementById('home-view');
+  var detail = document.getElementById('detail-view');
+  if(main) main.classList.add('hidden');
+  if(detail) detail.classList.add('hidden');
+  if(view) view.classList.remove('hidden');
+  var blocks = document.querySelectorAll('#policies-view [data-policy-section]');
+  blocks.forEach(function(block){
+    block.style.display = '';
+  });
+  if(section){
+    blocks.forEach(function(block){
+      if(block.getAttribute('data-policy-section') !== section && section !== 'all'){
+        block.style.display = 'none';
+      }
+    });
+    var target = document.querySelector('#policies-view [data-policy-section="'+section+'"]');
+    if(target && typeof target.scrollIntoView === 'function'){
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+}
+
+function jdClosePolicies(){
+  var view = document.getElementById('policies-view');
+  var main = document.getElementById('home-view');
+  if(view) view.classList.add('hidden');
+  if(main) main.classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 // applyBgTheme se llama desde DOMContentLoaded después de loadSettings()
@@ -3644,8 +3558,6 @@ function _renderGamesBatch(list, start, count, replace){
         '<p class="jd-name notranslate">'+g.name+'</p>'+
         /* Mod label: translatable */
         '<p class="jd-mod-label" data-jd-tr="mod">'+modSuffix+'</p>'+
-        /* Stars */
-        '<div class="jd-stars">'+starsHtml+'</div>'+
         /* Button */
         '<button class="jd-btn"'+
                 ' style="'+(g.homeButtonVisible!==false?'':'display:none;')+
