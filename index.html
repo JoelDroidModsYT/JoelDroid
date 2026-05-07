@@ -15,9 +15,11 @@
      pero NUNCA se toca nada de Monetag (cookies/storage de ads quedan intactos).
 ══════════════════════════════════════════════════════════════════ -->
 <script>
+/* Purge de versión diferido a idle: NO bloquea la carga del script de Monetag */
 (function(){
-  var APP_VERSION = '1.0.4'; // ← INCREMENTAR EN CADA PARCHE (ej: 1.0.1, 1.0.2…)
+  var APP_VERSION = '1.0.6'; // ← INCREMENTAR EN CADA PARCHE (ej: 1.0.1, 1.0.2…)
   window.__JD_APP_VERSION = APP_VERSION;
+  var __run=function(){
   try{
     var KEY = '__jd_app_version';
     var prev = localStorage.getItem(KEY);
@@ -46,6 +48,8 @@
       console.log('[JD] Cache purgado. Nueva versión:', APP_VERSION);
     }
   }catch(e){}
+  };
+  if('requestIdleCallback' in window){requestIdleCallback(__run,{timeout:2500});}else{setTimeout(__run,1500);}
 })();
 </script>
 
@@ -302,8 +306,38 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .update-badge{background:var(--update-badge-bg);color:var(--update-badge-text-color);box-shadow:0 0 5px var(--update-badge-bg);font-size:7px;font-weight:800;padding:1px 4px;border-radius:2px;position:absolute;top:-3px;right:-3px;z-index:10;border:none;line-height:1.2;height:auto;}
 .popular-top-badge{background:var(--popular-top-badge-bg);color:var(--popular-top-badge-text-color);box-shadow:0 0 5px var(--popular-top-badge-bg);font-size:7px;font-weight:800;padding:1px 4px;border-radius:2px;position:absolute;top:-3px;right:-3px;z-index:10;border:none;line-height:1.2;height:auto;}
 .btn-download-main{background:var(--btn-gradient);box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:8px}
-.download-anim{/* bounce infinito quitado */}
-@keyframes downloadBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.download-anim{animation:downloadBounce 1.4s ease-in-out infinite;will-change:transform}
+@keyframes downloadBounce{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+
+/* ═══ BOTÓN DESCARGA — Card compacto · Opción + nombre juego ═══ */
+.btn-dl-card{position:relative;width:100%;max-width:340px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#22d3ee 100%);box-shadow:0 8px 20px -10px rgba(37,99,235,.7),0 0 0 1px rgba(34,211,238,.18) inset;color:#fff;cursor:pointer;text-align:left;overflow:hidden;transition:transform .18s ease,filter .25s ease,box-shadow .25s ease;contain:layout paint}
+.btn-dl-card:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 12px 26px -8px rgba(37,99,235,.8),0 0 18px rgba(34,211,238,.3)}
+.btn-dl-card:active{transform:scale(.97)}
+.btn-dl-card::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-100%);animation:btnDlShine 4s ease-in-out infinite;pointer-events:none;will-change:transform}
+@keyframes btnDlShine{0%{transform:translateX(-100%)}55%,100%{transform:translateX(100%)}}
+.btn-dl-icon{flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 0 10px rgba(255,255,255,.10);position:relative;z-index:1}
+.btn-dl-icon svg{width:18px;height:18px;color:#fff;animation:dlArrow 1.4s ease-in-out infinite;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+@keyframes dlArrow{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+.btn-dl-body{flex:1;min-width:0;position:relative;z-index:1;display:flex;flex-direction:column;gap:1px}
+.btn-dl-eyebrow{font-size:8px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:rgba(224,242,254,.95);line-height:1}
+.btn-dl-option{font-size:9px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#fde68a;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.4);margin-bottom:1px}
+.btn-dl-title{font-size:11.5px;font-weight:900;color:#fff;line-height:1.15;letter-spacing:.01em;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-break:break-word;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.btn-dl-size{flex-shrink:0;position:relative;z-index:1;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.2);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.04em;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+/* DESCARGA SEGURA pill — visible y bonita */
+.dl-safe-pill{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:0;background:none;color:#22c55e;font-size:8.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-family:'Inter','Segoe UI',system-ui,sans-serif;text-shadow:0 0 6px rgba(34,197,94,.35)}
+.dl-safe-pill svg{width:9px;height:9px;color:#22c55e}
+/* Heading nombre juego */
+.dl-game-heading{font-size:18px;font-weight:900;letter-spacing:.06em;line-height:1.2;background:linear-gradient(90deg,#22d3ee,#3b82f6,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;text-shadow:0 0 18px rgba(59,130,246,.25);font-family:'Inter','Segoe UI',system-ui,sans-serif}
+@media (max-width:360px){
+  .btn-dl-card{padding:8px 10px;gap:9px;border-radius:14px}
+  .btn-dl-icon{width:34px;height:34px;border-radius:10px}
+  .btn-dl-title{font-size:10.5px}
+  .btn-dl-size{font-size:9px;padding:4px 8px}
+  .dl-game-heading{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  .download-anim,.btn-dl-icon svg,.btn-dl-card::before{animation:none!important}
+}
 .alert-pulse{/* pulse removed: causaba parpadeo de iconos en menú */}
 @keyframes pulse-red{0%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}100%{transform:scale(1);opacity:1}}
 .icon-container{width:72px;height:72px;flex-shrink:0;position:relative}
@@ -1845,29 +1879,49 @@ window.__JD_REST_DONE = false;
         <p class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1" data-i18n="official_links">
           Enlaces Oficiales
         </p>
-        <h3 id="det-name-dl-secondary" class="text-xs font-black uppercase notranslate mb-4">
-          JUEGO MOD APP
+        <h3 id="det-name-dl-secondary" class="dl-game-heading notranslate mb-4">
+          TRUCK SIMULATOR BIG RIGS MOD
         </h3>
         
         <div id="det-download-buttons" class="space-y-1.5" style="display: flex; flex-direction: column; align-items: center;">
           </div>
       </div>
         <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── (HTML estático — editar link aquí) -->
-        <div class="space-y-1.5 text-center" id="btn-descarga-1-wrapper">
-          <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
-            <span id="btn-descarga-1-texto">Descargar Mod 1</span>
+        <div class="space-y-1 text-center" id="btn-descarga-1-wrapper">
+          <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="btn-dl-card" style="background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#22d3ee 100%)">
+            <span class="btn-dl-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+            </span>
+            <span class="btn-dl-body">
+              <span class="btn-dl-option">Opción 1</span>
+              <span class="btn-dl-eyebrow" id="btn-descarga-1-eyebrow">Listo · Click para descargar</span>
+              <span class="btn-dl-title" id="btn-descarga-1-texto">Descargar Mod 1</span>
+            </span>
+            <span class="btn-dl-size" id="btn-descarga-1-size">—</span>
           </button>
-          <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+          <span class="dl-safe-pill">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V5l9-4z"/></svg>
+            Descarga Segura
+          </span>
         </div>
 
-        <!-- ── BOTÓN 2: DESCARGAR MOD 2 (Mediafire-Seguro) ── (HTML estático — editar link aquí) -->
-        <div class="space-y-1.5 text-center" id="btn-descarga-2-wrapper">
-          <button id="btn-descarga-2" onclick="irADescarga(currentDetailId,2)" data-link="#" class="btn-download-main w-full py-5 rounded-[22px] text-white font-black uppercase text-xs tracking-widest active:scale-95 transition-all" style="background-color:#3b82f6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="download-anim"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span id="btn-descarga-2-texto">Descargar Mod 2</span>
+        <!-- ── BOTÓN 2: DESCARGAR MOD 2 ── (HTML estático — editar link aquí) -->
+        <div class="space-y-1 text-center" id="btn-descarga-2-wrapper">
+          <button id="btn-descarga-2" onclick="irADescarga(currentDetailId,2)" data-link="#" class="btn-dl-card" style="background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 45%,#22d3ee 100%)">
+            <span class="btn-dl-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </span>
+            <span class="btn-dl-body">
+              <span class="btn-dl-option">Opción 2</span>
+              <span class="btn-dl-eyebrow" id="btn-descarga-2-eyebrow">Listo · Click para descargar</span>
+              <span class="btn-dl-title" id="btn-descarga-2-texto">Descargar Mod 2</span>
+            </span>
+            <span class="btn-dl-size" id="btn-descarga-2-size">—</span>
           </button>
-          <p class="text-[9px] font-bold text-blue-500/60 uppercase tracking-tighter">Mediafire-Seguro</p>
+          <span class="dl-safe-pill">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5.55-3.84 10.74-9 12-5.16-1.26-9-6.45-9-12V5l9-4z"/></svg>
+            Descarga Segura
+          </span>
         </div>
 
         <!-- ════════════════════════════════════════════════════════════
@@ -3799,7 +3853,7 @@ function showDetail(id){
     downloadButtonVisible2: game.downloadButtonVisible2!==false,
     downloadButtonColor1: _f(game.downloadButtonColor1, game.color1, '#3b82f6'),
     downloadButtonColor2: _f(game.downloadButtonColor2, game.color2, '#3b82f6'),
-    downloadNameSecondary:_f(game.downloadNameSecondary, game.subtitulo, 'JUEGO MOD APP'),
+    downloadNameSecondary:_f(game.downloadNameSecondary, game.subtitulo, ((game.name||game.nombre||'')+' MOD').toUpperCase().trim() || 'JUEGO MOD APP'),
     features:             game.features||game.caracteristicas||[],
     warningVisible:       game.warningVisible||game.advertencia_visible||false,
     warningText:          _f(game.warningText, game.advertencia, ''),
@@ -3818,7 +3872,7 @@ function showDetail(id){
   var _setH=function(elId,val){var e=document.getElementById(elId);if(e)e.innerHTML=val;};
 
   _set('det-name', game.name);
-  _set('det-name-dl-secondary', game.downloadNameSecondary||'JUEGO MOD APP');
+  _set('det-name-dl-secondary', game.downloadNameSecondary || (((game.name||'')+' MOD').toUpperCase().trim()) || 'JUEGO MOD APP');
   _set('det-desc', game.description);
   // Guardar original en español para re-traducción al cambiar idioma
   var _descEl=document.getElementById('det-desc');
@@ -3859,12 +3913,39 @@ function showDetail(id){
   var dlBtn2txt=document.getElementById('btn-descarga-2-texto');
   var btn1Text=game.downloadButtonText1||'Descargar Mod 1';
   var btn2Text=game.downloadButtonText2||'Descargar Mod 2';
-  if(dlBtn1){dlBtn1.dataset.link=game.downloadButtonLink1||'#';dlBtn1.style.backgroundColor=game.downloadButtonColor1||'#3b82f6';}
-  if(dlBtn1txt){dlBtn1txt.textContent=btn1Text; dlBtn1txt.dataset.orig=btn1Text;}
+
+  // Texto enriquecido dentro del botón: NOMBRE + vX.Y.Z (FEATURES).APK
+  // Se construye automáticamente desde Firebase/panel; sin retraso (se ejecuta antes de mostrar la vista).
+  function _buildDlTitle(g){
+    var name = (g && g.name) ? String(g.name) : '';
+    var ver  = (g && g.ver) ? String(g.ver) : '';
+    // Resaltar la primera feature como descriptor de mod (ej. "Dinero Infinito")
+    var featLabel = '';
+    if(g && Array.isArray(g.features) && g.features.length){
+      featLabel = String(g.features[0]||'').replace(/^Mod\s+/i,'');
+    }
+    var parts = [];
+    if(name) parts.push(name);
+    if(ver)  parts.push(ver);
+    var base = parts.join(' ');
+    if(featLabel) base += ' (' + featLabel + ')';
+    if(base) base += '.APK';
+    return base || 'Descargar Mod';
+  }
+  var dlTitle = _buildDlTitle(game);
+
+  if(dlBtn1){dlBtn1.dataset.link=game.downloadButtonLink1||'#'; if(game.downloadButtonColor1) dlBtn1.style.background='linear-gradient(135deg,'+game.downloadButtonColor1+' 0%, '+game.downloadButtonColor1+' 45%, #22d3ee 100%)';}
+  if(dlBtn1txt){dlBtn1txt.textContent=dlTitle; dlBtn1txt.dataset.orig=btn1Text;}
   if(dlBtn1wrap){dlBtn1wrap.style.display=game.downloadButtonVisible1?'':'none';}
-  if(dlBtn2){dlBtn2.dataset.link=game.downloadButtonLink2||'#';dlBtn2.style.backgroundColor=game.downloadButtonColor2||'#3b82f6';}
-  if(dlBtn2txt){dlBtn2txt.textContent=btn2Text; dlBtn2txt.dataset.orig=btn2Text;}
+  if(dlBtn2){dlBtn2.dataset.link=game.downloadButtonLink2||'#'; if(game.downloadButtonColor2) dlBtn2.style.background='linear-gradient(135deg,'+game.downloadButtonColor2+' 0%, '+game.downloadButtonColor2+' 45%, #22d3ee 100%)';}
+  if(dlBtn2txt){dlBtn2txt.textContent=dlTitle; dlBtn2txt.dataset.orig=btn2Text;}
   if(dlBtn2wrap){dlBtn2wrap.style.display=game.downloadButtonVisible2?'':'none';}
+
+  // Chip de peso (auto desde Firebase)
+  var _sz1=document.getElementById('btn-descarga-1-size');
+  if(_sz1) _sz1.textContent = game.size || '—';
+  var _sz2=document.getElementById('btn-descarga-2-size');
+  if(_sz2) _sz2.textContent = game.size || '—';
 
   var dtTitle=document.getElementById('detail-site-title-ui');
   if(dtTitle)dtTitle.innerText=siteState.ui.title;
