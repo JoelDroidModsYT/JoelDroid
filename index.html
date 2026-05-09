@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ MONETAG — MÁXIMA PRIORIDAD: preconnect + preload + script async ══
-     No se modifica el código original de Monetag (cumple sus términos).
-     Solo se le da prioridad de red para que cargue antes que Tailwind/Lucide/EmailJS. -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high" crossorigin>
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<!-- ══ MONETAG — MÁXIMA PRIORIDAD REAL DESDE LA LÍNEA 4 ══
+     El bloque de red de Monetag queda como primer contenido del <head>.
+     No se fuerza ni se modifica la lógica del script original de Monetag. -->
 <!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
      Se conserva una marca de versión propia del sitio,
      sin limpiar storage ni ejecutar tareas pesadas al arranque.
@@ -229,6 +229,20 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .icon-img{width:100%;height:100%;object-fit:cover;border-radius:20px;border:1px solid rgba(255,255,255,.05);aspect-ratio:1/1}
 .ios-icon-large{width:90px;height:90px;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,.4);object-fit:cover;aspect-ratio:1/1}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
+
+/* ══ GALERÍA DE CAPTURAS ESTILO PLAY STORE ══ */
+.jd-screens-wrap{margin-top:8px;padding:0 0 0 24px}
+.jd-screens-scroller{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:4px 24px 14px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.jd-screens-scroller::-webkit-scrollbar{display:none}
+.jd-screen-card{flex:0 0 auto;width:148px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#0b1220;border:1px solid rgba(37,99,235,.25);box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.04);scroll-snap-align:start;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;position:relative}
+.jd-screen-card:active{transform:scale(.97)}
+.jd-screen-card img{width:100%;height:100%;object-fit:cover;display:block;background:#0b1220}
+.jd-screen-card.landscape{width:240px;aspect-ratio:16/9}
+/* Lightbox */
+.jd-screen-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.jd-screen-lb.show{display:flex}
+.jd-screen-lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.jd-screen-lb .jd-screen-lb-close{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .desc-premium-box{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(6,182,212,.03));border-left:3px solid var(--brand-color);padding:16px;border-radius:0 16px 16px 0;position:relative;box-shadow:inset 0 0 12px rgba(37,99,235,.06)}
 .lang-container{position:relative;display:flex;align-items:center}
 .flag-icon{width:18px;height:14px;border-radius:2px;object-fit:cover}
@@ -1746,6 +1760,19 @@ window.__JD_REST_DONE = false;
         <span data-i18n="mod_features_title">Características del Mod</span>
       </h4>
       <div id="det-mod-features" class="flex flex-wrap gap-2"></div>
+    </div>
+
+    <!-- ══ CAPTURAS DE PANTALLA — estilo Play Store con scroll horizontal ══ -->
+    <div id="det-screens-section" class="mt-8" style="display:none">
+      <div class="px-6 mb-3">
+        <h4 class="text-[13px] font-black uppercase flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4 text-blue-500"></i>
+          <span data-i18n="screenshots_title">Capturas de pantalla</span>
+        </h4>
+      </div>
+      <div class="jd-screens-wrap">
+        <div id="det-screens-scroller" class="jd-screens-scroller"></div>
+      </div>
     </div>
 
     <div id="download-section" class="px-6 mt-10 space-y-4">
@@ -3539,6 +3566,23 @@ function _renderGamesBatch(list, start, count, replace){
     var card = document.createElement('div');
     card.className = 'jd-card';
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
+
+    /* ── Badges exclusivos del filtro POPULAR (PREMIUM + TOP) ── */
+    var _popularBadgesHtml = '';
+    if(currentFilter === 'popular' && siteState.popularBanner && siteState.popularBanner.visible !== false){
+      var _pb = siteState.popularBanner;
+      var _pbTopTxt = (_pb.popularTopBadgeText || '').toString().trim();
+      var _pbTagTxt = (_pb.popularBadgeText || '').toString().trim();
+      var _pbTopColor = (colorPalette && colorPalette[_pb.popularTopBadgeColor] && colorPalette[_pb.popularTopBadgeColor].hex) || '#3b82f6';
+      var _pbTagColor = (colorPalette && colorPalette[_pb.popularBadgeColor] && colorPalette[_pb.popularBadgeColor].hex) || '#ef4444';
+      if(_pbTopTxt){
+        _popularBadgesHtml += '<span class="popular-top-badge" style="background:'+_pbTopColor+';color:#fff;box-shadow:0 0 5px '+_pbTopColor+';position:absolute;top:-3px;right:-3px;font-size:7px;font-weight:800;padding:1px 4px;border-radius:2px;z-index:11;line-height:1.2">'+_pbTopTxt+'</span>';
+      }
+      if(_pbTagTxt){
+        _popularBadgesHtml += '<span class="popular-side-badge" style="background:'+_pbTagColor+';color:#fff;box-shadow:0 0 6px '+_pbTagColor+'aa;position:absolute;bottom:6px;left:6px;font-size:7px;font-weight:900;padding:2px 6px;border-radius:4px;z-index:11;letter-spacing:.06em;text-transform:uppercase">'+_pbTagTxt+'</span>';
+      }
+    }
+
     /* Primeras 4 filas cargan directo en Android: evita parpadeo negro/blanco en la 3ra fila */
     var _isAboveFold = true; // todas eager: thumbs ligeros, evita parpadeo desde fila 5
     var _imgHtml = _isAboveFold
@@ -3552,6 +3596,7 @@ function _renderGamesBatch(list, start, count, replace){
         _imgHtml+
         '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>'+
         updateTag+
+        _popularBadgesHtml+
       '</div>'+
       '<div class="jd-info">'+
         /* Name: notranslate — stays in original language always */
@@ -3813,6 +3858,34 @@ function showDetail(id){
 
   var featCont=document.getElementById('det-mod-features');
   if(featCont)featCont.innerHTML=(game.features||[]).map(function(f){return'<span class="mod-tag">'+f+'</span>';}).join('');
+
+  // ── Capturas de pantalla (estilo Play Store) ──────────────────
+  var _scrSec=document.getElementById('det-screens-section');
+  var _scrCont=document.getElementById('det-screens-scroller');
+  var _scrList=Array.isArray(game.screenshots)?game.screenshots:(Array.isArray(game.capturas)?game.capturas:[]);
+  _scrList=(_scrList||[]).filter(function(u){return u && String(u).trim();}).slice(0,4);
+  if(_scrCont && _scrSec){
+    if(_scrList.length){
+      _scrCont.innerHTML=_scrList.map(function(u,i){
+        var safe=String(u).replace(/"/g,'&quot;');
+        return '<div class="jd-screen-card" onclick="jdScreenOpen(\''+safe.replace(/\'/g,"\\'")+'\')">'+
+          '<img src="'+safe+'" alt="captura '+(i+1)+'" loading="lazy" onerror="this.parentNode.style.display=\'none\'">'+
+        '</div>';
+      }).join('');
+      // Detectar landscape al cargar la primera
+      var _firstImg=_scrCont.querySelector('img');
+      if(_firstImg){
+        _firstImg.addEventListener('load',function(){
+          if(this.naturalWidth>this.naturalHeight*1.2){
+            _scrCont.querySelectorAll('.jd-screen-card').forEach(function(c){c.classList.add('landscape');});
+          }
+        });
+      }
+      _scrSec.style.display='';
+    }else{
+      _scrSec.style.display='none';
+    }
+  }
 
   // Botones de descarga — MIGRADO A HTML ESTÁTICO (ver div#det-download-buttons en el HTML)
   // Los botones #btn-descarga-1 y #btn-descarga-2 son ahora elementos estáticos.
@@ -6732,6 +6805,16 @@ window.onload=function(){
     });
   }catch(e){}
 })();
+</script>
+
+
+<div id="jd-screen-lightbox" class="jd-screen-lb" onclick="if(event.target===this)jdScreenClose()">
+  <button class="jd-screen-lb-close" onclick="jdScreenClose()" aria-label="Cerrar">✕</button>
+  <img id="jd-screen-lightbox-img" src="" alt="">
+</div>
+<script>
+function jdScreenOpen(src){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb||!im)return;im.src=src;lb.classList.add('show');document.body.style.overflow='hidden';}
+function jdScreenClose(){var lb=document.getElementById('jd-screen-lightbox');if(!lb)return;lb.classList.remove('show');document.body.style.overflow='';}
 </script>
 
 </body>

@@ -626,6 +626,13 @@ body{
         <div class="ged-file-btn" onclick="document.getElementById('editor-icon-file').click()">📂 Seleccionar imagen local</div>
         <p style="font-size:8px;color:rgba(16,185,129,.75);font-weight:800;margin-top:8px;line-height:1.4">Las imágenes nuevas se suben a Firebase Storage y se guardan como URL ligera, no como base64.</p>
       </div>
+            <div class="ged-section">
+        <div class="ged-section-title">📸 Capturas de Pantalla (máx. 4)</div>
+        <div style="font-size:8px;color:rgba(56,189,248,.6);margin-bottom:10px;padding:6px 8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.15);border-radius:8px;line-height:1.5">
+          Hasta 4 imágenes (estilo Play Store). Sube desde tu dispositivo (se optimizan automáticamente a ~700px JPG ~80%) o pega una URL. Se muestran con scroll horizontal en el sitio.
+        </div>
+        <div id="ged-screens-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+      </div>
       <div class="ged-section">
         <div class="ged-section-title">Advertencia al Usuario</div>
         <label class="ged-check-row" for="editor-warning-visible">
@@ -1486,6 +1493,7 @@ function openGameEditor(gameId){
   fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
   var _esc=function(id,val){var e=document.getElementById(id);if(e)e.checked=val;};
   _esc('editor-warning-visible',false);_esc('editor-visible',true);
+  _GED_SCREENS=['','','',''];_GED_SCREENS_FILES=[null,null,null,null];_gedRenderScreens();
   _esc('editor-update-badge-visible',true);_esc('editor-mod-badge-visible',true);
   _esc('editor-download-visible1',true);_esc('editor-download-visible2',true);
   renderGameEditorColorSelectors('update-badge-color-selector-ui',function(k){_setColorActive('update-badge-color-selector-ui',k);},'green');
@@ -1508,6 +1516,9 @@ function openGameEditor(gameId){
     _es('editor-dlpage-name2').value=g.dlPageName2||'';_es('editor-dlpage-ver2').value=g.dlPageVer2||'';
     _es('editor-dlpage-size2').value=g.dlPageSize2||'';_es('editor-dlpage-btn2').value=g.dlPageBtn2||'';
     _es('editor-icon-url').value=g.thumb||'';
+    var _gss=Array.isArray(g.screenshots)?g.screenshots.slice(0,4):[];
+    _GED_SCREENS=['','','',''];for(var _si=0;_si<_gss.length;_si++)_GED_SCREENS[_si]=_gss[_si]||'';
+    _GED_SCREENS_FILES=[null,null,null,null];_gedRenderScreens();
     _es('editor-visible').checked=g.visible;_es('editor-update-badge-visible').checked=g.updateBadgeVisible;
     _es('editor-mod-badge-visible').checked=g.modBadgeVisible;
     _es('editor-download-visible1').checked=g.downloadButtonVisible1!==false;
@@ -1525,6 +1536,104 @@ function openGameEditor(gameId){
 }
 
 function closeGameEditor(){var m=document.getElementById('game-editor-modal');if(m){m.classList.add('hidden');m.style.display='none';}document.body.style.overflow='';}
+
+
+// ════════════════════════════════════════════════════════════════
+// SCREENSHOTS — UI + UPLOAD CON OPTIMIZACIÓN
+// ════════════════════════════════════════════════════════════════
+var _GED_SCREENS = ['','','',''];   // URLs persistidas (públicas)
+var _GED_SCREENS_FILES = [null,null,null,null]; // Files pendientes de subir
+
+function _gedRenderScreens(){
+  var grid=document.getElementById('ged-screens-grid'); if(!grid) return;
+  var html='';
+  for(var i=0;i<4;i++){
+    var url=_GED_SCREENS[i]||'';
+    var hasFile=!!_GED_SCREENS_FILES[i];
+    var preview = hasFile ? URL.createObjectURL(_GED_SCREENS_FILES[i]) : url;
+    html += '<div style="background:rgba(0,0,0,.25);border:1px solid rgba(37,99,235,.25);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px">'+
+      '<div style="aspect-ratio:9/16;background:rgba(0,0,0,.5);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center">'+
+        (preview ? '<img src="'+preview+'" style="width:100%;height:100%;object-fit:cover" alt="screen '+(i+1)+'">' :
+          '<span style="font-size:9px;opacity:.4;font-weight:800">Vacío</span>')+
+      '</div>'+
+      '<input type="url" class="ged-input" placeholder="URL imagen #'+(i+1)+'" value="'+url.replace(/"/g,'&quot;')+'" oninput="_gedScreenUrl('+i+',this.value)" style="font-size:9px;padding:6px 8px">'+
+      '<div style="display:flex;gap:4px">'+
+        '<button type="button" class="ged-file-btn" style="flex:1;font-size:8px;padding:6px" onclick="document.getElementById(\'ged-screen-file-'+i+'\').click()">📂 Subir</button>'+
+        (preview?'<button type="button" class="ged-file-btn" style="background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4);color:#fca5a5;font-size:8px;padding:6px" onclick="_gedScreenClear('+i+')">✕</button>':'')+
+      '</div>'+
+      '<input type="file" id="ged-screen-file-'+i+'" accept="image/*" style="display:none" onchange="_gedScreenFile('+i+',this.files[0])">'+
+    '</div>';
+  }
+  grid.innerHTML=html;
+}
+function _gedScreenUrl(i,v){ _GED_SCREENS[i]=v||''; _GED_SCREENS_FILES[i]=null; _gedRenderScreens(); }
+function _gedScreenFile(i,f){ if(!f)return; _GED_SCREENS_FILES[i]=f; _gedRenderScreens(); }
+function _gedScreenClear(i){ _GED_SCREENS[i]=''; _GED_SCREENS_FILES[i]=null; _gedRenderScreens(); }
+
+// Comprime y redimensiona la imagen antes de subir (~700px de ancho máx, JPG ~80%)
+function _gedCompressImage(file, maxW){
+  maxW = maxW || 700;
+  return new Promise(function(resolve,reject){
+    try{
+      var img=new Image(); var url=URL.createObjectURL(file);
+      img.onload=function(){
+        var w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*(maxW/w)); w=maxW; }
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        var ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+        c.toBlob(function(b){
+          URL.revokeObjectURL(url);
+          if(!b) return reject(new Error('toBlob falló'));
+          resolve(b);
+        },'image/jpeg',0.82);
+      };
+      img.onerror=function(e){ URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+      img.src=url;
+    }catch(e){ reject(e); }
+  });
+}
+
+// Sube un Blob de screenshot a Firebase Storage
+function _uploadScreenBlob(blob, gameId, idx){
+  if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
+  var path='game-screenshots/'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
+  return firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'})
+    .then(function(snap){return snap.ref.getDownloadURL();});
+}
+
+// Resuelve los 4 slots de screenshots: sube los Files y devuelve un array de URLs (sin huecos vacíos)
+function _gedResolveScreens(gameId){
+  var tasks=[];
+  for(var i=0;i<4;i++){
+    (function(idx){
+      var f=_GED_SCREENS_FILES[idx];
+      if(f){
+        tasks.push(
+          _gedCompressImage(f,700)
+            .then(function(blob){ return _uploadScreenBlob(blob,gameId,idx); })
+            .then(function(url){ return {idx:idx,url:url}; })
+            .catch(function(e){
+              // Fallback: base64 comprimido si Storage falla
+              return new Promise(function(res){
+                _gedCompressImage(f,500).then(function(b){
+                  var r=new FileReader();
+                  r.onload=function(ev){ res({idx:idx,url:ev.target.result}); };
+                  r.readAsDataURL(b);
+                }).catch(function(){ res({idx:idx,url:_GED_SCREENS[idx]||''}); });
+              });
+            })
+        );
+      }else{
+        tasks.push(Promise.resolve({idx:idx,url:_GED_SCREENS[idx]||''}));
+      }
+    })(i);
+  }
+  return Promise.all(tasks).then(function(results){
+    var arr=['','','',''];
+    results.forEach(function(r){ arr[r.idx]=r.url; });
+    return arr.filter(function(u){ return u && u.trim(); });
+  });
+}
 
 function saveGame(){
   var editId=(document.getElementById('editor-game-id')||{value:''}).value||'';
@@ -1575,16 +1684,28 @@ function saveGame(){
     _uploadIconFile(file, editId||Date.now())
       .then(function(url){
         document.getElementById('editor-icon-url').value=url;
-        processSaveGameData(editId,Object.assign({},collectData(),{thumb:url}));
+        return _gedResolveScreens(editId||Date.now()).then(function(scr){
+          processSaveGameData(editId,Object.assign({},collectData(),{thumb:url,screenshots:scr}));
+        });
       })
       .catch(function(e){
         showToast('⚠️ Storage falló, usando URL/base64 temporal: '+e.message);
         var r=new FileReader();
-        r.onload=function(ev){processSaveGameData(editId,Object.assign({},collectData(),{thumb:ev.target.result}));};
+        r.onload=function(ev){
+          _gedResolveScreens(editId||Date.now()).then(function(scr){
+            processSaveGameData(editId,Object.assign({},collectData(),{thumb:ev.target.result,screenshots:scr}));
+          });
+        };
         r.readAsDataURL(file);
       });
   }else{
-    processSaveGameData(editId,Object.assign({},collectData(),{thumb:document.getElementById('editor-icon-url').value}));
+    showToast('⏳ Procesando capturas...');
+    _gedResolveScreens(editId||Date.now()).then(function(scr){
+      processSaveGameData(editId,Object.assign({},collectData(),{thumb:document.getElementById('editor-icon-url').value,screenshots:scr}));
+    }).catch(function(e){
+      showToast('⚠️ Capturas: '+e.message);
+      processSaveGameData(editId,Object.assign({},collectData(),{thumb:document.getElementById('editor-icon-url').value,screenshots:_GED_SCREENS.filter(function(u){return u&&u.trim();})}));
+    });
   }
 }
 
