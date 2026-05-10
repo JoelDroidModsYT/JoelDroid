@@ -1126,6 +1126,45 @@ function saveSettings(){
   },800);
 }
 
+function _pullSettingsFromInputs(){
+  var val=function(id){var el=document.getElementById(id);return el?el.value:'';};
+  var chk=function(id,def){var el=document.getElementById(id);return el?el.checked:!!def;};
+  if(!siteState.ui)siteState.ui={};
+  if(!siteState.announcement)siteState.announcement={};
+  if(!siteState.banner)siteState.banner={};
+  if(!siteState.updatedBanner)siteState.updatedBanner={};
+  if(!siteState.popularBanner)siteState.popularBanner={};
+  if(!siteState.copyright)siteState.copyright={};
+  if(!siteState.verification)siteState.verification={};
+  if(!siteState.buttonSettings)siteState.buttonSettings={};
+  var e;
+  if((e=document.getElementById('site-title-in')))siteState.ui.title=e.value;
+  if((e=document.getElementById('site-subtitle-in')))siteState.ui.subtitle=e.value;
+  if((e=document.getElementById('ann-text-in')))siteState.announcement.text=e.value;
+  if((e=document.getElementById('ann-url-in')))siteState.announcement.url=e.value;
+  if((e=document.getElementById('banner-title-in')))siteState.banner.title=e.value;
+  if((e=document.getElementById('banner-subtitle-in')))siteState.banner.subtitle=e.value;
+  if((e=document.getElementById('updated-banner-title-in')))siteState.updatedBanner.title=e.value;
+  if((e=document.getElementById('updated-banner-subtitle-in')))siteState.updatedBanner.subtitle=e.value;
+  if((e=document.getElementById('popular-banner-title-in')))siteState.popularBanner.title=e.value;
+  if((e=document.getElementById('popular-banner-subtitle-in')))siteState.popularBanner.subtitle=e.value;
+  if((e=document.getElementById('popular-top-badge-text-in')))siteState.popularBanner.popularTopBadgeText=e.value;
+  if((e=document.getElementById('popular-badge-text-in')))siteState.popularBanner.popularBadgeText=e.value;
+  if((e=document.getElementById('copyright-text-in')))siteState.copyright.text=e.value;
+  if((e=document.getElementById('logo-url-in')))siteState.ui.logoUrl=e.value;
+  if((e=document.getElementById('verification-text-in')))siteState.verification.text=e.value;
+  if((e=document.getElementById('global-home-button-text-in')))siteState.buttonSettings.globalHomeButtonText=e.value;
+  if((e=document.getElementById('global-detail-button-text-in')))siteState.buttonSettings.globalDetailButtonText=e.value;
+  if((e=document.getElementById('youtube-url-in')))siteState.youtubeUrl=e.value;
+  if((e=document.getElementById('install-youtube-url-in')))siteState.installYoutubeUrl=e.value;
+  if((e=document.getElementById('yt-channel-url-in')))siteState.ytChannelUrl=e.value;
+  siteState.ui.logoVisible=!chk('logo-visibility-switch',false);
+  siteState.announcement.visible=!chk('announcement-visibility-switch',false);
+  siteState.banner.visible=!chk('banner-visibility-switch',false);
+  siteState.updatedBanner.visible=!chk('updated-banner-visibility-switch',false);
+  siteState.popularBanner.visible=!chk('popular-banner-visibility-switch',false);
+}
+
 function loadSettings(){
   var saved=localStorage.getItem('siteState');
   if(saved){
@@ -1160,7 +1199,7 @@ function _mergeState(remote){
   });
 }
 
-function liveUpdate(){saveSettings();}
+function liveUpdate(){_pullSettingsFromInputs();saveSettings();}
 
 // ════════════════════════════════════════════════════════════════
 // ADMIN UI RENDER
@@ -1197,7 +1236,7 @@ function applyLightColors(){
 }
 
 function renderAdminUI(){
-  var set=function(id,v){var el=document.getElementById(id);if(el)el.value=v||'';};
+  var set=function(id,v){var el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=v||'';};
   set('site-title-in',siteState.ui.title);set('site-subtitle-in',siteState.ui.subtitle);
   set('ann-text-in',siteState.announcement.text);set('ann-url-in',siteState.announcement.url);
   set('banner-title-in',siteState.banner.title);set('banner-subtitle-in',siteState.banner.subtitle);
@@ -1572,58 +1611,37 @@ function _gedScreenUrl(i,v){ _GED_SCREENS[i]=v||''; _GED_SCREENS_FILES[i]=null; 
 function _gedScreenFile(i,f){ if(!f)return; _GED_SCREENS_FILES[i]=f; _gedRenderScreens(); }
 function _gedScreenClear(i){ _GED_SCREENS[i]=''; _GED_SCREENS_FILES[i]=null; _gedRenderScreens(); }
 
-// Comprime y redimensiona la imagen antes de subir (~700px de ancho máx, JPG ~80%)
-function _gedCompressImage(file, maxW){
-  maxW = maxW || 700;
-  return new Promise(function(resolve,reject){
-    try{
-      var img=new Image(); var url=URL.createObjectURL(file);
-      img.onload=function(){
-        var w=img.width, h=img.height;
-        if(w>maxW){ h=Math.round(h*(maxW/w)); w=maxW; }
-        var c=document.createElement('canvas'); c.width=w; c.height=h;
-        var ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h);
-        c.toBlob(function(b){
-          URL.revokeObjectURL(url);
-          if(!b) return reject(new Error('toBlob falló'));
-          resolve(b);
-        },'image/jpeg',0.82);
-      };
-      img.onerror=function(e){ URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
-      img.src=url;
-    }catch(e){ reject(e); }
-  });
-}
-
-// Sube un Blob de screenshot a Firebase Storage
-function _uploadScreenBlob(blob, gameId, idx){
+function _uploadScreenFile(file, gameId, idx){
   if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
-  var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
-  return firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'})
+  var ext='jpg';
+  if(file&&file.type){
+    if(file.type.indexOf('png')>=0) ext='png';
+    else if(file.type.indexOf('webp')>=0) ext='webp';
+    else if(file.type.indexOf('gif')>=0) ext='gif';
+    else if(file.type.indexOf('jpeg')>=0||file.type.indexOf('jpg')>=0) ext='jpg';
+  }
+  var name=_safeFileName((file&&file.name)||('screen_'+(idx+1)+'.'+ext));
+  if(name.indexOf('.')<0) name+='.'+ext;
+  var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'_'+name;
+  return firebase.storage().ref(path).put(file,{contentType:(file&&file.type)||'image/jpeg'})
     .then(function(snap){return snap.ref.getDownloadURL();});
 }
 
-// Resuelve los 4 slots de screenshots: sube los Files y devuelve un array de URLs (sin huecos vacíos)
+// Resuelve los 4 slots de screenshots igual que los iconos: sube el archivo directo a Firebase Storage y guarda URL pública.
 function _gedResolveScreens(gameId){
+  if(!_storageReady()&&typeof _initFirebase==='function') try{_initFirebase();}catch(e){}
   var tasks=[];
   for(var i=0;i<4;i++){
     (function(idx){
       var f=_GED_SCREENS_FILES[idx];
       if(f){
         tasks.push(
-          _gedCompressImage(f,700)
-            .then(function(blob){ return _uploadScreenBlob(blob,gameId,idx); })
+          _uploadScreenFile(f,gameId,idx)
             .then(function(url){ return {idx:idx,url:url}; })
             .catch(function(e){
-              try{console.warn('[screens] storage falló slot '+idx+':',e&&e.message||e);showToast('⚠️ Captura '+(idx+1)+': '+(e&&e.message||'error')+' — usando base64');}catch(_e){}
-              // Fallback: base64 comprimido si Storage falla
-              return new Promise(function(res){
-                _gedCompressImage(f,500).then(function(b){
-                  var r=new FileReader();
-                  r.onload=function(ev){ res({idx:idx,url:ev.target.result}); };
-                  r.readAsDataURL(b);
-                }).catch(function(){ res({idx:idx,url:_GED_SCREENS[idx]||''}); });
-              });
+              console.warn('[screens] no se subió slot '+idx,e);
+              showToast('❌ Captura '+(idx+1)+' no se pudo subir. Revisa Firebase Storage.');
+              return {idx:idx,url:_GED_SCREENS[idx]||''};
             })
         );
       }else{
@@ -1634,7 +1652,7 @@ function _gedResolveScreens(gameId){
   return Promise.all(tasks).then(function(results){
     var arr=['','','',''];
     results.forEach(function(r){ arr[r.idx]=r.url; });
-    return arr.filter(function(u){ return u && u.trim(); });
+    return arr.filter(function(u){ return u && String(u).trim(); }).slice(0,4);
   });
 }
 
