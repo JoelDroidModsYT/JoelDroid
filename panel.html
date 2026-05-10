@@ -990,8 +990,7 @@ function _fbSaveGame(gameData,editId){
   if(!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin');return Promise.reject('not-admin');}
   var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
   var order=(editId&&idx>=0)?idx:siteState.gamesList.length;
-  var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc(String(gameData.id||Date.now()));
-  gameData.id = ref.id;
+  var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc();
   return ref.set(Object.assign({},gameData,{
     order:order,timestamp:Date.now(),
     updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
@@ -1126,45 +1125,6 @@ function saveSettings(){
   },800);
 }
 
-function _pullSettingsFromInputs(){
-  var val=function(id){var el=document.getElementById(id);return el?el.value:'';};
-  var chk=function(id,def){var el=document.getElementById(id);return el?el.checked:!!def;};
-  if(!siteState.ui)siteState.ui={};
-  if(!siteState.announcement)siteState.announcement={};
-  if(!siteState.banner)siteState.banner={};
-  if(!siteState.updatedBanner)siteState.updatedBanner={};
-  if(!siteState.popularBanner)siteState.popularBanner={};
-  if(!siteState.copyright)siteState.copyright={};
-  if(!siteState.verification)siteState.verification={};
-  if(!siteState.buttonSettings)siteState.buttonSettings={};
-  var e;
-  if((e=document.getElementById('site-title-in')))siteState.ui.title=e.value;
-  if((e=document.getElementById('site-subtitle-in')))siteState.ui.subtitle=e.value;
-  if((e=document.getElementById('ann-text-in')))siteState.announcement.text=e.value;
-  if((e=document.getElementById('ann-url-in')))siteState.announcement.url=e.value;
-  if((e=document.getElementById('banner-title-in')))siteState.banner.title=e.value;
-  if((e=document.getElementById('banner-subtitle-in')))siteState.banner.subtitle=e.value;
-  if((e=document.getElementById('updated-banner-title-in')))siteState.updatedBanner.title=e.value;
-  if((e=document.getElementById('updated-banner-subtitle-in')))siteState.updatedBanner.subtitle=e.value;
-  if((e=document.getElementById('popular-banner-title-in')))siteState.popularBanner.title=e.value;
-  if((e=document.getElementById('popular-banner-subtitle-in')))siteState.popularBanner.subtitle=e.value;
-  if((e=document.getElementById('popular-top-badge-text-in')))siteState.popularBanner.popularTopBadgeText=e.value;
-  if((e=document.getElementById('popular-badge-text-in')))siteState.popularBanner.popularBadgeText=e.value;
-  if((e=document.getElementById('copyright-text-in')))siteState.copyright.text=e.value;
-  if((e=document.getElementById('logo-url-in')))siteState.ui.logoUrl=e.value;
-  if((e=document.getElementById('verification-text-in')))siteState.verification.text=e.value;
-  if((e=document.getElementById('global-home-button-text-in')))siteState.buttonSettings.globalHomeButtonText=e.value;
-  if((e=document.getElementById('global-detail-button-text-in')))siteState.buttonSettings.globalDetailButtonText=e.value;
-  if((e=document.getElementById('youtube-url-in')))siteState.youtubeUrl=e.value;
-  if((e=document.getElementById('install-youtube-url-in')))siteState.installYoutubeUrl=e.value;
-  if((e=document.getElementById('yt-channel-url-in')))siteState.ytChannelUrl=e.value;
-  siteState.ui.logoVisible=!chk('logo-visibility-switch',false);
-  siteState.announcement.visible=!chk('announcement-visibility-switch',false);
-  siteState.banner.visible=!chk('banner-visibility-switch',false);
-  siteState.updatedBanner.visible=!chk('updated-banner-visibility-switch',false);
-  siteState.popularBanner.visible=!chk('popular-banner-visibility-switch',false);
-}
-
 function loadSettings(){
   var saved=localStorage.getItem('siteState');
   if(saved){
@@ -1199,7 +1159,7 @@ function _mergeState(remote){
   });
 }
 
-function liveUpdate(){_pullSettingsFromInputs();saveSettings();}
+function liveUpdate(){saveSettings();}
 
 // ════════════════════════════════════════════════════════════════
 // ADMIN UI RENDER
@@ -1236,7 +1196,7 @@ function applyLightColors(){
 }
 
 function renderAdminUI(){
-  var set=function(id,v){var el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=v||'';};
+  var set=function(id,v){var el=document.getElementById(id);if(el)el.value=v||'';};
   set('site-title-in',siteState.ui.title);set('site-subtitle-in',siteState.ui.subtitle);
   set('ann-text-in',siteState.announcement.text);set('ann-url-in',siteState.announcement.url);
   set('banner-title-in',siteState.banner.title);set('banner-subtitle-in',siteState.banner.subtitle);
@@ -1611,37 +1571,58 @@ function _gedScreenUrl(i,v){ _GED_SCREENS[i]=v||''; _GED_SCREENS_FILES[i]=null; 
 function _gedScreenFile(i,f){ if(!f)return; _GED_SCREENS_FILES[i]=f; _gedRenderScreens(); }
 function _gedScreenClear(i){ _GED_SCREENS[i]=''; _GED_SCREENS_FILES[i]=null; _gedRenderScreens(); }
 
-function _uploadScreenFile(file, gameId, idx){
+// Comprime y redimensiona la imagen antes de subir (~700px de ancho máx, JPG ~80%)
+function _gedCompressImage(file, maxW){
+  maxW = maxW || 700;
+  return new Promise(function(resolve,reject){
+    try{
+      var img=new Image(); var url=URL.createObjectURL(file);
+      img.onload=function(){
+        var w=img.width, h=img.height;
+        if(w>maxW){ h=Math.round(h*(maxW/w)); w=maxW; }
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        var ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+        c.toBlob(function(b){
+          URL.revokeObjectURL(url);
+          if(!b) return reject(new Error('toBlob falló'));
+          resolve(b);
+        },'image/jpeg',0.82);
+      };
+      img.onerror=function(e){ URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+      img.src=url;
+    }catch(e){ reject(e); }
+  });
+}
+
+// Sube un Blob de screenshot a Firebase Storage
+function _uploadScreenBlob(blob, gameId, idx){
   if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
-  var ext='jpg';
-  if(file&&file.type){
-    if(file.type.indexOf('png')>=0) ext='png';
-    else if(file.type.indexOf('webp')>=0) ext='webp';
-    else if(file.type.indexOf('gif')>=0) ext='gif';
-    else if(file.type.indexOf('jpeg')>=0||file.type.indexOf('jpg')>=0) ext='jpg';
-  }
-  var name=_safeFileName((file&&file.name)||('screen_'+(idx+1)+'.'+ext));
-  if(name.indexOf('.')<0) name+='.'+ext;
-  var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'_'+name;
-  return firebase.storage().ref(path).put(file,{contentType:(file&&file.type)||'image/jpeg'})
+  var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
+  return firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'})
     .then(function(snap){return snap.ref.getDownloadURL();});
 }
 
-// Resuelve los 4 slots de screenshots igual que los iconos: sube el archivo directo a Firebase Storage y guarda URL pública.
+// Resuelve los 4 slots de screenshots: sube los Files y devuelve un array de URLs (sin huecos vacíos)
 function _gedResolveScreens(gameId){
-  if(!_storageReady()&&typeof _initFirebase==='function') try{_initFirebase();}catch(e){}
   var tasks=[];
   for(var i=0;i<4;i++){
     (function(idx){
       var f=_GED_SCREENS_FILES[idx];
       if(f){
         tasks.push(
-          _uploadScreenFile(f,gameId,idx)
+          _gedCompressImage(f,700)
+            .then(function(blob){ return _uploadScreenBlob(blob,gameId,idx); })
             .then(function(url){ return {idx:idx,url:url}; })
             .catch(function(e){
-              console.warn('[screens] no se subió slot '+idx,e);
-              showToast('❌ Captura '+(idx+1)+' no se pudo subir. Revisa Firebase Storage.');
-              return {idx:idx,url:_GED_SCREENS[idx]||''};
+              try{console.warn('[screens] storage falló slot '+idx+':',e&&e.message||e);showToast('⚠️ Captura '+(idx+1)+': '+(e&&e.message||'error')+' — usando base64');}catch(_e){}
+              // Fallback: base64 comprimido si Storage falla
+              return new Promise(function(res){
+                _gedCompressImage(f,500).then(function(b){
+                  var r=new FileReader();
+                  r.onload=function(ev){ res({idx:idx,url:ev.target.result}); };
+                  r.readAsDataURL(b);
+                }).catch(function(){ res({idx:idx,url:_GED_SCREENS[idx]||''}); });
+              });
             })
         );
       }else{
@@ -1652,7 +1633,7 @@ function _gedResolveScreens(gameId){
   return Promise.all(tasks).then(function(results){
     var arr=['','','',''];
     results.forEach(function(r){ arr[r.idx]=r.url; });
-    return arr.filter(function(u){ return u && String(u).trim(); }).slice(0,4);
+    return arr.filter(function(u){ return u && u.trim(); });
   });
 }
 
@@ -1734,7 +1715,6 @@ function processSaveGameData(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
   var gameId=editId?String(editId):String(Date.now());
   data=JSON.parse(JSON.stringify(data));
-  data.screenshots = Array.isArray(data.screenshots) ? data.screenshots.filter(function(u){return u && String(u).trim();}).slice(0,4) : [];
   var newGame=Object.assign({id:gameId},data,{
     update:data.updateBadgeVisible,
     lastUpdate:new Date().toISOString().split('T')[0],
@@ -1746,23 +1726,27 @@ function processSaveGameData(editId,data){
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
-  var saveRemote=function(){
-    return _fbSaveGame(newGame,editId?String(editId):null).then(function(){
-      _afterGameSaved(newGame, editId);
-    });
-  };
   if(_fbReady&&_db&&_isAdmin()){
-    saveRemote().catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));});
+    _fbSaveGame(newGame,editId?String(editId):null)
+      .then(function(){
+        renderGameEditorList();closeGameEditor();
+        try{_syncToGitHub();}catch(e){}
+        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
+      })
+      .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
   }else{
     showToast('⏳ Conectando a Firebase...');
-    if(typeof _initFirebase==='function') try{_initFirebase();}catch(e){}
     setTimeout(function(){
       if(_fbReady&&_db&&_isAdmin()){
-        saveRemote().catch(function(err){showToast('❌ Error: '+(err.message||err));});
-      }else{
-        showToast('❌ No se publicó: inicia sesión admin y revisa Firebase/Storage.');
-      }
-    },1200);
+        _fbSaveGame(newGame,editId?String(editId):null)
+          .then(function(){
+            renderGameEditorList();closeGameEditor();
+            try{_syncToGitHub();}catch(e){}
+            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
+          })
+          .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
+      }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
+    },2000);
   }
 }
 
@@ -1845,7 +1829,6 @@ function _buildGamesPayload(){
       name:                 g.name || g.nombre || '',
       description:          g.description || g.descripcion || '',
       thumb:                g.thumb || g.imagen || g.icon || '',
-      screenshots:          Array.isArray(g.screenshots) ? g.screenshots.filter(Boolean).slice(0,4) : (Array.isArray(g.capturas) ? g.capturas.filter(Boolean).slice(0,4) : []),
       ver:                  g.ver || g.version || '',
       size:                 g.size || g.peso || '',
       visible:              g.visible !== false,
@@ -1886,33 +1869,6 @@ function _buildGamesPayload(){
     _count:   games.length,
     games:    games
   }, null, 2);
-}
-function _upsertLocalGameAfterSave(savedGame, editId){
-  try{
-    var id = String(savedGame.id || editId || Date.now());
-    savedGame.id = id;
-    var list = siteState.gamesList || [];
-    var idx = list.findIndex(function(g){ return String(g.id) === id || (editId && String(g.id) === String(editId)); });
-    if(idx >= 0) list[idx] = Object.assign({}, list[idx], savedGame);
-    else list.unshift(savedGame);
-    list.sort(function(a,b){
-      var ta = b.timestamp || 0, tb = a.timestamp || 0;
-      if(ta !== tb) return ta - tb;
-      return (a.order || 0) - (b.order || 0);
-    });
-    siteState.gamesList = list;
-    try{ localStorage.setItem('siteState', JSON.stringify(siteState)); }catch(e){}
-    try{ localStorage.setItem('jd_games_cache_v2', JSON.stringify(list)); }catch(e){}
-    try{ sessionStorage.setItem('jd_ss_games', JSON.stringify(list)); }catch(e){}
-  }catch(e){ console.warn('[save] local upsert failed', e); }
-}
-function _afterGameSaved(savedGame, editId){
-  _upsertLocalGameAfterSave(savedGame, editId);
-  renderGameEditorList();
-  closeGameEditor();
-  showToast('✅ Guardado y publicado. Ya puedes editar otro juego.');
-  try{ _syncToGitHub(); }catch(e){}
-  try{ _syncGamesToGist(); }catch(e){}
 }
 
 /* Versión silenciosa (auto-sync al guardar/eliminar) */
