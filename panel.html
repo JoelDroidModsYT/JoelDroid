@@ -1531,6 +1531,7 @@ function openGameEditor(gameId){
     renderGameEditorColorSelectors('dl-btn-color-selector-2',function(k){_setColorActive('dl-btn-color-selector-2',k);},g.downloadButtonColorKey2||'blue');
   }else{
     var etitle=document.getElementById('editor-title');if(etitle)etitle.innerText='Agregar Nuevo Juego';
+    _GED_SCREENS=['','','',''];_GED_SCREENS_FILES=[null,null,null,null];_gedRenderScreens();
   }
   modal.classList.remove('hidden');modal.style.display='flex';document.body.style.overflow='hidden';
 }
@@ -1596,7 +1597,7 @@ function _gedCompressImage(file, maxW){
 // Sube un Blob de screenshot a Firebase Storage
 function _uploadScreenBlob(blob, gameId, idx){
   if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
-  var path='game-screenshots/'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
+  var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
   return firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'})
     .then(function(snap){return snap.ref.getDownloadURL();});
 }
@@ -1613,6 +1614,7 @@ function _gedResolveScreens(gameId){
             .then(function(blob){ return _uploadScreenBlob(blob,gameId,idx); })
             .then(function(url){ return {idx:idx,url:url}; })
             .catch(function(e){
+              try{console.warn('[screens] storage falló slot '+idx+':',e&&e.message||e);showToast('⚠️ Captura '+(idx+1)+': '+(e&&e.message||'error')+' — usando base64');}catch(_e){}
               // Fallback: base64 comprimido si Storage falla
               return new Promise(function(res){
                 _gedCompressImage(f,500).then(function(b){
