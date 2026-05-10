@@ -990,7 +990,8 @@ function _fbSaveGame(gameData,editId){
   if(!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin');return Promise.reject('not-admin');}
   var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
   var order=(editId&&idx>=0)?idx:siteState.gamesList.length;
-  var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc();
+  var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc(String(gameData.id||Date.now()));
+  gameData.id = ref.id;
   return ref.set(Object.assign({},gameData,{
     order:order,timestamp:Date.now(),
     updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
@@ -1715,6 +1716,7 @@ function processSaveGameData(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
   var gameId=editId?String(editId):String(Date.now());
   data=JSON.parse(JSON.stringify(data));
+  data.screenshots = Array.isArray(data.screenshots) ? data.screenshots.filter(function(u){return u && String(u).trim();}).slice(0,4) : [];
   var newGame=Object.assign({id:gameId},data,{
     update:data.updateBadgeVisible,
     lastUpdate:new Date().toISOString().split('T')[0],
@@ -1726,27 +1728,23 @@ function processSaveGameData(editId,data){
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
+  var saveRemote=function(){
+    return _fbSaveGame(newGame,editId?String(editId):null).then(function(){
+      _afterGameSaved(newGame, editId);
+    });
+  };
   if(_fbReady&&_db&&_isAdmin()){
-    _fbSaveGame(newGame,editId?String(editId):null)
-      .then(function(){
-        renderGameEditorList();closeGameEditor();
-        try{_syncToGitHub();}catch(e){}
-        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
-      })
-      .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
+    saveRemote().catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));});
   }else{
     showToast('⏳ Conectando a Firebase...');
+    if(typeof _initFirebase==='function') try{_initFirebase();}catch(e){}
     setTimeout(function(){
       if(_fbReady&&_db&&_isAdmin()){
-        _fbSaveGame(newGame,editId?String(editId):null)
-          .then(function(){
-            renderGameEditorList();closeGameEditor();
-            try{_syncToGitHub();}catch(e){}
-            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
-          })
-          .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
-      }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
-    },2000);
+        saveRemote().catch(function(err){showToast('❌ Error: '+(err.message||err));});
+      }else{
+        showToast('❌ No se publicó: inicia sesión admin y revisa Firebase/Storage.');
+      }
+    },1200);
   }
 }
 
@@ -1829,6 +1827,7 @@ function _buildGamesPayload(){
       name:                 g.name || g.nombre || '',
       description:          g.description || g.descripcion || '',
       thumb:                g.thumb || g.imagen || g.icon || '',
+      screenshots:          Array.isArray(g.screenshots) ? g.screenshots.filter(Boolean).slice(0,4) : (Array.isArray(g.capturas) ? g.capturas.filter(Boolean).slice(0,4) : []),
       ver:                  g.ver || g.version || '',
       size:                 g.size || g.peso || '',
       visible:              g.visible !== false,
@@ -1869,6 +1868,33 @@ function _buildGamesPayload(){
     _count:   games.length,
     games:    games
   }, null, 2);
+}
+function _upsertLocalGameAfterSave(savedGame, editId){
+  try{
+    var id = String(savedGame.id || editId || Date.now());
+    savedGame.id = id;
+    var list = siteState.gamesList || [];
+    var idx = list.findIndex(function(g){ return String(g.id) === id || (editId && String(g.id) === String(editId)); });
+    if(idx >= 0) list[idx] = Object.assign({}, list[idx], savedGame);
+    else list.unshift(savedGame);
+    list.sort(function(a,b){
+      var ta = b.timestamp || 0, tb = a.timestamp || 0;
+      if(ta !== tb) return ta - tb;
+      return (a.order || 0) - (b.order || 0);
+    });
+    siteState.gamesList = list;
+    try{ localStorage.setItem('siteState', JSON.stringify(siteState)); }catch(e){}
+    try{ localStorage.setItem('jd_games_cache_v2', JSON.stringify(list)); }catch(e){}
+    try{ sessionStorage.setItem('jd_ss_games', JSON.stringify(list)); }catch(e){}
+  }catch(e){ console.warn('[save] local upsert failed', e); }
+}
+function _afterGameSaved(savedGame, editId){
+  _upsertLocalGameAfterSave(savedGame, editId);
+  renderGameEditorList();
+  closeGameEditor();
+  showToast('✅ Guardado y publicado. Ya puedes editar otro juego.');
+  try{ _syncToGitHub(); }catch(e){}
+  try{ _syncGamesToGist(); }catch(e){}
 }
 
 /* Versión silenciosa (auto-sync al guardar/eliminar) */

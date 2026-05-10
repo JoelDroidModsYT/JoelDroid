@@ -1268,6 +1268,26 @@ body.policies-open #share-fab{
 
 
 .jd-img.lazy-img{opacity:0;transition:opacity .25s ease}.jd-img.lazy-img.loaded,.jd-img.icon-img-loaded.loaded{opacity:1}
+
+/* ══ FIX JOELDROID 2026-05 — badges compactos + detalle futurista ══ */
+.popular-top-badge,.popular-side-badge{font-size:7px!important;padding:2px 5px!important;border-radius:4px!important;top:4px!important;line-height:1.15!important;letter-spacing:.04em!important;box-shadow:0 0 5px currentColor!important;max-width:52%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.popular-top-badge{right:4px!important}.popular-side-badge{left:4px!important}
+#detail-view{background:radial-gradient(circle at 50% 0%,rgba(37,99,235,.16),transparent 34%),radial-gradient(circle at 10% 30%,rgba(34,211,238,.10),transparent 28%),var(--overlay-bg)!important}
+#det-name{font-size:24px!important;line-height:1.02!important;letter-spacing:.02em!important;background:linear-gradient(90deg,var(--text-main),#60a5fa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 24px rgba(37,99,235,.24);word-break:break-word}
+#det-verification-text{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(34,211,238,.24);background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(34,211,238,.06));border-radius:999px;padding:5px 9px;box-shadow:0 0 16px rgba(37,99,235,.14)}
+.jd-detail-stats{margin:28px 24px 0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;border:0!important;padding:0!important;text-align:center!important}
+.jd-detail-stats>div{border:1px solid rgba(59,130,246,.22)!important;border-radius:14px;background:linear-gradient(160deg,rgba(15,23,42,.74),rgba(2,6,23,.50));padding:10px 6px;box-shadow:inset 0 0 18px rgba(37,99,235,.08),0 10px 24px rgba(0,0,0,.18)}
+.light-mode .jd-detail-stats>div{background:linear-gradient(160deg,rgba(255,255,255,.86),rgba(239,246,255,.72));box-shadow:0 8px 20px rgba(37,99,235,.10)}
+.jd-security-chip{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:4px 8px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff!important;font-size:8px!important;font-weight:900!important;letter-spacing:.08em;box-shadow:0 0 16px rgba(6,182,212,.38);white-space:nowrap}
+.desc-premium-box{border:1px solid rgba(59,130,246,.24)!important;border-left:0!important;border-radius:18px!important;background:linear-gradient(160deg,rgba(15,23,42,.82),rgba(30,41,59,.44))!important;box-shadow:inset 0 0 24px rgba(37,99,235,.09),0 12px 30px rgba(0,0,0,.22)!important;overflow:hidden}
+.desc-premium-box::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(34,211,238,.16),transparent 42%,rgba(139,92,246,.10));pointer-events:none}
+.light-mode .desc-premium-box{background:linear-gradient(160deg,rgba(255,255,255,.92),rgba(239,246,255,.78))!important;box-shadow:0 10px 26px rgba(37,99,235,.10)!important}
+#det-desc{position:relative;font-size:12.5px!important;line-height:1.72!important;opacity:.94!important;color:var(--text-main)!important}
+.mod-tag{border-radius:12px!important;background:linear-gradient(135deg,rgba(37,99,235,.20),rgba(34,211,238,.10))!important;border-color:rgba(34,211,238,.32)!important;color:#7dd3fc!important;padding:7px 10px!important;box-shadow:0 0 16px rgba(34,211,238,.12)!important}
+.dl-game-heading{display:inline-block;max-width:92%;font-size:15px!important;line-height:1.15!important;font-weight:900!important;letter-spacing:.06em!important;text-transform:uppercase;background:linear-gradient(90deg,#60a5fa,#22d3ee,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(34,211,238,.22));word-break:break-word}
+.dl-safe-pill{margin-top:8px!important;padding:6px 10px!important;border-radius:999px!important;background:linear-gradient(135deg,rgba(37,99,235,.16),rgba(34,211,238,.10))!important;border:1px solid rgba(34,211,238,.28)!important;color:#67e8f9!important;font-size:8px!important;letter-spacing:.12em!important;text-shadow:none!important;box-shadow:0 0 14px rgba(34,211,238,.18)!important}
+@media(max-width:380px){#det-name{font-size:21px!important}.jd-detail-stats{margin-left:18px!important;margin-right:18px!important}.jd-security-chip{font-size:7px!important;padding:4px 6px}.popular-top-badge,.popular-side-badge{font-size:6.5px!important;padding:2px 4px!important}}
+
 </style>
 </head>
 <body class="no-scrollbar">
@@ -1418,6 +1438,7 @@ window.__JD_REST_DONE = false;
     var id=(doc.name||'').split('/').pop();
     return{id:id,name:_s(f.name||f.nombre),description:_s(f.description||f.descripcion),
       thumb:_s(f.thumb||f.imagen||f.icon),ver:_s(f.ver||f.version),size:_s(f.size||f.peso),
+      screenshots:_a(f.screenshots||f.capturas),
       visible:_b(f.visible),downloadButtonLink1:_s(f.downloadButtonLink1||f.enlace||f.link),
       downloadButtonLink2:_s(f.downloadButtonLink2||f.enlace2),
       downloadButtonText1:_s(f.downloadButtonText1)||'Descargar MOD APK',
@@ -1731,7 +1752,7 @@ window.__JD_REST_DONE = false;
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-0 mt-8 border-y border-[var(--border-color)] py-4 text-center">
+    <div class="jd-detail-stats">
       <div class="border-r border-[var(--border-color)]">
         <span class="text-[8px] opacity-40 font-bold uppercase block" data-i18n="label_version">Versión</span>
         <span id="det-ver" class="text-[11px] font-black">---</span>
@@ -1742,7 +1763,7 @@ window.__JD_REST_DONE = false;
       </div>
       <div>
         <span class="text-[8px] opacity-40 font-bold uppercase block" data-i18n="label_security">Seguridad</span>
-        <span class="text-[11px] font-black text-green-500" data-i18n="label_safe">100% SEGURO</span>
+        <span id="det-safe-chip" class="jd-security-chip">MOD VERIFICADO</span>
       </div>
     </div>
 
@@ -1814,7 +1835,7 @@ window.__JD_REST_DONE = false;
             </span>
             <span class="btn-dl-size" id="btn-descarga-1-size">—</span>
           </button>
-          <span class="dl-safe-pill">Descarga Segura</span>
+          <span class="dl-safe-pill">Link verificado</span>
         </div>
 
         <!-- ── BOTÓN 2: DESCARGAR MOD 2 ── (HTML estático — editar link aquí) -->
@@ -1830,7 +1851,7 @@ window.__JD_REST_DONE = false;
             </span>
             <span class="btn-dl-size" id="btn-descarga-2-size">—</span>
           </button>
-          <span class="dl-safe-pill">Descarga Segura</span>
+          <span class="dl-safe-pill">Link verificado</span>
         </div>
 
         <!-- ════════════════════════════════════════════════════════════
@@ -3383,7 +3404,7 @@ function _saveGamesCache(games){
         modBadgeText:g.modBadgeText||'MOD', modBadgeBgColor:g.modBadgeBgColor||'#ef4444',
         modBadgeVisible:g.modBadgeVisible, updateBadgeVisible:g.updateBadgeVisible,
         updateBadgeText:g.updateBadgeText||'', homeButtonVisible:g.homeButtonVisible,
-        features:g.features||[], timestamp:g.timestamp||0, order:g.order||0,
+        features:g.features||[], screenshots:Array.isArray(g.screenshots)?g.screenshots:(Array.isArray(g.capturas)?g.capturas:[]), timestamp:g.timestamp||0, order:g.order||0,
         visits:g.visits||0
       };
     });
@@ -3812,6 +3833,7 @@ function showDetail(id){
     downloadButtonColor2: _f(game.downloadButtonColor2, game.color2, '#3b82f6'),
     downloadNameSecondary:_f(game.downloadNameSecondary, game.subtitulo, ((game.name||game.nombre||'')+' MOD').toUpperCase().trim() || 'JUEGO MOD APP'),
     features:             game.features||game.caracteristicas||[],
+    screenshots:          Array.isArray(game.screenshots)?game.screenshots:(Array.isArray(game.capturas)?game.capturas:[]),
     warningVisible:       game.warningVisible||game.advertencia_visible||false,
     warningText:          _f(game.warningText, game.advertencia, ''),
     updateBadgeVisible:   game.updateBadgeVisible!==false,
@@ -4168,67 +4190,35 @@ function showToast(message){
 // ============================================================
 // THEME
 // ============================================================
-function toggleTheme(){
-  isDarkMode=!isDarkMode;
-  document.body.classList.toggle('light-mode',!isDarkMode);
-  var ti=document.getElementById('theme-icon');
-  if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
-  // Guardar preferencia manual del usuario
-  localStorage.setItem('darkMode',isDarkMode?'dark':'light');
-  applyUIChanges();refreshIcons();
-}
-function loadThemePreference(){
-  var saved=localStorage.getItem('darkMode');
-  if(saved){
-    isDarkMode=saved==='dark';
-    document.body.classList.toggle('light-mode',!isDarkMode);
-    var ti=document.getElementById('theme-icon');
-    if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
-    refreshIcons();
-    return true; // preferencia manual encontrada
-  }
-  return false; // no hay preferencia guardada → usar auto
-}
-function autoThemeDetection(){
-  // 1) PRIORIDAD: preferencia del SISTEMA operativo del usuario (prefers-color-scheme)
-  //    Esto sí refleja "modo oscuro/claro" automático del dispositivo.
-  var sysDark = null;
-  try{
-    if(window.matchMedia){
-      var mq = window.matchMedia('(prefers-color-scheme: dark)');
-      sysDark = mq.matches;
-      // Escuchar cambios en vivo (sin recargar): si el usuario activa modo oscuro
-      // del SO, el sitio cambia al instante — pero solo si NO eligió manualmente.
-      if(!autoThemeDetection._bound){
-        autoThemeDetection._bound = true;
-        var _onChange = function(e){
-          if(localStorage.getItem('darkMode')) return; // respeta elección manual
-          isDarkMode = e.matches;
-          document.body.classList.toggle('light-mode', !isDarkMode);
-          var ti2=document.getElementById('theme-icon');
-          if(ti2)ti2.setAttribute('data-lucide',isDarkMode?'sun':'moon');
-          refreshIcons();
-        };
-        if(mq.addEventListener) mq.addEventListener('change', _onChange);
-        else if(mq.addListener) mq.addListener(_onChange);
-      }
-    }
-  }catch(e){}
-  // 2) FALLBACK: si el navegador no expone prefers-color-scheme, usar hora local
-  if(sysDark === null){
-    var h = new Date().getHours();
-    isDarkMode = !(h >= 6 && h < 18); // claro 6:00–18:00, oscuro el resto
-  } else {
-    isDarkMode = sysDark;
-  }
-  document.body.classList.toggle('light-mode',!isDarkMode);
+function _applyThemeMode(dark){
+  isDarkMode = !!dark;
+  document.body.classList.toggle('light-mode', !isDarkMode);
   var ti=document.getElementById('theme-icon');
   if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
   refreshIcons();
-  // Re-evaluar cada hora (solo afecta el fallback por hora)
+}
+function toggleTheme(){
+  _applyThemeMode(!isDarkMode);
+  localStorage.setItem('darkMode',isDarkMode?'dark':'light');
+  localStorage.setItem('jd_theme_manual','1');
+  applyUIChanges();
+}
+function loadThemePreference(){
+  var manual=localStorage.getItem('jd_theme_manual');
+  var saved=localStorage.getItem('darkMode');
+  if(manual && saved){
+    _applyThemeMode(saved==='dark');
+    return true;
+  }
+  try{ localStorage.removeItem('darkMode'); }catch(e){}
+  return false;
+}
+function autoThemeDetection(){
+  var h = new Date().getHours();
+  _applyThemeMode(!(h >= 6 && h < 18));
   var msToNextHour=(60-new Date().getMinutes())*60000;
   setTimeout(function(){
-    if(!localStorage.getItem('darkMode'))autoThemeDetection();
+    if(!localStorage.getItem('jd_theme_manual'))autoThemeDetection();
   },msToNextHour);
 }
 
