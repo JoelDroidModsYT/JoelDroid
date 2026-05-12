@@ -49,6 +49,30 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="shortcut icon" href="/favicon.ico">
 
+<!-- ══ JSON-LD Organization — Google usa este "logo" como favicon de marca ══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "JoelDroid Mods YT",
+  "alternateName": "JoelDroid",
+  "url": "https://joeldroidmodsyt.github.io/",
+  "logo": "https://joeldroidmodsyt.github.io/logo.png",
+  "sameAs": [
+    "https://www.youtube.com/@JoelDroidModsYT",
+    "https://t.me/joeldroidmods"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "JoelDroid Mods YT",
+  "url": "https://joeldroidmodsyt.github.io/"
+}
+</script>
+
 <!-- ══ FAVICON FALLBACK EMBEBIDO removido ═══════════════════════════
      Se eliminan data-URIs pesados del head para reducir parseo inicial
      y dejar más margen a la carga prioritaria de Monetag.
@@ -101,14 +125,8 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
     }
     document.documentElement.lang = detected;
     window.__JD_PRELANG = detected;
-    // Si no es español, ocultar body 120ms para evitar flash de texto en ES
-    if(detected !== 'es'){
-      document.documentElement.style.visibility = 'hidden';
-      document.addEventListener('DOMContentLoaded', function(){
-        // La visibilidad se restaura en applyTranslations() o tras 400ms máx
-        setTimeout(function(){ document.documentElement.style.visibility = ''; }, 200);
-      });
-    }
+    // ⚠️ Antes ocultaba <html> 200ms — bajaba viewability de Monetag.
+    // Ahora NO se oculta nada. El parpadeo es mínimo y el ad cuenta como visto.
   } catch(e) {}
 })();
 </script>
@@ -3092,18 +3110,22 @@ function _jdStartObserver(){
   var gl = document.getElementById('game-list');
   if(!gl) return;
   _jdObserver = new MutationObserver(function(muts){
-    if(currentLang === 'es') return;
+    /* Si el idioma ya es español, desconectar para no consumir CPU
+       cada vez que Monetag inyecta un slot publicitario. */
+    if(currentLang === 'es'){
+      try{ _jdObserver.disconnect(); }catch(_){} _jdObserver = null; return;
+    }
     if(_jdObsBusy) return;
     _jdObsBusy = true;
-    /* Debounce: translate in next microtask to batch multiple mutations */
     setTimeout(function(){
       _jdObsBusy = false;
       muts.forEach(function(m){
         m.addedNodes.forEach(function(node){
           if(node.nodeType !== 1) return;
-          /* Translate translatable children of the new card */
+          /* Filtrar: solo procesar nodos con elementos traducibles propios.
+             Evita disparar con slots de ads, iframes, scripts, etc. */
+          if(!node.querySelector || (!node.querySelector('[data-jd-tr]') && !node.querySelector('.global-dl-btn-text'))) return;
           node.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
-          /* Translate button label */
           node.querySelectorAll('.global-dl-btn-text').forEach(function(b){
             b.textContent = tStr('Descargar APK');
           });
@@ -5379,6 +5401,7 @@ function _sceneAnioNuevo(){
   var colors2=['#f43f5e','#3b82f6','#f59e0b','#10b981','#8b5cf6','#ec4899','#06b6d4'];
   var burstInterval=setInterval(function(){
     if(_sceneDead){clearInterval(burstInterval);return;}
+    if(document.hidden)return;
     for(var b=0;b<burstN;b++){
       (function(){
         var c2=colors2[Math.floor(Math.random()*colors2.length)];
@@ -5536,6 +5559,7 @@ function _sceneIndependencia(){
   var colors2=['#ef4444','#ffffff','#3b82f6','#fbbf24'];
   var burstInterval=setInterval(function(){
     if(_sceneDead){clearInterval(burstInterval);return;}
+    if(document.hidden)return;
     (function(){
       var c=colors2[Math.floor(Math.random()*colors2.length)];
       var sz2=4+Math.floor(Math.random()*7);
@@ -5613,6 +5637,7 @@ function _sceneDiwali(){
   // Destellos dorados con cleanup correcto
   var diwaliInterval=setInterval(function(){
     if(_sceneDead){clearInterval(diwaliInterval);return;}
+    if(document.hidden)return;
     (function(){
       var sz2=4+Math.floor(Math.random()*7);
       var el2=document.createElement('div');
@@ -6523,22 +6548,21 @@ window.addEventListener('DOMContentLoaded', function() {
       // Anti-clickjacking ELIMINADO: interfería con iframes de Monetag
       // causando freeze del scroll táctil y bloqueo de anuncios.
     
-      // 2) Detectar DevTools (básico) — si se abre la consola ralentizar
-      var _devCheck=function(){
-        /* outerHeight/innerHeight eliminados: forzaban layout reflow
-           completo en Android cada 3s, congelando el scroll */
-        var fields=['gh-token-in','sec-current-code','sec-new-code'];
-        fields.forEach(function(id){
-          var el=document.getElementById(id);
-          if(el && el.value && el.style.display!=='none') el.value='';
+      // 2) Limpieza de campos sensibles: solo en blur (no setInterval).
+      //    El setInterval(3000) anterior generaba actividad continua sin
+      //    interacción, patrón que los bots de calidad de Monetag marcan
+      //    como tráfico de baja calidad → CPM cae.
+      ['gh-token-in','sec-current-code','sec-new-code'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('blur', function(){
+          if(el.value && el.style.display==='none') el.value='';
         });
-      };
-      setInterval(_devCheck,3000);
-    
-      // 3) Deshabilitar clic derecho en imágenes (anti-robo de assets)
-      document.addEventListener('contextmenu',function(e){
-        if(e.target.tagName==='IMG')e.preventDefault();
       });
+    
+      // 3) Bloqueo de clic-derecho ELIMINADO.
+      //    Monetag penaliza patrones "user-hostile" leves; además impide
+      //    interacciones legítimas (guardar imagen, inspeccionar, etc.).
     
       // 4) Proteger contra console injection — override básico en producción
       // Solo se activa si hay config de GitHub (= sitio en producción real)
@@ -6554,13 +6578,19 @@ window.addEventListener('DOMContentLoaded', function() {
       };
       setTimeout(_patchConsole,2000);
     
-      // 5) Detectar intentos de XSS en parámetros URL
+      // 5) Sanitizador XSS — restringido para NO matar parámetros legítimos
+      //    de Monetag/redes (subid, click_id, etc.). Antes el patrón
+      //    onload=|onerror= producía falsos positivos y se borraba toda
+      //    la query string con replaceState → Monetag perdía atribución.
       var _sanitizeURL=function(){
-        var params=window.location.search+window.location.hash;
-        var xssPatterns=/<script|javascript:|data:text\/html|onerror=|onload=/i;
-        if(xssPatterns.test(decodeURIComponent(params))){
-          history.replaceState(null,'',window.location.pathname);
-        }
+        try{
+          var params=decodeURIComponent(window.location.search+window.location.hash);
+          // Solo bloqueamos inyección REAL de tags <script o protocolo javascript:
+          var xssPatterns=/<script\s|javascript:[^/]/i;
+          if(xssPatterns.test(params)){
+            history.replaceState(null,'',window.location.pathname);
+          }
+        }catch(_){}
       };
       _sanitizeURL();
       // CSP definido en <head> como meta estático
@@ -6746,12 +6776,17 @@ window.onload=function(){
      Las cookies se siguen sirviendo normalmente; la negativa solo se registra
      para fines de cumplimiento legal y para informar a Monetag si lo solicita.
 ═══════════════════════════════════════════════════════════════════════════ -->
-<div id="jd-cookie-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;background:#0f172a;color:#fff;border:1px solid #1e293b;border-radius:14px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.45);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:13px;line-height:1.45;max-width:640px;margin:0 auto">
-  <div style="font-weight:800;font-size:14px;margin-bottom:6px">🍪 Aviso de cookies</div>
-  <div style="opacity:.9;margin-bottom:10px">Usamos cookies propias y de terceros (Monetag) para mostrar publicidad y mejorar tu experiencia. Puedes aceptar o rechazar las cookies publicitarias. Más información en nuestra <a href="javascript:void(0)" onclick="jdOpenPolicies()" style="color:#60a5fa;text-decoration:underline">Política de Privacidad</a>.</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button onclick="jdCookieConsent('accept')" style="flex:1;min-width:120px;background:#22c55e;color:#0a0a0a;border:none;border-radius:10px;padding:10px 14px;font-weight:800;font-size:13px;cursor:pointer">Aceptar todas</button>
-    <button onclick="jdCookieConsent('reject')" style="flex:1;min-width:120px;background:#334155;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer">Solo necesarias</button>
+<!-- Banner de cookies MINI: chip discreto en esquina superior derecha.
+     z-index BAJO (9999) para NO competir con In-Page Push / Vignette de Monetag,
+     que viven cerca de los bordes con z-index muy altos. -->
+<div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" style="display:none;position:fixed;top:10px;right:10px;z-index:9999;background:rgba(15,23,42,.96);color:#fff;border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:11px;line-height:1.3;max-width:230px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+    <span style="font-size:13px">🍪</span>
+    <span style="opacity:.92">Usamos cookies para anuncios. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')" style="color:#60a5fa;text-decoration:underline">Más</a></span>
+  </div>
+  <div style="display:flex;gap:5px">
+    <button onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies" style="flex:1;background:#22c55e;color:#0a0a0a;border:0;border-radius:6px;padding:5px 8px;font-weight:800;font-size:11px;cursor:pointer">Aceptar</button>
+    <button onclick="jdCookieConsent('reject')" aria-label="Rechazar cookies" style="flex:1;background:#334155;color:#fff;border:0;border-radius:6px;padding:5px 8px;font-weight:700;font-size:11px;cursor:pointer">Rechazar</button>
   </div>
 </div>
 <script>
