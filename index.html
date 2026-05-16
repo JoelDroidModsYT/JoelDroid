@@ -15,7 +15,7 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.0.7';
+  var APP_VERSION = '1.0.8';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -1479,6 +1479,7 @@ window.__JD_REST_DONE = false;
     if(typeof siteState!=='undefined' && typeof renderGames==='function'){
       siteState.gamesList = sorted;
       try{ renderGames(); }catch(e){}
+      try{ if(typeof checkDeepLink==='function') checkDeepLink(); }catch(e){}
       return;
     }
     list.innerHTML = '';
@@ -1504,6 +1505,7 @@ window.__JD_REST_DONE = false;
     });
     list.appendChild(frag);
     list.dataset.restLoaded = '1';
+    try{ if(typeof checkDeepLink==='function') checkDeepLink(); }catch(e){}
   }
 
   // Exponer para que otras capas puedan forzar render
@@ -1979,7 +1981,7 @@ window.__JD_REST_DONE = false;
     <div class="jd-st-list settings-content-anim">
 
       <!-- Juegos -->
-      <div class="jd-st-item" onclick="closeSettings();resetPage();">
+      <div class="jd-st-item" onclick="closeSettings();filterByCategory('all');">
         <div class="jd-st-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4m-2-2v4"/><circle cx="16" cy="11" r="1" fill="currentColor"/><circle cx="18" cy="13" r="1" fill="currentColor"/>
@@ -2029,7 +2031,7 @@ window.__JD_REST_DONE = false;
       </div>
 
       <!-- Sobre nosotros -->
-      <div class="jd-st-item" onclick="jdStDetail('about')">
+      <div class="jd-st-item" onclick="closeSettings();jdOpenPolicies('about')">
         <div class="jd-st-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -3463,6 +3465,14 @@ var _gamesPageSize = 12;
 var _gamesFiltered = [];
 var _gamesLoadMoreObserver = null;
 
+function _jdStatsSafeId(id){ return String(id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); }
+function _jdVisitScore(g){
+  var stats = window.__JD_STATS || {};
+  var sid = _jdStatsSafeId(g && g.id);
+  var live = stats['gameClicks_'+sid];
+  return Number(live || (g && g.visits) || 0) || 0;
+}
+
 function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
@@ -3507,7 +3517,7 @@ function renderGames(){
       return ta - tb;
     });
   } else if(currentFilter==='popular'){
-    games.sort(function(a,b){ return (b.visits||0)-(a.visits||0); });
+    games.sort(function(a,b){ return _jdVisitScore(b)-_jdVisitScore(a); });
   } else {
     // default: timestamp desc — juegos nuevos/editados primero
     games.sort(function(a,b){
@@ -4562,17 +4572,22 @@ function _handle404Redirect(){
 }
 function checkDeepLink(){
   try{
-    // ── Persistir parámetros del deep-link entre llamadas, incluso si
-    // la URL se limpia o si los juegos llegan después.
     if(!window.__JD_DEEPLINK){
-      var qs0 = window.location.search;
-      var p0  = new URLSearchParams(qs0);
-      var ms  = p0.get('mod');
-      var di  = p0.get('id');
-      var gs  = p0.get('game');
-      if(ms || di || gs){
-        window.__JD_DEEPLINK = { mod: ms||'', id: di||'', game: gs||'', opened:false };
-      }
+      var p0  = new URLSearchParams(window.location.search || '');
+      var h0  = String(window.location.hash || '').replace(/^#/, '');
+      var hp  = new URLSearchParams(h0.indexOf('=') >= 0 ? h0 : '');
+      var path = decodeURIComponent(window.location.pathname || '');
+      var parts = path.split('/').filter(Boolean);
+      var last = parts.length ? parts[parts.length-1] : '';
+      if(/^index\.html?$/i.test(last)) last = '';
+      var pathSlug = '';
+      if(parts.length >= 2 && /^(game|juego|mod|mods|app|apps)$/i.test(parts[parts.length-2])) pathSlug = last;
+      if(!pathSlug && last && !/\.html?$/i.test(last) && !/^(download|descarga)$/i.test(last)) pathSlug = last;
+      var ms = p0.get('mod') || p0.get('slug') || hp.get('mod') || hp.get('slug') || pathSlug || '';
+      var di = p0.get('id') || p0.get('gameId') || hp.get('id') || hp.get('gameId') || '';
+      var gs = p0.get('game') || hp.get('game') || '';
+      if(h0 && !ms && !di && !gs && /^\/?(game|juego|mod|mods)\//i.test(h0)) ms = h0.split('/').pop();
+      if(ms || di || gs) window.__JD_DEEPLINK = { mod: ms||'', id: di||'', game: gs||'', opened:false, tries:0 };
     }
     if(!window.__JD_DEEPLINK || window.__JD_DEEPLINK.opened) return;
     var modSlug  = window.__JD_DEEPLINK.mod;
@@ -4580,77 +4595,54 @@ function checkDeepLink(){
     var gameSlug = window.__JD_DEEPLINK.game;
     if(!modSlug && !directId && !gameSlug) return;
 
-    // Función interna: normaliza cualquier slug/nombre para comparación
     function _normSlug(s){
       if(!s) return '';
-      return s.toString()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // quitar acentos
-        .replace(/-Mod$/i,'')                             // quitar sufijo -Mod si lo tiene
-        .replace(/[^a-zA-Z0-9]+/g,'-')                   // todo lo que no es letra/numero → guion
-        .replace(/^-+|-+$/g,'')                           // trim guiones extremos
-        .toLowerCase();
+      try{ s = decodeURIComponent(String(s)); }catch(_e){ s = String(s); }
+      return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/\.html?$/i,'').replace(/-Mod$/i,'').replace(/\bMod\b$/i,'')
+        .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase();
     }
-
-    var retries = 0;
-    var maxRetries = 150; // ~60 segundos — aguanta cargas lentas de Firebase
-    var openGame = function(){
-      var found = null;
-
-      // 1) Buscar por ?mod= usando slugifyTitle (mismo algoritmo que genera las URLs)
-      if(modSlug && !found){
-        var incomingNorm = _normSlug(decodeURIComponent(modSlug));
-        found = siteState.gamesList.find(function(g){
+    function _list(){
+      var a = (siteState && siteState.gamesList && siteState.gamesList.length) ? siteState.gamesList : [];
+      if((!a || !a.length) && window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length) a = window.__JD_STATIC_GAMES;
+      return a || [];
+    }
+    var games = _list();
+    var found = null;
+    if(directId){
+      found = games.find(function(x){ return x.visible !== false && String(x.id) === String(directId); }) || null;
+    }
+    if(modSlug && !found){
+      var incomingNorm = _normSlug(modSlug);
+      found = games.find(function(g){
+        if(g.visible === false) return false;
+        var name = g.name || g.nombre || '';
+        var generated = (typeof slugifyTitle === 'function') ? _normSlug(slugifyTitle(name)) : _normSlug(name);
+        return generated === incomingNorm || _normSlug(name) === incomingNorm ||
+          (g.slug && _normSlug(g.slug) === incomingNorm) ||
+          (g.nombre_url && _normSlug(g.nombre_url) === incomingNorm);
+      }) || null;
+      if(!found && incomingNorm.length >= 4){
+        found = games.find(function(g){
           if(g.visible === false) return false;
-          // Método principal: usar slugifyTitle (mismo que usa showDetail al generar URL)
-          var generatedSlug = (typeof slugifyTitle === 'function')
-            ? _normSlug(slugifyTitle(g.name || g.nombre || ''))
-            : _normSlug(g.name || g.nombre || '');
-          if(generatedSlug === incomingNorm) return true;
-          // Campos opcionales de Firebase: slug / nombre_url
-          if(g.slug && _normSlug(g.slug) === incomingNorm) return true;
-          if(g.nombre_url && _normSlug(g.nombre_url) === incomingNorm) return true;
-          return false;
-        }) || null;
-
-        // Intento adicional: búsqueda más flexible (substring) para nombres parciales
-        if(!found && incomingNorm.length >= 4){
-          found = siteState.gamesList.find(function(g){
-            if(g.visible === false) return false;
-            var gNorm = _normSlug(g.name || g.nombre || '');
-            return incomingNorm.indexOf(gNorm) !== -1 || gNorm.indexOf(incomingNorm) !== -1;
-          }) || null;
-        }
-      }
-
-      // 2) Buscar por ?id= (legacy — compatibilidad)
-      if(directId && !found){
-        found = siteState.gamesList.find(function(x){
-          return String(x.id) === String(directId);
+          var gNorm = _normSlug(g.name || g.nombre || '');
+          return gNorm && (incomingNorm.indexOf(gNorm) !== -1 || gNorm.indexOf(incomingNorm) !== -1);
         }) || null;
       }
-
-      // 3) Buscar por ?game= (slug legacy)
-      if(gameSlug && !found){
-        found = findGameBySlug(gameSlug);
-      }
-
-      if(found){
-        // Marcar deep-link como resuelto para no re-disparar
-        if(window.__JD_DEEPLINK) window.__JD_DEEPLINK.opened = true;
-        // Limpiar URL solo después de haber encontrado el juego
-        try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
-        showDetail(found.id);
-        return;
-      }
-      // Reintentar mientras Firebase carga los juegos — hasta ~60s
-      if(++retries < maxRetries){
-        var delay = retries < 15 ? 50 : retries < 30 ? 150 : retries < 60 ? 400 : 800;
-        setTimeout(openGame, delay);
-      }
-    };
-    // Apertura instantánea: si hay caché, ejecuta YA; si no, microtask sin delay perceptible
-    if(siteState.gamesList && siteState.gamesList.length > 0){ openGame(); }
-    else { Promise.resolve().then(openGame); }
+    }
+    if(gameSlug && !found && typeof findGameBySlug === 'function') found = findGameBySlug(gameSlug);
+    if(found){
+      if(siteState && (!siteState.gamesList || !siteState.gamesList.length)) siteState.gamesList = games;
+      window.__JD_DEEPLINK.opened = true;
+      showDetail(found.id);
+      return;
+    }
+    window.__JD_DEEPLINK.tries = (window.__JD_DEEPLINK.tries||0) + 1;
+    if(window.__JD_DEEPLINK.tries < 80){
+      setTimeout(checkDeepLink, window.__JD_DEEPLINK.tries < 20 ? 80 : 250);
+    }else{
+      try{ showToast('⚠️ No se encontró el juego del enlace. Actualiza o revisa si sigue publicado.'); }catch(_e){}
+    }
   }catch(e){}
 }
 
@@ -5793,22 +5785,47 @@ function _shareExecCopy(url){
   }
 }
 
+function _jdStatsSafeId(id){ return String(id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); }
+function _jdToday(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function _ensureStatsAuth(cb){
+  try{
+    if(!_fbAuth) return cb();
+    if(_fbAuth.currentUser) return cb();
+    if(typeof _fbAuth.signInAnonymously === 'function'){
+      _fbAuth.signInAnonymously().then(cb).catch(function(){ cb(); });
+    }else cb();
+  }catch(e){ cb(); }
+}
 function _trackVisit(){
   try{
     if(!_db) return;
-    _db.collection('siteConfig').doc('stats').set({
-      visits: firebase.firestore.FieldValue.increment(1),
-      lastVisit: firebase.firestore.FieldValue.serverTimestamp()
-    },{merge:true}).catch(function(){});
+    _ensureStatsAuth(function(){
+      var hoy=_jdToday(), mes=hoy.slice(0,7);
+      var update={visits: firebase.firestore.FieldValue.increment(1), lastVisit: firebase.firestore.FieldValue.serverTimestamp()};
+      update['daily.'+hoy]=firebase.firestore.FieldValue.increment(1);
+      update['monthly.'+mes]=firebase.firestore.FieldValue.increment(1);
+      _db.collection('siteConfig').doc('stats').set(update,{merge:true}).catch(function(){});
+    });
   }catch(e){}
 }
 function _trackClick(gameId, gameName){
   try{
     if(!_db || !gameId) return;
-    var safeId = String(gameId).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40);
-    var upd = { ['gameClicks_'+safeId]: firebase.firestore.FieldValue.increment(1) };
-    upd['gameName_'+safeId] = gameName||'';
-    _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
+    _ensureStatsAuth(function(){
+      var safeId = _jdStatsSafeId(gameId);
+      var hoy=_jdToday();
+      var upd = { lastClick: firebase.firestore.FieldValue.serverTimestamp() };
+      upd['gameClicks_'+safeId] = firebase.firestore.FieldValue.increment(1);
+      upd['gameName_'+safeId] = gameName||'';
+      upd['gameDaily_'+safeId+'.'+hoy] = firebase.firestore.FieldValue.increment(1);
+      _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
+      _db.collection('mods').doc(String(gameId)).set({visits:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
+      try{
+        var g=(siteState.gamesList||[]).find(function(x){return String(x.id)===String(gameId);});
+        if(g) g.visits=(Number(g.visits)||0)+1;
+        _saveGamesCache(siteState.gamesList||[]);
+      }catch(_e){}
+    });
   }catch(e){}
 }
 var _statsUnsub = null;
@@ -5916,7 +5933,7 @@ function _initShareBtn(){
 
 var _db = null, _fbAuth = null, _fbUser = null;
 var _fbReady = false, _fbInitDone = false;
-var _fbModsUnsub = null, _fbCfgUnsub = null;
+var _fbModsUnsub = null, _fbCfgUnsub = null, _fbStatsUnsub = null;
 var _syncPollTimer = null, _lastSyncHash = '';
 
 // ── Inicializar Firebase con caché offline + reintentos inteligentes ──
@@ -5951,11 +5968,13 @@ function _initFirebase(){
     // ── ARRANCAR LISTENERS (UNA SOLA VEZ) ─────────────────────
     _fbListenMods();
     _fbListenConfig();
+    _fbListenStatsPublic();
 
     // ── Reconexión automática al volver online ─────────────────
     window.addEventListener('online', function(){
       _fbListenMods();
       _fbListenConfig();
+      _fbListenStatsPublic();
     });
 
     // ── Escuchar autenticación ────────────────────────────────
@@ -6151,6 +6170,24 @@ function _fbListenMods(){
 
 // Escuchar configuración del sitio — cuando admin cambia colores,
 // banners, anuncios, YouTube, etc., se aplica en tiempo real para todos
+
+function _fbListenStatsPublic(){
+  if(!_db) return;
+  if(_fbStatsUnsub){ _fbStatsUnsub(); _fbStatsUnsub = null; }
+  _fbStatsUnsub = _db.collection('siteConfig').doc('stats').onSnapshot(function(doc){
+    if(!doc.exists) return;
+    var data = doc.data() || {};
+    window.__JD_STATS = data;
+    try{
+      (siteState.gamesList||[]).forEach(function(g){
+        var v = data['gameClicks_'+_jdStatsSafeId(g.id)];
+        if(v !== undefined) g.visits = Number(v)||0;
+      });
+      if(currentFilter === 'popular') renderGames();
+    }catch(e){}
+  }, function(){});
+}
+
 function _fbListenConfig(){
   if(!_db) return;
   if(_fbCfgUnsub){ _fbCfgUnsub(); _fbCfgUnsub = null; }
@@ -6829,7 +6866,7 @@ window.onload=function(){
         }catch(_h){}
       }
     };
-    window.jdOpenPolicies=function(){
+    window.jdOpenPolicies=function(section){
       var pv=document.getElementById('policies-view');
       if(!pv) return;
       try{ closeSettings(); }catch(_e){}
@@ -6837,6 +6874,14 @@ window.onload=function(){
       document.body.classList.add('policies-open');
       pv.classList.remove('hidden');
       pv.style.display='block';
+      try{
+        document.querySelectorAll('#policies-view [data-policy-section]').forEach(function(block){ block.style.display=''; });
+        if(section){
+          document.querySelectorAll('#policies-view [data-policy-section]').forEach(function(block){
+            if(block.getAttribute('data-policy-section') !== section && section !== 'all') block.style.display='none';
+          });
+        }
+      }catch(_ps){}
       var b=document.getElementById('jd-cookie-banner');
       if(b) b.style.display='none';
       try{ history.replaceState(null,'','#policies'); }catch(_e3){}

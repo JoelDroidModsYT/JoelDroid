@@ -567,7 +567,7 @@ body{
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Gestión de Juegos</h3>
         <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px" onclick="openGameEditor()">Agregar Nuevo Juego</button>
-        <button style="width:100%;padding:11px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(16,185,129,.12);color:#34d399;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:8px" onclick="migrateGameIconsToStorage()">🚀 Optimizar iconos a Firebase Storage</button>
+        <button style="width:100%;padding:11px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(16,185,129,.12);color:#34d399;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:8px" onclick="migrateGameIconsToStorage()">🚀 Optimizar iconos en base64</button>
         <div id="icon-migration-status" style="display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#34d399;font-size:10px;font-weight:800;line-height:1.45"></div>
         <div id="game-list-editor" class="mt-4 space-y-2"></div>
       </div>
@@ -624,7 +624,7 @@ body{
         <label class="ged-label">— o sube desde tu dispositivo —</label>
         <input type="file" id="editor-icon-file" accept="image/*" style="display:none" onchange="(function(f){if(f.files&&f.files[0]){var p=document.getElementById('ged-icon-preview');p.src=URL.createObjectURL(f.files[0]);p.className='ged-icon-preview show';}})(this)">
         <div class="ged-file-btn" onclick="document.getElementById('editor-icon-file').click()">📂 Seleccionar imagen local</div>
-        <p style="font-size:8px;color:rgba(16,185,129,.75);font-weight:800;margin-top:8px;line-height:1.4">Las imágenes nuevas se suben a Firebase Storage y se guardan como URL ligera, no como base64.</p>
+        <p style="font-size:8px;color:rgba(16,185,129,.75);font-weight:800;margin-top:8px;line-height:1.4">Las imágenes nuevas se optimizan y se guardan en base64 dentro de Firebase/Firestore. No se usa Firebase Storage.</p>
       </div>
             <div class="ged-section">
         <div class="ged-section-title">📸 Capturas de Pantalla (máx. 4)</div>
@@ -865,6 +865,31 @@ function _dataURLToBlob(dataURL){
   for(var i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
   return new Blob([arr],{type:mime});
 }
+function _blobToDataURL(blob){
+  return new Promise(function(resolve,reject){ var r=new FileReader(); r.onload=function(e){resolve(e.target.result);}; r.onerror=reject; r.readAsDataURL(blob); });
+}
+function _fileToOptimizedDataURL(file, maxW, quality){
+  maxW=maxW||520; quality=quality||0.82;
+  return new Promise(function(resolve,reject){
+    try{
+      var img=new Image(); var url=URL.createObjectURL(file);
+      img.onload=function(){
+        var w=img.width,h=img.height;
+        if(w>maxW){ h=Math.round(h*(maxW/w)); w=maxW; }
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg',quality));
+      };
+      img.onerror=function(){ URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+      img.src=url;
+    }catch(e){ reject(e); }
+  });
+}
+function _optimizeDataURL(dataURL,maxW,quality){
+  try{ return _fileToOptimizedDataURL(_dataURLToBlob(dataURL),maxW||520,quality||0.82); }
+  catch(e){ return Promise.resolve(dataURL); }
+}
 function _withUploadTimeout(uploadTask, ms){
   ms = ms || 12000;
   return new Promise(function(resolve, reject){
@@ -918,10 +943,10 @@ function _uploadIconBlob(blob, gameId, fileName){
   return _withUploadTimeout(_task, 12000);
 }
 function _uploadIconFile(file, gameId){
-  return _uploadIconBlob(file, gameId, file&&file.name||'icon');
+  return _fileToOptimizedDataURL(file, 420, 0.84);
 }
 function _uploadDataIcon(dataURL, gameId){
-  return _uploadIconBlob(_dataURLToBlob(dataURL), gameId, 'icon_from_base64.png');
+  return _optimizeDataURL(dataURL, 420, 0.84);
 }
 function _setIconMigrationStatus(msg,color){
   var el=document.getElementById('icon-migration-status');
@@ -1195,7 +1220,26 @@ function _mergeState(remote){
   });
 }
 
-function liveUpdate(){saveSettings();}
+function _collectSettingsFromInputs(){
+  var val=function(id){var e=document.getElementById(id);return e?e.value:'';};
+  var chk=function(id,def){var e=document.getElementById(id);return e?e.checked:def;};
+  siteState.ui.title=val('site-title-in')||siteState.ui.title;
+  siteState.ui.subtitle=val('site-subtitle-in')||siteState.ui.subtitle;
+  siteState.ui.logoUrl=val('logo-url-in')||siteState.ui.logoUrl;
+  siteState.ui.logoVisible=!chk('logo-visibility-switch',!siteState.ui.logoVisible);
+  siteState.announcement.text=val('ann-text-in'); siteState.announcement.url=val('ann-url-in'); siteState.announcement.visible=!chk('announcement-visibility-switch',!siteState.announcement.visible);
+  siteState.banner.title=val('banner-title-in'); siteState.banner.subtitle=val('banner-subtitle-in'); siteState.banner.visible=!chk('banner-visibility-switch',!siteState.banner.visible);
+  siteState.updatedBanner.title=val('updated-banner-title-in'); siteState.updatedBanner.subtitle=val('updated-banner-subtitle-in'); siteState.updatedBanner.visible=!chk('updated-banner-visibility-switch',!siteState.updatedBanner.visible);
+  siteState.popularBanner.title=val('popular-banner-title-in'); siteState.popularBanner.subtitle=val('popular-banner-subtitle-in'); siteState.popularBanner.visible=!chk('popular-banner-visibility-switch',!siteState.popularBanner.visible);
+  siteState.popularBanner.popularTopBadgeText=val('popular-top-badge-text-in'); siteState.popularBanner.popularBadgeText=val('popular-badge-text-in');
+  siteState.copyright.text=val('copyright-text-in')||siteState.copyright.text;
+  siteState.verification.text=val('verification-text-in')||siteState.verification.text;
+  siteState.buttonSettings.globalHomeButtonText=val('global-home-button-text-in')||siteState.buttonSettings.globalHomeButtonText;
+  siteState.buttonSettings.globalDetailButtonText=val('global-detail-button-text-in')||siteState.buttonSettings.globalDetailButtonText;
+  siteState.youtubeUrl=val('youtube-url-in'); siteState.installYoutubeUrl=val('install-youtube-url-in'); siteState.ytChannelUrl=val('yt-channel-url-in');
+  siteState.youtubeVisible=chk('youtube-visible-switch',siteState.youtubeVisible!==false); siteState.installVisible=chk('install-visible-switch',siteState.installVisible!==false);
+}
+function liveUpdate(){_collectSettingsFromInputs();saveSettings();}
 
 // ════════════════════════════════════════════════════════════════
 // ADMIN UI RENDER
@@ -1302,65 +1346,21 @@ function handleLogoFileChange(input){
   if(!input.files||!input.files[0])return;
   var file=input.files[0];
   if(file.size > 5*1024*1024){ showToast('⚠️ El archivo supera 5MB. Usa una imagen más pequeña.'); return; }
-
-  // Preview inmediato en el panel
-  var reader0=new FileReader();
-  reader0.onload=function(ev){
+  showToast('⏳ Optimizando logo en base64...');
+  _fileToOptimizedDataURL(file, 512, 0.86).then(function(url){
     var prev=document.getElementById('logo-admin-preview');
-    if(prev){ prev.src=ev.target.result; prev.style.display='block'; }
-  };
-  reader0.readAsDataURL(file);
-
-  showToast('⏳ Subiendo logo...');
-
-  // Intentar subir a Firebase Storage
-  var _guardarURL=function(url){
+    if(prev){ prev.src=url; prev.style.display='block'; }
     siteState.ui.logoUrl=url;
     saveSettings();
-    // Propagar a Firestore para que index.html lo reciba en tiempo real
     if(_db&&_isAdmin()){
       _db.collection('siteConfig').doc('main').set({ui:{logoUrl:url}},{merge:true})
-        .then(function(){
-          showToast('✅ Logo guardado — visible para todos 🌍');
-          _updateFaviconAdmin(url);
-        })
-        .catch(function(){ showToast('✅ Logo guardado localmente'); });
+        .then(function(){ showToast('✅ Logo base64 guardado en Firebase/Firestore 🌍'); _updateFaviconAdmin(url); })
+        .catch(function(e){ showToast('⚠️ Logo guardado localmente: '+(e.message||e)); });
     } else {
-      showToast('✅ Logo actualizado');
-      _updateFaviconAdmin(url);
+      showToast('✅ Logo actualizado en base64'); _updateFaviconAdmin(url);
     }
-  };
-
-  // Intentar Firebase Storage primero
-  var _storageListo = typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&
-    (typeof firebase.storage !== 'undefined');
-
-  if(_storageListo){
-    try{
-      var storageRef=firebase.storage().ref('config/logo_'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
-      var _logoTask = storageRef.put(file);
-      _withUploadTimeout(_logoTask, 12000)
-        .then(function(url){ _guardarURL(url); })
-        .catch(function(e){
-          // Si Storage falla, usar base64 como fallback
-          showToast('⚠️ Storage falló, usando base64...');
-          var r=new FileReader();
-          r.onload=function(ev){ _guardarURL(ev.target.result); };
-          r.readAsDataURL(file);
-        });
-    } catch(e){
-      var r2=new FileReader();
-      r2.onload=function(ev){ _guardarURL(ev.target.result); };
-      r2.readAsDataURL(file);
-    }
-  } else {
-    // Sin Firebase Storage: guardar como base64
-    var r3=new FileReader();
-    r3.onload=function(ev){ _guardarURL(ev.target.result); };
-    r3.readAsDataURL(file);
-  }
+  }).catch(function(e){ showToast('❌ No se pudo optimizar logo: '+(e.message||e)); });
 }
-
 // Actualizar favicon del panel admin en tiempo real cuando cambia el logo
 function _updateFaviconAdmin(url){
   try{
@@ -1417,6 +1417,7 @@ function updateUpdatedBanner(){
   saveSettings();showToast('✅ Banner Actualizados guardado');
 }
 function updatePopularBanner(){
+  _collectSettingsFromInputs();
   siteState.popularBanner.title=document.getElementById('popular-banner-title-in').value;
   siteState.popularBanner.subtitle=document.getElementById('popular-banner-subtitle-in').value;
   siteState.popularBanner.visible=!document.getElementById('popular-banner-visibility-switch').checked;
@@ -1632,10 +1633,7 @@ function _gedCompressImage(file, maxW){
 
 // Sube un Blob de screenshot a Firebase Storage
 function _uploadScreenBlob(blob, gameId, idx){
-  if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
-  var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
-  var _task = firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'});
-  return _withUploadTimeout(_task, 12000);
+  return _blobToDataURL(blob);
 }
 
 // Resuelve los 4 slots de screenshots: sube los Files y devuelve un array de URLs (sin huecos vacíos)
@@ -1717,8 +1715,8 @@ function saveGame(){
     var file=fileInput.files[0];
     var preview=document.getElementById('ged-icon-preview');
     if(preview){ preview.src=URL.createObjectURL(file); preview.className='ged-icon-preview show'; }
-    showToast('⏳ Subiendo icono a Firebase Storage...');
-    if(!_storageReady()&&typeof _initFirebase==='function') _initFirebase();
+    showToast('⏳ Optimizando icono en base64...');
+    
     _uploadIconFile(file, editId||Date.now())
       .then(function(url){
         document.getElementById('editor-icon-url').value=url;
@@ -1818,32 +1816,25 @@ function deleteGameGlobal(gameId){
 
 function migrateGameIconsToStorage(){
   if(!_fbReady||!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin y espera Firebase');return;}
-  if(!_storageReady()){try{_initFirebase();}catch(e){} showToast('⏳ Preparando Firebase Storage...');}
   var games=(siteState.gamesList||[]).filter(function(g){return _isDataImage(g.thumb||g.imagen||g.icon||'');});
-  if(!games.length){_setIconMigrationStatus('✅ No hay iconos base64 pendientes. Tu games.json ya está ligero.','#10b981');showToast('✅ Sin iconos base64 pendientes');return;}
-  if(!confirm('Se subirán '+games.length+' iconos base64 a Firebase Storage y luego se actualizará games.json. ¿Continuar?'))return;
+  if(!games.length){_setIconMigrationStatus('✅ No hay iconos base64 pendientes de optimizar.','#10b981');showToast('✅ Sin iconos pendientes');return;}
   var i=0, ok=0, fail=0;
-  _setIconMigrationStatus('⏳ Migrando 0/'+games.length+' iconos...','#fbbf24');
+  _setIconMigrationStatus('⏳ Optimizando 0/'+games.length+' iconos base64...','#fbbf24');
   function next(){
     if(i>=games.length){
-      _setIconMigrationStatus('✅ Migración terminada: '+ok+' iconos optimizados, '+fail+' errores. Sincronizando games.json...','#10b981');
-      try{_syncGamesToGistWithCallback(function(done,msg){
-        _setIconMigrationStatus(done?'✅ games.json actualizado con URLs ligeras. Próximas visitas cargan más rápido.':'⚠️ Iconos migrados, pero games.json no sincronizó: '+msg, done?'#10b981':'#f59e0b');
-      });}catch(e){_setIconMigrationStatus('⚠️ Iconos migrados, presiona sincronizar games.json manualmente.','#f59e0b');}
-      renderGameEditorList();
-      return;
+      _setIconMigrationStatus('✅ Optimización terminada: '+ok+' iconos guardados en Firestore, '+fail+' errores. Sincronizando games.json...','#10b981');
+      try{_syncGamesToGistWithCallback(function(done,msg){_setIconMigrationStatus(done?'✅ games.json actualizado con iconos base64 optimizados.':'⚠️ Optimizado, pero games.json no sincronizó: '+msg, done?'#10b981':'#f59e0b');});}catch(e){}
+      renderGameEditorList(); return;
     }
-    var g=games[i++];
-    var src=g.thumb||g.imagen||g.icon||'';
-    _setIconMigrationStatus('⏳ Migrando '+i+'/'+games.length+': '+(g.name||g.id||'juego'),'#fbbf24');
-    _uploadDataIcon(src,g.id).then(function(url){
+    var g=games[i++]; var src=g.thumb||g.imagen||g.icon||'';
+    _setIconMigrationStatus('⏳ Optimizando '+i+'/'+games.length+': '+(g.name||g.id||'juego'),'#fbbf24');
+    _optimizeDataURL(src,420,0.84).then(function(url){
       g.thumb=url; delete g.imagen; delete g.icon;
       return _db.collection('mods').doc(String(g.id)).set({thumb:url,imagen:firebase.firestore.FieldValue.delete(),icon:firebase.firestore.FieldValue.delete(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-    }).then(function(){ok++;setTimeout(next,120);}).catch(function(e){fail++;console.warn('Icon migration failed',g&&g.id,e);setTimeout(next,120);});
+    }).then(function(){ok++;setTimeout(next,40);}).catch(function(e){fail++;console.warn('Icon optimize failed',g&&g.id,e);setTimeout(next,40);});
   }
   next();
 }
-
 // ════════════════════════════════════════════════════════════════
 // GITHUB SYNC
 // ════════════════════════════════════════════════════════════════
@@ -1896,7 +1887,8 @@ function _buildGamesPayload(){
       dlPageName2:          g.dlPageName2 || '',
       dlPageVer2:           g.dlPageVer2 || '',
       dlPageSize2:          g.dlPageSize2 || '',
-      dlPageBtn2:           g.dlPageBtn2 || ''
+      dlPageBtn2:           g.dlPageBtn2 || '',
+      screenshots:          Array.isArray(g.screenshots) ? g.screenshots : (Array.isArray(g.capturas) ? g.capturas : [])
     };
   });
   return JSON.stringify({
