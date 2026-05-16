@@ -865,6 +865,42 @@ function _dataURLToBlob(dataURL){
   for(var i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
   return new Blob([arr],{type:mime});
 }
+function _withUploadTimeout(uploadTask, ms){
+  ms = ms || 12000;
+  return new Promise(function(resolve, reject){
+    var done = false;
+    var anyProgress = false;
+    var timer = setTimeout(function(){
+      if(done) return; done = true;
+      try{ uploadTask.cancel(); }catch(_e){}
+      reject(new Error('Tiempo de espera agotado ('+(ms/1000)+'s) — usando base64'));
+    }, ms);
+    // Watchdog: si Firebase no emite NI UN solo progreso en 4s
+    // el upload está colgado (reglas/CORS/auth). Disparamos fallback YA.
+    var stalledTimer = setTimeout(function(){
+      if(done || anyProgress) return; done = true;
+      clearTimeout(timer);
+      try{ uploadTask.cancel(); }catch(_e){}
+      reject(new Error('Upload colgado (sin progreso en 4s) — usando base64'));
+    }, 4000);
+    uploadTask.on('state_changed',
+      function(snap){
+        anyProgress = true;
+        try{
+          var pct = snap.totalBytes ? Math.round((snap.bytesTransferred/snap.totalBytes)*100) : 0;
+          if(typeof showToast==='function' && pct && pct % 25 === 0){
+            showToast('⏫ Subiendo... '+pct+'%');
+          }
+        }catch(_e){}
+      },
+      function(err){ if(done) return; done = true; clearTimeout(timer); clearTimeout(stalledTimer); reject(err); },
+      function(){
+        if(done) return; done = true; clearTimeout(timer); clearTimeout(stalledTimer);
+        uploadTask.snapshot.ref.getDownloadURL().then(resolve, reject);
+      }
+    );
+  });
+}
 function _storageReady(){
   return typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&typeof firebase.storage==='function';
 }
@@ -878,8 +914,8 @@ function _uploadIconBlob(blob, gameId, fileName){
   }
   var path='game-icons/'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+Date.now()+'_'+_safeFileName(fileName||('icon.'+ext));
   if(path.indexOf('.')<0) path+='.'+ext;
-  return firebase.storage().ref(path).put(blob,{contentType:(blob&&blob.type)||'image/png'})
-    .then(function(snap){return snap.ref.getDownloadURL();});
+  var _task = firebase.storage().ref(path).put(blob,{contentType:(blob&&blob.type)||'image/png'});
+  return _withUploadTimeout(_task, 12000);
 }
 function _uploadIconFile(file, gameId){
   return _uploadIconBlob(file, gameId, file&&file.name||'icon');
@@ -1302,8 +1338,8 @@ function handleLogoFileChange(input){
   if(_storageListo){
     try{
       var storageRef=firebase.storage().ref('config/logo_'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'_'));
-      storageRef.put(file)
-        .then(function(snap){ return snap.ref.getDownloadURL(); })
+      var _logoTask = storageRef.put(file);
+      _withUploadTimeout(_logoTask, 12000)
         .then(function(url){ _guardarURL(url); })
         .catch(function(e){
           // Si Storage falla, usar base64 como fallback
@@ -1598,8 +1634,8 @@ function _gedCompressImage(file, maxW){
 function _uploadScreenBlob(blob, gameId, idx){
   if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
   var path='game-icons/screen_'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_s'+idx+'_'+Date.now()+'.jpg';
-  return firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'})
-    .then(function(snap){return snap.ref.getDownloadURL();});
+  var _task = firebase.storage().ref(path).put(blob,{contentType:'image/jpeg'});
+  return _withUploadTimeout(_task, 12000);
 }
 
 // Resuelve los 4 slots de screenshots: sube los Files y devuelve un array de URLs (sin huecos vacíos)
