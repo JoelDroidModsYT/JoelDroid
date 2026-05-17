@@ -42,7 +42,6 @@ var GAMES_GIST_RAW = 'https://gist.githubusercontent.com/JoelDroidModsYT/'+GAMES
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" defer></script>
 
 <style>
@@ -567,7 +566,7 @@ body{
       <div class="space-y-2 p-4 border rounded-xl border-blue-500/30">
         <h3 class="font-bold uppercase text-blue-400">Gestión de Juegos</h3>
         <button style="width:100%;padding:13px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,.5);margin-top:10px" onclick="openGameEditor()">Agregar Nuevo Juego</button>
-        <button style="width:100%;padding:11px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(16,185,129,.12);color:#34d399;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:8px" onclick="migrateGameIconsToStorage()">🚀 Optimizar iconos en base64</button>
+        <button style="width:100%;padding:11px;border:1px solid rgba(16,185,129,.35);border-radius:14px;background:rgba(16,185,129,.12);color:#34d399;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:8px" onclick="optimizeGameIconsBase64()">🚀 Optimizar iconos en base64</button>
         <div id="icon-migration-status" style="display:none;margin-top:8px;padding:9px 11px;border-radius:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#34d399;font-size:10px;font-weight:800;line-height:1.45"></div>
         <div id="game-list-editor" class="mt-4 space-y-2"></div>
       </div>
@@ -629,7 +628,7 @@ body{
             <div class="ged-section">
         <div class="ged-section-title">📸 Capturas de Pantalla (máx. 4)</div>
         <div style="font-size:8px;color:rgba(56,189,248,.6);margin-bottom:10px;padding:6px 8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.15);border-radius:8px;line-height:1.5">
-          Hasta 4 imágenes (estilo Play Store). Sube desde tu dispositivo (se optimizan automáticamente a ~700px JPG ~80%) o pega una URL. Se muestran con scroll horizontal en el sitio.
+          Hasta 4 imágenes (estilo Play Store). Sube desde tu dispositivo (se comprimen a Base64 liviano para Firestore, sin Storage) o pega una URL. Se muestran con scroll horizontal en el sitio.
         </div>
         <div id="ged-screens-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
       </div>
@@ -927,26 +926,16 @@ function _withUploadTimeout(uploadTask, ms){
   });
 }
 function _storageReady(){
-  return typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length&&typeof firebase.storage==='function';
+  return false; // Este panel NO usa Firebase Storage: todo queda en Base64 dentro de Firestore/Gist.
 }
 function _uploadIconBlob(blob, gameId, fileName){
-  if(!_storageReady()) return Promise.reject(new Error('Firebase Storage no está listo'));
-  var ext='png';
-  if(blob&&blob.type){
-    if(blob.type.indexOf('webp')>=0) ext='webp';
-    else if(blob.type.indexOf('jpeg')>=0||blob.type.indexOf('jpg')>=0) ext='jpg';
-    else if(blob.type.indexOf('gif')>=0) ext='gif';
-  }
-  var path='game-icons/'+String(gameId||Date.now()).replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+Date.now()+'_'+_safeFileName(fileName||('icon.'+ext));
-  if(path.indexOf('.')<0) path+='.'+ext;
-  var _task = firebase.storage().ref(path).put(blob,{contentType:(blob&&blob.type)||'image/png'});
-  return _withUploadTimeout(_task, 12000);
+  return _blobToDataURL(blob);
 }
 function _uploadIconFile(file, gameId){
-  return _fileToOptimizedDataURL(file, 420, 0.84);
+  return _fileToOptimizedDataURL(file, 320, 0.76);
 }
 function _uploadDataIcon(dataURL, gameId){
-  return _optimizeDataURL(dataURL, 420, 0.84);
+  return _optimizeDataURL(dataURL, 320, 0.76);
 }
 function _setIconMigrationStatus(msg,color){
   var el=document.getElementById('icon-migration-status');
@@ -1216,7 +1205,7 @@ function _mergeState(remote){
     showGeoShapes:remote.showGeoShapes!==false,activeScene:remote.activeScene||'none',
     // gamesList NUNCA se toma del Gist principal (joeldroid_state.json)
     // Los juegos vienen de Firestore onSnapshot o del editor local — nunca del estado remoto
-    gamesList:siteState.gamesList&&siteState.gamesList.length>0?siteState.gamesList:[]
+    gamesList:(siteState.gamesList&&siteState.gamesList.length>0)?siteState.gamesList:(Array.isArray(remote.gamesList)?remote.gamesList:[])
   });
 }
 
@@ -1610,7 +1599,7 @@ function _gedScreenClear(i){ _GED_SCREENS[i]=''; _GED_SCREENS_FILES[i]=null; _ge
 
 // Comprime y redimensiona la imagen antes de subir (~700px de ancho máx, JPG ~80%)
 function _gedCompressImage(file, maxW){
-  maxW = maxW || 700;
+  maxW = maxW || 420;
   return new Promise(function(resolve,reject){
     try{
       var img=new Image(); var url=URL.createObjectURL(file);
@@ -1623,7 +1612,7 @@ function _gedCompressImage(file, maxW){
           URL.revokeObjectURL(url);
           if(!b) return reject(new Error('toBlob falló'));
           resolve(b);
-        },'image/jpeg',0.82);
+        },'image/jpeg',0.62);
       };
       img.onerror=function(e){ URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
       img.src=url;
@@ -1631,7 +1620,7 @@ function _gedCompressImage(file, maxW){
   });
 }
 
-// Sube un Blob de screenshot a Firebase Storage
+// Convierte screenshots a Base64. No se usa Firebase Storage.
 function _uploadScreenBlob(blob, gameId, idx){
   return _blobToDataURL(blob);
 }
@@ -1644,19 +1633,12 @@ function _gedResolveScreens(gameId){
       var f=_GED_SCREENS_FILES[idx];
       if(f){
         tasks.push(
-          _gedCompressImage(f,700)
+          _gedCompressImage(f,420)
             .then(function(blob){ return _uploadScreenBlob(blob,gameId,idx); })
             .then(function(url){ return {idx:idx,url:url}; })
             .catch(function(e){
-              try{console.warn('[screens] storage falló slot '+idx+':',e&&e.message||e);showToast('⚠️ Captura '+(idx+1)+': '+(e&&e.message||'error')+' — usando base64');}catch(_e){}
-              // Fallback: base64 comprimido si Storage falla
-              return new Promise(function(res){
-                _gedCompressImage(f,500).then(function(b){
-                  var r=new FileReader();
-                  r.onload=function(ev){ res({idx:idx,url:ev.target.result}); };
-                  r.readAsDataURL(b);
-                }).catch(function(){ res({idx:idx,url:_GED_SCREENS[idx]||''}); });
-              });
+              try{console.warn('[screens] base64 falló slot '+idx+':',e&&e.message||e);showToast('⚠️ Captura '+(idx+1)+': '+(e&&e.message||'error'));}catch(_e){}
+              return Promise.resolve({idx:idx,url:_GED_SCREENS[idx]||''});
             })
         );
       }else{
@@ -1668,6 +1650,49 @@ function _gedResolveScreens(gameId){
     var arr=['','','',''];
     results.forEach(function(r){ arr[r.idx]=r.url; });
     return arr.filter(function(u){ return u && u.trim(); });
+  });
+}
+
+function _jdByteSize(obj){
+  try{ return new Blob([typeof obj==='string'?obj:JSON.stringify(obj)]).size; }catch(e){ return (typeof obj==='string'?obj:JSON.stringify(obj||{})).length; }
+}
+function _prepareGameMediaForFirestore(data){
+  data = Object.assign({}, data || {});
+  var screens = Array.isArray(data.screenshots) ? data.screenshots.slice(0,4) : [];
+  var tasks = [];
+  if(_isDataImage(data.thumb)){
+    tasks.push(_optimizeDataURL(data.thumb,320,0.74).then(function(u){ data.thumb=u; }));
+  }
+  screens.forEach(function(u,i){
+    if(_isDataImage(u)){
+      tasks.push(_optimizeDataURL(u,420,0.60).then(function(x){ screens[i]=x; }));
+    }
+  });
+  return Promise.all(tasks).then(function(){
+    data.screenshots = screens.filter(function(u){return u && String(u).trim();});
+    var size = _jdByteSize(data);
+    if(size <= 880000) return data;
+    showToast('⚠️ Imágenes pesadas: aplicando compresión extra para Firebase...');
+    var extra=[];
+    if(_isDataImage(data.thumb)){ extra.push(_optimizeDataURL(data.thumb,240,0.64).then(function(u){data.thumb=u;})); }
+    data.screenshots.forEach(function(u,i){
+      if(_isDataImage(u)){ extra.push(_optimizeDataURL(u,320,0.48).then(function(x){data.screenshots[i]=x;})); }
+    });
+    return Promise.all(extra).then(function(){
+      data.screenshots = data.screenshots.filter(function(u){return u && String(u).trim();});
+      while(data.screenshots.length > 2 && _jdByteSize(data) > 980000){ data.screenshots.pop(); }
+      if(_jdByteSize(data) > 980000){
+        showToast('⚠️ Firebase limita 1MB por juego: se guardará con menos capturas.');
+        data.screenshots = data.screenshots.slice(0,1);
+      }
+      if(_jdByteSize(data) > 980000){
+        data.screenshots = [];
+        if(_isDataImage(data.thumb)){
+          return _optimizeDataURL(data.thumb,180,0.50).then(function(u){ data.thumb=u; return data; });
+        }
+      }
+      return data;
+    });
   });
 }
 
@@ -1725,7 +1750,7 @@ function saveGame(){
         });
       })
       .catch(function(e){
-        showToast('⚠️ Storage falló, usando URL/base64 temporal: '+e.message);
+        showToast('⚠️ No se pudo optimizar; usando Base64 directo: '+e.message);
         var r=new FileReader();
         r.onload=function(ev){
           _gedResolveScreens(editId||Date.now()).then(function(scr){
@@ -1746,6 +1771,15 @@ function saveGame(){
 }
 
 function processSaveGameData(editId,data){
+  _prepareGameMediaForFirestore(data).then(function(prepared){
+    _processSaveGameDataReady(editId, prepared);
+  }).catch(function(e){
+    showToast('⚠️ Compresión: '+(e&&e.message||e));
+    _processSaveGameDataReady(editId, data);
+  });
+}
+
+function _processSaveGameDataReady(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
   var gameId=editId?String(editId):String(Date.now());
   data=JSON.parse(JSON.stringify(data));
@@ -1814,7 +1848,7 @@ function deleteGameGlobal(gameId){
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
 
-function migrateGameIconsToStorage(){
+function optimizeGameIconsBase64(){
   if(!_fbReady||!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin y espera Firebase');return;}
   var games=(siteState.gamesList||[]).filter(function(g){return _isDataImage(g.thumb||g.imagen||g.icon||'');});
   if(!games.length){_setIconMigrationStatus('✅ No hay iconos base64 pendientes de optimizar.','#10b981');showToast('✅ Sin iconos pendientes');return;}
@@ -1822,13 +1856,13 @@ function migrateGameIconsToStorage(){
   _setIconMigrationStatus('⏳ Optimizando 0/'+games.length+' iconos base64...','#fbbf24');
   function next(){
     if(i>=games.length){
-      _setIconMigrationStatus('✅ Optimización terminada: '+ok+' iconos guardados en Firestore, '+fail+' errores. Sincronizando games.json...','#10b981');
+      _setIconMigrationStatus('✅ Optimización terminada: '+ok+' iconos base64 guardados en Firestore, '+fail+' errores. Sincronizando games.json...','#10b981');
       try{_syncGamesToGistWithCallback(function(done,msg){_setIconMigrationStatus(done?'✅ games.json actualizado con iconos base64 optimizados.':'⚠️ Optimizado, pero games.json no sincronizó: '+msg, done?'#10b981':'#f59e0b');});}catch(e){}
       renderGameEditorList(); return;
     }
     var g=games[i++]; var src=g.thumb||g.imagen||g.icon||'';
     _setIconMigrationStatus('⏳ Optimizando '+i+'/'+games.length+': '+(g.name||g.id||'juego'),'#fbbf24');
-    _optimizeDataURL(src,420,0.84).then(function(url){
+    _optimizeDataURL(src,320,0.74).then(function(url){
       g.thumb=url; delete g.imagen; delete g.icon;
       return _db.collection('mods').doc(String(g.id)).set({thumb:url,imagen:firebase.firestore.FieldValue.delete(),icon:firebase.firestore.FieldValue.delete(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     }).then(function(){ok++;setTimeout(next,40);}).catch(function(e){fail++;console.warn('Icon optimize failed',g&&g.id,e);setTimeout(next,40);});

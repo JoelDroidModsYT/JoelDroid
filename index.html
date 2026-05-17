@@ -1446,7 +1446,10 @@ window.__JD_REST_DONE = false;
       updateBadgeVisible:_b(f.updateBadgeVisible,false),updateBadgeBgColor:_s(f.updateBadgeBgColor)||'#10b981',
       homeButtonVisible:_b(f.homeButtonVisible),features:_a(f.features),
       timestamp:parseInt(_s(f.timestamp)||'0',10)||0,order:parseInt(_s(f.order)||'0',10)||0,
-      visits:parseInt(_s(f.visits)||'0',10)||0};
+      visits:parseInt(_s(f.visits)||'0',10)||0,
+      screenshots:_a(f.screenshots||f.capturas),
+      dlPageName1:_s(f.dlPageName1),dlPageVer1:_s(f.dlPageVer1),dlPageSize1:_s(f.dlPageSize1),dlPageBtn1:_s(f.dlPageBtn1),
+      dlPageName2:_s(f.dlPageName2),dlPageVer2:_s(f.dlPageVer2),dlPageSize2:_s(f.dlPageSize2),dlPageBtn2:_s(f.dlPageBtn2)};
   }
 
   function _sort(games){
@@ -2084,11 +2087,9 @@ window.__JD_REST_DONE = false;
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js">
 <link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
-<link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js">
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 
 <script>
@@ -3408,7 +3409,10 @@ function _saveGamesCache(games){
         modBadgeVisible:g.modBadgeVisible, updateBadgeVisible:g.updateBadgeVisible,
         updateBadgeText:g.updateBadgeText||'', homeButtonVisible:g.homeButtonVisible,
         features:g.features||[], timestamp:g.timestamp||0, order:g.order||0,
-        visits:g.visits||0
+        visits:g.visits||0,
+        screenshots:Array.isArray(g.screenshots)?g.screenshots:(Array.isArray(g.capturas)?g.capturas:[]),
+        dlPageName1:g.dlPageName1||'', dlPageVer1:g.dlPageVer1||'', dlPageSize1:g.dlPageSize1||'', dlPageBtn1:g.dlPageBtn1||'',
+        dlPageName2:g.dlPageName2||'', dlPageVer2:g.dlPageVer2||'', dlPageSize2:g.dlPageSize2||'', dlPageBtn2:g.dlPageBtn2||''
       };
     });
     var json = JSON.stringify(compact);
