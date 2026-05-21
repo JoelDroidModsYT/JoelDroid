@@ -15,7 +15,7 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.0.8';
+  var APP_VERSION = '1.0.9';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -25,10 +25,12 @@
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://play-lh.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://www.gstatic.com">
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+<link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
 <meta charset="UTF-8">
 <!-- Cache-Control agresivo removido: permite que navegador/ads conserven caché normal. -->
@@ -195,7 +197,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 };
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@600;700;800&display=swap');
 :root{--bg-color:#020408;--card-bg:rgba(13,17,23,.95);--text-main:#ffffff;--text-secondary:rgba(255,255,255,.6);--border-color:rgba(37,99,235,.7);--nav-bg:rgba(2,4,8,.98);--overlay-bg:#020408;--brand-color:#007bff;--btn-gradient:linear-gradient(135deg,var(--brand-color),var(--gradient-end-color));--neon-border:0 0 15px rgba(37,99,235,.6),inset 0 0 8px rgba(37,99,235,.3);--search-bg:rgba(255,255,255,.05);--settings-panel-bg:rgba(13,17,23,.9);--announcement-bg:rgba(239,68,68,.15);--announcement-border:rgba(239,68,68,.5);--announcement-text:#f87171;--announcement-icon-color:#f87171;--toast-bg:rgba(13,17,23,.7);--toast-text:#ffffff;--toast-border:rgba(59,130,246,.5);--toast-neon-glow:0 0 10px rgba(59,130,246,.4);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#f87171;--logo-color:var(--text-main);--mod-badge-bg:#ef4444;--mod-badge-text-color:#ffffff;--update-badge-bg:#10b981;--update-badge-text-color:#ffffff;--verification-text-color:var(--brand-color);--gradient-end-color:#00d2ff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;--admin-btn-color:#32CD32;}
 .light-mode{--bg-color:#f0f4f8;--card-bg:#ffffff;--text-main:#0f172a;--text-secondary:rgba(15,23,42,.7);--border-color:rgba(37,99,235,.4);--nav-bg:rgba(255,255,255,.98);--overlay-bg:#f8fafc;--neon-border:0 0 10px rgba(37,99,235,.2);--search-bg:rgba(0,0,0,.05);--settings-panel-bg:rgba(255,255,255,.9);--announcement-bg:rgba(239,68,68,.1);--announcement-border:rgba(239,68,68,.3);--announcement-text:#dc2626;--announcement-icon-color:#dc2626;--toast-bg:rgba(255,255,255,.7);--toast-text:#0f172a;--toast-border:rgba(37,99,235,.4);--toast-neon-glow:0 0 10px rgba(37,99,235,.2);--title-text-color:var(--text-main);--subtitle-text-color:var(--text-secondary);--copyright-text-color:var(--text-secondary);--announcement-text-color:#000000;--logo-color:var(--text-main);--verification-text-color:var(--brand-color);--gradient-end-color:#007bff;--popular-top-badge-bg:#3b82f6;--popular-top-badge-text-color:#ffffff;}
 body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-main);transition:color .4s ease;overflow-x:hidden;position:relative;padding-bottom:60px}
@@ -226,8 +228,38 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .btn-dl-option{font-size:9.5px;font-weight:900;letter-spacing:.20em;text-transform:uppercase;background:linear-gradient(90deg,#a7f3d0,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;text-shadow:none;margin-bottom:2px;filter:drop-shadow(0 0 6px rgba(34,211,238,.45))}
 .btn-dl-title{font-size:12px;font-weight:900;color:#fff;line-height:1.18;letter-spacing:.01em;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;word-break:break-word;text-shadow:0 1px 3px rgba(0,0,0,.32)}
 .btn-dl-size{flex-shrink:0;position:relative;z-index:1;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.20);color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.03em;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
-.dl-safe-pill{display:inline-flex;align-items:center;justify-content:center;gap:0;margin-top:8px;padding:0;background:none;color:#22c55e;font-size:8.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-family:'Inter','Segoe UI',system-ui,sans-serif;text-shadow:0 0 6px rgba(34,197,94,.32)}
+.dl-safe-pill{display:inline-flex;align-items:center;justify-content:center;gap:0;margin-top:8px;padding:3px 10px;background:rgba(16,185,129,.10);border:1px solid rgba(94,255,177,.45);border-radius:999px;color:#5cffb1;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-family:'Inter','Segoe UI',system-ui,sans-serif;text-shadow:0 0 7px rgba(94,255,177,.72);box-shadow:0 0 12px rgba(16,185,129,.18),inset 0 0 8px rgba(16,185,129,.12)}
 .dl-safe-pill svg{display:none}
+.light-mode .dl-safe-pill{background:linear-gradient(135deg,#059669,#10b981);border:1px solid #047857;color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:0 2px 8px rgba(16,185,129,.35),inset 0 1px 0 rgba(255,255,255,.25);font-weight:900}
+.dl-game-heading{font-family:'Sora','Inter',system-ui,sans-serif;font-size:1.28rem;font-weight:800;line-height:1.22;letter-spacing:0;color:var(--text-main);text-transform:uppercase;text-wrap:balance;text-shadow:0 2px 12px rgba(0,0,0,.30)}
+.light-mode .dl-game-heading{color:#0b1220;font-weight:900;letter-spacing:.005em;text-shadow:0 1px 0 rgba(255,255,255,.9),0 2px 4px rgba(15,23,42,.12);-webkit-text-stroke:.3px rgba(15,23,42,.25)}
+
+/* ═══════ ARMONÍA MODO CLARO — refuerzo global ═══════ */
+.light-mode{color-scheme:light}
+.light-mode .jd-name,.light-mode .jd-mod-label{color:#0f172a}
+.light-mode .jd-mod-label{opacity:.78;font-weight:700}
+.light-mode .jd-btn{color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,.25);font-weight:800}
+.light-mode .jd-card{background:#ffffff;border:1px solid rgba(37,99,235,.18);box-shadow:0 4px 14px rgba(15,23,42,.08),0 1px 3px rgba(15,23,42,.06)}
+.light-mode .jd-img-box{background:#eef2f7}
+.light-mode .jd-mod-badge,.light-mode .jd-upd-badge{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);font-weight:900;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.light-mode .filter-chip{color:#1e293b;background:#ffffff;border:1px solid rgba(37,99,235,.35);box-shadow:0 1px 3px rgba(15,23,42,.06);font-weight:800}
+.light-mode .filter-chip.active{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-color:#1d4ed8;box-shadow:0 4px 12px rgba(37,99,235,.35)}
+.light-mode .search-input,.light-mode .auth-input,.light-mode .ep-input,.light-mode .ep-textarea{color:#0f172a;background:#ffffff;border-color:rgba(37,99,235,.25)}
+.light-mode .search-input::placeholder,.light-mode .auth-input::placeholder,.light-mode .ep-input::placeholder,.light-mode .ep-textarea::placeholder{color:#64748b}
+.light-mode .jd-st-item{color:#0f172a}
+.light-mode .jd-st-item-text{color:#0f172a;font-weight:700}
+.light-mode .jd-st-item-icon{color:#1d4ed8}
+.light-mode .jd-st-lang-btn{color:#0f172a;background:#ffffff;border:1px solid rgba(37,99,235,.25)}
+.light-mode .jd-st-lang-btn.inactive{color:#334155}
+.light-mode .jd-cr-main,.light-mode .jd-cr-sub{color:#0f172a;opacity:1}
+.light-mode .jd-cr-sub{color:#475569;opacity:.85}
+.light-mode #ann-text-ui{color:#b91c1c;font-weight:900;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.light-mode .jd-ver-pill{font-weight:800}
+.light-mode .auth-tab-btn,.light-mode .ep-tab{color:#475569}
+.light-mode .auth-tab-btn.active,.light-mode .ep-tab.active{color:#fff}
+.light-mode #toast-notification{background:rgba(255,255,255,.96)!important;color:#0f172a!important;border:1px solid rgba(37,99,235,.3)!important;box-shadow:0 8px 24px rgba(15,23,42,.18)!important}
+.light-mode .bgt-btn{color:#0f172a;background:#ffffff;border:1px solid rgba(37,99,235,.25)}
+/* ═══════ FIN ARMONÍA MODO CLARO ═══════ */
 /* Espacio entre los dos botones de descarga */
 #btn-descarga-1,#btn-descarga-2{margin-bottom:2px}
 #btn-descarga-2{margin-top:14px}
@@ -955,9 +987,23 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,.03);
+  /* Skeleton de fondo: si la imagen URL tarda, no se ve "hueco" blanco/negro */
+  background:
+    linear-gradient(110deg,
+      rgba(37,99,235,.08) 0%,
+      rgba(34,211,238,.18) 40%,
+      rgba(37,99,235,.08) 80%) ,
+    rgba(255,255,255,.03);
+  background-size: 200% 100%, auto;
+  animation: jdImgSkeleton 1.4s ease-in-out infinite;
   overflow: hidden;
 }
+@keyframes jdImgSkeleton{
+  0%{background-position:200% 0,0 0}
+  100%{background-position:-200% 0,0 0}
+}
+/* Cuando la imagen termina de cargar, paramos el skeleton para no gastar CPU */
+.jd-img-box:has(img.icon-img-loaded.loaded){animation:none;background:rgba(255,255,255,.03)}
 .jd-img {
   width: 100%;
   height: 100%;
@@ -1030,6 +1076,26 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   text-overflow: ellipsis;
   opacity: .85;
 }
+/* ── VERSION PILL bajo el ícono — borde celeste, fondo transparente ── */
+.jd-ver-pill{
+  position:absolute;left:50%;bottom:5px;transform:translateX(-50%);
+  display:inline-flex;align-items:center;gap:2px;
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:6.25px;font-weight:900;letter-spacing:0;
+  color:#a7f3ff;background:rgba(2,6,23,.78);
+  border:1px solid rgba(103,232,249,.95);
+  padding:1px 4px;border-radius:999px;line-height:1.15;
+  text-shadow:0 0 5px rgba(34,211,238,.75),0 1px 2px rgba(0,0,0,.9);
+  box-shadow:0 1px 5px rgba(0,0,0,.72),0 0 9px rgba(34,211,238,.48),inset 0 0 6px rgba(34,211,238,.20);
+  pointer-events:none;z-index:11;white-space:nowrap;max-width:70%;
+  overflow:hidden;text-overflow:ellipsis;
+  backdrop-filter:blur(5px) saturate(1.25);-webkit-backdrop-filter:blur(5px) saturate(1.25);
+}
+.jd-ver-pill::before{
+  content:"";width:4px;height:4px;border-radius:50%;flex:0 0 4px;
+  background:#67e8f9;box-shadow:0 0 6px #22d3ee,0 0 10px rgba(74,222,128,.55);
+}
+.light-mode .jd-ver-pill{color:#0369a1;background:rgba(255,255,255,.88);border-color:rgba(6,182,212,.95);text-shadow:0 1px 0 rgba(255,255,255,.75);box-shadow:0 1px 5px rgba(15,23,42,.28),0 0 8px rgba(6,182,212,.35),inset 0 0 6px rgba(6,182,212,.13)}
 /* ── STARS: always 5, gold when rated, dim when not ─────────────*/
 .jd-stars { display:none !important; }
 .jd-star  { font-size:8px; line-height:1; }
@@ -1255,40 +1321,47 @@ body.policies-open #share-fab{
   touch-action:pan-y pinch-zoom;
 }
 #policies-view:not(.hidden){display:block!important;}
-/* ══ POLÍTICAS — REDISEÑO FUTURISTA NEÓN ══ */
-.jd-policy-shell{max-width:760px;margin:0 auto;min-height:100dvh;padding:130px 18px 120px;position:relative;}
-.jd-policy-shell::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at top,rgba(37,99,235,.18),transparent 55%),radial-gradient(ellipse at bottom,rgba(139,92,246,.14),transparent 60%),var(--overlay-bg);pointer-events:none;}
-.jd-policy-shell::after{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(59,130,246,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.06) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 75%);pointer-events:none;}
-.jd-policy-header{position:sticky;top:0;z-index:30;margin:-130px -18px 22px;padding:18px 18px 16px;background:linear-gradient(180deg,color-mix(in srgb,var(--overlay-bg) 92%,transparent),color-mix(in srgb,var(--overlay-bg) 70%,transparent));backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid rgba(59,130,246,.25);display:flex;align-items:center;gap:14px;box-shadow:0 4px 30px rgba(0,0,0,.35),inset 0 -1px 0 rgba(59,130,246,.15);}
-.jd-policy-back{border:1px solid rgba(59,130,246,.55);background:linear-gradient(135deg,rgba(37,99,235,.18),rgba(59,130,246,.08));color:#60a5fa;border-radius:14px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.04em;text-transform:uppercase;transition:all .25s ease;box-shadow:0 0 18px rgba(59,130,246,.25),inset 0 0 12px rgba(59,130,246,.08);}
-.jd-policy-back:hover,.jd-policy-back:active{background:linear-gradient(135deg,rgba(37,99,235,.35),rgba(99,102,241,.25));box-shadow:0 0 28px rgba(59,130,246,.55),inset 0 0 18px rgba(99,102,241,.18);transform:translateY(-1px);}
+/* ══ POLÍTICAS — REDISEÑO PROFESIONAL EDITORIAL ══ */
+.jd-policy-shell{max-width:780px;margin:0 auto;min-height:100dvh;padding:120px 20px 110px;position:relative;}
+.jd-policy-shell::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#05080f 0%,#070b15 100%);pointer-events:none;}
+.jd-policy-header{position:sticky;top:0;z-index:30;margin:-120px -20px 28px;padding:18px 20px 16px;background:rgba(5,8,15,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(148,163,184,.18);display:flex;align-items:center;gap:14px;}
+.jd-policy-back{border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.6);color:#cbd5e1;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease,border-color .2s ease;}
+.jd-policy-back:hover,.jd-policy-back:active{background:rgba(30,41,59,.85);border-color:rgba(148,163,184,.55);}
 .jd-policy-title{min-width:0;flex:1;}
-.jd-policy-title h1{font-size:20px;line-height:1.1;font-weight:900;margin:0;background:linear-gradient(90deg,#60a5fa,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.01em;text-shadow:0 0 30px rgba(96,165,250,.35);}
-.jd-policy-title p{font-size:11px;margin:4px 0 0;color:var(--text-secondary);font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
-.jd-policy-card{position:relative;background:linear-gradient(160deg,rgba(15,23,42,.85),rgba(2,6,23,.92));border:1px solid rgba(59,130,246,.28);border-radius:18px;padding:22px 20px;margin-bottom:18px;box-shadow:0 10px 40px rgba(0,0,0,.45),0 0 0 1px rgba(59,130,246,.05) inset,0 0 22px rgba(37,99,235,.18);overflow:hidden;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease;}
-.jd-policy-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg,rgba(96,165,250,.55),transparent 40%,rgba(167,139,250,.5) 90%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.7;}
-.jd-policy-card::after{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(96,165,250,.08),transparent 40%);pointer-events:none;animation:jdPolicyGlow 8s ease-in-out infinite;}
-@keyframes jdPolicyGlow{0%,100%{transform:translate(0,0);}50%{transform:translate(20%,15%);}}
-.jd-policy-card:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.55);box-shadow:0 16px 50px rgba(0,0,0,.55),0 0 32px rgba(59,130,246,.32);}
-.jd-policy-card h2{position:relative;font-size:13px;font-weight:900;text-transform:uppercase;margin:0 0 14px;color:#60a5fa;letter-spacing:.08em;display:flex;align-items:center;gap:10px;text-shadow:0 0 14px rgba(96,165,250,.45);}
-.jd-policy-card h2::before{content:"";width:6px;height:18px;border-radius:3px;background:linear-gradient(180deg,#60a5fa,#a78bfa);box-shadow:0 0 12px rgba(96,165,250,.7);}
-.jd-policy-card p,.jd-policy-card li{position:relative;font-size:13.5px;line-height:1.72;color:var(--text-secondary);margin:0 0 10px;}
-.jd-policy-card ul{padding-left:20px;margin:0;}
-.jd-policy-card li{list-style:none;padding-left:18px;}
-.jd-policy-card li::before{content:"▸";position:absolute;left:0;color:#60a5fa;font-weight:900;}
-.jd-policy-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
-.jd-policy-action{flex:1;min-width:155px;text-align:center;text-decoration:none;border:none;border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#2563eb,#3b82f6,#60a5fa);color:#fff;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 10px 28px rgba(37,99,235,.45),0 0 24px rgba(59,130,246,.35),inset 0 1px 0 rgba(255,255,255,.25);transition:all .25s ease;position:relative;overflow:hidden;}
-.jd-policy-action::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);transition:transform .6s ease;}
-.jd-policy-action:hover::after,.jd-policy-action:active::after{transform:translateX(100%);}
-.jd-policy-action:hover,.jd-policy-action:active{transform:translateY(-2px);box-shadow:0 14px 36px rgba(37,99,235,.6),0 0 36px rgba(96,165,250,.55);}
-.jd-policy-action.secondary{background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(30,41,59,.85));color:#60a5fa;border:1px solid rgba(96,165,250,.5);box-shadow:0 6px 20px rgba(0,0,0,.4),inset 0 0 18px rgba(59,130,246,.08);}
-.jd-policy-action.secondary:hover,.jd-policy-action.secondary:active{background:linear-gradient(135deg,rgba(30,41,59,.95),rgba(15,23,42,.95));border-color:#60a5fa;box-shadow:0 10px 28px rgba(0,0,0,.5),0 0 24px rgba(96,165,250,.4);}
+.jd-policy-title h1{font-size:19px;line-height:1.15;font-weight:800;margin:0;color:#f1f5f9;letter-spacing:.005em;}
+.jd-policy-title p{font-size:11px;margin:5px 0 0;color:#94a3b8;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.jd-policy-card{position:relative;background:#0b121f;border:1px solid rgba(148,163,184,.16);border-radius:12px;padding:24px 22px;margin-bottom:14px;box-shadow:0 1px 0 rgba(255,255,255,.03) inset;}
+.jd-policy-card:hover{border-color:rgba(148,163,184,.28);}
+.jd-policy-card h2{font-size:13.5px;font-weight:800;text-transform:uppercase;margin:0 0 14px;color:#e2e8f0;letter-spacing:.08em;display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(148,163,184,.12);}
+.jd-policy-card h2::before{content:"";width:4px;height:16px;border-radius:2px;background:#3b82f6;}
+.jd-policy-card h3{font-size:12px;font-weight:800;text-transform:uppercase;color:#cbd5e1;margin:18px 0 8px;letter-spacing:.05em;}
+.jd-policy-card p,.jd-policy-card li{font-size:13.5px;line-height:1.75;color:#cbd5e1;margin:0 0 10px;}
+.jd-policy-card strong{color:#f1f5f9;font-weight:700;}
+.jd-policy-card ul{padding-left:18px;margin:0 0 10px;}
+.jd-policy-card li{list-style:none;padding-left:16px;position:relative;}
+.jd-policy-card li::before{content:"";position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;background:#3b82f6;}
+.jd-policy-card a{color:#60a5fa;text-decoration:underline;text-underline-offset:2px;}
+.jd-policy-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+.jd-policy-action{flex:1;min-width:155px;text-align:center;text-decoration:none;border:none;border-radius:10px;padding:12px 16px;font-size:12.5px;font-weight:800;cursor:pointer;background:#2563eb;color:#fff;letter-spacing:.04em;text-transform:uppercase;transition:background .2s ease;}
+.jd-policy-action:hover,.jd-policy-action:active{background:#1d4ed8;}
+.jd-policy-action.secondary{background:transparent;color:#cbd5e1;border:1px solid rgba(148,163,184,.35);}
+.jd-policy-action.secondary:hover,.jd-policy-action.secondary:active{background:rgba(30,41,59,.7);border-color:rgba(148,163,184,.55);}
+.light-mode .jd-policy-shell::before{background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);}
+.light-mode .jd-policy-header{background:rgba(248,250,252,.92);border-bottom-color:rgba(15,23,42,.1);}
+.light-mode .jd-policy-back{background:#fff;color:#1e293b;border-color:rgba(15,23,42,.18);}
+.light-mode .jd-policy-title h1{color:#0f172a;}
+.light-mode .jd-policy-title p{color:#475569;}
+.light-mode .jd-policy-card{background:#ffffff;border-color:rgba(15,23,42,.08);}
+.light-mode .jd-policy-card h2{color:#0f172a;border-bottom-color:rgba(15,23,42,.08);}
+.light-mode .jd-policy-card h3{color:#1e293b;}
+.light-mode .jd-policy-card p,.light-mode .jd-policy-card li{color:#334155;}
+.light-mode .jd-policy-card strong{color:#0f172a;}
 
 
 .jd-img.lazy-img{opacity:0;transition:opacity .25s ease}.jd-img.lazy-img.loaded,.jd-img.icon-img-loaded.loaded{opacity:1}
 </style>
 </head>
-<body class="no-scrollbar">
+<body class="no-scrollbar light-mode">
 
 <!-- FIX 2: OPTIMIZED ANIMATED BACKGROUND (RAF-driven, max 150 shapes) -->
 <div class="animated-background" id="animated-bg"></div>
@@ -1373,13 +1446,16 @@ window.__JD_STATIC_GAMES = (function(){
       var card = document.createElement('div');
       card.className = 'jd-card';
       card.setAttribute('onclick',"showDetail('"+g.id+"')");
+      var _verTxt = (g.ver || g.version || '').toString().trim();
+      var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
       card.innerHTML =
         '<div class="jd-img-box">'+
-          '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
-               ' loading="eager" decoding="async" alt="'+g.name+'">'+
+          '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
+               ' loading="eager" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
           '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
             (g.modBadgeText||'MOD')+'</span>'+
           (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+          _verHtml+
         '</div>'+
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+g.name+'</p>'+
@@ -1492,10 +1568,13 @@ window.__JD_REST_DONE = false;
       var c = document.createElement('div');
       c.className = 'jd-card';
       c.setAttribute('onclick',"showDetail('"+g.id+"')");
+      var _verTxt = (g.ver || g.version || '').toString().trim();
+      var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
       c.innerHTML = '<div class="jd-img-box">'+
-        '<img src="'+(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" alt="'+g.name+'">'+
+        '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
         '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
         (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+        _verHtml+
         '</div><div class="jd-info">'+
         '<p class="jd-name notranslate">'+g.name+'</p>'+
         '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
@@ -1672,47 +1751,91 @@ window.__JD_REST_DONE = false;
         Atrás
       </button>
       <div class="jd-policy-title">
-        <h1 id="jd-policy-main-title">Privacidad, Cookies y Términos</h1>
-        <p>Todo el apartado legal dentro del mismo sitio, sin datos de contacto inventados</p>
+        <h1 id="jd-policy-main-title">Centro Legal y de Información</h1>
+        <p>Privacidad · Cookies · Publicidad · Términos · Sobre Nosotros</p>
       </div>
     </header>
 
-    <article class="jd-policy-card">
-      <h2>Privacidad y datos técnicos</h2>
-      <p>JoelDroid Mods YT no solicita registro obligatorio ni recopila datos personales identificables directamente para navegar. El sitio puede procesar datos técnicos habituales, como IP aproximada, navegador, sistema operativo, idioma, páginas visitadas y tiempo de permanencia.</p>
-      <p>Estos datos se usan para funcionamiento, seguridad, medición básica y prevención de abuso, cumpliendo RGPD/GDPR, ePrivacy, CCPA y LGPD cuando resulten aplicables.</p>
+    <article class="jd-policy-card" data-policy-section="about">
+      <h2>Sobre Nosotros</h2>
+      <p><strong>JoelDroid Mods YT</strong> es un proyecto editorial independiente dedicado a la difusión de contenido modificado (MOD APK) para dispositivos Android, con un enfoque centrado en simuladores de conducción, juegos arcade y aplicaciones de utilidad.</p>
+      <p>Nuestro sitio funciona como un catálogo curado y verificado donde el usuario puede consultar información técnica de cada versión modificada — tamaño, número de versión, características desbloqueadas y fecha de última actualización — antes de proceder a la descarga.</p>
+      <h3>Nuestro compromiso</h3>
+      <ul>
+        <li><strong>Verificación previa:</strong> cada archivo publicado es revisado para confirmar que se ajusta a la descripción.</li>
+        <li><strong>Actualización constante:</strong> mantenemos un registro de versiones para que el usuario sepa siempre qué edición está descargando.</li>
+        <li><strong>Transparencia publicitaria:</strong> trabajamos exclusivamente con una red publicitaria autorizada (Monetag) y no utilizamos pop-ups engañosos ni descargas forzadas.</li>
+        <li><strong>Respeto al desarrollador original:</strong> todo el contenido modificado se ofrece con fines informativos y de evaluación; recomendamos siempre apoyar a los estudios originales adquiriendo sus versiones oficiales.</li>
+      </ul>
+      <p>El proyecto es operado por <strong>JoelDroid Labs</strong>, un equipo pequeño enfocado en pruebas, edición y difusión de contenido Android desde el canal de YouTube del mismo nombre.</p>
     </article>
 
     <article class="jd-policy-card" data-policy-section="privacy">
-      <h2>Privacidad y datos técnicos</h2>
-      <p>JoelDroid Mods YT no solicita registro obligatorio para navegar. El sitio puede procesar datos técnicos habituales como idioma, tipo de navegador, sistema operativo, páginas visitadas, tiempo de permanencia y eventos de interacción necesarios para funcionamiento, seguridad y medición básica.</p>
-      <p>No se publica ningún correo de contacto dentro de este apartado hasta que exista un canal oficial definido por el propietario del sitio.</p>
+      <h2>Política de Privacidad</h2>
+      <p>JoelDroid Mods YT respeta la privacidad de quienes visitan el sitio. No exigimos registro, no solicitamos datos personales identificables (nombre, dirección, teléfono) y no comercializamos información de usuarios con terceros.</p>
+      <h3>Datos técnicos que se procesan</h3>
+      <p>De forma habitual y automática, los servidores y nuestros proveedores publicitarios pueden registrar información técnica con fines de seguridad, medición agregada y prevención de fraude:</p>
+      <ul>
+        <li>Dirección IP aproximada y país de origen.</li>
+        <li>Tipo y versión de navegador y sistema operativo.</li>
+        <li>Idioma del navegador y zona horaria.</li>
+        <li>Páginas visitadas, tiempo de permanencia y referidos.</li>
+        <li>Identificadores anónimos almacenados en cookies publicitarias.</li>
+      </ul>
+      <h3>Marco normativo</h3>
+      <p>El tratamiento de datos se realiza siguiendo las directrices aplicables del <strong>RGPD (UE)</strong>, la <strong>ePrivacy</strong>, la <strong>CCPA (California)</strong> y la <strong>LGPD (Brasil)</strong>. El usuario puede limpiar las cookies y datos del sitio en cualquier momento desde la configuración de su navegador.</p>
     </article>
 
     <article class="jd-policy-card" data-policy-section="ads">
-      <h2>Publicidad de terceros — Monetag</h2>
-      <p>Este sitio utiliza Monetag como red publicitaria. Monetag y sus socios pueden usar cookies, identificadores, almacenamiento local y tecnologías similares para servir anuncios, medir rendimiento, limitar frecuencia, detectar fraude y proteger la calidad del tráfico.</p>
+      <h2>Red Publicitaria — Monetag</h2>
+      <p>El sitio se sostiene económicamente mediante publicidad servida por <strong>Monetag</strong>, una red publicitaria internacional con políticas estrictas de calidad y seguridad de tráfico.</p>
+      <h3>¿Qué hace Monetag?</h3>
       <ul>
-        <li>Privacidad de Monetag: https://monetag.com/privacy-policy/</li>
-        <li>Términos de Monetag: https://monetag.com/terms/</li>
+        <li>Sirve anuncios contextuales y de retargeting compatibles con el contenido del sitio.</li>
+        <li>Utiliza cookies, identificadores publicitarios y almacenamiento local para limitar la frecuencia de visualización y medir conversiones.</li>
+        <li>Aplica filtros anti-fraude y verificaciones automáticas de calidad de tráfico.</li>
       </ul>
-      <p>El sitio mantiene intacto el script original de Monetag, prioriza su carga en el head y evita interferir con sus verificaciones automáticas.</p>
+      <h3>Documentación oficial</h3>
+      <ul>
+        <li>Política de privacidad: <a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">monetag.com/privacy-policy</a></li>
+        <li>Términos del servicio: <a href="https://monetag.com/terms/" target="_blank" rel="noopener">monetag.com/terms</a></li>
+      </ul>
+      <p>El script original de Monetag se carga con máxima prioridad desde el <code>&lt;head&gt;</code> del documento, sin modificaciones ni envoltorios, garantizando su correcto funcionamiento.</p>
     </article>
 
     <article class="jd-policy-card" data-policy-section="cookies">
-      <h2>Cookies y consentimiento</h2>
-      <p>Se usan cookies técnicas necesarias para idioma, tema y preferencias del sitio. También pueden existir cookies publicitarias de Monetag para mostrar anuncios, limitar frecuencia y medir conversiones.</p>
-      <p>El aviso de cookies permite aceptar todas o mantener solo las necesarias. La elección queda guardada localmente en este navegador.</p>
+      <h2>Política de Cookies</h2>
+      <p>Una cookie es un pequeño archivo de texto que un sitio web guarda en el navegador del usuario para recordar preferencias o medir el uso del sitio.</p>
+      <h3>Tipos de cookies utilizadas</h3>
+      <ul>
+        <li><strong>Estrictamente necesarias:</strong> idioma, tema (claro/oscuro), versión del sitio. Sin estas el sitio no funciona correctamente.</li>
+        <li><strong>Publicitarias (Monetag):</strong> identificadores anónimos para limitar la frecuencia de anuncios y medir su rendimiento.</li>
+        <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
+      </ul>
+      <h3>Gestión del consentimiento</h3>
+      <p>Mediante el panel inferior puedes aceptar todas las cookies o mantener únicamente las estrictamente necesarias. Tu decisión queda guardada localmente en este navegador.</p>
       <div class="jd-policy-actions">
-        <button type="button" class="jd-policy-action" onclick="jdCookieConsent('accept',true)">✓ Aceptar cookies</button>
+        <button type="button" class="jd-policy-action" onclick="jdCookieConsent('accept',true)">Aceptar todas</button>
         <button type="button" class="jd-policy-action secondary" onclick="jdCookieConsent('reject',true)">Solo necesarias</button>
       </div>
     </article>
 
     <article class="jd-policy-card" data-policy-section="terms">
-      <h2>Términos de uso</h2>
-      <p>El contenido del sitio se muestra con fines informativos y de referencia. Cada usuario es responsable de revisar la legalidad del uso de software, archivos o enlaces externos según su país y respetar a los desarrolladores originales.</p>
-      <p>No se publica ads.txt dentro del sitio hasta contar con la información oficial entregada por la red publicitaria correspondiente.</p>
+      <h2>Términos y Condiciones de Uso</h2>
+      <p>El uso de JoelDroid Mods YT implica la aceptación de los siguientes términos:</p>
+      <h3>1. Naturaleza del contenido</h3>
+      <p>El sitio publica información de referencia sobre versiones modificadas (MOD APK) de aplicaciones Android con fines informativos, educativos y de evaluación. El usuario es el único responsable de revisar la legalidad de descargar, instalar o utilizar dichas versiones según las leyes vigentes en su país.</p>
+      <h3>2. Propiedad intelectual</h3>
+      <p>Las marcas, nombres y logos de cada juego o aplicación pertenecen a sus respectivos titulares. JoelDroid Mods YT no reclama propiedad alguna sobre el software original y promueve el uso de las versiones oficiales disponibles en Google Play.</p>
+      <h3>3. Limitación de responsabilidad</h3>
+      <p>El sitio se ofrece "tal cual". No garantizamos disponibilidad ininterrumpida, ausencia total de errores ni compatibilidad con todos los dispositivos. El usuario asume el riesgo de la instalación.</p>
+      <h3>4. Modificaciones</h3>
+      <p>Estos términos pueden actualizarse en cualquier momento. La fecha de última modificación se refleja implícitamente en la versión del sitio publicada en la barra de configuración.</p>
+    </article>
+
+    <article class="jd-policy-card" data-policy-section="dmca">
+      <h2>DMCA / Retirada de contenido</h2>
+      <p>Si eres titular de derechos sobre algún contenido publicado en este sitio y consideras que su presencia infringe tus derechos, te invitamos a comunicarlo a través del canal oficial de YouTube <strong>JoelDroid Mods YT</strong>, indicando el enlace exacto del contenido y la justificación legal correspondiente. El contenido será revisado y retirado en un plazo razonable de verificarse la reclamación.</p>
     </article>
   </div>
 </section>
@@ -1994,7 +2117,7 @@ window.__JD_REST_DONE = false;
       </div>
 
       <!-- Aplicaciones -->
-      <div class="jd-st-item" onclick="closeSettings();filterByCategory('apps');" >
+      <div class="jd-st-item" onclick="closeSettings();filterByCategory('all');" >
         <div class="jd-st-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
@@ -2004,7 +2127,7 @@ window.__JD_REST_DONE = false;
       </div>
 
       <!-- Mods -->
-      <div class="jd-st-item" onclick="closeSettings();filterByCategory('mods');">
+      <div class="jd-st-item" onclick="closeSettings();filterByCategory('all');">
         <div class="jd-st-item-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
@@ -3236,6 +3359,26 @@ var lazyObserver=null; // kept for legacy compat
 var currentDetailId=null;
 var isDarkMode=true;
 var currentFilter='all';
+/* ═══ CARGA INSTANTÁNEA DE ICONOS POR URL EXTERNA ═══
+   Las imágenes de Firebase Storage ya viven en CDN de Google y cargan rápido.
+   Las URLs externas (Google Images, sitios de terceros) suelen ser lentas, sin
+   caché global y con redirects. Las pasamos por wsrv.nl (Cloudflare, gratis,
+   sin clave), que las re-sirve desde un CDN cercano, optimizadas en WebP.
+   Esto elimina el "parpadeo" y empareja la velocidad con las imágenes Firebase. */
+function _jdFastImg(url){
+  try{
+    if(!url) return '';
+    var u = String(url).trim();
+    if(!u) return '';
+    if(u.indexOf('data:')===0) return u;
+    if(/^https?:\/\//i.test(u)===false) return u;
+    // Hosts ya rápidos: no proxear
+    if(/(^|\.)firebasestorage\.googleapis\.com$|(^|\.)googleusercontent\.com$|(^|\.)gstatic\.com$|(^|\.)wsrv\.nl$|(^|\.)flagcdn\.com$/i.test(new URL(u).hostname)) return u;
+    // Proxy CDN global con caché agresivo + WebP
+    return 'https://wsrv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+'&output=webp&q=85&n=-1&maxage=30d';
+  }catch(e){ return url; }
+}
+window._jdFastImg = _jdFastImg;
 var searchQuery='';
 
 var colorPalette={
@@ -3326,7 +3469,7 @@ function renderRecommendedGames(currentId){
   container.innerHTML=shuffled.map(function(g){
     return'<div class="recommended-card p-4">'+
       '<div class="flex gap-3 items-center mb-3">'+
-        '<img src="'+(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
+        '<img src="'+_jdFastImg(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
         '<div class="min-w-0 flex-grow">'+
           '<p class="font-black text-xs uppercase tracking-tight notranslate leading-tight">'+g.name+'</p>'+
           '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-60 font-medium line-clamp-2 mt-0.5 leading-relaxed">'+g.description+'</p>'+
@@ -3621,20 +3764,24 @@ function _renderGamesBatch(list, start, count, replace){
       }
     }
 
-    /* Primeras 4 filas cargan directo en Android: evita parpadeo negro/blanco en la 3ra fila */
-    var _isAboveFold = true; // todas eager: thumbs ligeros, evita parpadeo desde fila 5
-    var _imgHtml = _isAboveFold
-      ? '<img src="'+(g.thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
-              ' class="jd-img icon-img-loaded loaded" alt="'+g.name+'" loading="eager">'
-      : '<img data-src="'+(g.thumb||'')+'"'+
-             ' src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="'+
-             ' class="jd-img lazy-img icon-img-loaded" alt="'+g.name+'" loading="lazy">';
+    /* Carga instantánea: eager + alta prioridad + onload marca .loaded para apagar skeleton */
+    var _thumb = (g.thumb||'').toString();
+    var _imgHtml = '<img src="'+(_thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
+      ' class="jd-img icon-img-loaded'+(_thumb?'':' loaded')+'" alt="'+g.name+'"'+
+      ' loading="'+(_gIdx < 12 ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_gIdx < 9 ? 'high' : 'auto')+'"'+
+      ' referrerpolicy="no-referrer"'+
+      ' onload="this.classList.add(\'loaded\')"'+
+      ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">';
+    /* ── VERSION PILL — bajo el ícono, mismo tamaño que mod label ── */
+    var _verTxt = (g.ver || g.version || '').toString().trim();
+    var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
     card.innerHTML =
       '<div class="jd-img-box">'+
         _imgHtml+
         (currentFilter==='popular' ? '' : '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>')+
         (currentFilter==='popular' ? '' : updateTag)+
         _popularBadgesHtml+
+        _verHtml+
       '</div>'+
       '<div class="jd-info">'+
         /* Name: notranslate — stays in original language always */
@@ -3877,7 +4024,7 @@ function showDetail(id){
   }
 
   var detIcon=document.getElementById('det-icon');
-  if(detIcon){detIcon.src=game.thumb;detIcon.classList.add('loaded');}
+  if(detIcon){detIcon.src=_jdFastImg(game.thumb||'');detIcon.loading='eager';detIcon.fetchPriority='high';detIcon.decoding='async';detIcon.classList.add('loaded');}
   _set('det-size', game.size);
   _set('det-ver', game.ver);
 
@@ -4213,61 +4360,37 @@ function toggleTheme(){
   if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
   // Guardar preferencia manual del usuario
   localStorage.setItem('darkMode',isDarkMode?'dark':'light');
+  localStorage.setItem('jd_manual_theme','1');
   applyUIChanges();refreshIcons();
 }
 function loadThemePreference(){
   var saved=localStorage.getItem('darkMode');
-  if(saved){
+  var manual=localStorage.getItem('jd_manual_theme')==='1';
+  if(saved && manual){
     isDarkMode=saved==='dark';
     document.body.classList.toggle('light-mode',!isDarkMode);
     var ti=document.getElementById('theme-icon');
     if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
     refreshIcons();
-    return true; // preferencia manual encontrada
+    return true; // preferencia manual real encontrada
   }
-  return false; // no hay preferencia guardada → usar auto
+  try{ localStorage.removeItem('darkMode'); }catch(e){}
+  return false; // sin preferencia manual → usar automático por horario
 }
 function autoThemeDetection(){
-  // 1) PRIORIDAD: preferencia del SISTEMA operativo del usuario (prefers-color-scheme)
-  //    Esto sí refleja "modo oscuro/claro" automático del dispositivo.
-  var sysDark = null;
-  try{
-    if(window.matchMedia){
-      var mq = window.matchMedia('(prefers-color-scheme: dark)');
-      sysDark = mq.matches;
-      // Escuchar cambios en vivo (sin recargar): si el usuario activa modo oscuro
-      // del SO, el sitio cambia al instante — pero solo si NO eligió manualmente.
-      if(!autoThemeDetection._bound){
-        autoThemeDetection._bound = true;
-        var _onChange = function(e){
-          if(localStorage.getItem('darkMode')) return; // respeta elección manual
-          isDarkMode = e.matches;
-          document.body.classList.toggle('light-mode', !isDarkMode);
-          var ti2=document.getElementById('theme-icon');
-          if(ti2)ti2.setAttribute('data-lucide',isDarkMode?'sun':'moon');
-          refreshIcons();
-        };
-        if(mq.addEventListener) mq.addEventListener('change', _onChange);
-        else if(mq.addListener) mq.addListener(_onChange);
-      }
-    }
-  }catch(e){}
-  // 2) FALLBACK: si el navegador no expone prefers-color-scheme, usar hora local
-  if(sysDark === null){
-    var h = new Date().getHours();
-    isDarkMode = !(h >= 6 && h < 18); // claro 6:00–18:00, oscuro el resto
-  } else {
-    isDarkMode = sysDark;
-  }
+  // Automático real por hora local del usuario: claro de día, oscuro de noche.
+  var h = new Date().getHours();
+  isDarkMode = !(h >= 6 && h < 19); // claro 06:00–18:59, oscuro 19:00–05:59
   document.body.classList.toggle('light-mode',!isDarkMode);
   var ti=document.getElementById('theme-icon');
   if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
   refreshIcons();
-  // Re-evaluar cada hora (solo afecta el fallback por hora)
-  var msToNextHour=(60-new Date().getMinutes())*60000;
+  var now=new Date();
+  var next=new Date(now);
+  next.setHours(now.getHours()+1,0,0,0);
   setTimeout(function(){
-    if(!localStorage.getItem('darkMode'))autoThemeDetection();
-  },msToNextHour);
+    if(localStorage.getItem('jd_manual_theme')!=='1')autoThemeDetection();
+  },Math.max(60000,next-now));
 }
 
 // ============================================================
