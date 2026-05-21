@@ -71,9 +71,41 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "JoelDroid Mods YT",
-  "url": "https://joeldroidmodsyt.github.io/"
+  "alternateName": "JoelDroid",
+  "url": "https://joeldroidmodsyt.github.io/",
+  "inLanguage": ["es","en","pt"],
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://joeldroidmodsyt.github.io/?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
 }
 </script>
+<!-- ══ SEO esencial para Google Search ══ -->
+<link rel="canonical" href="https://joeldroidmodsyt.github.io/">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<meta name="googlebot" content="index,follow">
+<meta name="description" content="JoelDroid Mods YT: descarga los mejores MOD APK para Android — Truck Simulator Indonesia, Farming Simulator 26, Bus Simulator Indonesia, Car Parking Multiplayer, Global Truck Online y más. Dinero infinito, mods actualizados y 100% seguros.">
+<meta name="keywords" content="JoelDroid, Mods APK, Truck Simulator Indonesia, Farming Simulator 26, Bus Simulator, Car Parking Multiplayer, Global Truck Online, mod dinero infinito, descargar mod apk android">
+<meta name="theme-color" content="#020408" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f0f4f8" media="(prefers-color-scheme: light)">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JoelDroid Mods YT">
+<meta property="og:title" content="JoelDroid Mods YT | Los Mejores MOD APK para Android">
+<meta property="og:description" content="Descarga MOD APK seguros y actualizados: simuladores, juegos y apps con dinero infinito.">
+<meta property="og:url" content="https://joeldroidmodsyt.github.io/">
+<meta property="og:image" content="https://joeldroidmodsyt.github.io/logo.png">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="JoelDroid Mods YT | MOD APK Android">
+<meta name="twitter:description" content="Descarga los mejores MOD APK para Android, 100% seguros y actualizados.">
+<meta name="twitter:image" content="https://joeldroidmodsyt.github.io/logo.png">
+<!-- Contenedor que se rellena en runtime con un ItemList JSON-LD de los juegos cargados (mejora indexación de cada mod) -->
+<script type="application/ld+json" id="jd-itemlist-jsonld">{"@context":"https://schema.org","@type":"ItemList","itemListElement":[]}</script>
 
 <!-- ══ FAVICON FALLBACK EMBEBIDO removido ═══════════════════════════
      Se eliminan data-URIs pesados del head para reducir parseo inicial
@@ -259,6 +291,20 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .light-mode .auth-tab-btn.active,.light-mode .ep-tab.active{color:#fff}
 .light-mode #toast-notification{background:rgba(255,255,255,.96)!important;color:#0f172a!important;border:1px solid rgba(37,99,235,.3)!important;box-shadow:0 8px 24px rgba(15,23,42,.18)!important}
 .light-mode .bgt-btn{color:#0f172a;background:#ffffff;border:1px solid rgba(37,99,235,.25)}
+/* ══ LIGHT-MODE HARMONY FIX (cabecera, buscador, chips, títulos) ══ */
+.light-mode nav{box-shadow:0 1px 0 rgba(15,23,42,.06),0 6px 18px rgba(15,23,42,.05)}
+.light-mode #site-title-ui{color:#0b1220!important;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.light-mode #site-subtitle-ui{color:#1e293b!important;opacity:1;font-weight:800}
+.light-mode nav button{background:#ffffff!important;border:1.5px solid #2563eb!important;color:#1d4ed8!important;box-shadow:0 2px 6px rgba(15,23,42,.08),0 0 0 1px rgba(37,99,235,.06) inset;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+.light-mode nav button:hover{background:#eff6ff!important;box-shadow:0 4px 14px rgba(37,99,235,.22)}
+.light-mode nav button i,.light-mode nav button svg{color:#1d4ed8!important;stroke:#1d4ed8!important}
+.light-mode .search-input,.light-mode #search-bar{background:#ffffff!important;border:1.5px solid rgba(37,99,235,.45)!important;color:#0f172a!important;box-shadow:0 2px 8px rgba(15,23,42,.06),inset 0 1px 0 rgba(255,255,255,.7)}
+.light-mode .search-input:focus,.light-mode #search-bar:focus{border-color:#2563eb!important;box-shadow:0 0 0 3px rgba(37,99,235,.18)!important;outline:none}
+.light-mode .search-input::placeholder,.light-mode #search-bar::placeholder{color:#475569!important;font-weight:600}
+.light-mode .filter-chip{background:#ffffff!important;border:1.5px solid rgba(37,99,235,.5)!important;color:#0f172a!important;font-weight:800;box-shadow:0 2px 6px rgba(15,23,42,.08)}
+.light-mode .filter-chip:hover{background:#eff6ff!important;border-color:#2563eb!important;color:#1d4ed8!important}
+.light-mode .filter-chip.active{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;border-color:#1d4ed8!important;color:#ffffff!important;box-shadow:0 6px 16px rgba(37,99,235,.4),inset 0 1px 0 rgba(255,255,255,.25)!important}
+.light-mode .filter-chip.active i,.light-mode .filter-chip.active svg{color:#ffffff!important;stroke:#ffffff!important}
 /* ═══════ FIN ARMONÍA MODO CLARO ═══════ */
 /* Espacio entre los dos botones de descarga */
 #btn-descarga-1,#btn-descarga-2{margin-bottom:2px}
@@ -1361,7 +1407,25 @@ body.policies-open #share-fab{
 .jd-img.lazy-img{opacity:0;transition:opacity .25s ease}.jd-img.lazy-img.loaded,.jd-img.icon-img-loaded.loaded{opacity:1}
 </style>
 </head>
-<body class="no-scrollbar light-mode">
+<body class="no-scrollbar">
+<script>
+/* ══ THEME BOOTSTRAP (anti-FOUC) — oscuro por defecto + AUTO real ══ */
+(function(){
+  try{
+    var manual = localStorage.getItem('jd_manual_theme')==='1';
+    var saved  = localStorage.getItem('darkMode'); // 'dark' | 'light'
+    var isDark;
+    if(manual && saved){ isDark = (saved==='dark'); }
+    else {
+      // AUTO: respeta el sistema operativo del usuario (no la hora)
+      var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+      isDark = mql ? mql.matches : true; // por defecto: oscuro
+    }
+    if(!isDark) document.body.classList.add('light-mode');
+    window.__JD_INITIAL_DARK = isDark;
+  }catch(e){ /* por defecto oscuro */ }
+})();
+</script>
 
 <!-- FIX 2: OPTIMIZED ANIMATED BACKGROUND (RAF-driven, max 150 shapes) -->
 <div class="animated-background" id="animated-bg"></div>
@@ -3620,6 +3684,20 @@ function _jdVisitScore(g){
   return Number(live || (g && g.visits) || 0) || 0;
 }
 
+function _jdUpdateItemListJsonLd(games){
+  try{
+    var el=document.getElementById('jd-itemlist-jsonld'); if(!el) return;
+    var base='https://joeldroidmodsyt.github.io/';
+    var items=(games||[]).slice(0,30).map(function(g,i){
+      return {
+        "@type":"ListItem","position":i+1,
+        "url": base+"#mod-"+(g.id||g.slug||encodeURIComponent((g.name||'').toLowerCase().replace(/\s+/g,'-'))),
+        "name": g.name||''
+      };
+    });
+    el.textContent=JSON.stringify({"@context":"https://schema.org","@type":"ItemList","name":"Mods APK destacados","itemListElement":items});
+  }catch(e){}
+}
 function renderGames(){
   var list=document.getElementById('game-list');
   if(!list)return;
@@ -3700,6 +3778,7 @@ function renderGames(){
       e.innerText = 'JoelDroid Mods YT \u2022 '+newVer;
     });
   }
+  _jdUpdateItemListJsonLd(siteState.gamesList);
 }
 
 function _renderGamesBatch(list, start, count, replace){
@@ -4053,8 +4132,9 @@ function showDetail(id){
     if(_scrList.length){
       _scrCont.innerHTML=_scrList.map(function(u,i){
         var safe=String(u).replace(/"/g,'&quot;');
+        var src=(typeof _jdFastImg==='function')?_jdFastImg(safe):safe;
         return '<div class="jd-screen-card" onclick="jdScreenOpen(\''+safe.replace(/\'/g,"\\'")+'\')">'+
-          '<img src="'+safe+'" alt="captura '+(i+1)+'" loading="lazy" onerror="this.parentNode.style.display=\'none\'">'+
+          '<img src="'+src+'" alt="captura '+(i+1)+'" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\''+safe+'\';">'+
         '</div>';
       }).join('');
       // Detectar landscape al cargar la primera
@@ -4358,7 +4438,6 @@ function toggleTheme(){
   document.body.classList.toggle('light-mode',!isDarkMode);
   var ti=document.getElementById('theme-icon');
   if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
-  // Guardar preferencia manual del usuario
   localStorage.setItem('darkMode',isDarkMode?'dark':'light');
   localStorage.setItem('jd_manual_theme','1');
   applyUIChanges();refreshIcons();
@@ -4372,25 +4451,31 @@ function loadThemePreference(){
     var ti=document.getElementById('theme-icon');
     if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
     refreshIcons();
-    return true; // preferencia manual real encontrada
+    return true;
   }
-  try{ localStorage.removeItem('darkMode'); }catch(e){}
-  return false; // sin preferencia manual → usar automático por horario
+  return false;
 }
 function autoThemeDetection(){
-  // Automático real por hora local del usuario: claro de día, oscuro de noche.
-  var h = new Date().getHours();
-  isDarkMode = !(h >= 6 && h < 19); // claro 06:00–18:59, oscuro 19:00–05:59
+  // AUTO REAL: sigue el sistema operativo del usuario (prefers-color-scheme)
+  var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+  isDarkMode = mql ? mql.matches : true; // por defecto oscuro
   document.body.classList.toggle('light-mode',!isDarkMode);
   var ti=document.getElementById('theme-icon');
   if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
   refreshIcons();
-  var now=new Date();
-  var next=new Date(now);
-  next.setHours(now.getHours()+1,0,0,0);
-  setTimeout(function(){
-    if(localStorage.getItem('jd_manual_theme')!=='1')autoThemeDetection();
-  },Math.max(60000,next-now));
+  if(mql && !window.__jdMqlBound){
+    window.__jdMqlBound=true;
+    var handler=function(ev){
+      if(localStorage.getItem('jd_manual_theme')==='1') return;
+      isDarkMode=ev.matches;
+      document.body.classList.toggle('light-mode',!isDarkMode);
+      var ti2=document.getElementById('theme-icon');
+      if(ti2)ti2.setAttribute('data-lucide',isDarkMode?'sun':'moon');
+      refreshIcons();
+    };
+    if(mql.addEventListener) mql.addEventListener('change',handler);
+    else if(mql.addListener) mql.addListener(handler);
+  }
 }
 
 // ============================================================
