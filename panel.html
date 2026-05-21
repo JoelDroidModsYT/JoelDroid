@@ -937,6 +937,18 @@ function _uploadIconFile(file, gameId){
 function _uploadDataIcon(dataURL, gameId){
   return _optimizeDataURL(dataURL, 320, 0.76);
 }
+function _isHttpImage(src){ return /^https?:\/\//i.test(String(src||'')); }
+function _urlToOptimizedDataURL(url){
+  url=String(url||'').trim();
+  if(!url || !_isHttpImage(url)) return Promise.resolve(url);
+  return fetch(url,{mode:'cors',cache:'reload',referrerPolicy:'no-referrer'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
+    .then(function(blob){
+      var name=_safeFileName((url.split('/').pop()||'playstore-icon').split('?')[0]||'playstore-icon.jpg');
+      var file=new File([blob],name,{type:blob.type||'image/jpeg'});
+      return _fileToOptimizedDataURL(file,320,0.76);
+    });
+}
 function _setIconMigrationStatus(msg,color){
   var el=document.getElementById('icon-migration-status');
   if(!el)return;
@@ -1760,12 +1772,18 @@ function saveGame(){
         r.readAsDataURL(file);
       });
   }else{
+    var iconUrl=(document.getElementById('editor-icon-url')||{value:''}).value.trim();
+    var iconTask=_isHttpImage(iconUrl)
+      ? (showToast('⏳ Optimizando icono URL para carga instantánea...'), _urlToOptimizedDataURL(iconUrl).catch(function(e){showToast('⚠️ La URL no permitió optimización; se guardará como URL: '+(e&&e.message||e));return iconUrl;}))
+      : Promise.resolve(iconUrl);
     showToast('⏳ Procesando capturas...');
-    _gedResolveScreens(editId||Date.now()).then(function(scr){
-      processSaveGameData(editId,Object.assign({},collectData(),{thumb:document.getElementById('editor-icon-url').value,screenshots:scr}));
+    Promise.all([iconTask,_gedResolveScreens(editId||Date.now())]).then(function(res){
+      processSaveGameData(editId,Object.assign({},collectData(),{thumb:res[0],screenshots:res[1]}));
     }).catch(function(e){
       showToast('⚠️ Capturas: '+e.message);
-      processSaveGameData(editId,Object.assign({},collectData(),{thumb:document.getElementById('editor-icon-url').value,screenshots:_GED_SCREENS.filter(function(u){return u&&u.trim();})}));
+      iconTask.then(function(iconFinal){
+        processSaveGameData(editId,Object.assign({},collectData(),{thumb:iconFinal,screenshots:_GED_SCREENS.filter(function(u){return u&&u.trim();})}));
+      });
     });
   }
 }
