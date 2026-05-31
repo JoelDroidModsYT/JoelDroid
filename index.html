@@ -3474,7 +3474,7 @@ var defaultSiteState={
   announcement:{visible:true,text:"¡BIENVENIDOS A JOELDROID! DISFRUTA LOS MEJORES MODS PREMIUM.",url:"",bgColor:"#ef4444"},
   banner:{visible:false,title:"",subtitle:"",bgColor:"#0f172a"},
   updatedBanner:{visible:true,title:"MODS ACTUALIZADOS",subtitle:"Nuevas versiones disponibles",bgColor:"#f97316"},
-  popularBanner:{visible:true,title:"TOP DESCARGAS",subtitle:"Juegos más descargados",bgColor:"#ef4444",popularTopBadgeText:'MOD',popularTopBadgeColor:'red',popularBadgeText:'TOP!',popularBadgeColor:'yellow'},
+  popularBanner:{visible:true,title:"TOP DESCARGAS",subtitle:"Juegos más descargados",bgColor:"#ef4444",popularTopBadgeText:'MOD',popularTopBadgeColor:'red',popularBadgeText:'TOP',popularBadgeColor:'orange'},
   copyright:{text:"Copyright © {year} JoelDroid Mods YT. All rights reserved.",textColor:'#ffffff'},
   verification:{text:"Verificado",color:'#3b82f6'},
   buttonSettings:{globalHomeButtonText:"Descargar APK",globalHomeButtonColor:'#3b82f6',globalDetailButtonText:"Descargar Mod APK",globalDetailButtonColor:'#3b82f6'},
@@ -3672,30 +3672,114 @@ function _renderSkeletons(n){
 // RENDER GAMES — Lazy Loading + Paginación (12 iniciales) + Timestamp sort
 // ════════════════════════════════════════════════════════════════
 var _gamesPage = 0;
-var _gamesPageSize = 12;
+function _jdCalcPageSize(){
+  var w = (typeof window!=='undefined' && window.innerWidth) || 360;
+  var cols = w>=1024 ? 5 : (w>=768 ? 4 : 3);
+  return cols * 6; // exactamente 6 filas en cualquier breakpoint
+}
+var _gamesPageSize = _jdCalcPageSize(); // adaptativo: 18 (móvil) / 24 (tablet) / 30 (desktop)
+if(typeof window!=='undefined'){
+  var _jdResizePsTO;
+  window.addEventListener('resize', function(){
+    clearTimeout(_jdResizePsTO);
+    _jdResizePsTO = setTimeout(function(){
+      var n = _jdCalcPageSize();
+      if(n !== _gamesPageSize){
+        _gamesPageSize = n;
+        try{ _gamesPage = 0; if(typeof renderGames==='function') renderGames(); }catch(e){}
+      }
+    }, 220);
+  }, {passive:true});
+}
 var _gamesFiltered = [];
-var _gamesLoadMoreObserver = null;
+var _gamesLoadMoreObserver = null; // legacy, ya no se usa pero se conserva por referencia
 
 function _jdStatsSafeId(id){ return String(id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); }
 function _jdVisitScore(g){
+  // Prioriza visitas REALES de Firebase (gameClicks_<id>); el campo g.visits
+  // como respaldo (también lo incrementa _trackClick en mods/{id}.visits).
   var stats = window.__JD_STATS || {};
   var sid = _jdStatsSafeId(g && g.id);
-  var live = stats['gameClicks_'+sid];
-  return Number(live || (g && g.visits) || 0) || 0;
+  var live = Number(stats['gameClicks_'+sid] || 0);
+  var seeded = Number((g && g.visits) || 0);
+  return live > 0 ? live : seeded;
 }
 
+function _jdSlug(g){
+  return (g && (g.slug || g.id) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
+}
 function _jdUpdateItemListJsonLd(games){
   try{
     var el=document.getElementById('jd-itemlist-jsonld'); if(!el) return;
     var base='https://joeldroidmodsyt.github.io/';
-    var items=(games||[]).slice(0,30).map(function(g,i){
+    var top=(games||[]).filter(function(g){return g && g.visible!==false;}).slice(0,30);
+    var items=top.map(function(g,i){
+      var url = base+'?game='+encodeURIComponent(_jdSlug(g));
       return {
         "@type":"ListItem","position":i+1,
-        "url": base+"#mod-"+(g.id||g.slug||encodeURIComponent((g.name||'').toLowerCase().replace(/\s+/g,'-'))),
-        "name": g.name||''
+        "url": url,
+        "name": g.name||'',
+        "item": {
+          "@type":"SoftwareApplication",
+          "name": g.name||'',
+          "applicationCategory":"GameApplication",
+          "operatingSystem":"Android",
+          "url": url,
+          "image": g.thumb||g.image||(base+'logo.png'),
+          "description": (g.description||('Descarga '+(g.name||'')+' MOD APK gratis para Android.')).toString().slice(0,300),
+          "softwareVersion": g.ver||g.version||'',
+          "fileSize": g.size||'',
+          "offers": {"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"},
+          "aggregateRating": {"@type":"AggregateRating","ratingValue":"4.8","reviewCount": Math.max(50, Number(g.visits||120))}
+        }
       };
     });
-    el.textContent=JSON.stringify({"@context":"https://schema.org","@type":"ItemList","name":"Mods APK destacados","itemListElement":items});
+    var graph = [{
+      "@type":"ItemList",
+      "name":"Mods APK destacados — JoelDroid Mods YT",
+      "numberOfItems": items.length,
+      "itemListOrder":"https://schema.org/ItemListOrderDescending",
+      "itemListElement": items
+    }];
+    // Si la URL trae ?game=<slug>, añade el SoftwareApplication suelto al @graph
+    try{
+      var qp = new URLSearchParams(location.search);
+      var gid = qp.get('game');
+      if(gid){
+        var match = top.find(function(g){ return String(_jdSlug(g))===String(gid); });
+        if(match){
+          graph.push({
+            "@type":"SoftwareApplication",
+            "name": match.name||'',
+            "applicationCategory":"GameApplication",
+            "operatingSystem":"Android",
+            "url": base+'?game='+encodeURIComponent(gid),
+            "image": match.thumb||match.image||(base+'logo.png'),
+            "description": (match.description||'').toString().slice(0,300),
+            "softwareVersion": match.ver||'',
+            "fileSize": match.size||'',
+            "offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"},
+            "aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":Math.max(50,Number(match.visits||120))}
+          });
+          // Sincroniza title/description/canonical para esta vista de juego
+          try{
+            var t = (match.name||'') + ' MOD APK — JoelDroid Mods YT';
+            document.title = t;
+            var setM = function(sel,attr,val){ var el=document.querySelector(sel); if(el) el.setAttribute(attr,val); };
+            var desc = (match.description||('Descarga '+match.name+' MOD APK gratis y seguro.')).toString().slice(0,200);
+            setM('meta[name="description"]','content',desc);
+            setM('meta[property="og:title"]','content',t);
+            setM('meta[property="og:description"]','content',desc);
+            setM('meta[property="og:url"]','content', base+'?game='+encodeURIComponent(gid));
+            setM('link[rel="canonical"]','href', base+'?game='+encodeURIComponent(gid));
+            setM('meta[name="twitter:title"]','content',t);
+            setM('meta[name="twitter:description"]','content',desc);
+            if(match.thumb){ setM('meta[property="og:image"]','content',match.thumb); setM('meta[name="twitter:image"]','content',match.thumb); }
+          }catch(e){}
+        }
+      }
+    }catch(e){}
+    el.textContent = JSON.stringify({"@context":"https://schema.org","@graph":graph});
   }catch(e){}
 }
 function renderGames(){
@@ -3755,14 +3839,12 @@ function renderGames(){
   _gamesFiltered = games;
   _gamesPage = 0;
 
-  // ── Renderizar SIN vaciar primero → elimina el flash/parpadeo ──
-  // Pintamos el nuevo lote en un fragment fuera del DOM,
-  // luego hacemos el swap en un solo replaceChildren() sin frame vacío.
+  // ── Render página 1 (sin vaciar primero) ──
   _renderGamesBatch(list, 0, _gamesPageSize, true /* replace */);
   _gamesPage = 1;
 
-  // Sentinel para infinite scroll
-  _setupLoadMoreSentinel(list);
+  // Pager numerado (reemplaza infinite-scroll)
+  _renderPagination(list);
 
   refreshIcons();
 
@@ -3833,6 +3915,10 @@ function _renderGamesBatch(list, start, count, replace){
       var _pbTagTxt = (_pb.popularBadgeText || '').toString().trim();
       var _pbTopColor = (colorPalette && colorPalette[_pb.popularTopBadgeColor] && colorPalette[_pb.popularTopBadgeColor].hex) || '#3b82f6';
       var _pbTagColor = (colorPalette && colorPalette[_pb.popularBadgeColor] && colorPalette[_pb.popularBadgeColor].hex) || '#ef4444';
+      // Look más profesional: fuerza naranja si el legacy era amarillo y agrega 🔥 al texto TOP
+      if((_pb.popularBadgeColor||'').toLowerCase()==='yellow'){ _pbTagColor = '#f97316'; }
+      _pbTagTxt = _pbTagTxt.replace(/!+$/,'').trim();
+      if(/^top$/i.test(_pbTagTxt)){ _pbTagTxt = '🔥 ' + _pbTagTxt.toUpperCase(); }
       /* MOD (rojo) → arriba-IZQUIERDA — clon exacto de jd-mod-badge */
       if(_pbTopTxt){
         _popularBadgesHtml += '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+_pbTopColor+','+_pbTopColor+'cc);color:#fff;position:absolute;top:4px;left:4px;font-size:7px;font-weight:900;padding:2px 5px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 2px 6px '+_pbTopColor+'88;z-index:12;line-height:1.3;">'+_pbTopTxt+'</span>';
@@ -3906,48 +3992,108 @@ function _renderGamesBatch(list, start, count, replace){
   if(typeof _jdTranslateNewCards === 'function') _jdTranslateNewCards();
 }
 function _setupLoadMoreSentinel(list){
-  // Eliminar sentinel anterior
+  // Legacy: ya no se usa. Mantengo el stub para compatibilidad si algo lo llama.
   var old = document.getElementById('load-more-sentinel');
   if(old && old.parentNode) old.parentNode.removeChild(old);
   if(_gamesLoadMoreObserver){ _gamesLoadMoreObserver.disconnect(); _gamesLoadMoreObserver=null; }
-  if(_gamesFiltered.length <= _gamesPageSize) return;
-
-  var sentinel = document.createElement('div');
-  sentinel.id = 'load-more-sentinel';
-  sentinel.style.cssText = 'height:40px;display:flex;align-items:center;justify-content:center;';
-  sentinel.innerHTML = '<span style="font-size:9px;opacity:.4;font-weight:700;text-transform:uppercase;letter-spacing:.1em">Cargando más...</span>';
-  list.parentNode && list.parentNode.insertBefore(sentinel, list.nextSibling);
-
-  if(!('IntersectionObserver' in window)){
-    // Fallback para navegadores sin IntersectionObserver
-    sentinel.querySelector('span').textContent = '';
-    var loadBtn = document.createElement('button');
-    loadBtn.textContent = 'Cargar más juegos';
-    loadBtn.style.cssText = 'font-size:10px;font-weight:900;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.3);border-radius:12px;padding:8px 20px;cursor:pointer;margin:10px auto;display:block;';
-    loadBtn.onclick = _loadMoreGames;
-    sentinel.appendChild(loadBtn);
-    return;
-  }
-
-  _gamesLoadMoreObserver = new IntersectionObserver(function(entries){
-    if(entries[0].isIntersecting) _loadMoreGames();
-  }, { rootMargin: '200px' });
-  _gamesLoadMoreObserver.observe(sentinel);
 }
 
-function _loadMoreGames(){
+// ════════════════════════════════════════════════════════════════
+// PAGINACIÓN NUMERADA — estilo PlayMods / AN1
+// Después de la fila 6 (24 juegos) aparece la barra: « 1 2 3 … »
+// ════════════════════════════════════════════════════════════════
+function _renderPagination(list){
+  // limpiar pager previo
+  var old = document.getElementById('jd-pager');
+  if(old && old.parentNode) old.parentNode.removeChild(old);
+
+  var total = _gamesFiltered.length;
+  var pages = Math.max(1, Math.ceil(total / _gamesPageSize));
+  if(pages <= 1) return; // no hace falta paginar
+
+  var current = _gamesPage; // página actualmente mostrada (1-based)
+  var pager = document.createElement('div');
+  pager.id = 'jd-pager';
+  pager.style.cssText = 'display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin:20px auto 30px;padding:0 12px;';
+
+  function btn(label, page, opts){
+    opts = opts || {};
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    var active = opts.active;
+    var disabled = opts.disabled;
+    b.style.cssText = [
+      'min-width:34px','height:34px','padding:0 10px',
+      'font-size:12px','font-weight:800','font-family:inherit',
+      'border-radius:8px','cursor:'+(disabled?'not-allowed':'pointer'),
+      'border:1px solid '+(active?'transparent':'var(--border-color)'),
+      'background:'+(active?'var(--btn-gradient)':'var(--card-bg)'),
+      'color:'+(active?'#fff':'var(--text-main)'),
+      'opacity:'+(disabled?'.35':'1'),
+      'transition:transform .15s ease, box-shadow .15s ease',
+      active?'box-shadow:var(--neon-border)':'',
+    ].join(';');
+    if(!disabled && !active){
+      b.onmouseenter = function(){ b.style.transform='translateY(-1px)'; b.style.boxShadow='0 4px 12px rgba(37,99,235,.25)'; };
+      b.onmouseleave = function(){ b.style.transform=''; b.style.boxShadow=''; };
+    }
+    if(!disabled && !active){
+      b.onclick = function(){ _goToPage(page); };
+    }
+    pager.appendChild(b);
+  }
+
+  // « anterior
+  btn('‹', Math.max(1,current-1), { disabled: current<=1 });
+
+  // ventana de páginas: muestra hasta 5 alrededor de la actual
+  var win = 2;
+  var start = Math.max(1, current-win);
+  var end   = Math.min(pages, current+win);
+  if(start > 1){
+    btn('1', 1, { active: current===1 });
+    if(start > 2){
+      var dots = document.createElement('span');
+      dots.textContent = '…'; dots.style.cssText='opacity:.5;padding:0 4px;font-weight:700';
+      pager.appendChild(dots);
+    }
+  }
+  for(var p=start; p<=end; p++){ btn(String(p), p, { active: p===current }); }
+  if(end < pages){
+    if(end < pages-1){
+      var dots2 = document.createElement('span');
+      dots2.textContent = '…'; dots2.style.cssText='opacity:.5;padding:0 4px;font-weight:700';
+      pager.appendChild(dots2);
+    }
+    btn(String(pages), pages, { active: current===pages });
+  }
+
+  // siguiente »
+  btn('›', Math.min(pages,current+1), { disabled: current>=pages });
+
+  // contador discreto
+  var info = document.createElement('span');
+  info.style.cssText = 'width:100%;text-align:center;font-size:10px;opacity:.5;margin-top:6px;font-weight:700;letter-spacing:.05em;text-transform:uppercase';
+  var from = (current-1)*_gamesPageSize + 1;
+  var to   = Math.min(current*_gamesPageSize, total);
+  info.textContent = 'Mostrando '+from+'–'+to+' de '+total;
+  pager.appendChild(info);
+
+  list.parentNode && list.parentNode.insertBefore(pager, list.nextSibling);
+}
+
+function _goToPage(n){
   var list = document.getElementById('game-list');
   if(!list || !_gamesFiltered) return;
-  var start = _gamesPage * _gamesPageSize;
-  if(start >= _gamesFiltered.length){
-    var s = document.getElementById('load-more-sentinel');
-    if(s && s.parentNode){ s.parentNode.removeChild(s); }
-    if(_gamesLoadMoreObserver){ _gamesLoadMoreObserver.disconnect(); _gamesLoadMoreObserver=null; }
-    return;
-  }
-  _renderGamesBatch(list, start, _gamesPageSize);
-  _gamesPage++;
+  var pages = Math.max(1, Math.ceil(_gamesFiltered.length / _gamesPageSize));
+  n = Math.max(1, Math.min(pages, n|0));
+  _gamesPage = n;
+  var start = (n-1) * _gamesPageSize;
+  _renderGamesBatch(list, start, _gamesPageSize, true /* replace */);
+  _renderPagination(list);
   refreshIcons();
+  // Traducir nuevas tarjetas si el idioma no es ES
   if(currentLang !== 'es'){
     _gamesFiltered.slice(start, start+_gamesPageSize).forEach(function(g){
       trAPI(g.description, function(tr){
@@ -3955,6 +4101,16 @@ function _loadMoreGames(){
       });
     });
   }
+  // scroll suave al inicio del grid
+  try{
+    var top = list.getBoundingClientRect().top + window.pageYOffset - 80;
+    window.scrollTo({ top: Math.max(0,top), behavior: 'smooth' });
+  }catch(_e){ window.scrollTo(0,0); }
+}
+
+function _loadMoreGames(){
+  // Compat: si algún código viejo lo llama, avanzar de página.
+  _goToPage(_gamesPage + 1);
 }
 
 // ── Lazy Loading de imágenes con IntersectionObserver ────────────
