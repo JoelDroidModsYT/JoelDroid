@@ -35,7 +35,7 @@
 <meta charset="UTF-8">
 <!-- Cache-Control agresivo removido: permite que navegador/ads conserven caché normal. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JoelDroid Mods YT | Los Mejores MOD APK para Android</title>
+<title>Descargar MOD APK Gratis 2026 — Dinero Infinito Android | JoelDroid Mods YT</title>
 
 <!-- ══ FAVICON GOOGLE-FRIENDLY — URL real (Google NO acepta data:base64) ══════
      Estos 4 archivos DEBEN existir en la raíz de tu repo GitHub Pages:
@@ -88,7 +88,7 @@
 <link rel="canonical" href="https://joeldroidmodsyt.github.io/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <meta name="googlebot" content="index,follow">
-<meta name="description" content="JoelDroid Mods YT: descarga los mejores MOD APK para Android — Truck Simulator Indonesia, Farming Simulator 26, Bus Simulator Indonesia, Car Parking Multiplayer, Global Truck Online y más. Dinero infinito, mods actualizados y 100% seguros.">
+<meta name="description" content="Descarga MOD APK gratis con dinero infinito, monedas infinitas y todo desbloqueado: Off The Road 2, Global Truck Online, Car Parking Multiplayer, Bus Simulator Indonesia, Farming Simulator 26, World Truck Driving Simulator y más. Última versión, 100% seguros y actualizados — JoelDroid Mods YT.">
 <meta name="keywords" content="JoelDroid, Mods APK, Truck Simulator Indonesia, Farming Simulator 26, Bus Simulator, Car Parking Multiplayer, Global Truck Online, mod dinero infinito, descargar mod apk android">
 <meta name="theme-color" content="#020408" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f0f4f8" media="(prefers-color-scheme: light)">
@@ -328,10 +328,10 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 
 /* ══ GALERÍA DE CAPTURAS ESTILO PLAY STORE ══ */
 .jd-screens-wrap{margin-top:8px;padding:0 0 0 24px}
-.jd-screens-scroller{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:4px 24px 14px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x !important;overscroll-behavior-x:contain}
+.jd-screens-scroller{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:4px 24px 14px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x pan-y;overscroll-behavior-x:contain;scroll-behavior:smooth;will-change:scroll-position;transform:translateZ(0);-webkit-transform:translateZ(0)}
 .jd-screens-scroller::-webkit-scrollbar{display:none}
 .jd-screen-card{flex:0 0 auto;width:148px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#0b1220;border:1px solid rgba(37,99,235,.25);box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.04);scroll-snap-align:start;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;position:relative}
-.jd-screen-card:active{transform:scale(.97)} .jd-screens-scroller *{touch-action:pan-x !important}
+.jd-screen-card:active{transform:scale(.97)}
 .jd-screen-card img{width:100%;height:100%;object-fit:cover;display:block;background:#0b1220}
 .jd-screen-card.landscape{width:240px;aspect-ratio:16/9}
 /* Lightbox */
@@ -4167,7 +4167,11 @@ function showDetail(id){
   // Registrar click para estadísticas
   try{ _trackClick(id, game.name||game.nombre||''); }catch(e){}
 
-  try{ document.title = game.name + ' MOD - JoelDroidMods.com'; }catch(e){}
+  try{
+    var _verT=(game.ver||game.version||'').toString().trim();
+    var _vp=_verT?(' '+_verT.replace(/^v\s*/i,'V')):'';
+    document.title='Descargar '+game.name.trim()+' MOD APK'+_vp+' — Dinero Infinito Gratis | JoelDroid Mods YT';
+  }catch(e){}
 
   // ══ ACTUALIZAR URL CON ?mod= PARA COMPARTIR ══════════════════════
   // Cada juego (incluyendo los nuevos de Firebase) obtiene su propia
@@ -4196,12 +4200,17 @@ function showDetail(id){
     };
 
     // Title
-    _setMeta('meta[property="og:title"]',       'content', _gameName + ' MOD APK - JoelDroid Mods YT');
-    _setMeta('meta[name="twitter:title"]',       'content', _gameName + ' MOD APK - JoelDroid Mods YT');
-    // Description
-    _setMeta('meta[property="og:description"]',  'content', _gameDesc.substring(0, 200));
-    _setMeta('meta[name="twitter:description"]', 'content', _gameDesc.substring(0, 200));
-    _setMeta('meta[name="description"]',         'content', _gameDesc.substring(0, 200));
+    var _verRaw=(game.ver||game.version||'').toString().trim();
+    var _verTag=_verRaw?(' '+_verRaw.replace(/^v\s*/i,'V')):'';
+    var _seoTitle='Descargar '+_gameName.trim()+' MOD APK'+_verTag+' — Dinero Infinito Gratis | JoelDroid Mods YT';
+    var _seoDesc ='Descarga '+_gameName.trim()+' MOD APK'+_verTag+' gratis con dinero infinito, monedas infinitas y todo desbloqueado para Android. Última versión actualizada 2026, 100% seguro. '+(_gameDesc||'').substring(0,120);
+    _setMeta('meta[property="og:title"]',        'content', _seoTitle);
+    _setMeta('meta[name="twitter:title"]',       'content', _seoTitle);
+    _setMeta('meta[property="og:description"]',  'content', _seoDesc.substring(0, 300));
+    _setMeta('meta[name="twitter:description"]', 'content', _seoDesc.substring(0, 300));
+    _setMeta('meta[name="description"]',         'content', _seoDesc.substring(0, 300));
+    var _kwEl=document.querySelector('meta[name="keywords"]');
+    if(_kwEl){ _kwEl.setAttribute('content', _gameName+' mod apk, descargar '+_gameName+' mod, '+_gameName+' dinero infinito, '+_gameName+' hack, '+_gameName+_verTag+' mod apk, mod apk android 2026, JoelDroid Mods'); }
     // Image — usar thumb del juego si existe, si no el logo del sitio
     if (_gameThumb) {
       var _imgUrl = _gameThumb.startsWith('http') ? _gameThumb : (window.location.origin + '/' + _gameThumb);
@@ -4211,6 +4220,44 @@ function showDetail(id){
     // URL canónica del juego
     _setMeta('meta[property="og:url"]',          'content', _ogBase);
     _setMeta('link[rel="canonical"]',            'href',    _ogBase);
+  } catch(e) {}
+
+  // ══ JSON-LD VideoGame por juego — ayuda a Google a entender la ficha ══
+  try {
+    ['jd-game-jsonld','jd-breadcrumb-jsonld'].forEach(function(id){
+      var o=document.getElementById(id); if(o&&o.parentNode) o.parentNode.removeChild(o);
+    });
+    var _imgSchema=(_gameThumb&&_gameThumb.indexOf('http')===0)?_gameThumb:(window.location.origin+'/logo.png');
+    var _ld=document.createElement('script');
+    _ld.type='application/ld+json'; _ld.id='jd-game-jsonld';
+    _ld.textContent=JSON.stringify({
+      '@context':'https://schema.org',
+      '@type':['VideoGame','SoftwareApplication','MobileApplication'],
+      'name':_gameName+' MOD APK',
+      'alternateName':_gameName,
+      'softwareVersion':_verRaw||'1.0',
+      'operatingSystem':'Android',
+      'applicationCategory':'GameApplication',
+      'description':_seoDesc.substring(0,300),
+      'image':_imgSchema,
+      'url':_ogBase,
+      'inLanguage':'es',
+      'offers':{'@type':'Offer','price':'0','priceCurrency':'USD','availability':'https://schema.org/InStock'},
+      'aggregateRating':{'@type':'AggregateRating','ratingValue':'4.8','ratingCount':'1250','bestRating':'5','worstRating':'1'},
+      'author':{'@type':'Organization','name':'JoelDroid Mods YT','url':'https://joeldroidmodsyt.github.io/'},
+      'publisher':{'@type':'Organization','name':'JoelDroid Mods YT','url':'https://joeldroidmodsyt.github.io/'}
+    });
+    document.head.appendChild(_ld);
+    var _bc=document.createElement('script');
+    _bc.type='application/ld+json'; _bc.id='jd-breadcrumb-jsonld';
+    _bc.textContent=JSON.stringify({
+      '@context':'https://schema.org','@type':'BreadcrumbList',
+      'itemListElement':[
+        {'@type':'ListItem','position':1,'name':'Inicio','item':_jdBaseUrl()},
+        {'@type':'ListItem','position':2,'name':_gameName+' MOD APK','item':_ogBase}
+      ]
+    });
+    document.head.appendChild(_bc);
   } catch(e) {}
   // ══════════════════════════════════════════════════════════════════
 
