@@ -1,19 +1,27 @@
 # robots.txt — JoelDroid Mods YT
-User-agent: *
+User-agent: Googlebot
 Allow: /
 Disallow: /admin
 Disallow: /*?admin=
 Disallow: /*?token=
 
-# Permitir explícitamente a los principales bots
-User-agent: Googlebot
-Allow: /
-
 User-agent: Googlebot-Image
 Allow: /
+Disallow: /admin
+Disallow: /*?admin=
+Disallow: /*?token=
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /*?admin=
+Disallow: /*?token=
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /*?admin=
+Disallow: /*?token=
 
 # Bloquear scrapers agresivos
 User-agent: AhrefsBot
@@ -22,4 +30,4 @@ Disallow: /
 User-agent: SemrushBot
 Disallow: /
 
-Sitemap: https://joeldroidmodsyt.github.io/sitemap.xml
+Sitemap: https://joeldroidmods.com/sitemap.xml
