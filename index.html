@@ -88,6 +88,9 @@
 <link rel="canonical" href="https://joeldroidmods.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <meta name="googlebot" content="index,follow">
+<!-- ══ GOOGLE SEARCH CONSOLE — REEMPLAZA el content con tu código real
+     (Search Console → Configuración → Verificación de propiedad → Etiqueta HTML) ══ -->
+<meta name="google-site-verification" content="REEMPLAZAR_CON_CODIGO_DE_SEARCH_CONSOLE">
 <meta name="description" content="Descarga MOD APK gratis para Android: Off The Road 2, Global Truck Online, Car Parking Multiplayer y más juegos actualizados por JoelDroid Mods.">
 <meta name="keywords" content="JoelDroid, Mods APK, Truck Simulator Indonesia, Farming Simulator 26, Bus Simulator, Car Parking Multiplayer, Global Truck Online, mod dinero infinito, descargar mod apk android">
 <meta name="theme-color" content="#020408" media="(prefers-color-scheme: dark)">
@@ -327,14 +330,15 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .mod-tag{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa;padding:4px 12px;border-radius:20px;font-size:9px;font-weight:800;letter-spacing:.04em;box-shadow:0 0 8px rgba(59,130,246,.2)}
 
 /* ══ GALERÍA DE CAPTURAS ESTILO PLAY STORE ══ */
-.jd-screens-wrap{margin-top:8px;padding:0 0 0 24px;position:relative;z-index:2;isolation:isolate}
-.jd-screens-scroller{display:flex;gap:10px;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 24px 14px 0;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom!important;overscroll-behavior-x:contain;overscroll-behavior-y:auto;scroll-behavior:smooth;will-change:scroll-position;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);contain:layout paint style;pointer-events:auto!important}
+.jd-screens-wrap{margin-top:8px;padding:0;position:relative;z-index:2;isolation:isolate;width:100%}
+.jd-screens-scroller{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:scroll;overflow-y:hidden;padding:4px 24px 14px 24px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain;overscroll-behavior-y:auto;scroll-behavior:smooth;width:100%;max-width:100vw;box-sizing:border-box;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .jd-screens-scroller::-webkit-scrollbar{display:none}
-#detail-view .jd-screens-scroller,#detail-view .jd-screens-scroller *,#detail-view .jd-screen-card,#detail-view .jd-screen-card img{touch-action:pan-x pan-y pinch-zoom!important;pointer-events:auto!important}
-.jd-screen-card{flex:0 0 auto;width:148px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#0b1220;border:1px solid rgba(37,99,235,.25);box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.04);scroll-snap-align:start;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;position:relative;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+#detail-view .jd-screens-scroller,#detail-view .jd-screens-scroller *,#detail-view .jd-screen-card{touch-action:pan-x!important;pointer-events:auto!important}
+#detail-view .jd-screen-card img{touch-action:pan-x!important;pointer-events:auto!important}
+.jd-screen-card{flex:0 0 148px;width:148px;height:263px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#0b1220,#1e293b);border:1px solid rgba(37,99,235,.25);box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.04);scroll-snap-align:start;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;position:relative;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
 .jd-screen-card:active{transform:scale(.97)}
 .jd-screen-card img{width:100%;height:100%;object-fit:cover;display:block;background:#0b1220;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
-.jd-screen-card.landscape{width:240px;aspect-ratio:16/9}
+.jd-screen-card.landscape{flex:0 0 240px;width:240px;height:135px;aspect-ratio:16/9}
 /* Lightbox */
 .jd-screen-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none}
 .jd-screen-lb.show{display:flex}
@@ -4343,8 +4347,10 @@ function showDetail(id){
         var src=(typeof _jdFastImg==='function')?_jdFastImg(raw):raw;
         var attr=function(v){return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');};
         var gameAlt=String(game.name||game.nombre||'juego').replace(/"/g,'');
+        // FIX: referrerpolicy=no-referrer evita que hosts (Imgur, Postimg, etc.) bloqueen el hotlink.
+        // onerror cae al URL original si el proxy wsrv.nl falla → captura nunca queda rota.
         return '<div class="jd-screen-card" data-full-src="'+attr(raw)+'" role="button" tabindex="0" aria-label="Abrir captura '+(i+1)+' de '+attr(gameAlt)+'">'+
-          '<img src="'+attr(src)+'" alt="Captura de pantalla '+(i+1)+' de '+attr(gameAlt)+' MOD APK" loading="lazy" decoding="async" draggable="false">'+
+          '<img src="'+attr(src)+'" data-fallback="'+attr(raw)+'" alt="Captura de pantalla '+(i+1)+' de '+attr(gameAlt)+' MOD APK" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="if(this.dataset.fallback&&this.src!==this.dataset.fallback){this.src=this.dataset.fallback;}else{this.style.display=\'none\';this.parentNode.style.background=\'linear-gradient(135deg,#0b1220,#1e293b)\';}">'+
         '</div>';
       }).join('');
       _jdBindScreenScroller(_scrCont);
