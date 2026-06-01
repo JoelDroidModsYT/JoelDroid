@@ -15,7 +15,7 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.1.0';
+  var APP_VERSION = '1.1.1-firebase-fix';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -186,7 +186,7 @@
 <script>
 (function _jdSafeVersionMarker(){
   try{
-    localStorage.setItem('jd_site_version','20260504_ADS_SAFE_v1');
+    localStorage.setItem('jd_site_version','20260601_FIREBASE_FIX_v111');
   }catch(e){}
 })();
 </script>
@@ -389,7 +389,7 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .mod-tag{position:relative;display:flex;align-items:center;gap:7px;min-height:38px;padding:9px 11px 9px 10px;border-radius:13px;background:linear-gradient(135deg,rgba(37,99,235,.18),rgba(6,182,212,.08));border:1px solid rgba(96,165,250,.38);color:#dbeafe;font-size:10px;font-weight:900;line-height:1.15;letter-spacing:.01em;box-shadow:0 10px 24px rgba(0,0,0,.22),inset 0 0 0 1px rgba(255,255,255,.04);overflow:hidden;word-break:break-word}.mod-tag::before{content:"✓";flex:0 0 18px;width:18px;height:18px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#22c55e,#06b6d4);color:#001018;font-size:11px;font-weight:1000;box-shadow:0 0 12px rgba(34,211,238,.45)}.mod-tag::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.10) 45%,transparent 70%);transform:translateX(-120%);animation:jdFeatureShine 7s ease-in-out infinite;pointer-events:none}@keyframes jdFeatureShine{0%,62%{transform:translateX(-120%)}82%,100%{transform:translateX(120%)}}#det-mod-features{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important}.light-mode .mod-tag{background:linear-gradient(135deg,rgba(37,99,235,.10),rgba(6,182,212,.06));border-color:rgba(37,99,235,.24);color:#0f172a;box-shadow:0 8px 18px rgba(15,23,42,.08),inset 0 0 0 1px rgba(255,255,255,.7)}@media(max-width:360px){#det-mod-features{grid-template-columns:1fr}.mod-tag{font-size:9.5px}}
 
 /* ══ GALERÍA DE CAPTURAS — bloque real con scroll nativo Android ══ */
-.jd-screens-wrap{margin-top:8px;padding:0;position:relative;z-index:auto;width:100%;overflow:hidden;pointer-events:auto;touch-action:auto;background:linear-gradient(180deg,rgba(2,6,23,.18),rgba(2,6,23,.46));border-top:1px solid rgba(96,165,250,.08);border-bottom:1px solid rgba(96,165,250,.08)}
+.jd-screens-wrap{margin-top:8px;padding:0;position:relative;z-index:5;isolation:isolate;contain:layout paint;width:100%;overflow:hidden;pointer-events:auto!important;touch-action:auto!important;background:linear-gradient(180deg,rgba(2,6,23,.18),rgba(2,6,23,.46));border-top:1px solid rgba(96,165,250,.08);border-bottom:1px solid rgba(96,165,250,.08)}
 .jd-screens-wrap::before{display:none!important}
 .jd-screens-scroller{display:flex;flex-wrap:nowrap;gap:14px;overflow-x:auto;overflow-y:hidden;padding:8px max(22px,calc(env(safe-area-inset-left) + 22px)) 20px max(22px,calc(env(safe-area-inset-left) + 22px));scroll-padding-left:max(22px,calc(env(safe-area-inset-left) + 22px));scroll-padding-right:max(48px,calc(env(safe-area-inset-right) + 48px));scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:auto!important;overscroll-behavior-x:contain;overscroll-behavior-y:auto;scroll-behavior:auto;width:100%;max-width:100%;box-sizing:border-box;pointer-events:auto!important;cursor:grab;transform:translateZ(0)}
 .jd-screens-scroller:active{cursor:grabbing}
@@ -1420,6 +1420,24 @@ body.policies-open #share-fab{
 
 .jd-img.lazy-img{opacity:0;transition:opacity .25s ease}.jd-img.lazy-img.loaded,.jd-img.icon-img-loaded.loaded{opacity:1}
 </style>
+
+
+<!-- ══ JD HOTFIX 2026-06-01: scroll/capturas + estabilidad sin tocar Monetag ══ -->
+<style id="jd-scroll-performance-hotfix">
+  html,body{position:static!important;overflow-x:hidden!important;overscroll-behavior-y:auto!important;touch-action:pan-y pinch-zoom!important;}
+  body.detail-open{position:static!important;overflow-y:auto!important;min-height:100dvh!important;}
+  #detail-view{height:auto!important;max-height:none!important;overflow:visible!important;touch-action:pan-y pinch-zoom!important;}
+  .jd-screens-wrap,.jd-screens-scroller,.jd-screen-card{contain:none!important;isolation:auto!important;transform:none!important;}
+  .jd-screens-wrap{overflow:hidden!important;touch-action:pan-x pan-y pinch-zoom!important;}
+  .jd-screens-scroller{touch-action:pan-x pan-y pinch-zoom!important;will-change:scroll-position;}
+  .jd-screen-card{backface-visibility:hidden;}
+  @media(max-width:640px){.bg-shape:nth-child(n+46),.bg-particle:nth-child(n+46){display:none!important}.animated-background{contain:paint!important}}
+  @media(prefers-reduced-motion:reduce){.bg-shape,.bg-particle,.scene-snow,.scene-flag,.scene-balloon,.scene-firework,.scene-leaf,.scene-heart,.scene-shamrock{animation:none!important}}
+  #recommended-games,#video-section,#install-tutorial-section,#det-rating-comments{content-visibility:auto;contain-intrinsic-size:1px 420px;}
+</style>
+
+
+<!-- JD FIX 2026-06-01: corrige regex partido en comentarios para que el script principal no se corte y Firebase pueda iniciar. Monetag/Multitag intacto. -->
 </head>
 <body class="no-scrollbar">
 <script>
@@ -2062,94 +2080,58 @@ window.__JD_REST_DONE = false;
              Pega aquí banners, iframes, botones extra o URLs adicionales.
              Este bloque es seguro: está FUERA del JavaScript principal.
              ════════════════════════════════════════════════════════════ -->             
-    <!-- ══ RATING + COMENTARIOS POR JUEGO ══════════════════════ -->
-    <div id="det-rating-comments" class="mt-8">
-      <div class="jd-review-hero">
-        <div>
-          <div class="jd-review-kicker">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Comunidad real
+    <!-- ══ RATING + LIKES + COMENTARIOS — rediseño v3 desde cero ══ -->
+    <style id="jd-rc-v3-style">
+      .jd-rc{margin:26px 14px 0;display:grid;gap:12px;font-family:inherit;color:var(--text-main);position:relative;z-index:2}
+      .jd-rc-shell{position:relative;overflow:hidden;border-radius:26px;background:linear-gradient(160deg,rgba(8,13,26,.96),rgba(10,20,40,.94) 55%,rgba(4,8,18,.98));border:1px solid rgba(125,211,252,.28);box-shadow:0 22px 54px rgba(0,0,0,.46),0 0 42px rgba(37,99,235,.20),inset 0 1px 0 rgba(255,255,255,.08)}
+      .jd-rc-shell::before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 20% 0%,rgba(34,211,238,.18),transparent 32%),radial-gradient(circle at 92% 22%,rgba(251,191,36,.14),transparent 26%);pointer-events:none}
+      .jd-rc-top{position:relative;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:16px 16px 12px;border-bottom:1px solid rgba(125,211,252,.14)}
+      .jd-rc-score{width:76px;height:76px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(37,99,235,.14));border:1px solid rgba(251,191,36,.34);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 12px 28px rgba(0,0,0,.30)}
+      .jd-rc-score b{font-size:27px;font-weight:1000;color:#fbbf24;line-height:1}.jd-rc-score small{font-size:9px;font-weight:900;color:#cbd5e1;margin-top:3px;text-transform:uppercase;letter-spacing:.04em;text-align:center}
+      .jd-rc-title{min-width:0}.jd-rc-kicker{display:flex;align-items:center;gap:7px;margin-bottom:5px;color:#67e8f9;font-size:8.5px;font-weight:1000;text-transform:uppercase;letter-spacing:.16em}.jd-rc-title h4{font-size:15px;font-weight:1000;line-height:1.05;margin:0;color:#f8fafc;text-transform:uppercase}.jd-rc-title p{font-size:10px;line-height:1.35;color:#94a3b8;font-weight:750;margin:5px 0 0}
+      .jd-rc-auth-pill{display:inline-flex;align-items:center;gap:5px;margin-top:8px;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:950;border:1px solid rgba(148,163,184,.20);color:#cbd5e1;background:rgba(15,23,42,.64)}.jd-rc-auth-pill.on{border-color:rgba(34,197,94,.42);color:#86efac;background:rgba(22,101,52,.18)}
+      .jd-rc-actions{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}.jd-rc-likes{display:flex;gap:8px}.jd-rc-like,.jd-rc-dislike{min-width:54px;height:38px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:15px;background:rgba(15,23,42,.72);border:1px solid rgba(125,211,252,.18);color:#cbd5e1;font-size:12px;font-weight:950;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .16s ease,background .16s ease,border-color .16s ease,color .16s ease}.jd-rc-like:active,.jd-rc-dislike:active{transform:scale(.93)}.jd-rc-like.on{background:rgba(34,197,94,.17);border-color:rgba(34,197,94,.55);color:#86efac}.jd-rc-dislike.on{background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.54);color:#fca5a5}
+      .jd-rc-stars{display:flex;align-items:center;gap:1px}.jd-rc-star{width:30px;height:34px;background:transparent;border:0;color:#334155;font-size:25px;line-height:1;cursor:pointer;padding:0;transition:color .14s ease,transform .14s ease,text-shadow .14s ease;-webkit-tap-highlight-color:transparent}.jd-rc-star:active{transform:scale(.84)}.jd-rc-star.lit{color:#fbbf24;text-shadow:0 0 12px rgba(251,191,36,.56)}
+      .jd-rc-your{font-size:9px;font-weight:900;color:#94a3b8;text-align:right;white-space:nowrap}.jd-rc-composer{position:relative;margin:0 14px 14px;padding:10px;border-radius:18px;background:rgba(3,7,18,.62);border:1px solid rgba(125,211,252,.18);display:flex;gap:9px;align-items:flex-end;transition:border-color .16s ease,background .16s ease}.jd-rc-composer:focus-within{border-color:rgba(96,165,250,.66);background:rgba(8,13,28,.76)}.jd-rc-avatar{width:34px;height:34px;border-radius:13px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:1000;color:#fff;background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 8px 20px rgba(37,99,235,.28)}.jd-rc-composer textarea{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#f8fafc;font-size:12px;font-weight:700;resize:none;min-height:34px;max-height:104px;font-family:inherit;line-height:1.45;padding:8px 2px}.jd-rc-composer textarea::placeholder{color:#64748b}.jd-rc-send{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#06b6d4);border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 22px rgba(37,99,235,.30);transition:transform .15s ease,filter .15s ease}.jd-rc-send:active{transform:scale(.9)}
+      .jd-rc-auth-call{display:none;margin:0 14px 14px;padding:11px 12px;border-radius:16px;border:1px dashed rgba(251,191,36,.36);background:rgba(251,191,36,.08);color:#fde68a;font-size:10px;font-weight:850;line-height:1.4;cursor:pointer}.jd-rc-locked .jd-rc-auth-call{display:block}.jd-rc-locked .jd-rc-composer{opacity:.82}.jd-rc-locked .jd-rc-avatar{filter:saturate(.65)}
+      .jd-rc-list{position:relative;display:grid;gap:9px;padding:0 14px 15px}.jd-rc-empty{text-align:center;font-size:11px;font-weight:800;color:#64748b;padding:14px 8px;margin:0;border-radius:15px;background:rgba(15,23,42,.36);border:1px solid rgba(125,211,252,.10)}.jd-rc-c{display:flex;gap:10px;align-items:flex-start;background:rgba(15,23,42,.58);border:1px solid rgba(125,211,252,.12);border-radius:16px;padding:10px 11px}.jd-rc-c-av{width:31px;height:31px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:1000;color:#fff}.jd-rc-c-body{flex:1;min-width:0}.jd-rc-c-head{display:flex;align-items:center;gap:7px;margin-bottom:4px}.jd-rc-c-name{font-size:10.5px;font-weight:1000}.jd-rc-c-time{font-size:9px;color:#64748b;font-weight:800}.jd-rc-c-del{margin-left:auto;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:9px;color:#fca5a5;font-size:11px;cursor:pointer;padding:2px 7px}.jd-rc-c-text{font-size:11.5px;line-height:1.48;color:#dbeafe;opacity:.92;margin:0;word-wrap:break-word;overflow-wrap:anywhere}
+      .light-mode .jd-rc-shell{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(239,246,255,.94));border-color:rgba(37,99,235,.18);box-shadow:0 18px 46px rgba(15,23,42,.12)}.light-mode .jd-rc-title h4,.light-mode .jd-rc-composer textarea,.light-mode .jd-rc-c-text{color:#0f172a}.light-mode .jd-rc-title p,.light-mode .jd-rc-your{color:#64748b}.light-mode .jd-rc-composer,.light-mode .jd-rc-c,.light-mode .jd-rc-empty,.light-mode .jd-rc-like,.light-mode .jd-rc-dislike{background:rgba(255,255,255,.78);border-color:rgba(37,99,235,.14)}
+      @media(max-width:360px){.jd-rc-top{grid-template-columns:1fr}.jd-rc-score{width:100%;height:62px;border-radius:18px}.jd-rc-actions{align-items:flex-start;flex-direction:column}.jd-rc-your{text-align:left}}
+    </style>
+    <div id="det-rating-comments" class="jd-rc jd-rc-locked" aria-live="polite">
+      <div class="jd-rc-shell">
+        <div class="jd-rc-top">
+          <div class="jd-rc-score"><b id="jd-rc-avg">—</b><small id="jd-rc-count">0 votos</small></div>
+          <div class="jd-rc-title">
+            <div class="jd-rc-kicker">★ Comunidad real</div>
+            <h4>Valoración y comentarios</h4>
+            <p id="jd-rc-sub">Entra con tu cuenta para puntuar, dar like y comentar este mod.</p>
+            <span class="jd-rc-auth-pill" id="jd-rc-auth-pill">🔐 Sesión requerida</span>
           </div>
-          <h3 class="jd-review-title">Valoración y comentarios</h3>
-          <p class="jd-review-sub">Puntúa el mod, revisa la reputación y deja tu opinión para otros usuarios.</p>
         </div>
-        <div class="jd-review-score-badge" aria-live="polite">
-          <strong id="det-avg-badge">★ —</strong>
-          <span>Score</span>
-        </div>
-      </div>
-
-      <div class="ps-rating-wrap">
-        <div class="jd-rating-grid">
-          <div class="jd-rating-main">
-            <div id="det-avg-num" class="det-avg-num">—</div>
-            <div id="det-mini-stars" class="ps-stars-mini" aria-hidden="true">
-              <svg width="12" height="12" viewBox="0 0 24 24"><polygon fill="#1e293b" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg width="12" height="12" viewBox="0 0 24 24"><polygon fill="#1e293b" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg width="12" height="12" viewBox="0 0 24 24"><polygon fill="#1e293b" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg width="12" height="12" viewBox="0 0 24 24"><polygon fill="#1e293b" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg width="12" height="12" viewBox="0 0 24 24"><polygon fill="#1e293b" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <div class="jd-rc-actions">
+          <div>
+            <div class="jd-rc-stars" id="jd-rc-stars">
+              <button class="jd-rc-star" data-v="1" onclick="jdRcRate(1)" aria-label="1 estrella">★</button>
+              <button class="jd-rc-star" data-v="2" onclick="jdRcRate(2)" aria-label="2 estrellas">★</button>
+              <button class="jd-rc-star" data-v="3" onclick="jdRcRate(3)" aria-label="3 estrellas">★</button>
+              <button class="jd-rc-star" data-v="4" onclick="jdRcRate(4)" aria-label="4 estrellas">★</button>
+              <button class="jd-rc-star" data-v="5" onclick="jdRcRate(5)" aria-label="5 estrellas">★</button>
             </div>
-            <p id="det-avg-sub" class="det-avg-sub">0 reseñas</p>
+            <div class="jd-rc-your" id="jd-rc-your">Toca para puntuar</div>
           </div>
-          <div id="det-bars" class="jd-rating-bars"></div>
-        </div>
-
-        <div class="ps-vote-row-wrap">
-          <div class="ps-vote-label-col">
-            <div>
-              <p class="ps-vote-lbl">Califica esta app</p>
-              <p class="ps-vote-sublbl">Tu voto ayuda a ordenar los mods con mejor confianza.</p>
-            </div>
-            <span id="det-score-num" class="ps-score-txt">Puntuación —/5</span>
-          </div>
-          <div class="ps-stars-score-col">
-            <div class="ps-vote-row" id="det-stars-row" onmouseleave="detStarHoverClear()">
-              <button class="ps-star-btn" data-v="1" onclick="detRateGame(1)" onmouseenter="detStarHover(1)" ontouchstart="detStarHover(1)" aria-label="Puntuar 1 de 5"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="2" onclick="detRateGame(2)" onmouseenter="detStarHover(2)" ontouchstart="detStarHover(2)" aria-label="Puntuar 2 de 5"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="3" onclick="detRateGame(3)" onmouseenter="detStarHover(3)" ontouchstart="detStarHover(3)" aria-label="Puntuar 3 de 5"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="4" onclick="detRateGame(4)" onmouseenter="detStarHover(4)" ontouchstart="detStarHover(4)" aria-label="Puntuar 4 de 5"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-              <button class="ps-star-btn" data-v="5" onclick="detRateGame(5)" onmouseenter="detStarHover(5)" ontouchstart="detStarHover(5)" aria-label="Puntuar 5 de 5"><svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon class="ps-sf" points="16,2 20.2,11.6 30.7,12.6 23,19.4 25.4,29.7 16,24.2 6.6,29.7 9,19.4 1.3,12.6 11.8,11.6"/></svg></button>
-            </div>
-            <p id="det-your-rating" class="ps-your-rating"></p>
+          <div class="jd-rc-likes">
+            <button class="jd-rc-like" id="jd-rc-like-btn" onclick="jdRcLike()" aria-label="Me gusta"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H7"/></svg><span id="jd-rc-likes-count">0</span></button>
+            <button class="jd-rc-dislike" id="jd-rc-dislike-btn" onclick="jdRcDislike()" aria-label="No me gusta"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H17"/></svg><span id="jd-rc-dislikes-count">0</span></button>
           </div>
         </div>
-
-        <div class="jd-rating-stats">
-          <div class="jd-rating-stat"><strong id="det-rating-total">0</strong><span>Votos</span></div>
-          <div class="jd-rating-stat"><strong id="det-rating-trust">Nuevo</strong><span>Estado</span></div>
-          <div class="jd-rating-stat"><strong id="det-comments-summary">0</strong><span>Comentarios</span></div>
+        <div class="jd-rc-auth-call" id="jd-rc-auth-call" onclick="_jdRcRequireLogin()">🔐 Inicia sesión o crea una cuenta para activar comentarios, likes y puntuaciones.</div>
+        <div class="jd-rc-composer">
+          <div class="jd-rc-avatar" id="jd-rc-avatar">JD</div>
+          <textarea id="jd-rc-input" placeholder="Inicia sesión para comentar..." rows="1" maxlength="500" onfocus="if(!_jdRcUser()){_jdRcRequireLogin();this.blur();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,104)+'px'"></textarea>
+          <button class="jd-rc-send" onclick="jdRcSend()" aria-label="Enviar comentario"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
-      </div>
-
-      <div class="jd-comments-shell">
-        <div class="jd-comments-head">
-          <div class="jd-comments-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Comentarios
-          </div>
-          <span id="det-comments-badge" class="jd-comments-badge">0</span>
-        </div>
-
-        <div id="det-comment-logged-in" style="display:none">
-          <div class="det-comment-input-wrap">
-            <textarea id="det-comment-input" placeholder="Comparte si funcionó, tu dispositivo o algún consejo..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-            <button class="det-send-btn" onclick="detSubmitComment()" title="Enviar comentario" aria-label="Enviar comentario">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <div id="det-comment-login-prompt" class="det-login-prompt" style="display:none">
-          <p>Inicia sesión para comentar y guardar tu puntuación.</p>
-          <button onclick="openAuthModal('login')">🔐 Iniciar sesión / registrarse</button>
-        </div>
-
-        <div id="det-comments-list" class="det-comments-list"></div>
-        <div id="det-no-comments" class="det-no-comments">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <p>Sé el primero en comentar este mod</p>
-        </div>
+        <div class="jd-rc-list" id="jd-rc-comments"><p class="jd-rc-empty">Sé el primero en comentar este mod.</p></div>
       </div>
     </div>
 
@@ -5456,12 +5438,41 @@ function doFirebaseLogin(){
     });
 }
 
+
+function _jdFbAccountSync(mode,email,pass,username,done){
+  email=String(email||'').trim().toLowerCase(); username=String(username||'Usuario').trim();
+  var tries=0;
+  (function run(){
+    if(!_fbAuth){ if(++tries<45){setTimeout(run,120);return;} if(done)done(false); return; }
+    var op;
+    try{
+      if(mode==='register'){
+        op=_fbAuth.createUserWithEmailAndPassword(email,pass).catch(function(e){
+          if(e&&e.code==='auth/email-already-in-use') return _fbAuth.signInWithEmailAndPassword(email,pass);
+          throw e;
+        });
+      }else{
+        op=_fbAuth.signInWithEmailAndPassword(email,pass);
+      }
+      op.then(function(cred){
+        var user=cred&&cred.user;
+        if(user&&username&&user.updateProfile){user.updateProfile({displayName:username}).catch(function(){});}
+        if(_db&&user){
+          _db.collection('usuarios').doc(user.uid).set({username:username,email:email,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
+        }
+        if(done)done(true);
+      }).catch(function(e){console.warn('[JD auth sync]',e&&e.code?e.code:e); if(done)done(false,e);});
+    }catch(e){if(done)done(false,e);}
+  })();
+}
+
 function doLogin(){
   var email=document.getElementById('auth-email-login').value;
   var pass=document.getElementById('auth-pass-login').value;
   if(!email||!pass){_showMsg('auth-err-login','Completa todos los campos');return;}
   var r=_AUTH.login(email,pass);
   if(r.ok){
+    _jdFbAccountSync('login',email,pass,r.user.username,function(){ if(_currentGameId) initDetRatingsComments(_currentGameId); });
     _showMsg('auth-ok-login','¡Bienvenido, '+r.user.username+'! ✓','ok');
     _updateFAB();
     _updateDetCommentUI();
@@ -5477,6 +5488,7 @@ function doRegister(){
   if(pass!==pass2){_showMsg('auth-err-reg','Las contraseñas no coinciden');return;}
   var r=_AUTH.register(username,email,pass);
   if(r.ok){
+    _jdFbAccountSync('register',email,pass,username,function(){ if(_currentGameId) initDetRatingsComments(_currentGameId); });
     // Guardar email en Firestore /usuarios
     try{if(_db && typeof firebase!=='undefined'){
     var _uemail=document.getElementById('auth-email-reg');
@@ -5529,218 +5541,140 @@ document.addEventListener('click',function(e){
 });
 
 // ════════════════════════════════════════════════════════════════
-// RATINGS + COMENTARIOS POR JUEGO (en detail view)
-// Datos guardados como jd_gr_{gameId} y jd_gc_{gameId}
+// RATINGS + LIKES/DISLIKES + COMENTARIOS (v3 — Firestore + fallback local)
+// No toca Monetag. La cuenta local activa la UI y Firebase guarda si está disponible.
 // ════════════════════════════════════════════════════════════════
 var _currentGameId=null;
+var _jdRcUnsubR=null, _jdRcUnsubC=null;
 
-function _loadGameRatings(gid){
-  try{return JSON.parse(localStorage.getItem('jd_gr_'+gid)||'{"total":0,"sum":0,"dist":[0,0,0,0,0],"votes":{}}');}
-  catch(e){return{total:0,sum:0,dist:[0,0,0,0,0],votes:{}};}
+function _jdRcGameReady(){return _currentGameId!==null && typeof _currentGameId!=='undefined' && String(_currentGameId).length>0;}
+function _jdRcUser(){
+  var local=(typeof _AUTH!=='undefined'&&_AUTH&&_AUTH.getSession)?_AUTH.getSession():null;
+  var fbU=(_fbAuth&&_fbAuth.currentUser)?_fbAuth.currentUser:null;
+  if(local){return {uid:'u_'+local.id,name:local.username||'Usuario',email:local.email||'',isAdmin:!!(fbU&&fbU.uid===ADMIN_UID)};}
+  if(fbU && !fbU.isAnonymous){return {uid:fbU.uid,name:(fbU.displayName||(fbU.email||'usuario').split('@')[0]),email:fbU.email||'',isAdmin:fbU.uid===ADMIN_UID};}
+  return null;
 }
-function _saveGameRatings(gid,r){try{localStorage.setItem('jd_gr_'+gid,JSON.stringify(r));}catch(e){}}
-
-function _loadGameComments(gid){
-  try{return JSON.parse(localStorage.getItem('jd_gc_'+gid)||'[]');}catch(e){return[];}
+function _jdRcEnsureFbAuth(cb){
+  if(!_fbAuth){cb&&cb(false);return;}
+  if(_fbAuth.currentUser){cb&&cb(true);return;}
+  try{_fbAuth.signInAnonymously().then(function(){cb&&cb(true);}).catch(function(){cb&&cb(false);});}
+  catch(e){cb&&cb(false);}
 }
-function _saveGameComments(gid,arr){try{localStorage.setItem('jd_gc_'+gid,JSON.stringify(arr));}catch(e){}}
+function _jdRcRequireLogin(cb){
+  var u=_jdRcUser();
+  if(!u){
+    _updateDetCommentUI();
+    if(typeof showToast==='function')showToast('🔐 Inicia sesión o crea una cuenta para comentar');
+    if(typeof openAuthModal==='function')openAuthModal('login');
+    return false;
+  }
+  _jdRcEnsureFbAuth(function(){cb&&cb(u);});
+  return true;
+}
+function _jdRcEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function _jdRcAvColor(n){var C=['#3b82f6','#8b5cf6','#06b6d4','#ec4899','#10b981','#f59e0b'];return C[String(n||'U').length%C.length];}
+function _jdRcLocalKey(type){return 'jd_rc_'+type+'_'+String(_currentGameId||'global');}
+function _jdRcLoadLocal(type,def){try{return JSON.parse(localStorage.getItem(_jdRcLocalKey(type))||JSON.stringify(def));}catch(e){return def;}}
+function _jdRcSaveLocal(type,val){try{localStorage.setItem(_jdRcLocalKey(type),JSON.stringify(val));}catch(e){}}
+function _jdRcLocalRating(){return _jdRcLoadLocal('rating',{total:0,sum:0,dist:[0,0,0,0,0],votes:{},likes:0,dislikes:0,reactions:{}});}
+function _jdRcLocalComments(){return _jdRcLoadLocal('comments',[]);}
 
-function detStarHover(v){
-  document.querySelectorAll('.ps-star-btn').forEach(function(btn){
-    btn.classList.toggle('hover-lit',parseInt(btn.dataset.v)<=v);
+function jdRcRate(stars){
+  if(!_jdRcGameReady()){if(typeof showToast==='function')showToast('Abre un juego primero');return;}
+  stars=Math.max(1,Math.min(5,parseInt(stars,10)||0));
+  _jdRcRequireLogin(function(u){
+    document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=stars);});
+    var applyLocal=function(){var d=_jdRcLocalRating();d.dist=d.dist||[0,0,0,0,0];d.votes=d.votes||{};var prev=d.votes[u.uid]||0;if(prev>0){d.dist[prev-1]=Math.max(0,(d.dist[prev-1]||0)-1);d.sum=Math.max(0,(d.sum||0)-prev);d.total=Math.max(0,(d.total||0)-1);}d.dist[stars-1]=(d.dist[stars-1]||0)+1;d.sum=(d.sum||0)+stars;d.total=(d.total||0)+1;d.votes[u.uid]=stars;_jdRcSaveLocal('rating',d);_jdRcRenderRating(d);};
+    if(!_db){applyLocal();if(typeof showToast==='function')showToast('⭐ Valoración guardada localmente');return;}
+    var ref=_db.collection('ratings').doc(String(_currentGameId));
+    _db.runTransaction(function(t){return t.get(ref).then(function(doc){var d=doc.exists?doc.data():{};d.total=d.total||0;d.sum=d.sum||0;d.dist=d.dist||[0,0,0,0,0];d.votes=d.votes||{};var prev=d.votes[u.uid]||0;if(prev>0){d.dist[prev-1]=Math.max(0,(d.dist[prev-1]||0)-1);d.sum=Math.max(0,d.sum-prev);d.total=Math.max(0,d.total-1);}d.dist[stars-1]=(d.dist[stars-1]||0)+1;d.sum+=stars;d.total+=1;d.votes[u.uid]=stars;t.set(ref,d,{merge:true});});})
+      .then(function(){if(typeof showToast==='function')showToast('⭐ ¡Valoración guardada!');})
+      .catch(function(e){applyLocal();if(typeof showToast==='function')showToast('⭐ Guardado local: revisa reglas de comentarios');});
   });
 }
-function detStarHoverClear(){
-  document.querySelectorAll('.ps-star-btn').forEach(function(btn){
-    btn.classList.remove('hover-lit');
+function jdRcLike(){_jdRcReact(1);} function jdRcDislike(){_jdRcReact(-1);}
+function _jdRcReact(val){
+  if(!_jdRcGameReady()){if(typeof showToast==='function')showToast('Abre un juego primero');return;}
+  _jdRcRequireLogin(function(u){
+    var applyLocal=function(){var d=_jdRcLocalRating();d.reactions=d.reactions||{};d.likes=d.likes||0;d.dislikes=d.dislikes||0;var prev=d.reactions[u.uid]||0;if(prev===val){if(val===1)d.likes=Math.max(0,d.likes-1);else d.dislikes=Math.max(0,d.dislikes-1);delete d.reactions[u.uid];}else{if(prev===1)d.likes=Math.max(0,d.likes-1);if(prev===-1)d.dislikes=Math.max(0,d.dislikes-1);if(val===1)d.likes++;else d.dislikes++;d.reactions[u.uid]=val;}_jdRcSaveLocal('rating',d);_jdRcRenderRating(d);};
+    if(!_db){applyLocal();return;}
+    var ref=_db.collection('ratings').doc(String(_currentGameId));
+    _db.runTransaction(function(t){return t.get(ref).then(function(doc){var d=doc.exists?doc.data():{};d.likes=d.likes||0;d.dislikes=d.dislikes||0;d.reactions=d.reactions||{};var prev=d.reactions[u.uid]||0;if(prev===val){if(val===1)d.likes=Math.max(0,d.likes-1);else d.dislikes=Math.max(0,d.dislikes-1);delete d.reactions[u.uid];}else{if(prev===1)d.likes=Math.max(0,d.likes-1);if(prev===-1)d.dislikes=Math.max(0,d.dislikes-1);if(val===1)d.likes+=1;else d.dislikes+=1;d.reactions[u.uid]=val;}t.set(ref,d,{merge:true});});}).catch(function(){applyLocal();});
   });
-  if(_currentGameId){
-    var s=_AUTH.getSession();
-    var r=_loadGameRatings(_currentGameId);
-    var uv=s?(r.votes[s.id]||0):0;
-    document.querySelectorAll('.ps-star-btn').forEach(function(btn){
-      btn.classList.toggle('lit',parseInt(btn.dataset.v)<=uv);
-    });
-  }
 }
-
-function detRateGame(stars){
-  if(!_currentGameId){showToast('Abre un juego primero');return;}
-  // Verificar autenticación: Firebase Auth primero, luego sistema local
-  var fbLoggedIn = _fbUser && _fbUser.uid;
-  var localSession = _AUTH.getSession();
-  if(!fbLoggedIn && !localSession){
-    // Mostrar estrellas brevemente, luego pedir login
-    document.querySelectorAll('.ps-star-btn').forEach(function(btn){
-      btn.classList.toggle('lit',parseInt(btn.dataset.v)<=stars);
-    });
-    setTimeout(function(){
-      document.querySelectorAll('.ps-star-btn').forEach(function(btn){btn.classList.remove('lit');});
-      showToast('🔐 Para puntuar o comentar, por favor Inicia Sesión');
-      openAuthModal('login');
-    }, 700);
-    return;
-  }
-  var s = localSession || {id: _fbUser.uid};
-  var r=_loadGameRatings(_currentGameId);
-  var prev=r.votes[s.id]||0;
-  if(prev>0){r.dist[prev-1]=Math.max(0,(r.dist[prev-1]||0)-1);r.sum-=prev;r.total--;}
-  r.dist[stars-1]=(r.dist[stars-1]||0)+1;
-  r.sum+=stars;r.total++;
-  r.votes[s.id]=stars;
-  _saveGameRatings(_currentGameId,r);
-  _renderDetRatings();
-  showToast('⭐ ¡Valoración guardada!');
-}
-
-function _renderDetRatings(){
-  if(!_currentGameId)return;
-  var r=_loadGameRatings(_currentGameId);
-  var avg=r.total>0?(r.sum/r.total):0;
-  var avgStr=avg>0?avg.toFixed(1):'—';
-
-  var el=document.getElementById('det-avg-num');if(el)el.innerText=avgStr;
-  var badge=document.getElementById('det-avg-badge');if(badge)badge.innerText=avg>0?'★ '+avgStr:'★ —';
-  var sub=document.getElementById('det-avg-sub');if(sub)sub.innerText=r.total.toLocaleString()+' reseñ'+(r.total!==1?'as':'a');
-  var totalEl=document.getElementById('det-rating-total');if(totalEl)totalEl.innerText=r.total.toLocaleString();
-  var trustEl=document.getElementById('det-rating-trust');
-  if(trustEl)trustEl.innerText=r.total>=10?'Popular':r.total>=3?'Activo':'Nuevo';
-
-  var miniStars=document.getElementById('det-mini-stars');
-  if(miniStars){
-    var svgs=miniStars.querySelectorAll('polygon');
-    svgs.forEach(function(p,idx){p.style.fill=idx<Math.round(avg)?'#fbbf24':'#1e293b';});
-  }
-
-  var bars=document.getElementById('det-bars');
-  if(bars){
-    bars.innerHTML='';
-    for(var i=5;i>=1;i--){
-      var cnt=r.dist[i-1]||0;
-      var pct=r.total>0?Math.round(cnt/r.total*100):0;
-      bars.innerHTML+=
-        '<div class="ps-bar-row">'+
-          '<span class="ps-bar-label">'+i+'</span>'+
-          '<div class="ps-bar-bg"><div class="ps-bar-fill" style="width:'+pct+'%"></div></div>'+
-          '<span class="ps-bar-count">'+cnt+'</span>'+
-        '</div>';
-    }
-  }
-
-  var sess=_AUTH.getSession();
-  var userVote=sess?(r.votes[sess.id]||0):0;
-  document.querySelectorAll('.ps-star-btn').forEach(function(btn){
-    var v=parseInt(btn.dataset.v);
-    btn.classList.toggle('lit',v<=userVote);
-    btn.classList.remove('hover-lit');
+function jdRcSend(){
+  if(!_jdRcGameReady()){if(typeof showToast==='function')showToast('Abre un juego primero');return;}
+  if(!_jdRcUser()){_jdRcRequireLogin();return;}
+  var inp=document.getElementById('jd-rc-input'); if(!inp)return;
+  var txt=(inp.value||'').trim();
+  if(txt.length<2){if(typeof showToast==='function')showToast('✏️ Escribe un comentario primero');return;}
+  if(txt.length>500){if(typeof showToast==='function')showToast('Máximo 500 caracteres');return;}
+  _jdRcRequireLogin(function(u){
+    var publishLocal=function(){var arr=_jdRcLocalComments();arr.unshift({_id:'local_'+Date.now(),gameId:String(_currentGameId),uid:u.uid,name:u.name,text:txt,tsLocal:Date.now(),local:true});arr=arr.slice(0,50);_jdRcSaveLocal('comments',arr);_jdRcRenderComments(arr);};
+    if(!_db){publishLocal();inp.value='';inp.style.height='auto';if(typeof showToast==='function')showToast('💬 Comentario publicado localmente');return;}
+    _db.collection('comments').add({gameId:String(_currentGameId),uid:u.uid,name:u.name,email:u.email||'',text:txt,ts:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(function(){inp.value='';inp.style.height='auto';if(typeof showToast==='function')showToast('💬 Comentario publicado');})
+      .catch(function(){publishLocal();inp.value='';inp.style.height='auto';if(typeof showToast==='function')showToast('💬 Publicado localmente: revisa reglas de Firestore');});
   });
-
-  var yrEl=document.getElementById('det-your-rating');
-  var scoreEl=document.getElementById('det-score-num');
-  if(yrEl){
-    if(userVote>0){
-      var stars='';
-      for(var s=1;s<=5;s++) stars+=(s<=userVote?'★':'☆');
-      yrEl.innerText='Tu valoración: '+stars;
-      if(scoreEl) scoreEl.innerText='Puntuación '+userVote+'/5';
-    }else{
-      yrEl.innerText='Toca una estrella para valorar';
-      if(scoreEl) scoreEl.innerText='Puntuación —/5';
-    }
-  }
 }
-
-function _renderDetComments(){
-  if(!_currentGameId)return;
-  var comments=_loadGameComments(_currentGameId);
-  var list=document.getElementById('det-comments-list');
-  var noC=document.getElementById('det-no-comments');
-  var badge=document.getElementById('det-comments-badge');
-  var summary=document.getElementById('det-comments-summary');
-  if(badge)badge.textContent=comments.length;
-  if(summary)summary.textContent=comments.length;
-  if(!list)return;
-  if(!comments.length){
-    list.innerHTML='';
-    if(noC)noC.style.display='block';
-    return;
-  }
-  if(noC)noC.style.display='none';
-  var s=_AUTH.getSession();
-  var me=s?s.id:null;
-  var COLORS=['#3b82f6','#8b5cf6','#06b6d4','#ec4899','#10b981','#f59e0b'];
-  function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  list.innerHTML=comments.slice(-40).reverse().map(function(c){
-    var isMe=c.uid===me;
-    var bg=COLORS[String(c.username||'U').length%COLORS.length];
-    var initials=esc(String(c.username||'Usuario').slice(0,2).toUpperCase());
-    var d=Date.now()-(c.ts||Date.now());
-    var ago=d<60000?'Ahora':d<3600000?Math.floor(d/60000)+' min':d<86400000?Math.floor(d/3600000)+'h':Math.floor(d/86400000)+'d';
-    return'<div class="det-comment-card">'+
-      '<div style="display:flex;gap:10px;align-items:flex-start">'+
-        '<div class="det-comment-avatar" style="background:linear-gradient(135deg,'+bg+','+bg+'99)">'+initials+'</div>'+
-        '<div style="flex:1;min-width:0">'+
-          '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">'+
-            '<span style="font-size:10px;font-weight:1000;color:'+bg+'">'+esc(c.username)+(isMe?' <span style="font-weight:700;opacity:.65">(tú)</span>':'')+'</span>'+
-            '<span style="font-size:8.5px;color:#64748b;font-weight:800">'+ago+'</span>'+
-            (isMe?'<button onclick="detDeleteComment('+c.id+')" style="margin-left:auto;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:8px;cursor:pointer;color:#ef4444;font-size:10px;padding:2px 7px" title="Borrar">✕</button>':'')+
-          '</div>'+
-          '<p style="font-size:11px;line-height:1.55;color:var(--text-main);opacity:.88;margin:0">'+esc(c.text).replace(/\n/g,'<br>')+'</p>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+function jdRcDelete(id){
+  if(!id)return; var u=_jdRcUser(); if(!u){_jdRcRequireLogin();return;}
+  if(!confirm('¿Borrar este comentario?'))return;
+  if(String(id).indexOf('local_')===0){var arr=_jdRcLocalComments().filter(function(c){return c._id!==id;});_jdRcSaveLocal('comments',arr);_jdRcRenderComments(arr);return;}
+  if(!_db)return;
+  _db.collection('comments').doc(id).delete().then(function(){if(typeof showToast==='function')showToast('✅ Borrado');}).catch(function(e){if(typeof showToast==='function')showToast('❌ '+(e.message||'No autorizado'));});
 }
-
+function _jdRcRenderRating(d){
+  d=d||{}; var total=d.total||0; var avg=total>0?(d.sum/total):0; var u=_jdRcUser(); var userVote=u&&d.votes?(d.votes[u.uid]||0):0; var userReact=u&&d.reactions?(d.reactions[u.uid]||0):0;
+  var e1=document.getElementById('jd-rc-avg'); if(e1)e1.textContent=total>0?avg.toFixed(1):'—';
+  var e2=document.getElementById('jd-rc-count'); if(e2)e2.textContent=total+' '+(total===1?'voto':'votos');
+  var e3=document.getElementById('jd-rc-your'); if(e3)e3.textContent=userVote>0?('Tu voto: '+userVote+'/5'):'Toca para puntuar';
+  document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=userVote);});
+  var lc=document.getElementById('jd-rc-likes-count'); if(lc)lc.textContent=d.likes||0; var dc=document.getElementById('jd-rc-dislikes-count'); if(dc)dc.textContent=d.dislikes||0;
+  var lb=document.getElementById('jd-rc-like-btn'); if(lb)lb.classList.toggle('on',userReact===1); var db2=document.getElementById('jd-rc-dislike-btn'); if(db2)db2.classList.toggle('on',userReact===-1);
+}
+function _jdRcRenderComments(docs){
+  var box=document.getElementById('jd-rc-comments'); if(!box)return; docs=docs||[];
+  if(!docs.length){box.innerHTML='<p class="jd-rc-empty">Sé el primero en comentar este mod.</p>';return;}
+  var u=_jdRcUser(); var me=u?u.uid:null; var isAdmin=!!(u&&u.isAdmin);
+  box.innerHTML=docs.map(function(c){var nm=c.name||'Usuario'; var bg=_jdRcAvColor(nm); var ini=_jdRcEsc(nm.slice(0,2).toUpperCase()); var ts=(c.ts&&c.ts.toMillis)?c.ts.toMillis():(c.tsLocal||Date.now()); var d=Date.now()-ts; var ago=d<60000?'ahora':d<3600000?Math.floor(d/60000)+'m':d<86400000?Math.floor(d/3600000)+'h':Math.floor(d/86400000)+'d'; var canDel=(me&&c.uid===me)||isAdmin; return '<div class="jd-rc-c"><div class="jd-rc-c-av" style="background:linear-gradient(135deg,'+bg+','+bg+'99)">'+ini+'</div><div class="jd-rc-c-body"><div class="jd-rc-c-head"><span class="jd-rc-c-name" style="color:'+bg+'">'+_jdRcEsc(nm)+'</span><span class="jd-rc-c-time">'+ago+(c.local?' · local':'')+'</span>'+(canDel?'<button class="jd-rc-c-del" onclick="jdRcDelete(\''+c._id+'\')" title="Borrar">✕</button>':'')+'</div><p class="jd-rc-c-text">'+_jdRcEsc(c.text).replace(/\n/g,'<br>')+'</p></div></div>';}).join('');
+}
 function _updateDetCommentUI(){
-  var loggedIn=document.getElementById('det-comment-logged-in');
-  var loginPrompt=document.getElementById('det-comment-login-prompt');
-  if(!loggedIn||!loginPrompt)return;
-  if(_AUTH.isLoggedIn()){
-    loggedIn.style.display='block';
-    loginPrompt.style.display='none';
-  }else{
-    loggedIn.style.display='none';
-    loginPrompt.style.display='block';
-  }
+  var u=_jdRcUser(); var root=document.getElementById('det-rating-comments'); var inp=document.getElementById('jd-rc-input'); var pill=document.getElementById('jd-rc-auth-pill'); var av=document.getElementById('jd-rc-avatar'); var sub=document.getElementById('jd-rc-sub');
+  if(root)root.classList.toggle('jd-rc-locked',!u);
+  if(inp){inp.readOnly=!u;inp.placeholder=u?'Comenta aquí con respeto...':'Inicia sesión para comentar...';}
+  if(pill){pill.classList.toggle('on',!!u);pill.textContent=u?('✅ '+u.name):'🔐 Sesión requerida';}
+  if(av){av.textContent=u?String(u.name||'JD').slice(0,2).toUpperCase():'JD'; if(u)av.style.background='linear-gradient(135deg,'+_jdRcAvColor(u.name)+','+_jdRcAvColor(u.name)+'aa)';}
+  if(sub)sub.textContent=u?'Tu cuenta está lista para participar en este mod.':'Entra con tu cuenta para puntuar, dar like y comentar este mod.';
 }
-
-function detSubmitComment(){
-  if(!_currentGameId){showToast('Abre un juego primero');return;}
-  var s=_AUTH.getSession();
-  if(!s){openAuthModal('login');return;}
-  var input=document.getElementById('det-comment-input');
-  if(!input)return;
-  var text=input.value.trim();
-  if(!text||text.length<2){showToast('Escribe algo primero');return;}
-  if(text.length>500){showToast('Máximo 500 caracteres');return;}
-  var comments=_loadGameComments(_currentGameId);
-  var comment={id:Date.now(),uid:s.id,username:s.username,text:text,ts:Date.now()};
-  comments.push(comment);
-  _saveGameComments(_currentGameId,comments);
-  input.value='';input.style.height='auto';
-  _renderDetComments();
-  showToast('💬 Comentario publicado');
-}
-
-function detDeleteComment(id){
-  if(!_currentGameId)return;
-  var s=_AUTH.getSession();if(!s)return;
-  var comments=_loadGameComments(_currentGameId);
-  comments=comments.filter(function(c){return!(c.id===id&&c.uid===s.id);});
-  _saveGameComments(_currentGameId,comments);
-  _renderDetComments();
-}
-
 function initDetRatingsComments(gameId){
-  _currentGameId=gameId;
-  _renderDetRatings();
-  _renderDetComments();
-  _updateDetCommentUI();
+  _currentGameId=String(gameId);
+  if(_jdRcUnsubR){try{_jdRcUnsubR();}catch(e){}_jdRcUnsubR=null;} if(_jdRcUnsubC){try{_jdRcUnsubC();}catch(e){}_jdRcUnsubC=null;}
+  _updateDetCommentUI(); _jdRcRenderRating(_jdRcLocalRating()); _jdRcRenderComments(_jdRcLocalComments());
+  if(!_db){var tries=0;(function wait(){if(_db){initDetRatingsComments(gameId);return;} if(++tries<40)setTimeout(wait,300);})();return;}
+  _jdRcUnsubR=_db.collection('ratings').doc(String(gameId)).onSnapshot(function(doc){_jdRcRenderRating(doc.exists?doc.data():_jdRcLocalRating());},function(){});
+  _jdRcUnsubC=_db.collection('comments').where('gameId','==',String(gameId)).onSnapshot(function(snap){var arr=[];snap.forEach(function(d){var o=d.data();o._id=d.id;arr.push(o);});arr.sort(function(a,b){var ta=(a.ts&&a.ts.toMillis)?a.ts.toMillis():0;var tb=(b.ts&&b.ts.toMillis)?b.ts.toMillis():0;return tb-ta;});var local=_jdRcLocalComments();_jdRcRenderComments(arr.concat(local).slice(0,50));},function(){_jdRcRenderComments(_jdRcLocalComments());});
 }
+(function _jdRcAuthHook(){var tries=0;(function tick(){if(typeof _fbAuth!=='undefined'&&_fbAuth&&_fbAuth.onAuthStateChanged){_fbAuth.onAuthStateChanged(function(){_updateDetCommentUI();if(_currentGameId)initDetRatingsComments(_currentGameId);});return;}if(++tries<80)setTimeout(tick,400);})();})();
+
+// ── Stubs de compatibilidad para código legado del sitio ────────
+function _loadGameRatings(){return{total:0,sum:0,dist:[0,0,0,0,0],votes:{}};}
+function _saveGameRatings(){}
+function _loadGameComments(){return[];}
+function _saveGameComments(){}
+function _renderDetRatings(){}
+function _renderDetComments(){}
+function _updateDetCommentUI(){}
+function detRateGame(s){jdRcRate(s);}
+function detSubmitComment(){jdRcSend();}
+function detDeleteComment(){}
+function detStarHover(){}
+function detStarHoverClear(){}
 
 function openEmailPanel(){}
 function closeEmailPanel(){}
+
 
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE ESCENAS ESTACIONALES — Tiempo real, panel de control
@@ -7366,36 +7300,90 @@ window.onload=function(){
   <img id="jd-screen-lightbox-img" src="" alt="Captura ampliada">
 </div>
 <script>
+(function JDAdReturnScrollGuard(){
+  window.__jdLastAdReturn = 0;
+  window.__jdWasHiddenForAd = false;
+  function releaseScroll(){
+    try{
+      if(!document.getElementById('jd-screen-lightbox') || !document.getElementById('jd-screen-lightbox').classList.contains('show')){
+        document.body.style.overflow=''; document.documentElement.style.overflow='';
+      }
+      var s=document.getElementById('det-screens-scroller'); if(s){s.__jdMoved=false;}
+    }catch(e){}
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){window.__jdWasHiddenForAd=true;return;}
+    if(window.__jdWasHiddenForAd){window.__jdLastAdReturn=Date.now();window.__jdWasHiddenForAd=false;}
+    setTimeout(releaseScroll,80);
+  },{passive:true});
+  window.addEventListener('pageshow',function(){window.__jdLastAdReturn=Date.now();setTimeout(releaseScroll,80);},{passive:true});
+  window.addEventListener('focus',function(){setTimeout(releaseScroll,80);},{passive:true});
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   SCROLLER DE CAPTURAS — versión robusta anti-congelamiento
+   ──────────────────────────────────────────────────────────────────
+   El bug anterior: setPointerCapture + pointermove con preventDefault
+   se quedaba "atascado" cuando Monetag abría una pestaña/popup a mitad
+   del gesto: el navegador nunca recibía pointerup, mouseDrag quedaba
+   en true y todo el carrusel dejaba de aceptar scroll.
+   Solución:
+   - El scroll en táctil lo gestiona el navegador (CSS overflow-x:auto).
+     NO interceptamos touchmove, NO usamos preventDefault.
+   - El drag con ratón (desktop) usa solo mousedown/mousemove/mouseup,
+     SIN pointer capture (la causa real del bloqueo).
+   - Reset agresivo del estado cuando la pestaña vuelve al primer plano,
+     pierde foco o el navegador dispara pageshow/touchcancel.
+   - El listener vive en window para detectar el regreso desde anuncios
+     incluso si Monetag inyecta overlays encima del scroller.
+   ══════════════════════════════════════════════════════════════════ */
 function _jdBindScreenScroller(scroller){
   if(!scroller || scroller.__jdBound) return;
   scroller.__jdBound=true;
-  var sx=0, sy=0, startLeft=0, moved=false, mouseDrag=false;
-  function x(e){return e.touches&&e.touches[0]?e.touches[0].clientX:(e.clientX||0);}
-  function y(e){return e.touches&&e.touches[0]?e.touches[0].clientY:(e.clientY||0);}
-  function markMove(e){
-    var dx=x(e)-sx, dy=y(e)-sy;
-    if(Math.abs(dx)>8 || Math.abs(dy)>8){moved=true;scroller.__jdMoved=true;}
+  var sx=0, sy=0, moved=false, isMouseDrag=false, startLeft=0;
+
+  function resetState(){
+    moved=false; isMouseDrag=false; scroller.__jdMoved=false;
   }
-  scroller.addEventListener('touchstart',function(e){sx=x(e);sy=y(e);moved=false;scroller.__jdMoved=false;},{passive:true});
-  scroller.addEventListener('touchmove',markMove,{passive:true});
-  scroller.addEventListener('touchend',function(){setTimeout(function(){scroller.__jdMoved=false;},160);},{passive:true});
-  scroller.addEventListener('pointerdown',function(e){
-    if(e.pointerType && e.pointerType!=='mouse') return;
-    sx=x(e);sy=y(e);startLeft=scroller.scrollLeft;moved=false;mouseDrag=true;scroller.__jdMoved=false;
-    try{scroller.setPointerCapture(e.pointerId);}catch(_e){}
+  // Reset cuando la pestaña vuelve a primer plano (regreso de anuncio Monetag)
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) resetState(); });
+  window.addEventListener('blur',resetState);
+  window.addEventListener('pageshow',resetState);
+
+  // TOUCH — solo detectamos si hubo movimiento para distinguir click vs scroll.
+  // El scroll lo hace el navegador con scroll-snap nativo. Cero interferencia.
+  scroller.addEventListener('touchstart',function(e){
+    var t=e.touches&&e.touches[0]; if(!t) return;
+    sx=t.clientX; sy=t.clientY; moved=false; scroller.__jdMoved=false;
+  },{passive:true});
+  scroller.addEventListener('touchmove',function(e){
+    var t=e.touches&&e.touches[0]; if(!t) return;
+    if(Math.abs(t.clientX-sx)>8 || Math.abs(t.clientY-sy)>8){ moved=true; scroller.__jdMoved=true; }
+  },{passive:true});
+  scroller.addEventListener('touchend',function(){ setTimeout(resetState,180); },{passive:true});
+  scroller.addEventListener('touchcancel',resetState,{passive:true});
+
+  // MOUSE — drag-to-scroll en desktop SIN setPointerCapture (era la causa real del freeze)
+  scroller.addEventListener('mousedown',function(e){
+    if(e.button!==0) return;
+    isMouseDrag=true; sx=e.clientX; startLeft=scroller.scrollLeft; moved=false; scroller.__jdMoved=false;
   });
-  scroller.addEventListener('pointermove',function(e){
-    if(!mouseDrag) return;
-    var dx=x(e)-sx;
-    if(Math.abs(dx)>4){moved=true;scroller.__jdMoved=true;scroller.scrollLeft=startLeft-dx;if(e.cancelable)e.preventDefault();}
+  scroller.addEventListener('mousemove',function(e){
+    if(!isMouseDrag) return;
+    var dx=e.clientX-sx;
+    if(Math.abs(dx)>4){ moved=true; scroller.__jdMoved=true; scroller.scrollLeft=startLeft-dx; }
   });
-  function endMouse(e){mouseDrag=false;try{scroller.releasePointerCapture(e.pointerId);}catch(_e){}setTimeout(function(){scroller.__jdMoved=false;},160);}
-  scroller.addEventListener('pointerup',endMouse);
-  scroller.addEventListener('pointercancel',endMouse);
+  function endMouse(){ var was=moved; setTimeout(resetState,160); scroller.__jdMoved=was; }
+  scroller.addEventListener('mouseup',endMouse);
+  scroller.addEventListener('mouseleave',endMouse);
+
   scroller.addEventListener('click',function(e){
     var card=e.target&&e.target.closest?e.target.closest('.jd-screen-card'):null;
     if(!card) return;
-    if(moved||scroller.__jdMoved){e.preventDefault();e.stopPropagation();return;}
+    if(moved||scroller.__jdMoved){ e.preventDefault(); e.stopPropagation(); resetState(); return; }
+    if(window.__jdLastAdReturn && Date.now()-window.__jdLastAdReturn<700){ e.preventDefault(); e.stopPropagation(); resetState(); return; }
     jdScreenOpen(card.getAttribute('data-full-src')||'');
   },true);
   scroller.addEventListener('keydown',function(e){
@@ -7403,8 +7391,8 @@ function _jdBindScreenScroller(scroller){
     if(card && (e.key==='Enter'||e.key===' ')){e.preventDefault();jdScreenOpen(card.getAttribute('data-full-src')||'');}
   });
 }
-function jdScreenOpen(src){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb||!im)return;im.src=src;lb.classList.add('show');document.body.style.overflow='hidden';}
-function jdScreenClose(){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb)return;lb.classList.remove('show');if(im)im.removeAttribute('src');document.body.style.overflow='';}
+function jdScreenOpen(src){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb||!im||!src)return;if(window.__jdLastAdReturn&&Date.now()-window.__jdLastAdReturn<700)return;im.src=src;lb.classList.add('show');document.documentElement.classList.add('jd-screen-open');document.body.style.overflow='';document.documentElement.style.overflow='';}
+function jdScreenClose(){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb)return;lb.classList.remove('show');document.documentElement.classList.remove('jd-screen-open');if(im)im.removeAttribute('src');document.body.style.overflow='';document.documentElement.style.overflow='';}
 function jdScreenBack(){jdScreenClose();}
 document.addEventListener('keydown',function(e){var lb=document.getElementById('jd-screen-lightbox');if(e.key==='Escape'&&lb&&lb.classList.contains('show'))jdScreenClose();});
 </script>
