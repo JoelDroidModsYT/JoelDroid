@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
+<!-- ══ MONETAG — script ORIGINAL intacto (no se modifica ni se fuerza) ══
+     Solo dejamos preconnect/dns-prefetch (hints pasivos, NO fuerzan prioridad).
+     Quitamos <link rel="preload" fetchpriority="high"> porque retrasaba LCP
+     y bajaba el CPM. El <script> de Monetag conserva sus atributos originales. -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
-<!-- ══ MONETAG — MÁXIMA PRIORIDAD REAL DESDE LA LÍNEA 4 ══
-     El bloque de red de Monetag queda como primer contenido del <head>.
-     No se fuerza ni se modifica la lógica del script original de Monetag. -->
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
 <!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
      Se conserva una marca de versión propia del sitio,
      sin limpiar storage ni ejecutar tareas pesadas al arranque.
@@ -21,22 +21,19 @@
 })();
 </script>
 
-<!-- ══ MONITOREO DE ERRORES JOELDROID — local, seguro y exportable ══ -->
+<!-- ══ MONITOREO DE ERRORES JOELDROID — ligero (sampling 10%, max 20) ══ -->
 <script id="jd-error-monitor">
 (function(){
   var KEY='jd_error_log_v1';
+  var MAX=20;            // antes 80 → menos escrituras en localStorage
+  var SAMPLE=0.10;       // capturamos solo el 10% (menos jank en móvil)
   function safeString(v){try{return typeof v==='string'?v:JSON.stringify(v);}catch(e){return String(v);}}
   function save(type, payload){
+    if(Math.random()>SAMPLE) return;
     try{
       var list=JSON.parse(localStorage.getItem(KEY)||'[]');
-      list.push({
-        type:type,
-        at:new Date().toISOString(),
-        url:location.href,
-        ua:navigator.userAgent,
-        payload:payload
-      });
-      if(list.length>80) list=list.slice(list.length-80);
+      list.push({type:type,at:new Date().toISOString(),url:location.href,payload:payload});
+      if(list.length>MAX) list=list.slice(list.length-MAX);
       localStorage.setItem(KEY,JSON.stringify(list));
     }catch(e){}
   }
@@ -47,16 +44,11 @@
       save('resource_error',{tag:target.tagName,src:target.src||target.href});
       return;
     }
-    save('js_error',{message:e.message,source:e.filename,line:e.lineno,column:e.colno,stack:e.error&&e.error.stack});
+    save('js_error',{message:e.message,source:e.filename,line:e.lineno});
   },true);
   window.addEventListener('unhandledrejection',function(e){
-    save('promise_rejection',{reason:safeString(e.reason),stack:e.reason&&e.reason.stack});
+    save('promise_rejection',{reason:safeString(e.reason)});
   });
-  var oldError=console.error;
-  console.error=function(){
-    try{save('console_error',{args:Array.prototype.slice.call(arguments).map(safeString)});}catch(e){}
-    return oldError.apply(console,arguments);
-  };
   window.jdErrorMonitor={
     list:function(){try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}},
     clear:function(){try{localStorage.removeItem(KEY);}catch(e){}},
