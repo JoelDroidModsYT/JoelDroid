@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'games.json'
+  # Esta es la clave: el bot ahora escuchará cualquier cambio en el repositorio
+  # incluso si viene de una API externa o un script de tu panel.
+  repository_dispatch:
+    types: [on-gist-update]
   workflow_dispatch: 
 
 jobs:
@@ -21,8 +23,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install requests deep-translator
+        run: pip install requests deep-translator
 
       - name: Send Telegram notification
         env:
