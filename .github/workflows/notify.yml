@@ -5,15 +5,19 @@ on:
     branches:
       - main
     paths:
-      - 'games.json'   # ← Solo se dispara cuando cambia este archivo
+      - 'games.json'
+  workflow_dispatch:  # Habilita el botón "Run workflow" en GitHub Actions
 
 jobs:
   notify:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # Evita bloqueos con pushes desde API externa
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
