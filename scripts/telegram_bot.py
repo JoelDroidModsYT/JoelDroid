@@ -2,34 +2,41 @@ import os
 import requests
 from deep_translator import GoogleTranslator
 
-# URL directa de tu Gist (la que me pasaste)
+# URL de tu Gist (Carga instantánea JoelDroid)
 GIST_URL = "https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json"
 
 def main():
-    # Obtener variables del entorno (Configuradas en el .yml)
+    # IMPORTANTE: Revisa que en GitHub el nombre sea exactamente TELEGRAM_BOT_TOKEN
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     
+    if not token or not chat_id:
+        print("❌ ERROR: No se encontraron los Secrets en GitHub (Token o Chat ID).")
+        return
+
     try:
-        # DESCARGAR el JSON desde la URL externa
-        print("Conectando con el servidor de juegos...")
+        # Descarga los datos del Gist
+        print(f"Conectando a: {GIST_URL}")
         response = requests.get(GIST_URL)
         response.raise_for_status()
         data = response.json()
         
-        # Tomar el primer juego de la lista
+        # Forzamos que tome el primer juego de la lista
         game = data[0]
+        print(f"Juego detectado: {game['title']}")
         
-        # Traducir descripción
-        translator = GoogleTranslator(source='auto', target='en')
-        description_en = translator.translate(game['description'])
+        # Traducción de descripción (No traduce Títulos ni VERSION)
+        try:
+            description_en = GoogleTranslator(source='auto', target='en').translate(game['description'])
+        except:
+            description_en = game['description']
         
-        # Crear mensaje
+        # Mensaje estilo premium JoelDroid
         caption = (
             f"🔥 *NEW UPDATE:* {game['title']}\n\n"
             f"✅ *VERSION:* {game['version']}\n"
             f"🛠 *MOD INFO:* {description_en}\n\n"
-            f"📥 *DOWNLOAD FROM:* joeldroidmods.com"
+            f"📥 *DOWNLOAD:* {game['link']}"
         )
         
         # Enviar a Telegram
@@ -42,13 +49,14 @@ def main():
         }
         
         r = requests.post(tele_url, data=payload)
+        
         if r.status_code == 200:
-            print("✅ ¡Mensaje enviado a JoelDroid VIP!")
+            print("✅ ¡MENSAJE ENVIADO CORRECTAMENTE A TELEGRAM!")
         else:
-            print(f"❌ Error de Telegram: {r.text}")
+            print(f"❌ Error de Telegram (Status {r.status_code}): {r.text}")
             
     except Exception as e:
-        print(f"❌ Fallo técnico: {e}")
+        print(f"❌ Error crítico: {e}")
 
 if __name__ == "__main__":
     main()
