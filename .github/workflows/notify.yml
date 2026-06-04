@@ -4,10 +4,7 @@ on:
   push:
     branches:
       - main
-  # Esta es la clave: el bot ahora escuchará cualquier cambio en el repositorio
-  # incluso si viene de una API externa o un script de tu panel.
-  repository_dispatch:
-    types: [on-gist-update]
+    # Se eliminó la línea "paths" para que cualquier cambio lo active
   workflow_dispatch: 
 
 jobs:
