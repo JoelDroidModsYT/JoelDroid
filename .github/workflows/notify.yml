@@ -6,18 +6,14 @@ on:
       - main
     paths:
       - 'games.json'
-  workflow_dispatch:  # Habilita el botón "Run workflow" en GitHub Actions
+  workflow_dispatch: 
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,7 +26,6 @@ jobs:
 
       - name: Send Telegram notification
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python scripts/telegram_bot.py
+        run: python scripts/telegram_bot.py
