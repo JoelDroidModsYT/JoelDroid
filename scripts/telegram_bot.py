@@ -1,4 +1,3 @@
-import json
 import os
 import requests
 from deep_translator import GoogleTranslator
@@ -8,23 +7,40 @@ from deep_translator import GoogleTranslator
 # ──────────────────────────────────────────────
 TELEGRAM_TOKEN   = os.environ["TELEGRAM_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
-GAMES_JSON_PATH  = "games.json"
+
+GIST_URL = (
+    "https://gist.githubusercontent.com/"
+    "JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json"
+)
 
 # ──────────────────────────────────────────────
-# 1. CARGAR games.json Y TOMAR EL PRIMER JUEGO
+# 1. OBTENER games.json DESDE EL GIST
 # ──────────────────────────────────────────────
 def load_latest_game() -> dict:
-    with open(GAMES_JSON_PATH, "r", encoding="utf-8") as f:
-        games = json.load(f)
+    print(f"[INFO] Descargando games.json desde Gist...")
+    try:
+        resp = requests.get(GIST_URL, timeout=15)
+        resp.raise_for_status()
+    except requests.exceptions.ConnectionError:
+        raise RuntimeError("Sin conexión. No se pudo alcanzar el Gist.")
+    except requests.exceptions.Timeout:
+        raise RuntimeError("Timeout: el Gist tardó demasiado en responder.")
+    except requests.exceptions.HTTPError as e:
+        raise RuntimeError(f"Error HTTP al acceder al Gist: {e}")
 
-    if not games:
-        raise ValueError("games.json está vacío.")
+    try:
+        games = resp.json()
+    except ValueError:
+        raise RuntimeError("El Gist no devolvió un JSON válido.")
 
-    # El primer elemento es el más reciente
+    if not isinstance(games, list) or len(games) == 0:
+        raise ValueError("games.json está vacío o no es una lista.")
+
+    print(f"[INFO] {len(games)} juego(s) encontrado(s). Tomando el primero...")
     return games[0]
 
 # ──────────────────────────────────────────────
-# 2. TRADUCIR DESCRIPCIÓN (solo description)
+# 2. TRADUCIR DESCRIPCIÓN
 # ──────────────────────────────────────────────
 def translate_description(text: str) -> str:
     if not text:
@@ -40,8 +56,8 @@ def translate_description(text: str) -> str:
 # 3. CONSTRUIR MENSAJE
 # ──────────────────────────────────────────────
 def build_caption(game: dict, description_en: str) -> str:
-    title   = game["title"]                    # Sin modificar
-    version = f"VERSION {game['version']}"     # VERSION siempre en mayúsculas
+    title   = game["title"]
+    version = f"VERSION {game['version']}"
 
     caption = (
         f"🔥 <b>NEW UPDATE: {title}</b>\n\n"
@@ -83,7 +99,6 @@ def send_photo(image_url: str, caption: str, reply_markup: dict) -> None:
         raise RuntimeError(f"Telegram error: {result.get('description')}")
 
 def send_message_fallback(caption: str, reply_markup: dict) -> None:
-    """Fallback si la imagen falla o no existe."""
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {
         "chat_id":      TELEGRAM_CHAT_ID,
@@ -103,10 +118,10 @@ def send_message_fallback(caption: str, reply_markup: dict) -> None:
 # MAIN
 # ──────────────────────────────────────────────
 def main():
-    print("[INFO] Cargando games.json...")
+    # Cargar datos desde el Gist
     game = load_latest_game()
 
-    print(f"[INFO] Juego detectado: {game.get('title')} — v{game.get('version')}")
+    print(f"[INFO] Juego: {game.get('title')} — v{game.get('version')}")
 
     # Extraer campos
     title       = game.get("title", "Unknown Game")
@@ -115,26 +130,25 @@ def main():
     image_url   = game.get("image", "")
     link        = game.get("link", "https://joeldroidmods.com")
 
-    # Traducir descripción al inglés
+    # Traducir descripción
     print(f"[INFO] Traduciendo: \"{description}\"")
     description_en = translate_description(description)
-    print(f"[INFO] Traducción: \"{description_en}\"")
+    print(f"[INFO] Traducción:  \"{description_en}\"")
 
-    # Construir mensaje y teclado
+    # Construir mensaje
     caption      = build_caption(game, description_en)
     reply_markup = build_inline_keyboard(link)
 
     print("[INFO] Enviando a Telegram...")
 
-    # Intentar con foto; si falla, enviar solo texto
     if image_url:
         try:
             send_photo(image_url, caption, reply_markup)
         except Exception as e:
-            print(f"[WARN] Foto falló ({e}), intentando solo texto...")
+            print(f"[WARN] Foto falló ({e}), enviando solo texto...")
             send_message_fallback(caption, reply_markup)
     else:
-        print("[WARN] No hay imagen. Enviando solo texto.")
+        print("[WARN] Sin imagen. Enviando solo texto.")
         send_message_fallback(caption, reply_markup)
 
 
