@@ -1,0 +1,46 @@
+name: Notify Telegram on Game Update
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.html'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Necesario para detectar archivos cambiados
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 deep-translator lxml
+
+      - name: Detect changed HTML files and notify
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # Obtiene los archivos HTML modificados/creados en el último commit
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- '*.html')
+          echo "Archivos cambiados: $CHANGED"
+
+          if [ -z "$CHANGED" ]; then
+            echo "No hay archivos HTML modificados. Saliendo."
+            exit 0
+          fi
+
+          for FILE in $CHANGED; do
+            echo "Procesando: $FILE"
+            python scripts/notify_telegram.py "$FILE"
+          done
