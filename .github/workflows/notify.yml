@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-    # Se eliminó la línea "paths" para que cualquier cambio lo active
   workflow_dispatch: 
 
 jobs:
@@ -12,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Versión actualizada
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5 # Versión actualizada
         with:
           python-version: '3.11'
 
