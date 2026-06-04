@@ -6,7 +6,7 @@ from deep_translator import GoogleTranslator
 GIST_URL = "https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json"
 
 def main():
-    # IMPORTANTE: Revisa que en GitHub el nombre sea exactamente TELEGRAM_BOT_TOKEN
+    # Obtener credenciales desde los Secrets de GitHub
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     
@@ -21,30 +21,30 @@ def main():
         response.raise_for_status()
         data = response.json()
         
-        # Forzamos que tome el primer juego de la lista
+        # Tomar el primer juego de la lista
         game = data[0]
         print(f"Juego detectado: {game['title']}")
         
-        # Traducción de descripción (No traduce Títulos ni VERSION)
+        # Traducción de descripción
         try:
             description_en = GoogleTranslator(source='auto', target='en').translate(game['description'])
         except:
             description_en = game['description']
         
-        # Mensaje estilo premium JoelDroid
+        # Mensaje formato JoelDroid
         caption = (
             f"🔥 *NEW UPDATE:* {game['title']}\n\n"
             f"✅ *VERSION:* {game['version']}\n"
             f"🛠 *MOD INFO:* {description_en}\n\n"
-            f"📥 *DOWNLOAD:* {game['link']}"
+            f"📥 *DOWNLOAD:* {game['link']}\n\n"
+            f"📸 *IMAGE:* {game['image']}"
         )
         
-        # Enviar a Telegram
-        tele_url = f"https://api.telegram.org/bot{token}/sendPhoto"
+        # Enviar a Telegram como mensaje de texto para asegurar entrega
+        tele_url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {
             'chat_id': chat_id,
-            'photo': game['image'],
-            'caption': caption,
+            'text': caption,
             'parse_mode': 'Markdown'
         }
         
