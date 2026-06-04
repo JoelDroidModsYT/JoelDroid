@@ -16,7 +16,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false  # Evita bloqueos con pushes desde API externa
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Set up Python
