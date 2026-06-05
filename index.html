@@ -1453,6 +1453,106 @@ body.policies-open #share-fab{
 
 
 <!-- JD FIX 2026-06-01: corrige regex partido en comentarios para que el script principal no se corte y Firebase pueda iniciar. Monetag/Multitag intacto. -->
+
+<style id="jd-fixes-2026-06">
+/* ============================================================
+   JD FIXES 2026-06 — modo claro + badges + version pill
+   (No toca Monetag. Solo cosmética + accesibilidad visual)
+   ============================================================ */
+
+/* --- Search container: en modo CLARO un cuerpo cálido y limpio, sin halo blanco --- */
+.light-mode .search-container{
+  background:#eef4ff !important;
+  border:1px solid #c7d6f0 !important;
+  box-shadow:none !important;
+  border-radius:18px !important;
+}
+.light-mode .search-input,
+.light-mode #search-bar{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  color:#0f172a !important;
+  font-weight:700 !important;
+}
+.light-mode .search-input:focus,
+.light-mode #search-bar:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+.light-mode .search-input::placeholder,
+.light-mode #search-bar::placeholder{ color:#64748b !important; font-weight:600 !important; }
+
+/* --- Filter chips (TODO / ACTUALIZADOS / POPULAR) en modo CLARO --- */
+.light-mode .filter-chip{
+  background:#ffffff !important;
+  border:1px solid #c7d6f0 !important;
+  color:#1e293b !important;
+  box-shadow:none !important;
+  font-weight:800 !important;
+  border-radius:14px !important;
+}
+.light-mode .filter-chip:hover{
+  background:#f1f6ff !important;
+  border-color:#94b5e8 !important;
+  color:#1d4ed8 !important;
+  box-shadow:none !important;
+}
+.light-mode .filter-chip.active{
+  background:#2563eb !important;
+  border-color:#2563eb !important;
+  color:#ffffff !important;
+  box-shadow:none !important;  /* sin sombra que “traspasa” */
+}
+.light-mode .filter-chip.active i,
+.light-mode .filter-chip.active svg{ color:#fff !important; stroke:#fff !important; }
+
+/* También en oscuro: el chip activo sin halo difuso */
+.filter-chip.active{ box-shadow:none !important; }
+
+/* --- Badges MOD / UPDATE / TOP : sin sombras de texto ni halos --- */
+.mod-badge-neon,
+.update-badge,
+.popular-top-badge,
+.jd-mod-badge,
+.jd-upd-badge{
+  box-shadow:none !important;
+  text-shadow:none !important;
+}
+.light-mode .jd-mod-badge,
+.light-mode .jd-upd-badge{
+  box-shadow:none !important;
+  text-shadow:none !important;
+}
+
+/* --- TOP badge: igualarlo exactamente al MOD/UPDATE --- */
+.jd-upd-badge{
+  font-size:7px !important;
+  padding:2px 5px !important;
+  border-radius:4px !important;
+  line-height:1.3 !important;
+  letter-spacing:.05em !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:2px !important;
+  height:auto !important;
+}
+.jd-upd-badge svg{ width:7px !important; height:7px !important; }
+
+/* --- Version pill (V0.111, V1.0.2…) en modo CLARO: armoniza con el sitio --- */
+.light-mode .jd-ver-pill{
+  background:rgba(239,246,255,.92) !important;
+  border:1px solid rgba(37,99,235,.45) !important;
+  color:#1d4ed8 !important;
+  text-shadow:none !important;
+  box-shadow:0 1px 3px rgba(15,23,42,.10) !important;
+}
+.light-mode .jd-ver-pill::before{
+  background:#2563eb !important;
+  box-shadow:0 0 4px rgba(37,99,235,.55) !important;
+}
+</style>
+
 </head>
 <body class="no-scrollbar">
 <script>
@@ -2097,22 +2197,200 @@ window.__JD_REST_DONE = false;
              ════════════════════════════════════════════════════════════ -->             
     <!-- ══ RATING + LIKES + COMENTARIOS — rediseño v3 desde cero ══ -->
     <style id="jd-rc-v3-style">
-      .jd-rc{margin:26px 14px 0;display:grid;gap:12px;font-family:inherit;color:var(--text-main);position:relative;z-index:2}
-      .jd-rc-shell{position:relative;overflow:hidden;border-radius:26px;background:linear-gradient(160deg,rgba(8,13,26,.96),rgba(10,20,40,.94) 55%,rgba(4,8,18,.98));border:1px solid rgba(125,211,252,.28);box-shadow:0 22px 54px rgba(0,0,0,.46),0 0 42px rgba(37,99,235,.20),inset 0 1px 0 rgba(255,255,255,.08)}
-      .jd-rc-shell::before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 20% 0%,rgba(34,211,238,.18),transparent 32%),radial-gradient(circle at 92% 22%,rgba(251,191,36,.14),transparent 26%);pointer-events:none}
-      .jd-rc-top{position:relative;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:16px 16px 12px;border-bottom:1px solid rgba(125,211,252,.14)}
-      .jd-rc-score{width:76px;height:76px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(37,99,235,.14));border:1px solid rgba(251,191,36,.34);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),0 12px 28px rgba(0,0,0,.30)}
-      .jd-rc-score b{font-size:27px;font-weight:1000;color:#fbbf24;line-height:1}.jd-rc-score small{font-size:9px;font-weight:900;color:#cbd5e1;margin-top:3px;text-transform:uppercase;letter-spacing:.04em;text-align:center}
-      .jd-rc-title{min-width:0}.jd-rc-kicker{display:flex;align-items:center;gap:7px;margin-bottom:5px;color:#67e8f9;font-size:8.5px;font-weight:1000;text-transform:uppercase;letter-spacing:.16em}.jd-rc-title h4{font-size:15px;font-weight:1000;line-height:1.05;margin:0;color:#f8fafc;text-transform:uppercase}.jd-rc-title p{font-size:10px;line-height:1.35;color:#94a3b8;font-weight:750;margin:5px 0 0}
-      .jd-rc-auth-pill{display:inline-flex;align-items:center;gap:5px;margin-top:8px;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:950;border:1px solid rgba(148,163,184,.20);color:#cbd5e1;background:rgba(15,23,42,.64)}.jd-rc-auth-pill.on{border-color:rgba(34,197,94,.42);color:#86efac;background:rgba(22,101,52,.18)}
-      .jd-rc-actions{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}.jd-rc-likes{display:flex;gap:8px}.jd-rc-like,.jd-rc-dislike{min-width:54px;height:38px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:15px;background:rgba(15,23,42,.72);border:1px solid rgba(125,211,252,.18);color:#cbd5e1;font-size:12px;font-weight:950;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .16s ease,background .16s ease,border-color .16s ease,color .16s ease}.jd-rc-like:active,.jd-rc-dislike:active{transform:scale(.93)}.jd-rc-like.on{background:rgba(34,197,94,.17);border-color:rgba(34,197,94,.55);color:#86efac}.jd-rc-dislike.on{background:rgba(239,68,68,.16);border-color:rgba(239,68,68,.54);color:#fca5a5}
-      .jd-rc-stars{display:flex;align-items:center;gap:1px}.jd-rc-star{width:30px;height:34px;background:transparent;border:0;color:#334155;font-size:25px;line-height:1;cursor:pointer;padding:0;transition:color .14s ease,transform .14s ease,text-shadow .14s ease;-webkit-tap-highlight-color:transparent}.jd-rc-star:active{transform:scale(.84)}.jd-rc-star.lit{color:#fbbf24;text-shadow:0 0 12px rgba(251,191,36,.56)}
-      .jd-rc-your{font-size:9px;font-weight:900;color:#94a3b8;text-align:right;white-space:nowrap}.jd-rc-composer{position:relative;margin:0 14px 14px;padding:10px;border-radius:18px;background:rgba(3,7,18,.62);border:1px solid rgba(125,211,252,.18);display:flex;gap:9px;align-items:flex-end;transition:border-color .16s ease,background .16s ease}.jd-rc-composer:focus-within{border-color:rgba(96,165,250,.66);background:rgba(8,13,28,.76)}.jd-rc-avatar{width:34px;height:34px;border-radius:13px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:1000;color:#fff;background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 8px 20px rgba(37,99,235,.28)}.jd-rc-composer textarea{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#f8fafc;font-size:12px;font-weight:700;resize:none;min-height:34px;max-height:104px;font-family:inherit;line-height:1.45;padding:8px 2px}.jd-rc-composer textarea::placeholder{color:#64748b}.jd-rc-send{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#06b6d4);border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 22px rgba(37,99,235,.30);transition:transform .15s ease,filter .15s ease}.jd-rc-send:active{transform:scale(.9)}
-      .jd-rc-auth-call{display:none;margin:0 14px 14px;padding:11px 12px;border-radius:16px;border:1px dashed rgba(251,191,36,.36);background:rgba(251,191,36,.08);color:#fde68a;font-size:10px;font-weight:850;line-height:1.4;cursor:pointer}.jd-rc-locked .jd-rc-auth-call{display:block}.jd-rc-locked .jd-rc-composer{opacity:.82}.jd-rc-locked .jd-rc-avatar{filter:saturate(.65)}
-      .jd-rc-list{position:relative;display:grid;gap:9px;padding:0 14px 15px}.jd-rc-empty{text-align:center;font-size:11px;font-weight:800;color:#64748b;padding:14px 8px;margin:0;border-radius:15px;background:rgba(15,23,42,.36);border:1px solid rgba(125,211,252,.10)}.jd-rc-c{display:flex;gap:10px;align-items:flex-start;background:rgba(15,23,42,.58);border:1px solid rgba(125,211,252,.12);border-radius:16px;padding:10px 11px}.jd-rc-c-av{width:31px;height:31px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:1000;color:#fff}.jd-rc-c-body{flex:1;min-width:0}.jd-rc-c-head{display:flex;align-items:center;gap:7px;margin-bottom:4px}.jd-rc-c-name{font-size:10.5px;font-weight:1000}.jd-rc-c-time{font-size:9px;color:#64748b;font-weight:800}.jd-rc-c-del{margin-left:auto;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:9px;color:#fca5a5;font-size:11px;cursor:pointer;padding:2px 7px}.jd-rc-c-text{font-size:11.5px;line-height:1.48;color:#dbeafe;opacity:.92;margin:0;word-wrap:break-word;overflow-wrap:anywhere}
-      .light-mode .jd-rc-shell{background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(239,246,255,.94));border-color:rgba(37,99,235,.18);box-shadow:0 18px 46px rgba(15,23,42,.12)}.light-mode .jd-rc-title h4,.light-mode .jd-rc-composer textarea,.light-mode .jd-rc-c-text{color:#0f172a}.light-mode .jd-rc-title p,.light-mode .jd-rc-your{color:#64748b}.light-mode .jd-rc-composer,.light-mode .jd-rc-c,.light-mode .jd-rc-empty,.light-mode .jd-rc-like,.light-mode .jd-rc-dislike{background:rgba(255,255,255,.78);border-color:rgba(37,99,235,.14)}
-      @media(max-width:360px){.jd-rc-top{grid-template-columns:1fr}.jd-rc-score{width:100%;height:62px;border-radius:18px}.jd-rc-actions{align-items:flex-start;flex-direction:column}.jd-rc-your{text-align:left}}
-    </style>
+/* ============================================================
+   RATING + LIKES + COMENTARIOS — rediseño estilo Play Store v4
+   ============================================================ */
+.jd-rc{margin:26px 14px 0;font-family:inherit;color:var(--text-main);position:relative;z-index:2}
+.jd-rc-shell{
+  position:relative;border-radius:20px;overflow:hidden;
+  background:var(--card-bg);
+  border:1px solid rgba(148,163,184,.18);
+  box-shadow:0 6px 22px rgba(0,0,0,.18);
+}
+.light-mode .jd-rc-shell{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+  box-shadow:0 4px 14px rgba(15,23,42,.06);
+}
+
+/* Header con nota grande estilo Play Store */
+.jd-rc-top{
+  display:flex;align-items:center;gap:18px;
+  padding:18px 18px 14px;
+  border-bottom:1px solid rgba(148,163,184,.15);
+}
+.light-mode .jd-rc-top{border-bottom-color:#eef2f7}
+.jd-rc-score{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:78px;
+}
+.jd-rc-score b{
+  font-size:42px;font-weight:900;line-height:1;
+  color:var(--text-main);font-feature-settings:"tnum";
+}
+.light-mode .jd-rc-score b{color:#0f172a}
+.jd-rc-score small{
+  margin-top:6px;font-size:10px;font-weight:700;
+  color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;
+}
+.jd-rc-title{flex:1;min-width:0}
+.jd-rc-kicker{
+  display:inline-flex;align-items:center;gap:5px;
+  color:#f59e0b;font-size:10px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.jd-rc-title h4{
+  font-size:15px;font-weight:800;line-height:1.2;margin:0;
+  color:var(--text-main);
+}
+.jd-rc-title p{
+  font-size:11px;line-height:1.4;color:var(--text-secondary);
+  font-weight:500;margin:4px 0 0;
+}
+.jd-rc-auth-pill{
+  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  padding:4px 9px;border-radius:999px;
+  font-size:10px;font-weight:700;
+  background:rgba(148,163,184,.12);color:var(--text-secondary);
+  border:1px solid rgba(148,163,184,.22);
+}
+.jd-rc-auth-pill.on{
+  background:rgba(34,197,94,.12);color:#16a34a;
+  border-color:rgba(34,197,94,.35);
+}
+
+/* Estrellas y likes en una sola fila clara */
+.jd-rc-actions{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 18px;
+}
+.jd-rc-stars{display:flex;align-items:center;gap:2px}
+.jd-rc-star{
+  width:30px;height:34px;background:transparent;border:0;cursor:pointer;
+  color:#cbd5e1;font-size:26px;line-height:1;padding:0;
+  transition:color .15s ease,transform .12s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.light-mode .jd-rc-star{color:#cbd5e1}
+.jd-rc-star.lit{color:#f59e0b}
+.jd-rc-star:active{transform:scale(.88)}
+.jd-rc-your{
+  font-size:10px;font-weight:700;color:var(--text-secondary);
+  margin-top:2px;
+}
+
+.jd-rc-likes{display:flex;gap:8px}
+.jd-rc-like,.jd-rc-dislike{
+  min-width:54px;height:36px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:0 10px;border-radius:999px;cursor:pointer;
+  background:transparent;
+  border:1px solid rgba(148,163,184,.30);
+  color:var(--text-secondary);
+  font-size:12px;font-weight:800;
+  transition:all .15s ease;-webkit-tap-highlight-color:transparent;
+}
+.light-mode .jd-rc-like,.light-mode .jd-rc-dislike{
+  border-color:#d6dee8;color:#475569;background:#ffffff;
+}
+.jd-rc-like:active,.jd-rc-dislike:active{transform:scale(.94)}
+.jd-rc-like.on{background:rgba(34,197,94,.14);border-color:#22c55e;color:#16a34a}
+.jd-rc-dislike.on{background:rgba(239,68,68,.14);border-color:#ef4444;color:#dc2626}
+
+/* Aviso para iniciar sesión */
+.jd-rc-auth-call{
+  display:none;margin:0 18px 14px;padding:10px 12px;
+  border-radius:12px;cursor:pointer;
+  background:rgba(245,158,11,.10);
+  border:1px solid rgba(245,158,11,.32);
+  color:#b45309;
+  font-size:11px;font-weight:700;line-height:1.4;
+}
+.light-mode .jd-rc-auth-call{background:#fff7ed;border-color:#fed7aa;color:#b45309}
+.jd-rc-locked .jd-rc-auth-call{display:block}
+.jd-rc-locked .jd-rc-composer{opacity:.85}
+
+/* Composer estilo Play Store */
+.jd-rc-composer{
+  display:flex;align-items:flex-end;gap:10px;
+  margin:0 18px 14px;padding:8px 10px 8px 8px;
+  border-radius:24px;
+  background:rgba(148,163,184,.10);
+  border:1px solid rgba(148,163,184,.22);
+  transition:border-color .15s ease,background .15s ease;
+}
+.light-mode .jd-rc-composer{
+  background:#f1f5f9;border-color:#dfe6f0;
+}
+.jd-rc-composer:focus-within{
+  border-color:#2563eb;background:rgba(37,99,235,.06);
+}
+.light-mode .jd-rc-composer:focus-within{background:#eff6ff}
+.jd-rc-avatar{
+  width:36px;height:36px;flex:0 0 auto;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;color:#fff;
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+}
+.jd-rc-composer textarea{
+  flex:1;min-width:0;background:transparent;border:0;outline:0;
+  color:var(--text-main);font-family:inherit;font-size:13px;font-weight:600;
+  line-height:1.45;resize:none;min-height:36px;max-height:104px;
+  padding:8px 4px;
+}
+.light-mode .jd-rc-composer textarea{color:#0f172a}
+.jd-rc-composer textarea::placeholder{color:var(--text-secondary)}
+.jd-rc-send{
+  width:36px;height:36px;flex:0 0 auto;border:0;cursor:pointer;
+  border-radius:50%;color:#fff;
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s ease,filter .15s ease;
+}
+.jd-rc-send:active{transform:scale(.92)}
+
+/* Lista de comentarios */
+.jd-rc-list{display:grid;gap:10px;padding:0 18px 18px}
+.jd-rc-empty{
+  margin:0;padding:14px 10px;text-align:center;border-radius:12px;
+  font-size:12px;font-weight:700;color:var(--text-secondary);
+  background:rgba(148,163,184,.08);
+  border:1px dashed rgba(148,163,184,.25);
+}
+.light-mode .jd-rc-empty{background:#f8fafc;border-color:#e2e8f0;color:#64748b}
+.jd-rc-c{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:10px 11px;border-radius:14px;
+  background:rgba(148,163,184,.08);
+  border:1px solid rgba(148,163,184,.18);
+}
+.light-mode .jd-rc-c{background:#f8fafc;border-color:#e2e8f0}
+.jd-rc-c-av{
+  width:32px;height:32px;flex-shrink:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;color:#fff;
+}
+.jd-rc-c-body{flex:1;min-width:0}
+.jd-rc-c-head{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.jd-rc-c-name{font-size:11px;font-weight:800;color:var(--text-main)}
+.light-mode .jd-rc-c-name{color:#0f172a}
+.jd-rc-c-time{font-size:10px;color:var(--text-secondary);font-weight:600}
+.jd-rc-c-del{
+  margin-left:auto;background:transparent;border:0;cursor:pointer;
+  color:#ef4444;font-size:13px;padding:2px 6px;border-radius:6px;
+}
+.jd-rc-c-del:hover{background:rgba(239,68,68,.10)}
+.jd-rc-c-text{
+  margin:0;font-size:12px;line-height:1.5;
+  color:var(--text-main);word-wrap:break-word;overflow-wrap:anywhere;
+}
+.light-mode .jd-rc-c-text{color:#1e293b}
+
+@media(max-width:360px){
+  .jd-rc-top{flex-direction:column;align-items:flex-start;gap:10px}
+  .jd-rc-actions{flex-direction:column;align-items:flex-start}
+}
+</style>
     <div id="det-rating-comments" class="jd-rc jd-rc-locked" aria-live="polite">
       <div class="jd-rc-shell">
         <div class="jd-rc-top">
