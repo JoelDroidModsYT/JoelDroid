@@ -1,9 +1,8 @@
 User-agent: *
 Allow: /
-Allow: /?mod=
 
-# Old physical mod pages are deprecated (V7 uses ?mod= only)
-Disallow: /mods/
-Disallow: /*.html$
+# V9: old /mods/*.html URLs are NOT blocked on purpose.
+# Googlebot must crawl them so it can follow the client-side redirect
+# (404.html / jd-redirects.js) to the clean /?mod= URL and transfer ranking.
 
 Sitemap: https://joeldroidmods.com/sitemap.xml

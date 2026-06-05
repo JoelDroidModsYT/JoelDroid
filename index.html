@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
+
+<!-- V9 SEO: legacy /mods/*.html -> /?mod=ID (does not touch Monetag) -->
+<script src="/jd-redirects.js"></script>
 <!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
      Se conserva una marca de versión propia del sitio,
      sin limpiar storage ni ejecutar tareas pesadas al arranque.
@@ -7741,5 +7744,7 @@ svg.lucide{display:inline-block;vertical-align:middle}
   window.addEventListener('load',schedule);
 })();
 </script>
+<!-- V9 SEO: runtime title/meta/JSON-LD injector for /?mod= pages -->
+<script defer src="/jd-seo.js"></script>
 </body>
 </html>

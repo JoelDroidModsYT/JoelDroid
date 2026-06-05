@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>Redirecting… — JoelDroid Mods</title>
+<script>
+/*!
+ * JoelDroid Mods — 404.html (V9)
+ * GitHub Pages serves this for any unknown path (e.g. legacy /mods/<slug>.html).
+ * We map the slug to the clean /?mod=ID URL and use location.replace() so
+ * Googlebot follows the redirect and consolidates ranking signals.
+ */
+(function () {
+  "use strict";
+  var MAP = {
+    "bus-simulator-ultimate":        "/?mod=8OajZpH1fJX3mPNo1iqF",
+    "truck-simulator-pro-usa":       "/?mod=MycxFXUXAoQwUx7GMXd2",
+    "car-parking-multiplayer-2":     "/?mod=uWeUJYbJhCcmjImQ3jEB",
+    "global-truck-online":           "/?mod=1",
+    "off-the-road-2":                "/?mod=JFjfn0C85QG8HfZcBL1t",
+    "moto-wheelie-3d":               "/?mod=ms8TbhI81zTMsRZVfTzm",
+    "elite-auto-brasil":             "/?mod=DppGppBkG3RzOdeXVQ9O",
+    "car-simulator-2":               "/?mod=DSlBr0MMnQUHIqEKuUPz",
+    "car-parking-multiplayer":       "/?mod=02qE0OihFc0ksBiW4pUT",
+    "farming-simulator-26":          "/?mod=lc312vOotB1Zv9FkjIzt",
+    "truck-simulator-indonesia":     "/?mod=lnwSfQHMO99fadTbfnwD",
+    "world-bus-driving-simulator":   "/?mod=JRGS4BVGevTx2V5txgzV",
+    "world-truck-driving-simulator": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+    "bus-simulator-india":           "/?mod=GqW9GWDAfhLJDlxkbZxM",
+    "bus-simulator-indonesia":       "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+    "drivers-jobs-online-simulator": "/?mod=3aurnrdnBWV8JUy1PlRk",
+    "truck-simulator-bigrigs":       "/?mod=LwoLXfJV5dYt96ipaSYB",
+    "universal-truck-simulator":     "/?mod=GsL7ow00nHxijoDVMkWe",
+    "off-the-road":                  "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+    "trucker-of-europe-3":           "/?mod=2",
+    "rally-fury":                    "/?mod=IM35lDbfpmOvxzQFxOfm",
+    "grand-truck-simulator-2":       "/?mod=UWiGr3eqIn4akkc2r6Va",
+    "subway-surfers":                "/?mod=6Cl6XJzYJVTVfoum82Tu",
+    "hill-climb-racing":             "/?mod=BoNn6QyU5GHvEXWthbsy",
+    "hungry-shark-world":            "/?mod=LC7P1fxJX3MRMY0g1QB0"
+  };
+
+  var path = (window.location.pathname || "");
+
+  // 1) /mods/<slug>.html (with optional language prefix)
+  var mm = path.match(/^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?mods\/([^\/]+?)\.html$/i);
+  if (mm) {
+    var slug = decodeURIComponent(mm[1]).toLowerCase();
+    window.location.replace(MAP[slug] || "/");
+    return;
+  }
+
+  // 2) /mods or /mods/ listing
+  if (/^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?mods\/?$/i.test(path)) {
+    window.location.replace("/");
+    return;
+  }
+
+  // 3) Any other leftover .html -> home
+  if (/\.html$/i.test(path) && path !== "/index.html") {
+    window.location.replace("/");
+    return;
+  }
+
+  // 4) Unknown path -> home
+  window.location.replace("/");
+})();
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=/"></noscript>
+</head>
+<body>
+<p>Redirecting to <a href="/">JoelDroid Mods</a>…</p>
+</body>
+</html>
