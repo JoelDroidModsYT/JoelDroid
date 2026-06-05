@@ -1614,7 +1614,7 @@ body.policies-open #share-fab{
         </div>
       </div>
       <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
-        <i id="theme-icon" data-lucide="sun"></i>
+       <i id="theme-icon" data-lucide="moon"></i>
       </button>
       <button onclick="openSettings()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
         <i data-lucide="settings" class="w-5 h-5"></i>
@@ -2194,6 +2194,173 @@ window.__JD_REST_DONE = false;
           </button>
           <span class="dl-safe-pill">Descarga Segura</span>
         </div>
+
+        <!-- ══ VIDEO TUTORIAL YOUTUBE — lite embed (no carga iframe hasta el click) ══
+             100% pasivo: solo una <img> de la miniatura + botón play.
+             No carga el iframe de YouTube en el load inicial, por lo que NO
+             interfiere con Monetag (sin scripts externos, sin <iframe> al inicio,
+             sin peticiones a youtube.com hasta que el usuario hace click). -->
+        <style id="jd-yt-tutorial-style">
+        .jd-yt-tut{margin:18px 14px 0;font-family:inherit;position:relative;z-index:2}
+        .jd-yt-tut-kicker{
+          display:flex;align-items:center;gap:6px;justify-content:center;
+          font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+          color:#2563eb;margin-bottom:8px;
+        }
+        .light-mode .jd-yt-tut-kicker{color:#1d4ed8}
+        .jd-yt-tut-title{
+          text-align:center;font-size:15px;font-weight:800;line-height:1.25;
+          color:var(--text-main);margin:0 0 10px;
+        }
+        .light-mode .jd-yt-tut-title{color:#0f172a}
+        .jd-yt-tut-frame{
+          position:relative;width:100%;aspect-ratio:16/9;
+          border-radius:18px;overflow:hidden;cursor:pointer;
+          background:#000;
+          border:1px solid rgba(148,163,184,.22);
+          box-shadow:0 6px 22px rgba(0,0,0,.22);
+          -webkit-tap-highlight-color:transparent;
+        }
+        .light-mode .jd-yt-tut-frame{
+          border:1px solid #e2e8f0;
+          box-shadow:0 4px 14px rgba(15,23,42,.08);
+        }
+        .jd-yt-tut-thumb{
+          width:100%;height:100%;object-fit:cover;display:block;
+          transition:transform .35s ease,filter .25s ease;
+        }
+        .jd-yt-tut-frame:hover .jd-yt-tut-thumb{transform:scale(1.04);filter:brightness(.85)}
+        .jd-yt-tut-play{
+          position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+          pointer-events:none;
+        }
+        .jd-yt-tut-play span{
+          width:68px;height:48px;border-radius:14px;
+          background:rgba(0,0,0,.55);
+          display:flex;align-items:center;justify-content:center;
+          transition:background .2s ease,transform .15s ease;
+        }
+        .jd-yt-tut-frame:hover .jd-yt-tut-play span{background:#ef4444}
+        .jd-yt-tut-frame:active .jd-yt-tut-play span{transform:scale(.94)}
+        .jd-yt-tut-play svg{width:26px;height:26px;color:#fff;fill:#fff}
+        .jd-yt-tut-badge{
+          position:absolute;top:10px;left:10px;
+          display:inline-flex;align-items:center;gap:5px;
+          padding:4px 9px;border-radius:999px;
+          background:rgba(0,0,0,.65);color:#fff;
+          font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+          backdrop-filter:blur(4px);
+        }
+        .jd-yt-tut-foot{
+          margin-top:8px;text-align:center;
+          font-size:11px;font-weight:600;color:var(--text-secondary);
+        }
+        </style>
+        <div class="jd-yt-tut" id="jd-yt-tutorial">
+          <div class="jd-yt-tut-kicker">▶ Video Tutorial</div>
+          <h4 class="jd-yt-tut-title">¿Cómo descargar el juego? Mira el tutorial</h4>
+          <div class="jd-yt-tut-frame" id="jd-yt-tut-frame"
+               role="button" tabindex="0"
+               aria-label="Reproducir video tutorial de YouTube"
+               data-yt-id="ZcGMLZnTwhg">
+            <img class="jd-yt-tut-thumb"
+                 src="https://i.ytimg.com/vi/ZcGMLZnTwhg/hqdefault.jpg"
+                 alt="Miniatura del video tutorial — Cómo descargar el juego"
+                 loading="lazy" decoding="async"
+                 onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/ZcGMLZnTwhg/0.jpg'">
+            <span class="jd-yt-tut-badge">YouTube</span>
+            <span class="jd-yt-tut-play" aria-hidden="true">
+              <span>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </span>
+          </div>
+          <div class="jd-yt-tut-foot">Toca la miniatura para reproducir el tutorial</div>
+        </div>
+        <script id="jd-yt-tutorial-script">
+        (function(){
+          // ¿Estamos servidos por web (http/https)? Si no (file:// o content://),
+          // los iframes de YouTube fallan con "Error 153 — error de configuración".
+          // En ese caso abrimos el video directamente en la app/YouTube web.
+          function isWebOrigin(){
+            try{
+              var p = (location.protocol || '').toLowerCase();
+              return p === 'http:' || p === 'https:';
+            }catch(e){ return false; }
+          }
+          function openExternal(id){
+            var url = 'https://www.youtube.com/watch?v=' + id;
+            try{
+              var w = window.open(url, '_blank', 'noopener,noreferrer');
+              if(!w) location.href = url;
+            }catch(e){ location.href = url; }
+          }
+          function activate(frame){
+            if(!frame || frame.dataset.activated==='1') return;
+            var id = frame.getAttribute('data-yt-id') || 'ZcGMLZnTwhg';
+
+            // Fallback: abrir en YouTube si no hay origen web válido
+            if(!isWebOrigin()){
+              openExternal(id);
+              return;
+            }
+
+            frame.dataset.activated='1';
+            var iframe = document.createElement('iframe');
+            // Usamos youtube.com (no -nocookie) para máxima compatibilidad de embed.
+            iframe.setAttribute('src','https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0&modestbranding=1&playsinline=1');
+            iframe.setAttribute('title','Video tutorial');
+            iframe.setAttribute('frameborder','0');
+            iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+            iframe.setAttribute('allowfullscreen','');
+            iframe.setAttribute('loading','lazy');
+            iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+            iframe.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:18px;background:#000;';
+
+            // Si el iframe falla (Error 153 u otros), abrimos en YouTube como respaldo.
+            var failTimer = setTimeout(function(){
+              // Si el iframe nunca llegó a hacer "load", abrimos externo.
+              if(iframe.dataset.loaded !== '1'){
+                openExternal(id);
+              }
+            }, 4500);
+            iframe.addEventListener('load', function(){
+              iframe.dataset.loaded = '1';
+              clearTimeout(failTimer);
+            });
+            iframe.addEventListener('error', function(){
+              clearTimeout(failTimer);
+              openExternal(id);
+            });
+
+            frame.innerHTML='';
+            frame.appendChild(iframe);
+            frame.style.cursor='default';
+          }
+          function bind(){
+            var f = document.getElementById('jd-yt-tut-frame');
+            if(!f || f.dataset.bound==='1') return;
+            f.dataset.bound='1';
+            // Pista visual: si no es web, indicar que se abrirá YouTube
+            if(!isWebOrigin()){
+              var foot = f.parentNode && f.parentNode.querySelector('.jd-yt-tut-foot');
+              if(foot) foot.textContent = 'Toca la miniatura para abrir el tutorial en YouTube';
+              f.setAttribute('aria-label','Abrir video tutorial en YouTube');
+            }
+            f.addEventListener('click', function(){ activate(f); });
+            f.addEventListener('keydown', function(e){
+              if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activate(f); }
+            });
+          }
+          if(document.readyState==='loading'){
+            document.addEventListener('DOMContentLoaded', bind);
+          } else { bind(); }
+          // Re-bind si el bloque se re-renderiza dinámicamente
+          window.jdRebindYtTutorial = bind;
+        })();
+        </script>
+
+
 
         <!-- ════════════════════════════════════════════════════════════
              ZONA DE ENLACES SECUNDARIOS
@@ -4964,7 +5131,7 @@ function toggleTheme(){
   isDarkMode=!isDarkMode;
   document.body.classList.toggle('light-mode',!isDarkMode);
   var ti=document.getElementById('theme-icon');
-  if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
+  if(ti)ti.setAttribute('data-lucide',isDarkMode?'moon':'sun');
   localStorage.setItem('darkMode',isDarkMode?'dark':'light');
   localStorage.setItem('jd_manual_theme','1');
   applyUIChanges();refreshIcons();
@@ -4976,7 +5143,7 @@ function loadThemePreference(){
     isDarkMode=saved==='dark';
     document.body.classList.toggle('light-mode',!isDarkMode);
     var ti=document.getElementById('theme-icon');
-    if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
+    if(ti)ti.setAttribute('data-lucide',isDarkMode?'moon':'sun');
     refreshIcons();
     return true;
   }
@@ -4988,7 +5155,7 @@ function autoThemeDetection(){
   isDarkMode = mql ? mql.matches : true; // por defecto oscuro
   document.body.classList.toggle('light-mode',!isDarkMode);
   var ti=document.getElementById('theme-icon');
-  if(ti)ti.setAttribute('data-lucide',isDarkMode?'sun':'moon');
+  if(ti)ti.setAttribute('data-lucide',isDarkMode?'moon':'sun');
   refreshIcons();
   if(mql && !window.__jdMqlBound){
     window.__jdMqlBound=true;
@@ -4997,7 +5164,7 @@ function autoThemeDetection(){
       isDarkMode=ev.matches;
       document.body.classList.toggle('light-mode',!isDarkMode);
       var ti2=document.getElementById('theme-icon');
-      if(ti2)ti2.setAttribute('data-lucide',isDarkMode?'sun':'moon');
+      if(ti2)ti2.setAttribute('data-lucide',isDarkMode?'moon':'sun');
       refreshIcons();
     };
     if(mql.addEventListener) mql.addEventListener('change',handler);
