@@ -1,0 +1,1259 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/bus-simulator-ultimate.html",
+        "destination": "/?mod=8OajZpH1fJX3mPNo1iqF",
+        "type": 301
+      },
+      {
+        "source": "/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/truck-simulator-pro-usa.html",
+        "destination": "/?mod=MycxFXUXAoQwUx7GMXd2",
+        "type": 301
+      },
+      {
+        "source": "/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/car-parking-multiplayer-2.html",
+        "destination": "/?mod=uWeUJYbJhCcmjImQ3jEB",
+        "type": 301
+      },
+      {
+        "source": "/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/global-truck-online.html",
+        "destination": "/?mod=1",
+        "type": 301
+      },
+      {
+        "source": "/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/off-the-road-2.html",
+        "destination": "/?mod=JFjfn0C85QG8HfZcBL1t",
+        "type": 301
+      },
+      {
+        "source": "/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/moto-wheelie-3d.html",
+        "destination": "/?mod=ms8TbhI81zTMsRZVfTzm",
+        "type": 301
+      },
+      {
+        "source": "/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/elite-auto-brasil.html",
+        "destination": "/?mod=DppGppBkG3RzOdeXVQ9O",
+        "type": 301
+      },
+      {
+        "source": "/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/car-simulator-2.html",
+        "destination": "/?mod=DSlBr0MMnQUHIqEKuUPz",
+        "type": 301
+      },
+      {
+        "source": "/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/car-parking-multiplayer.html",
+        "destination": "/?mod=02qE0OihFc0ksBiW4pUT",
+        "type": 301
+      },
+      {
+        "source": "/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/farming-simulator-26.html",
+        "destination": "/?mod=lc312vOotB1Zv9FkjIzt",
+        "type": 301
+      },
+      {
+        "source": "/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/truck-simulator-indonesia.html",
+        "destination": "/?mod=lnwSfQHMO99fadTbfnwD",
+        "type": 301
+      },
+      {
+        "source": "/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/world-bus-driving-simulator.html",
+        "destination": "/?mod=JRGS4BVGevTx2V5txgzV",
+        "type": 301
+      },
+      {
+        "source": "/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/world-truck-driving-simulator.html",
+        "destination": "/?mod=VhQbTpgCbpKD3d8lKIh5",
+        "type": 301
+      },
+      {
+        "source": "/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/bus-simulator-india.html",
+        "destination": "/?mod=GqW9GWDAfhLJDlxkbZxM",
+        "type": 301
+      },
+      {
+        "source": "/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/bus-simulator-indonesia.html",
+        "destination": "/?mod=Xt9xo2LPD5ZDaKE3eteV",
+        "type": 301
+      },
+      {
+        "source": "/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/drivers-jobs-online-simulator.html",
+        "destination": "/?mod=3aurnrdnBWV8JUy1PlRk",
+        "type": 301
+      },
+      {
+        "source": "/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/truck-simulator-bigrigs.html",
+        "destination": "/?mod=LwoLXfJV5dYt96ipaSYB",
+        "type": 301
+      },
+      {
+        "source": "/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/universal-truck-simulator.html",
+        "destination": "/?mod=GsL7ow00nHxijoDVMkWe",
+        "type": 301
+      },
+      {
+        "source": "/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/off-the-road.html",
+        "destination": "/?mod=sHBaQ4jxKB7AQhsjPsLJ",
+        "type": 301
+      },
+      {
+        "source": "/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/trucker-of-europe-3.html",
+        "destination": "/?mod=2",
+        "type": 301
+      },
+      {
+        "source": "/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/rally-fury.html",
+        "destination": "/?mod=IM35lDbfpmOvxzQFxOfm",
+        "type": 301
+      },
+      {
+        "source": "/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/grand-truck-simulator-2.html",
+        "destination": "/?mod=UWiGr3eqIn4akkc2r6Va",
+        "type": 301
+      },
+      {
+        "source": "/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/subway-surfers.html",
+        "destination": "/?mod=6Cl6XJzYJVTVfoum82Tu",
+        "type": 301
+      },
+      {
+        "source": "/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/hill-climb-racing.html",
+        "destination": "/?mod=BoNn6QyU5GHvEXWthbsy",
+        "type": 301
+      },
+      {
+        "source": "/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/hungry-shark-world.html",
+        "destination": "/?mod=LC7P1fxJX3MRMY0g1QB0",
+        "type": 301
+      },
+      {
+        "source": "/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/es/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/es/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/pt-br/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/de/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/de/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/fr/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/it/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/it/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/pl/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/tr/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/id/mods",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/id/mods/",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/**/*.html",
+        "destination": "/",
+        "type": 301
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/sitemap.xml",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
+      },
+      {
+        "source": "/seo-data.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=600"
+          }
+        ]
+      }
+    ]
+  }
+}

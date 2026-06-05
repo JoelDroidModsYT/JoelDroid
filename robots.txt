@@ -1,17 +1,9 @@
-# JoelDroid Mods — robots.txt (v6)
-# Permite el rastreo de las páginas de redirección SEO en /mods/ y en cada carpeta de idioma.
 User-agent: *
 Allow: /
-Allow: /mods/
-Allow: /es/mods/
-Allow: /pt-br/mods/
-Allow: /de/mods/
-Allow: /fr/mods/
-Allow: /it/mods/
-Allow: /pl/mods/
-Allow: /tr/mods/
-Allow: /id/mods/
-Disallow: /admin/
-Disallow: /private/
+Allow: /?mod=
+
+# Old physical mod pages are deprecated (V7 uses ?mod= only)
+Disallow: /mods/
+Disallow: /*.html$
 
 Sitemap: https://joeldroidmods.com/sitemap.xml
