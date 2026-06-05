@@ -345,8 +345,8 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 
 /* ═══════ ARMONÍA MODO CLARO — refuerzo global ═══════ */
 .light-mode{color-scheme:light}
-.light-mode .jd-name,.light-mode .jd-mod-label{color:#0f172a}
-.light-mode .jd-mod-label{opacity:.78;font-weight:700}
+.light-mode .jd-name{color:#0f172a}
+.light-mode .jd-mod-label{color:#1d4ed8;opacity:1;font-weight:800}
 .light-mode .jd-btn{color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,.25);font-weight:800}
 .light-mode .jd-card{background:#ffffff;border:1px solid rgba(37,99,235,.18);box-shadow:0 4px 14px rgba(15,23,42,.08),0 1px 3px rgba(15,23,42,.06)}
 .light-mode .jd-img-box{background:#eef2f7}
@@ -1143,13 +1143,15 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 }
 /* Mod-type label: small coloured text, CAN be translated */
 .jd-mod-label {
-  font-size: 7.5px;
-  font-weight: 700;
-  color: var(--brand-color);
+  font-size: 8px;
+  font-weight: 800;
+  color: #38bdf8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  opacity: .85;
+  opacity: 1;
+  text-shadow: 0 0 6px rgba(56,189,248,.35);
+  letter-spacing: .02em;
 }
 /* ── VERSION PILL bajo el ícono — borde celeste, fondo transparente ── */
 .jd-ver-pill{
@@ -3881,7 +3883,7 @@ function showDetailAndScroll(id){
   setTimeout(function(){scrollToDownloads();},400);
 }
 
-function refreshIcons(){if(window.lucide)window.lucide.createIcons();}
+function refreshIcons(){try{if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();}catch(e){}if(!window.lucide){setTimeout(refreshIcons,150);}}
 function resetPage(){window.location.href=_jdBaseUrl();}
 
 /* ── URL base limpia: elimina /index.html del pathname ──────────
@@ -7690,5 +7692,54 @@ function jdScreenBack(){jdScreenClose();}
 document.addEventListener('keydown',function(e){var lb=document.getElementById('jd-screen-lightbox');if(e.key==='Escape'&&lb&&lb.classList.contains('show'))jdScreenClose();});
 </script>
 
+
+<style id="jd-icon-fallback">
+/* Evita que un icono Lucide aún no renderizado quede invisible */
+i[data-lucide]{display:inline-block;min-width:1em;min-height:1em;line-height:1;vertical-align:middle}
+svg.lucide{display:inline-block;vertical-align:middle}
+/* ── FIX scroll capturas: elevar pila y aislar gestos ── */
+#detail-view .jd-screens-wrap{position:relative;z-index:2147482000!important;isolation:isolate}
+#detail-view .jd-screens-scroller{position:relative;z-index:2147482001!important;touch-action:pan-x pan-y pinch-zoom!important}
+</style>
+<script id="jd-icon-watcher">
+(function(){
+  var pending=false;
+  function run(){
+    pending=false;
+    try{if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();}catch(e){}
+  }
+  function schedule(){
+    if(pending)return;pending=true;
+    (window.requestIdleCallback||function(cb){setTimeout(cb,120);})(run,{timeout:300});
+  }
+  // Reintentos iniciales por si lucide tarda en cargar
+  var tries=0,iv=setInterval(function(){
+    tries++;
+    if(window.lucide&&window.lucide.createIcons){schedule();}
+    if(tries>40)clearInterval(iv);
+  },120);
+  // Observa cambios en el DOM: si se inserta cualquier <i data-lucide> nuevo, lo convierte
+  try{
+    var mo=new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){
+        var m=muts[i];
+        if(m.type==='childList'){
+          for(var j=0;j<m.addedNodes.length;j++){
+            var n=m.addedNodes[j];
+            if(n.nodeType!==1)continue;
+            if(n.matches&&(n.matches('[data-lucide]')||n.querySelector&&n.querySelector('[data-lucide]'))){
+              schedule();return;
+            }
+          }
+        }
+      }
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)schedule();});
+  window.addEventListener('pageshow',schedule);
+  window.addEventListener('load',schedule);
+})();
+</script>
 </body>
 </html>
