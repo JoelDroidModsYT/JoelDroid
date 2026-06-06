@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ MONETAG — script ORIGINAL intacto (no se modifica ni se fuerza) ══
-     Solo dejamos preconnect/dns-prefetch (hints pasivos, NO fuerzan prioridad).
-     Quitamos <link rel="preload" fetchpriority="high"> porque retrasaba LCP
-     y bajaba el CPM. El <script> de Monetag conserva sus atributos originales. -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<!-- ══ MONETAG — MÁXIMA PRIORIDAD REAL DESDE LA LÍNEA 4 (config estable que daba CPM alto) ══ -->
 
 <!-- V9 SEO: legacy /mods/*.html -> /?mod=ID (does not touch Monetag) -->
 <script src="/jd-redirects.js"></script>
@@ -18,7 +16,7 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.1.1-firebase-fix';
+  var APP_VERSION = '1.1.3-joeldroid-brand';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -28,8 +26,8 @@
 <script id="jd-error-monitor">
 (function(){
   var KEY='jd_error_log_v1';
-  var MAX=20;            // antes 80 → menos escrituras en localStorage
-  var SAMPLE=0.10;       // capturamos solo el 10% (menos jank en móvil)
+  var MAX=10;            // antes 80 → menos escrituras en localStorage
+  var SAMPLE=0.02;       // capturamos solo el 10% (menos jank en móvil)
   function safeString(v){try{return typeof v==='string'?v:JSON.stringify(v);}catch(e){return String(v);}}
   function save(type, payload){
     if(Math.random()>SAMPLE) return;
@@ -88,7 +86,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ══ TITLE & DESCRIPTION OPTIMIZADOS PARA GOOGLE (largo cola + año) ══ -->
-<title>MOD APK 2026 Gratis para Android — Dinero Infinito | JoelDroid Mods</title>
+<title>JoelDroid Mods | MOD APK 2026 Gratis para Android — Dinero Infinito</title>
 <meta name="description" content="Descarga los mejores MOD APK 2026 para Android gratis: Off The Road 2, Global Truck Online, Trucker of Europe 3, Car Parking Multiplayer y más, con dinero infinito, monedas ilimitadas y todo desbloqueado. Actualizados, seguros y sin virus.">
 <meta name="keywords" content="mod apk 2026, descargar mod apk, mod apk dinero infinito, off the road 2 mod apk, otr 2 mod, global truck online mod, trucker of europe 3 mod apk, car parking multiplayer mod, mods android gratis, mods apk actualizados, joeldroid mods">
 <meta name="author" content="JoelDroid Mods YT">
@@ -127,7 +125,7 @@
 <!-- ══ OPEN GRAPH (Facebook, WhatsApp, Telegram) ══ -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JoelDroid Mods YT">
-<meta property="og:title" content="MOD APK 2026 Gratis para Android — JoelDroid Mods">
+<meta property="og:title" content="JoelDroid Mods — MOD APK 2026 Gratis para Android">
 <meta property="og:description" content="Off The Road 2, Global Truck Online, Trucker of Europe 3 y más MOD APK con dinero infinito, actualizados y seguros para Android.">
 <meta property="og:url" content="https://joeldroidmods.com/">
 <meta property="og:image" content="https://joeldroidmods.com/og-cover.jpg">
@@ -139,7 +137,7 @@
 
 <!-- ══ TWITTER / X ══ -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MOD APK 2026 Gratis para Android — JoelDroid Mods">
+<meta name="twitter:title" content="JoelDroid Mods — MOD APK 2026 Gratis para Android">
 <meta name="twitter:description" content="Descarga MOD APK con dinero infinito, monedas ilimitadas y todo desbloqueado. Juegos actualizados por JoelDroid Mods.">
 <meta name="twitter:image" content="https://joeldroidmods.com/og-cover.jpg">
 <meta name="twitter:site" content="@JoelDroidModsYT">
@@ -1714,7 +1712,7 @@ window.__JD_REST_DONE = false;
   var GIST_USER     = 'JoelDroidModsYT';
   // URL limpia (sin hash de revisión) — siempre devuelve la última versión
   // cache-buster por minuto: respeta CDN pero refresca rápido tras un push
-  var _bust         = Math.floor(Date.now()/60000);
+  var _bust         = Math.floor(Date.now()/10000);
   var CDN_URL       = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?v='+_bust;
   var FS_URL        = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
                       '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
@@ -2414,13 +2412,13 @@ window.__JD_REST_DONE = false;
           <span class="jd-comm-ic" aria-hidden="true">
             <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 .4C7.4.4.4 7.4.4 16c0 2.8.7 5.5 2.1 7.9L.3 31.6l7.9-2.1c2.3 1.3 4.9 1.9 7.6 1.9h.1c8.6 0 15.6-7 15.6-15.6S24.6.4 16 .4zm9.2 22.2c-.4 1.1-2.2 2.1-3.1 2.2-.8.1-1.8.2-2.9-.2-.7-.2-1.5-.5-2.6-1-4.6-2-7.6-6.6-7.8-6.9-.2-.3-1.9-2.5-1.9-4.8 0-2.3 1.2-3.4 1.6-3.9.4-.5.9-.6 1.2-.6h.9c.3 0 .7-.1 1.1.8.4 1 1.4 3.4 1.5 3.6.1.2.2.5 0 .8s-.2.5-.5.8c-.2.2-.5.6-.7.8-.2.3-.5.5-.2 1 .3.5 1.2 2 2.6 3.3 1.8 1.6 3.3 2.1 3.8 2.3.5.2.7.2 1-.1.3-.3 1.2-1.4 1.5-1.9.3-.5.6-.4 1-.2.4.1 2.4 1.2 2.9 1.4.4.2.7.3.8.5.2.1.2 1 .1 2.1z"/></svg>
           </span>
-          <span class="jd-comm-tx"><b>Comunidad WhatsApp</b><span>Únete al grupo oficial</span></span>
+          <span class="jd-comm-tx"><b>Comunidad WhatsApp - JoelDroid Mods</b><span>Únete al grupo oficial</span></span>
         </a>
         <a class="jd-comm-btn jd-comm-tg" href="https://t.me/joeldroidmodsyt" target="_blank" rel="noopener noreferrer" aria-label="Unirse a la comunidad de Telegram">
           <span class="jd-comm-ic" aria-hidden="true">
             <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.16 0 0 7.16 0 16s7.16 16 16 16 16-7.16 16-16S24.84 0 16 0zm7.39 10.93-2.47 11.66c-.18.83-.68 1.03-1.38.64l-3.81-2.81-1.84 1.77c-.2.2-.37.37-.77.37l.27-3.87 7.04-6.36c.31-.27-.07-.42-.48-.15l-8.7 5.48-3.75-1.17c-.81-.26-.83-.81.17-1.2l14.66-5.65c.68-.25 1.27.16 1.06 1.29z"/></svg>
           </span>
-          <span class="jd-comm-tx"><b>Comunidad Telegram</b><span>Únete al canal oficial</span></span>
+          <span class="jd-comm-tx"><b>Comunidad Telegram - JoelDroid Mods</b><span>Únete al canal oficial</span></span>
         </a>
       </div>
     </div>
@@ -2785,7 +2783,7 @@ window.__JD_REST_DONE = false;
             <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
         </div>
-        <span class="jd-st-item-text">Comunidad de Telegram</span>
+        <span class="jd-st-item-text">Comunidad de Telegram - JoelDroid Mods</span>
       </a>
 
       <!-- Comunidad WhatsApp -->
@@ -2795,7 +2793,7 @@ window.__JD_REST_DONE = false;
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
           </svg>
         </div>
-        <span class="jd-st-item-text">Comunidad de WhatsApp</span>
+        <span class="jd-st-item-text">Comunidad de WhatsApp - JoelDroid Mods</span>
       </a>
 
       <!-- Políticas -->
@@ -5203,11 +5201,10 @@ function showToast(message){
 function toggleTheme(){
   isDarkMode=!isDarkMode;
   document.body.classList.toggle('light-mode',!isDarkMode);
-  var ti=document.getElementById('theme-icon');
-  if(ti)ti.setAttribute('data-lucide',isDarkMode?'moon':'sun');
   localStorage.setItem('darkMode',isDarkMode?'dark':'light');
   localStorage.setItem('jd_manual_theme','1');
-  applyUIChanges();refreshIcons();
+  _jdSyncThemeIcon();
+  try{ applyUIChanges(); }catch(e){}
 }
 function loadThemePreference(){
   var saved=localStorage.getItem('darkMode');
@@ -5215,34 +5212,42 @@ function loadThemePreference(){
   if(saved && manual){
     isDarkMode=saved==='dark';
     document.body.classList.toggle('light-mode',!isDarkMode);
-    var ti=document.getElementById('theme-icon');
-    if(ti)ti.setAttribute('data-lucide',isDarkMode?'moon':'sun');
-    refreshIcons();
+    _jdSyncThemeIcon();
     return true;
   }
   return false;
 }
 function autoThemeDetection(){
-  // AUTO REAL: sigue el sistema operativo del usuario (prefers-color-scheme)
-  var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-  isDarkMode = mql ? mql.matches : true; // por defecto oscuro
+  // AUTO POR HORA LOCAL: 06:00-18:59 => modo CLARO ; 19:00-05:59 => modo OSCURO
+  function _isNight(){ var h=new Date().getHours(); return (h>=19 || h<6); }
+  isDarkMode = _isNight();
   document.body.classList.toggle('light-mode',!isDarkMode);
-  var ti=document.getElementById('theme-icon');
-  if(ti)ti.setAttribute('data-lucide',isDarkMode?'moon':'sun');
-  refreshIcons();
-  if(mql && !window.__jdMqlBound){
-    window.__jdMqlBound=true;
-    var handler=function(ev){
+  _jdSyncThemeIcon();
+  // Re-evaluar cada 15 min mientras el usuario tenga la pestaña abierta
+  if(!window.__jdAutoThemeTimer){
+    window.__jdAutoThemeTimer = setInterval(function(){
       if(localStorage.getItem('jd_manual_theme')==='1') return;
-      isDarkMode=ev.matches;
-      document.body.classList.toggle('light-mode',!isDarkMode);
-      var ti2=document.getElementById('theme-icon');
-      if(ti2)ti2.setAttribute('data-lucide',isDarkMode?'moon':'sun');
-      refreshIcons();
-    };
-    if(mql.addEventListener) mql.addEventListener('change',handler);
-    else if(mql.addListener) mql.addListener(handler);
+      var night=_isNight();
+      if(night!==isDarkMode){
+        isDarkMode=night;
+        document.body.classList.toggle('light-mode',!isDarkMode);
+        _jdSyncThemeIcon();
+      }
+    }, 15*60*1000);
   }
+}
+// Sincroniza el icono del tema reemplazando el nodo (lucide a veces no
+// re-renderiza el mismo <svg>, lo que provocaba que el primer click no
+// reaccionara visualmente). Reemplazamos por un <i data-lucide> nuevo.
+function _jdSyncThemeIcon(){
+  var ti=document.getElementById('theme-icon');
+  if(!ti) return;
+  var parent=ti.parentNode;
+  var fresh=document.createElement('i');
+  fresh.id='theme-icon';
+  fresh.setAttribute('data-lucide', isDarkMode?'moon':'sun');
+  parent.replaceChild(fresh, ti);
+  try{ if(window.lucide && lucide.createIcons) lucide.createIcons(); }catch(e){}
 }
 
 // ============================================================
