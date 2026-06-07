@@ -1,14 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
-<!-- ══ MONETAG — MÁXIMA PRIORIDAD REAL DESDE LA LÍNEA 4 (config estable que daba CPM alto) ══ -->
+<!-- ══ REDIRECT GUARD (síncrono, ANTES de Monetag) ══════════════════
+     Si la URL es legacy (/mods/XXX.html) hacemos location.replace()
+     ANTES de inyectar Monetag, evitando que MultiTag pierda la sesión
+     a mitad de inicialización. En URL final (/?mod=ID o /), Monetag
+     se inyecta normalmente con máxima prioridad.
+═════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var p = location.pathname || '';
+  var needsRedirect = /^\/mods\/[^\/]+\.html?$/i.test(p);
+  if (needsRedirect) {
+    var m = p.match(/^\/mods\/([^\/]+?)\.html?$/i);
+    if (m && m[1]) {
+      try { sessionStorage.setItem('__jd_legacy_from', p); } catch(e){}
+      location.replace('/?mod=' + encodeURIComponent(m[1]));
+      // Evitamos que el resto del <head> ejecute Monetag en una URL que va a desaparecer.
+      window.stop && window.stop();
+      return;
+    }
+  }
+  // URL final → inyectamos Monetag con máxima prioridad
+  var d = document, h = d.head || d.getElementsByTagName('head')[0];
+  function L(rel, href, extra){
+    var l = d.createElement('link'); l.rel = rel; l.href = href;
+    if (extra) for (var k in extra) l.setAttribute(k, extra[k]);
+    h.appendChild(l);
+  }
+  L('preconnect','https://quge5.com',{crossorigin:''});
+  L('dns-prefetch','https://quge5.com');
+  L('preload','https://quge5.com/88/tag.min.js',{as:'script',fetchpriority:'high'});
+  var sc = d.createElement('script');
+  sc.src = 'https://quge5.com/88/tag.min.js';
+  sc.async = true;
+  sc.setAttribute('data-zone','233464');
+  sc.setAttribute('data-cfasync','false');
+  sc.setAttribute('fetchpriority','high');
+  h.appendChild(sc);
+})();
+</script>
+<!-- ══ MONETAG — se carga SOLO en URL final, después del guard ══ -->
 
-<!-- V9 SEO: legacy /mods/*.html -> /?mod=ID (does not touch Monetag) -->
-<script src="/jd-redirects.js"></script>
+<!-- V9 SEO: legacy /mods/*.html -> /?mod=ID (fallback adicional para SEO bots) -->
+<script src="/jd-redirects.js" defer></script>
 <!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
      Se conserva una marca de versión propia del sitio,
      sin limpiar storage ni ejecutar tareas pesadas al arranque.
@@ -133,6 +168,47 @@
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="es_ES">
 <meta property="og:locale:alternate" content="en_US">
+<!-- ══ EARLY META INJECTOR para ?mod=ID (CPM Monetag: keywords visibles ya) ══ -->
+<script>
+(function(){
+  try{
+    var q = location.search || '';
+    var m = q.match(/[?&]mod=([^&#]+)/);
+    if(!m) return;
+    var raw = decodeURIComponent(m[1]).replace(/[-_+]/g,' ').replace(/\s+/g,' ').trim();
+    if(!raw) return;
+    // Conservamos VERSION y UPDATE en mayúsculas si aparecen
+    var pretty = raw.replace(/\b([a-z])([a-z]*)/gi,function(_,a,b){return a.toUpperCase()+b.toLowerCase();})
+                    .replace(/\bVersion\b/gi,'VERSION')
+                    .replace(/\bUpdate\b/gi,'UPDATE')
+                    .replace(/\bMod\b/gi,'MOD')
+                    .replace(/\bApk\b/gi,'APK');
+    var title = pretty + ' MOD APK 2026 | JoelDroid Mods';
+    var desc  = 'Descarga ' + pretty + ' MOD APK 2026 gratis para Android: dinero infinito, monedas ilimitadas y todo desbloqueado. Actualizado y seguro — JoelDroid Mods.';
+    try{ document.title = title; }catch(e){}
+    function setM(sel,attr,val){
+      var el = document.querySelector(sel);
+      if(!el){
+        el = document.createElement(sel.indexOf('link')===0?'link':'meta');
+        if(sel.indexOf('property=')>-1) el.setAttribute('property', sel.match(/property="([^"]+)"/)[1]);
+        else if(sel.indexOf('name=')>-1) el.setAttribute('name', sel.match(/name="([^"]+)"/)[1]);
+        else if(sel.indexOf('rel=')>-1) el.setAttribute('rel', sel.match(/rel="([^"]+)"/)[1]);
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr,val);
+    }
+    var url = 'https://joeldroidmods.com/?mod=' + encodeURIComponent(m[1]);
+    setM('meta[name="description"]','content',desc);
+    setM('meta[property="og:title"]','content',title);
+    setM('meta[property="og:description"]','content',desc);
+    setM('meta[property="og:url"]','content',url);
+    setM('meta[name="twitter:title"]','content',title);
+    setM('meta[name="twitter:description"]','content',desc);
+    setM('link[rel="canonical"]','href',url);
+  }catch(e){}
+})();
+</script>
+
 <meta property="og:locale:alternate" content="pt_BR">
 
 <!-- ══ TWITTER / X ══ -->
