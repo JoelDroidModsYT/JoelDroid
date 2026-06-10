@@ -1,8 +1,7 @@
 User-agent: *
 Allow: /
 
-# V9: old /mods/*.html URLs are NOT blocked on purpose.
-# Googlebot must crawl them so it can follow the client-side redirect
-# (404.html / jd-redirects.js) to the clean /?mod= URL and transfer ranking.
+# JoelDroid Mods usa un único sistema indexable:
+# home y fichas dinámicas /?mod=ID. No se referencia jd-redirects.js ni /mods/*.html.
 
 Sitemap: https://joeldroidmods.com/sitemap.xml

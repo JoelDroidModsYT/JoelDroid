@@ -14,7 +14,7 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.1.3-joeldroid-brand';
+  var APP_VERSION = '1.1.4-cpm-id-canonical';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -84,9 +84,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ══ TITLE & DESCRIPTION OPTIMIZADOS PARA GOOGLE (largo cola + año) ══ -->
-<title>JoelDroid Mods | MOD APK 2026 Gratis para Android — Dinero Infinito</title>
-<meta name="description" content="Descarga los mejores MOD APK 2026 para Android gratis: Off The Road 2, Global Truck Online, Trucker of Europe 3, Car Parking Multiplayer y más, con dinero infinito, monedas ilimitadas y todo desbloqueado. Actualizados, seguros y sin virus.">
-<meta name="keywords" content="mod apk 2026, descargar mod apk, mod apk dinero infinito, off the road 2 mod apk, otr 2 mod, global truck online mod, trucker of europe 3 mod apk, car parking multiplayer mod, mods android gratis, mods apk actualizados, joeldroid mods">
+<title>JoelDroid Mods | Truck Simulator MOD APK 2026</title>
+<meta name="description" content="Descarga MOD APK 2026 para Android: truck simulator, bus simulator, car parking, Off The Road 2 y Global Truck Online con dinero infinito y todo desbloqueado.">
+<meta name="keywords" content="truck simulator mod apk, bus simulator mod apk, driving simulator mod apk, car parking mod apk, off the road 2 mod apk, global truck online mod apk, trucker of europe 3 mod apk, mod apk 2026, dinero infinito, unlimited money, joeldroid mods">
 <meta name="author" content="JoelDroid Mods YT">
 <meta name="theme-color" content="#020408" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f0f4f8" media="(prefers-color-scheme: light)">
@@ -106,13 +106,10 @@
 <meta name="googlebot" content="index,follow">
 <meta name="bingbot" content="index,follow">
 
-<!-- ══ HREFLANG — clave para tráfico EE.UU. / Europa / LATAM / Brasil ══
-     Sustituye los href por las URLs reales de cada versión cuando crees subpáginas
-     /en/, /pt/, /es/. Si por ahora todo el contenido está en una sola página,
-     deja x-default apuntando a / y elimina los demás hasta tenerlas. -->
+<!-- ══ HREFLANG — una sola URL real indexable ══
+     No se anuncian /en/ ni /pt/ porque el sitio actual vive en un único index dinámico.
+     Esto evita que Google persiga rutas antiguas o inexistentes y consolida señales en /?mod=ID. -->
 <link rel="alternate" hreflang="es" href="https://joeldroidmods.com/">
-<link rel="alternate" hreflang="en" href="https://joeldroidmods.com/en/">
-<link rel="alternate" hreflang="pt-BR" href="https://joeldroidmods.com/pt/">
 <link rel="alternate" hreflang="x-default" href="https://joeldroidmods.com/">
 
 <!-- ══ GOOGLE SEARCH CONSOLE ══
@@ -123,8 +120,8 @@
 <!-- ══ OPEN GRAPH (Facebook, WhatsApp, Telegram) ══ -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JoelDroid Mods YT">
-<meta property="og:title" content="JoelDroid Mods — MOD APK 2026 Gratis para Android">
-<meta property="og:description" content="Off The Road 2, Global Truck Online, Trucker of Europe 3 y más MOD APK con dinero infinito, actualizados y seguros para Android.">
+<meta property="og:title" content="JoelDroid Mods — Truck Simulator MOD APK 2026">
+<meta property="og:description" content="Truck simulator, bus simulator, car parking y MOD APK Android 2026 con dinero infinito, unlimited money y todo desbloqueado.">
 <meta property="og:url" content="https://joeldroidmods.com/">
 <meta property="og:image" content="https://joeldroidmods.com/og-cover.jpg">
 <meta property="og:image:width" content="1200">
@@ -135,8 +132,8 @@
 
 <!-- ══ TWITTER / X ══ -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="JoelDroid Mods — MOD APK 2026 Gratis para Android">
-<meta name="twitter:description" content="Descarga MOD APK con dinero infinito, monedas ilimitadas y todo desbloqueado. Juegos actualizados por JoelDroid Mods.">
+<meta name="twitter:title" content="JoelDroid Mods — Truck Simulator MOD APK 2026">
+<meta name="twitter:description" content="Descarga truck simulator, bus simulator, car parking y MOD APK Android con dinero infinito y todo desbloqueado.">
 <meta name="twitter:image" content="https://joeldroidmods.com/og-cover.jpg">
 <meta name="twitter:site" content="@JoelDroidModsYT">
 
@@ -164,7 +161,7 @@
   "name": "JoelDroid Mods YT",
   "alternateName": "JoelDroid",
   "url": "https://joeldroidmods.com/",
-  "inLanguage": ["es","en","pt"],
+  "inLanguage": "es",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
@@ -4260,7 +4257,8 @@ function _jdVisitScore(g){
 }
 
 function _jdSlug(g){
-  return (g && (g.slug || g.id) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
+  // Sistema canónico único: /?mod=ID. El slug se conserva solo como respaldo si falta el ID.
+  return (g && (g.id || g.slug) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
 }
 function _jdUpdateItemListJsonLd(games){
   try{
@@ -4299,7 +4297,9 @@ function _jdUpdateItemListJsonLd(games){
       var qp = new URLSearchParams(location.search);
       var gid = qp.get('mod') || qp.get('game');
       if(gid){
-        var match = top.find(function(g){ return String(_jdSlug(g))===String(gid); });
+        var match = top.find(function(g){
+            return String(_jdSlug(g))===String(gid) || String(g.id||'')===String(gid) || (g.slug && String(g.slug)===String(gid));
+          });
         if(match){
           graph.push({
             "@type":"SoftwareApplication",
@@ -4315,7 +4315,9 @@ function _jdUpdateItemListJsonLd(games){
           });
           // Sincroniza title/description/canonical para esta vista de juego
           try{
-            var t = (match.name||'') + ' MOD APK — JoelDroid Mods YT';
+            var _v = (match.ver||match.version||'').toString().trim();
+            var _vt = _v ? (' '+_v.replace(/^v\s*/i,'V')) : '';
+            var t = (match.name||'') + ' MOD APK' + _vt + ' Gratis | JoelDroid';
             document.title = t;
             var setM = function(sel,attr,val){ var el=document.querySelector(sel); if(el) el.setAttribute(attr,val); };
             var desc = (match.description||('Descarga '+match.name+' MOD APK gratis y seguro.')).toString().slice(0,200);
@@ -4725,16 +4727,13 @@ function showDetail(id){
     document.title=game.name.trim()+' MOD APK'+_vp+' Gratis | JoelDroid';
   }catch(e){}
 
-  // ══ ACTUALIZAR URL CON ?mod= PARA COMPARTIR ══════════════════════
-  // Cada juego (incluyendo los nuevos de Firebase) obtiene su propia
-  // URL limpia automáticamente al abrir la ficha de detalle.
-  // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA-Mod
+  // ══ ACTUALIZAR URL CANÓNICA CON ?mod=ID ═════════════════════════
+  // Sistema único del sitio: cada ficha usa el ID estable de Firebase/Gist.
+  // Los slugs antiguos siguen entrando por compatibilidad, pero NO se anuncian como canónicos.
   try {
-    var _slug = (typeof slugifyTitle === 'function')
-      ? slugifyTitle(game.name || game.nombre || '')
-      : String(id);
+    var _slug = String(game.id || id);
     var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
-    window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
+    window.history.replaceState({ modId: String(id), canonicalId: _slug }, document.title, _shareUrl);
   } catch(e) {}
 
   // ══ ACTUALIZAR META OG TAGS DINÁMICAMENTE ════════════════════════
@@ -5035,13 +5034,11 @@ function shareGame(){
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
 
-  // ── URL ULTRA-LIMPIA — solo ?mod=Nombre-Del-Juego ──────────────────
-  // Compatible con GitHub Pages (archivo único index.html).
-  // Sin /p/, sin id=xxxx, 100% profesional y legible.
-  //
-  // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA
+  // ── URL CANÓNICA — solo ?mod=ID ─────────────────────────────────
+  // Coincide con sitemap.xml y evita duplicar señales entre slug e ID.
+  // Los nombres del juego, VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
   // ──────────────────────────────────────────────────────────────────
-  var slug   = slugifyTitle(game.name);
+  var slug   = String(game.id || currentDetailId);
   var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
 
@@ -5531,11 +5528,13 @@ function slugify(name){
 
 function findGameBySlug(slug){
   if(!slug || !siteState.gamesList) return null;
-  var bare = slug.replace(/-mod$/, '');
+  var raw = String(slug);
+  var bare = raw.replace(/-mod$/, '');
   return siteState.gamesList.find(function(g){
     if(g.visible === false) return false;
+    if(String(g.id) === raw || String(g.id) === bare) return true;
     var s = slugify(g.name);
-    return s === slug || s === bare || s + '-mod' === slug;
+    return s === raw || s === bare || s + '-mod' === raw;
   }) || null;
 }
 
@@ -5593,6 +5592,9 @@ function checkDeepLink(){
     var found = null;
     if(directId){
       found = games.find(function(x){ return x.visible !== false && String(x.id) === String(directId); }) || null;
+    }
+    if(modSlug && !found){
+      found = games.find(function(g){ return g.visible !== false && String(g.id) === String(modSlug); }) || null;
     }
     if(modSlug && !found){
       var incomingNorm = _normSlug(modSlug);
