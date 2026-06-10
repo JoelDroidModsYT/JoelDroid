@@ -4268,8 +4268,19 @@ function _jdVisitScore(g){
 }
 
 function _jdSlug(g){
-  // Sistema canónico único: /?mod=ID. El slug se conserva solo como respaldo si falta el ID.
-  return (g && (g.id || g.slug) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
+  // URL profesional legible: prioriza slug del NOMBRE (ej: "Off-The-Road-2-Mod").
+  // El slug del juego (g.slug) tiene preferencia si viene definido manualmente.
+  // El id aleatorio queda como último respaldo si no hay nombre.
+  // NOTA: la resolución de deeplinks ya acepta id, slug del nombre y nombre_url
+  // (ver findGameBySlug y el resolver en ~línea 5607), así que NO se rompen links viejos.
+  if(!g) return '';
+  if(g.slug) return g.slug;
+  var nm = g.name || g.nombre || '';
+  if(nm && typeof slugifyTitle === 'function'){
+    var s = slugifyTitle(nm);
+    if(s && s !== 'Mod') return s;
+  }
+  return g.id || encodeURIComponent(nm.toLowerCase().replace(/\s+/g,'-'));
 }
 function _jdUpdateItemListJsonLd(games){
   try{
@@ -4742,7 +4753,7 @@ function showDetail(id){
   // Sistema único del sitio: cada ficha usa el ID estable de Firebase/Gist.
   // Los slugs antiguos siguen entrando por compatibilidad, pero NO se anuncian como canónicos.
   try {
-    var _slug = String(game.id || id);
+    var _slug = _jdSlug(game) || String(game.id || id);
     var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
     window.history.replaceState({ modId: String(id), canonicalId: _slug }, document.title, _shareUrl);
   } catch(e) {}
@@ -5049,7 +5060,7 @@ function shareGame(){
   // Coincide con sitemap.xml y evita duplicar señales entre slug e ID.
   // Los nombres del juego, VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
   // ──────────────────────────────────────────────────────────────────
-  var slug   = String(game.id || currentDetailId);
+  var slug   = _jdSlug(game) || String(game.id || currentDetailId);
   var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
 
