@@ -14,18 +14,22 @@
 ══════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var APP_VERSION = '1.1.4-cpm-id-canonical';
+  // Bump de versión: fuerza a usuarios antiguos a refrescar el HTML,
+  // pero NUNCA tocamos las claves __mnt_* / __qf_* / cookies de Monetag.
+  var APP_VERSION = '1.2.0-cpm-monetag-priority';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
 </script>
 
-<!-- ══ MONITOREO DE ERRORES JOELDROID — ligero (sampling 10%, max 20) ══ -->
+<!-- ══ MONITOREO DE ERRORES JOELDROID — DIFERIDO post-load ══
+     Antes corría inmediato y con listener en fase de captura (true), lo que
+     interceptaba excepciones internas del SDK de Monetag y bajaba el CPM.
+     Ahora se registra SOLO después de window 'load' + requestIdleCallback,
+     en fase de burbuja (false), para no competir con tag.min.js. -->
 <script id="jd-error-monitor">
 (function(){
-  var KEY='jd_error_log_v1';
-  var MAX=10;            // antes 80 → menos escrituras en localStorage
-  var SAMPLE=0.02;       // capturamos solo el 10% (menos jank en móvil)
+  var KEY='jd_error_log_v1', MAX=10, SAMPLE=0.02;
   function safeString(v){try{return typeof v==='string'?v:JSON.stringify(v);}catch(e){return String(v);}}
   function save(type, payload){
     if(Math.random()>SAMPLE) return;
@@ -36,18 +40,25 @@
       localStorage.setItem(KEY,JSON.stringify(list));
     }catch(e){}
   }
+  function attach(){
+    if(window.__jdErrAttached) return; window.__jdErrAttached=true;
+    // NO capture (false) → no se mete en el flujo del SDK de Monetag.
+    window.addEventListener('error',function(e){
+      var t=e.target;
+      if(t && t!==window && (t.src||t.href)){ save('resource_error',{tag:t.tagName,src:t.src||t.href}); return; }
+      save('js_error',{message:e.message,source:e.filename,line:e.lineno});
+    },false);
+    window.addEventListener('unhandledrejection',function(e){
+      save('promise_rejection',{reason:safeString(e.reason)});
+    },false);
+  }
+  function schedule(){
+    var ric=window.requestIdleCallback||function(cb){return setTimeout(cb,3000);};
+    ric(attach,{timeout:5000});
+  }
+  if(document.readyState==='complete') schedule();
+  else window.addEventListener('load',schedule,{once:true});
   window.jdLogError=function(type,payload){save(type,payload||{});};
-  window.addEventListener('error',function(e){
-    var target=e.target;
-    if(target && target!==window && (target.src||target.href)){
-      save('resource_error',{tag:target.tagName,src:target.src||target.href});
-      return;
-    }
-    save('js_error',{message:e.message,source:e.filename,line:e.lineno});
-  },true);
-  window.addEventListener('unhandledrejection',function(e){
-    save('promise_rejection',{reason:safeString(e.reason)});
-  });
   window.jdErrorMonitor={
     list:function(){try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}},
     clear:function(){try{localStorage.removeItem(KEY);}catch(e){}},
