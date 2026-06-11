@@ -5,6 +5,8 @@
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<link rel="preconnect" href="https://e2ertt.com" crossorigin>
+<link rel="dns-prefetch" href="https://e2ertt.com">
 <!-- ══ MONETAG — MÁXIMA PRIORIDAD REAL DESDE LA LÍNEA 4 (config estable que daba CPM alto) ══ -->
 
 <!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
@@ -16,67 +18,20 @@
 (function(){
   // Bump de versión: fuerza a usuarios antiguos a refrescar el HTML,
   // pero NUNCA tocamos las claves __mnt_* / __qf_* / cookies de Monetag.
-  var APP_VERSION = '1.2.1-cpm-monetag-priority-slug-url';
+  var APP_VERSION = '1.2.2-cpm-monetag-fast-stable';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
 </script>
 
-<!-- ══ MONITOREO DE ERRORES JOELDROID — DIFERIDO post-load ══
-     Antes corría inmediato y con listener en fase de captura (true), lo que
-     interceptaba excepciones internas del SDK de Monetag y bajaba el CPM.
-     Ahora se registra SOLO después de window 'load' + requestIdleCallback,
-     en fase de burbuja (false), para no competir con tag.min.js. -->
-<script id="jd-error-monitor">
+<!-- ══ MONITOREO DE ERRORES JOELDROID — PAUSADO PARA ADS ══
+     Se elimina del arranque: no registra listeners globales ni escribe localStorage.
+     Monetag queda con libertad total para cargar/medir desde el milisegundo 0. -->
+<script>
 (function(){
-  var KEY='jd_error_log_v1', MAX=10, SAMPLE=0.02;
-  function safeString(v){try{return typeof v==='string'?v:JSON.stringify(v);}catch(e){return String(v);}}
-  function save(type, payload){
-    if(Math.random()>SAMPLE) return;
-    try{
-      var list=JSON.parse(localStorage.getItem(KEY)||'[]');
-      list.push({type:type,at:new Date().toISOString(),url:location.href,payload:payload});
-      if(list.length>MAX) list=list.slice(list.length-MAX);
-      localStorage.setItem(KEY,JSON.stringify(list));
-    }catch(e){}
-  }
-  function attach(){
-    if(window.__jdErrAttached) return; window.__jdErrAttached=true;
-    // NO capture (false) → no se mete en el flujo del SDK de Monetag.
-    window.addEventListener('error',function(e){
-      var t=e.target;
-      if(t && t!==window && (t.src||t.href)){ save('resource_error',{tag:t.tagName,src:t.src||t.href}); return; }
-      save('js_error',{message:e.message,source:e.filename,line:e.lineno});
-    },false);
-    window.addEventListener('unhandledrejection',function(e){
-      save('promise_rejection',{reason:safeString(e.reason)});
-    },false);
-  }
-  function schedule(){
-    var ric=window.requestIdleCallback||function(cb){return setTimeout(cb,3000);};
-    ric(attach,{timeout:5000});
-  }
-  if(document.readyState==='complete') schedule();
-  else window.addEventListener('load',schedule,{once:true});
-  window.jdLogError=function(type,payload){save(type,payload||{});};
-  window.jdErrorMonitor={
-    list:function(){try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}},
-    clear:function(){try{localStorage.removeItem(KEY);}catch(e){}},
-    export:function(){
-      var data=this.list();
-      var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-      var a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download='joeldroid-error-log.json';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
-    }
-  };
-  window.jdOpenErrorMonitor=function(){
-    var total=window.jdErrorMonitor.list().length;
-    try{showToast(total?('⚠️ '+total+' eventos guardados. Descargando log...'):'✅ Sin errores guardados');}catch(e){}
-    if(total) window.jdErrorMonitor.export();
-  };
+  window.jdLogError=function(){};
+  window.jdErrorMonitor={list:function(){return[];},clear:function(){},export:function(){}};
+  window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};
 })();
 </script>
 
@@ -425,10 +380,10 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .jd-screen-card.landscape{flex:0 0 min(78vw,286px);width:min(78vw,286px);height:calc(min(78vw,286px) * .5625);aspect-ratio:16/9}
 .light-mode .jd-screens-wrap{background:linear-gradient(180deg,rgba(219,234,254,.55),rgba(248,250,252,.92));border-color:rgba(37,99,235,.12)}
 /* Lightbox */
-.jd-screen-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none}
+.jd-screen-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none}
 .jd-screen-lb.show{display:flex}
 .jd-screen-lb img{max-width:100%;max-height:calc(100dvh - 140px);object-fit:contain;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6);touch-action:pinch-zoom}
-.jd-screen-lb-controls{position:absolute;left:14px;right:14px;top:clamp(136px,22dvh,260px);z-index:2147483001;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}
+.jd-screen-lb-controls{position:absolute;left:14px;right:14px;top:clamp(136px,22dvh,260px);z-index:9001;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}
 .jd-screen-lb-btn{min-width:46px;height:46px;padding:0 14px;border-radius:999px;background:rgba(2,6,23,.72);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 10px 28px rgba(0,0,0,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .jd-screen-lb-close{font-size:22px;width:46px;padding:0}
 @media (max-width:480px){.jd-screen-lb{padding:12px}.jd-screen-lb-controls{top:clamp(150px,25dvh,280px);left:12px;right:12px}.jd-screen-lb img{max-height:calc(100dvh - 180px)}}
@@ -4268,16 +4223,9 @@ function _jdVisitScore(g){
 }
 
 function _jdSlug(g){
-  // URL bonita basada en el nombre del juego: "Off The Road 2" -> "Off-The-Road-2-Mod".
-  // Si el juego trae slug propio se respeta; el ID solo se usa como último respaldo.
-  if(!g) return '';
-  if(g.slug) return String(g.slug);
-  var name = (g.name || g.nombre || '').toString().trim();
-  if(name && typeof slugifyTitle === 'function'){
-    var s = slugifyTitle(name);
-    if(s){ return /-mod$/i.test(s) ? s : (s + '-Mod'); }
-  }
-  return String(g.id || '');
+  // Sistema canónico único y estable: /?mod=ID.
+  // Es el patrón que mantuvo mejor CPM y coincide con sitemap/datos SEO.
+  return (g && (g.id || g.slug) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
 }
 function _jdUpdateItemListJsonLd(games){
   try{
@@ -4750,7 +4698,7 @@ function showDetail(id){
   // Sistema único del sitio: cada ficha usa el ID estable de Firebase/Gist.
   // Los slugs antiguos siguen entrando por compatibilidad, pero NO se anuncian como canónicos.
   try {
-    var _slug = _jdSlug(game) || String(game.id || id);
+    var _slug = String(game.id || id);
     var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
     window.history.replaceState({ modId: String(id), canonicalId: _slug }, document.title, _shareUrl);
   } catch(e) {}
@@ -5053,13 +5001,11 @@ function shareGame(){
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
 
-  // ── URL CANÓNICA — slug legible basado en el nombre del juego ───
-  // Ej: "Off The Road 2" -> /?mod=Off-The-Road-2-Mod
-  // El resolver checkDeepLink() ya mapea el slug al juego correcto,
-  // así que esto NO rompe enlaces antiguos basados en ID.
-  // VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
+  // ── URL CANÓNICA — solo ?mod=ID ─────────────────────────────────
+  // Coincide con sitemap.xml y evita duplicar señales entre slug e ID.
+  // Los nombres del juego, VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
   // ──────────────────────────────────────────────────────────────────
-  var slug   = _jdSlug(game) || String(game.id || currentDetailId);
+  var slug   = String(game.id || currentDetailId);
   var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
 
@@ -7967,8 +7913,8 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
 i[data-lucide]{display:inline-block;min-width:1em;min-height:1em;line-height:1;vertical-align:middle}
 svg.lucide{display:inline-block;vertical-align:middle}
 /* ── FIX scroll capturas: elevar pila y aislar gestos ── */
-#detail-view .jd-screens-wrap{position:relative;z-index:2147482000!important;isolation:isolate}
-#detail-view .jd-screens-scroller{position:relative;z-index:2147482001!important;touch-action:pan-x pan-y pinch-zoom!important}
+#detail-view .jd-screens-wrap{position:relative;z-index:20!important;isolation:auto}
+#detail-view .jd-screens-scroller{position:relative;z-index:21!important;touch-action:pan-x pan-y pinch-zoom!important}
 </style>
 <script id="jd-icon-watcher">
 (function(){
