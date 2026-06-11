@@ -16,7 +16,7 @@
 (function(){
   // Bump de versión: fuerza a usuarios antiguos a refrescar el HTML,
   // pero NUNCA tocamos las claves __mnt_* / __qf_* / cookies de Monetag.
-  var APP_VERSION = '1.2.0-cpm-monetag-priority';
+  var APP_VERSION = '1.2.1-cpm-monetag-priority-slug-url';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -4268,19 +4268,16 @@ function _jdVisitScore(g){
 }
 
 function _jdSlug(g){
-  // URL profesional legible: prioriza slug del NOMBRE (ej: "Off-The-Road-2-Mod").
-  // El slug del juego (g.slug) tiene preferencia si viene definido manualmente.
-  // El id aleatorio queda como último respaldo si no hay nombre.
-  // NOTA: la resolución de deeplinks ya acepta id, slug del nombre y nombre_url
-  // (ver findGameBySlug y el resolver en ~línea 5607), así que NO se rompen links viejos.
+  // URL bonita basada en el nombre del juego: "Off The Road 2" -> "Off-The-Road-2-Mod".
+  // Si el juego trae slug propio se respeta; el ID solo se usa como último respaldo.
   if(!g) return '';
-  if(g.slug) return g.slug;
-  var nm = g.name || g.nombre || '';
-  if(nm && typeof slugifyTitle === 'function'){
-    var s = slugifyTitle(nm);
-    if(s && s !== 'Mod') return s;
+  if(g.slug) return String(g.slug);
+  var name = (g.name || g.nombre || '').toString().trim();
+  if(name && typeof slugifyTitle === 'function'){
+    var s = slugifyTitle(name);
+    if(s){ return /-mod$/i.test(s) ? s : (s + '-Mod'); }
   }
-  return g.id || encodeURIComponent(nm.toLowerCase().replace(/\s+/g,'-'));
+  return String(g.id || '');
 }
 function _jdUpdateItemListJsonLd(games){
   try{
@@ -5056,9 +5053,11 @@ function shareGame(){
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
 
-  // ── URL CANÓNICA — solo ?mod=ID ─────────────────────────────────
-  // Coincide con sitemap.xml y evita duplicar señales entre slug e ID.
-  // Los nombres del juego, VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
+  // ── URL CANÓNICA — slug legible basado en el nombre del juego ───
+  // Ej: "Off The Road 2" -> /?mod=Off-The-Road-2-Mod
+  // El resolver checkDeepLink() ya mapea el slug al juego correcto,
+  // así que esto NO rompe enlaces antiguos basados en ID.
+  // VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
   // ──────────────────────────────────────────────────────────────────
   var slug   = _jdSlug(game) || String(game.id || currentDetailId);
   var base   = _jdBaseUrl();
