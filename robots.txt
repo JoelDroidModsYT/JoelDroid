@@ -1,7 +1,13 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
 User-agent: *
 Allow: /
 
-# JoelDroid Mods usa un único sistema indexable:
-# home y fichas dinámicas /?mod=ID. No se referencia jd-redirects.js ni /mods/*.html.
+# JoelDroid Mods usa un único sistema indexable: home y fichas dinámicas /?mod=ID.
+# No se bloquean JS, CSS, imágenes, cookies ni recursos necesarios para anuncios.
 
 Sitemap: https://joeldroidmods.com/sitemap.xml
