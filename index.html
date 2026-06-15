@@ -7,7 +7,7 @@
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 <link rel="preconnect" href="https://e2ertt.com" crossorigin>
 <link rel="dns-prefetch" href="https://e2ertt.com">
-<script>(function(){var APP_VERSION='1.2.3-cpm-ads-free-seo-stable';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.2.4-cpm-cookies-monetag-priority';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -2647,7 +2647,6 @@ window.__JD_REST_DONE = false;
         <button class="jd-st-lang-btn jd-st-quick-btn inactive" onclick="jdStResetCookieConsent()">Cookies</button>
         <button class="jd-st-lang-btn jd-st-quick-btn inactive" onclick="closeSettings();jdOpenPolicies()">Legal</button>
       </div>
-      <button type="button" class="jd-st-monitor-btn" onclick="jdOpenErrorMonitor()">Monitoreo de errores activo</button>
     </div>
 
     <!-- Lista principal -->
@@ -7700,7 +7699,7 @@ window.onload=function(){
 <!-- Banner de cookies MINI: chip discreto en esquina superior derecha.
      z-index BAJO (9999) para NO competir con In-Page Push / Vignette de Monetag,
      que viven cerca de los bordes con z-index muy altos. -->
-<div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" data-disabled="settings-only" style="display:none!important;position:fixed;top:10px;right:10px;z-index:-1;background:rgba(15,23,42,.96);color:#fff;border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:11px;line-height:1.3;max-width:230px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
+<div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" style="display:none;position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:9000;background:rgba(15,23,42,.97);color:#fff;border:1px solid rgba(59,130,246,.45);border-radius:10px;padding:8px 12px;box-shadow:0 8px 22px rgba(0,0,0,.45);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:12px;line-height:1.3;max-width:340px;width:calc(100% - 24px);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
   <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
     <span style="font-size:13px">🍪</span>
     <span style="opacity:.92">Usamos cookies para anuncios. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')" style="color:#60a5fa;text-decoration:underline">Más</a></span>
@@ -7717,8 +7716,10 @@ window.onload=function(){
     var saved=null;
     try{ saved=localStorage.getItem(KEY); }catch(e){}
     if(!saved){
-      // El aviso ya no aparece flotando arriba: se gestiona desde Ajustes → Cookies.
-      try{ localStorage.setItem('jd_cookie_notice_location','settings_panel'); }catch(e){}
+      try{ localStorage.setItem('jd_cookie_notice_location','bottom_mini_banner'); }catch(e){}
+      // Mostrar mini-banner inferior cuando el DOM esté listo (no bloquea Monetag)
+      var _show=function(){ var b=document.getElementById('jd-cookie-banner'); if(b){ b.style.display='block'; } };
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',_show); } else { _show(); }
     }
     window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
