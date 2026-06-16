@@ -5,82 +5,10 @@
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
-<!-- ══ MONETAG — MÁXIMA PRIORIDAD REAL DESDE LA LÍNEA 4 (config estable que daba CPM alto) ══ -->
-
-<!-- ══ APP VERSION & MARCADOR SEGURO ════════════════════════════════
-     Se conserva una marca de versión propia del sitio,
-     sin limpiar storage ni ejecutar tareas pesadas al arranque.
-     Monetag queda libre para cargar antes que todo lo demás.
-══════════════════════════════════════════════════════════════════ -->
-<script>
-(function(){
-  // Bump de versión: fuerza a usuarios antiguos a refrescar el HTML,
-  // pero NUNCA tocamos las claves __mnt_* / __qf_* / cookies de Monetag.
-  var APP_VERSION = '1.2.0-cpm-monetag-priority';
-  window.__JD_APP_VERSION = APP_VERSION;
-  try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
-})();
-</script>
-
-<!-- ══ MONITOREO DE ERRORES JOELDROID — DIFERIDO post-load ══
-     Antes corría inmediato y con listener en fase de captura (true), lo que
-     interceptaba excepciones internas del SDK de Monetag y bajaba el CPM.
-     Ahora se registra SOLO después de window 'load' + requestIdleCallback,
-     en fase de burbuja (false), para no competir con tag.min.js. -->
-<script id="jd-error-monitor">
-(function(){
-  var KEY='jd_error_log_v1', MAX=10, SAMPLE=0.02;
-  function safeString(v){try{return typeof v==='string'?v:JSON.stringify(v);}catch(e){return String(v);}}
-  function save(type, payload){
-    if(Math.random()>SAMPLE) return;
-    try{
-      var list=JSON.parse(localStorage.getItem(KEY)||'[]');
-      list.push({type:type,at:new Date().toISOString(),url:location.href,payload:payload});
-      if(list.length>MAX) list=list.slice(list.length-MAX);
-      localStorage.setItem(KEY,JSON.stringify(list));
-    }catch(e){}
-  }
-  function attach(){
-    if(window.__jdErrAttached) return; window.__jdErrAttached=true;
-    // NO capture (false) → no se mete en el flujo del SDK de Monetag.
-    window.addEventListener('error',function(e){
-      var t=e.target;
-      if(t && t!==window && (t.src||t.href)){ save('resource_error',{tag:t.tagName,src:t.src||t.href}); return; }
-      save('js_error',{message:e.message,source:e.filename,line:e.lineno});
-    },false);
-    window.addEventListener('unhandledrejection',function(e){
-      save('promise_rejection',{reason:safeString(e.reason)});
-    },false);
-  }
-  function schedule(){
-    var ric=window.requestIdleCallback||function(cb){return setTimeout(cb,3000);};
-    ric(attach,{timeout:5000});
-  }
-  if(document.readyState==='complete') schedule();
-  else window.addEventListener('load',schedule,{once:true});
-  window.jdLogError=function(type,payload){save(type,payload||{});};
-  window.jdErrorMonitor={
-    list:function(){try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}},
-    clear:function(){try{localStorage.removeItem(KEY);}catch(e){}},
-    export:function(){
-      var data=this.list();
-      var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-      var a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download='joeldroid-error-log.json';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
-    }
-  };
-  window.jdOpenErrorMonitor=function(){
-    var total=window.jdErrorMonitor.list().length;
-    try{showToast(total?('⚠️ '+total+' eventos guardados. Descargando log...'):'✅ Sin errores guardados');}catch(e){}
-    if(total) window.jdErrorMonitor.export();
-  };
-})();
-</script>
-
-<!-- Monetag debe ejecutarse libremente: no se limpian caches, storage ni service workers al inicio. -->
+<link rel="preconnect" href="https://e2ertt.com" crossorigin>
+<link rel="dns-prefetch" href="https://e2ertt.com">
+<script>(function(){var APP_VERSION='1.2.4-cpm-cookies-monetag-priority';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -95,9 +23,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ══ TITLE & DESCRIPTION OPTIMIZADOS PARA GOOGLE (largo cola + año) ══ -->
-<title>JoelDroid Mods | Truck Simulator MOD APK 2026</title>
-<meta name="description" content="Descarga MOD APK 2026 para Android: truck simulator, bus simulator, car parking, Off The Road 2 y Global Truck Online con dinero infinito y todo desbloqueado.">
-<meta name="keywords" content="truck simulator mod apk, bus simulator mod apk, driving simulator mod apk, car parking mod apk, off the road 2 mod apk, global truck online mod apk, trucker of europe 3 mod apk, mod apk 2026, dinero infinito, unlimited money, joeldroid mods">
+<title>JoelDroid Mods - MOD APK & Games for Android | 2026</title>
+<meta name="description" content="Download safe MOD APK for Android on JoelDroid Mods: truck simulator, bus simulator, car parking, Off The Road 2, Global Truck Online, unlimited money.">
+<meta name="keywords" content="mod apk 2026, download mod apk android, truck simulator mod apk, bus simulator mod apk, car parking mod apk, Off The Road 2 MOD APK, Global Truck Online MOD APK, unlimited money, JoelDroid Mods">
 <meta name="author" content="JoelDroid Mods YT">
 <meta name="theme-color" content="#020408" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f0f4f8" media="(prefers-color-scheme: light)">
@@ -111,17 +39,33 @@
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="manifest" href="/manifest.webmanifest">
 
-<!-- ══ CANONICAL + ROBOTS ══ -->
-<link rel="canonical" href="https://joeldroidmods.com/">
+<!-- ══ CANONICAL + ROBOTS — corregido para evitar duplicados por ?mod ══ -->
+<link id="jd-canonical" rel="canonical" href="https://joeldroidmods.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-<meta name="googlebot" content="index,follow">
-<meta name="bingbot" content="index,follow">
+<meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 
-<!-- ══ HREFLANG — una sola URL real indexable ══
-     No se anuncian /en/ ni /pt/ porque el sitio actual vive en un único index dinámico.
-     Esto evita que Google persiga rutas antiguas o inexistentes y consolida señales en /?mod=ID. -->
+<!-- Solo se declaran idiomas que existen realmente. No anunciar /en/ ni /pt/ si esas rutas no existen. -->
 <link rel="alternate" hreflang="es" href="https://joeldroidmods.com/">
 <link rel="alternate" hreflang="x-default" href="https://joeldroidmods.com/">
+
+<!-- Ajuste temprano del canonical renderizado: si la URL trae ?mod=ID, el canonical visible para Google queda en esa ficha.
+     Nota: para indexación perfecta, el servidor también debe entregar este canonical ya en el HTML inicial. -->
+<script>
+(function _jdEarlyCanonical(){
+  try{
+    var base='https://joeldroidmods.com/';
+    var params=new URLSearchParams(window.location.search||'');
+    var mod=(params.get('mod')||'').trim();
+    var canonical=base;
+    if(mod && /^[A-Za-z0-9_-]{1,90}$/.test(mod)) canonical=base+'?mod='+encodeURIComponent(mod);
+    var link=document.getElementById('jd-canonical')||document.querySelector('link[rel="canonical"]');
+    if(link) link.setAttribute('href', canonical);
+    var og=document.querySelector('meta[property="og:url"]');
+    if(og) og.setAttribute('content', canonical);
+  }catch(e){}
+})();
+</script>
 
 <!-- ══ GOOGLE SEARCH CONSOLE ══
      Si ya verificaste por DNS, puedes BORRAR esta línea.
@@ -131,8 +75,8 @@
 <!-- ══ OPEN GRAPH (Facebook, WhatsApp, Telegram) ══ -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JoelDroid Mods YT">
-<meta property="og:title" content="JoelDroid Mods — Truck Simulator MOD APK 2026">
-<meta property="og:description" content="Truck simulator, bus simulator, car parking y MOD APK Android 2026 con dinero infinito, unlimited money y todo desbloqueado.">
+<meta property="og:title" content="JoelDroid Mods - MOD APK & Games for Android | 2026">
+<meta property="og:description" content="Safe and updated MOD APK for Android: truck simulator, bus simulator, car parking, Off The Road 2, Global Truck Online and unlimited money mods.">
 <meta property="og:url" content="https://joeldroidmods.com/">
 <meta property="og:image" content="https://joeldroidmods.com/og-cover.jpg">
 <meta property="og:image:width" content="1200">
@@ -143,8 +87,8 @@
 
 <!-- ══ TWITTER / X ══ -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="JoelDroid Mods — Truck Simulator MOD APK 2026">
-<meta name="twitter:description" content="Descarga truck simulator, bus simulator, car parking y MOD APK Android con dinero infinito y todo desbloqueado.">
+<meta name="twitter:title" content="JoelDroid Mods - MOD APK & Games for Android | 2026">
+<meta name="twitter:description" content="Download safe and updated MOD APK for Android: simulators, car parking, truck games and unlimited money mods.">
 <meta name="twitter:image" content="https://joeldroidmods.com/og-cover.jpg">
 <meta name="twitter:site" content="@JoelDroidModsYT">
 
@@ -172,7 +116,7 @@
   "name": "JoelDroid Mods YT",
   "alternateName": "JoelDroid",
   "url": "https://joeldroidmods.com/",
-  "inLanguage": "es",
+  "inLanguage": ["es","en","pt"],
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
@@ -208,7 +152,7 @@
 <script>
 (function _jdSafeVersionMarker(){
   try{
-    localStorage.setItem('jd_site_version','20260601_FIREBASE_FIX_v111');
+    localStorage.setItem('jd_site_version','20260613_CPM_ADS_FREE_SEO_v123');
   }catch(e){}
 })();
 </script>
@@ -425,10 +369,10 @@ body.detail-open{overflow-x:hidden;overflow-y:auto;}
 .jd-screen-card.landscape{flex:0 0 min(78vw,286px);width:min(78vw,286px);height:calc(min(78vw,286px) * .5625);aspect-ratio:16/9}
 .light-mode .jd-screens-wrap{background:linear-gradient(180deg,rgba(219,234,254,.55),rgba(248,250,252,.92));border-color:rgba(37,99,235,.12)}
 /* Lightbox */
-.jd-screen-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2147483000;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none}
+.jd-screen-lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9200;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none}
 .jd-screen-lb.show{display:flex}
 .jd-screen-lb img{max-width:100%;max-height:calc(100dvh - 140px);object-fit:contain;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6);touch-action:pinch-zoom}
-.jd-screen-lb-controls{position:absolute;left:14px;right:14px;top:clamp(136px,22dvh,260px);z-index:2147483001;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}
+.jd-screen-lb-controls{position:absolute;left:14px;right:14px;top:clamp(136px,22dvh,260px);z-index:9201;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}
 .jd-screen-lb-btn{min-width:46px;height:46px;padding:0 14px;border-radius:999px;background:rgba(2,6,23,.72);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 10px 28px rgba(0,0,0,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .jd-screen-lb-close{font-size:22px;width:46px;padding:0}
 @media (max-width:480px){.jd-screen-lb{padding:12px}.jd-screen-lb-controls{top:clamp(150px,25dvh,280px);left:12px;right:12px}.jd-screen-lb img{max-height:calc(100dvh - 180px)}}
@@ -2716,7 +2660,6 @@ window.__JD_REST_DONE = false;
         <button class="jd-st-lang-btn jd-st-quick-btn inactive" onclick="jdStResetCookieConsent()">Cookies</button>
         <button class="jd-st-lang-btn jd-st-quick-btn inactive" onclick="closeSettings();jdOpenPolicies()">Legal</button>
       </div>
-      <button type="button" class="jd-st-monitor-btn" onclick="jdOpenErrorMonitor()">Monitoreo de errores activo</button>
     </div>
 
     <!-- Lista principal -->
@@ -4268,7 +4211,6 @@ function _jdVisitScore(g){
 }
 
 function _jdSlug(g){
-  // Sistema canónico único: /?mod=ID. El slug se conserva solo como respaldo si falta el ID.
   return (g && (g.id || g.slug) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
 }
 function _jdUpdateItemListJsonLd(games){
@@ -4308,9 +4250,7 @@ function _jdUpdateItemListJsonLd(games){
       var qp = new URLSearchParams(location.search);
       var gid = qp.get('mod') || qp.get('game');
       if(gid){
-        var match = top.find(function(g){
-            return String(_jdSlug(g))===String(gid) || String(g.id||'')===String(gid) || (g.slug && String(g.slug)===String(gid));
-          });
+        var match = top.find(function(g){ return String(_jdSlug(g))===String(gid); });
         if(match){
           graph.push({
             "@type":"SoftwareApplication",
@@ -4326,9 +4266,7 @@ function _jdUpdateItemListJsonLd(games){
           });
           // Sincroniza title/description/canonical para esta vista de juego
           try{
-            var _v = (match.ver||match.version||'').toString().trim();
-            var _vt = _v ? (' '+_v.replace(/^v\s*/i,'V')) : '';
-            var t = (match.name||'') + ' MOD APK' + _vt + ' Gratis | JoelDroid';
+            var t = (match.name||'') + ' MOD APK — JoelDroid Mods YT';
             document.title = t;
             var setM = function(sel,attr,val){ var el=document.querySelector(sel); if(el) el.setAttribute(attr,val); };
             var desc = (match.description||('Descarga '+match.name+' MOD APK gratis y seguro.')).toString().slice(0,200);
@@ -4738,13 +4676,14 @@ function showDetail(id){
     document.title=game.name.trim()+' MOD APK'+_vp+' Gratis | JoelDroid';
   }catch(e){}
 
-  // ══ ACTUALIZAR URL CANÓNICA CON ?mod=ID ═════════════════════════
-  // Sistema único del sitio: cada ficha usa el ID estable de Firebase/Gist.
-  // Los slugs antiguos siguen entrando por compatibilidad, pero NO se anuncian como canónicos.
+  // ══ ACTUALIZAR URL CON ?mod= PARA COMPARTIR ══════════════════════
+  // Cada juego (incluyendo los nuevos de Firebase) obtiene su propia
+  // URL limpia automáticamente al abrir la ficha de detalle.
+  // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA-Mod
   try {
     var _slug = String(game.id || id);
     var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
-    window.history.replaceState({ modId: String(id), canonicalId: _slug }, document.title, _shareUrl);
+    window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
   } catch(e) {}
 
   // ══ ACTUALIZAR META OG TAGS DINÁMICAMENTE ════════════════════════
@@ -5017,7 +4956,7 @@ function closeDetail(){
   document.body.classList.remove('detail-open');
   try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){}
   currentDetailId=null;
-  try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
+  try{ document.title = 'JoelDroid Mods - MOD APK & Games for Android | 2026'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
 
   // ══ RESTAURAR META OG AL ESTADO GENERAL DEL SITIO ════════════════
@@ -5027,11 +4966,11 @@ function closeDetail(){
       if (el) el.setAttribute(attr, val);
     };
     var _siteBase = _jdBaseUrl();
-    _setMeta('meta[property="og:title"]',       'content', 'JoelDroid Mods YT | Los Mejores MOD APK para Android');
-    _setMeta('meta[name="twitter:title"]',       'content', 'JoelDroid Mods YT | Los Mejores MOD APK para Android');
-    _setMeta('meta[property="og:description"]',  'content', 'Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados por JoelDroid Mods YT.');
-    _setMeta('meta[name="twitter:description"]', 'content', 'Descarga gratis los mejores MOD APK para Android. Mods verificados por JoelDroid Mods YT.');
-    _setMeta('meta[name="description"]',         'content', 'Descarga gratis los mejores MOD APK para Android: simuladores de camiones, buses y más. Mods verificados, seguros y actualizados.');
+    _setMeta('meta[property="og:title"]',       'content', 'JoelDroid Mods - MOD APK & Games for Android | 2026');
+    _setMeta('meta[name="twitter:title"]',       'content', 'JoelDroid Mods - MOD APK & Games for Android | 2026');
+    _setMeta('meta[property="og:description"]',  'content', 'Download safe MOD APK for Android: truck simulator, bus simulator, car parking and unlimited money mods by JoelDroid Mods.');
+    _setMeta('meta[name="twitter:description"]', 'content', 'Download safe and updated MOD APK for Android by JoelDroid Mods.');
+    _setMeta('meta[name="description"]',         'content', 'Download safe MOD APK for Android on JoelDroid Mods: simulators, car parking, truck games and unlimited money mods.');
     _setMeta('meta[property="og:image"]',        'content', window.location.origin + '/logo.png');
     _setMeta('meta[name="twitter:image"]',       'content', window.location.origin + '/logo.png');
     _setMeta('meta[property="og:url"]',          'content', _siteBase);
@@ -5045,11 +4984,13 @@ function shareGame(){
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
 
-  // ── URL CANÓNICA — solo ?mod=ID ─────────────────────────────────
-  // Coincide con sitemap.xml y evita duplicar señales entre slug e ID.
-  // Los nombres del juego, VERSION y UPDATE se mantienen intactos en pantalla/metadatos.
+  // ── URL ULTRA-LIMPIA — solo ?mod=Nombre-Del-Juego ──────────────────
+  // Compatible con GitHub Pages (archivo único index.html).
+  // Sin /p/, sin id=xxxx, 100% profesional y legible.
+  //
+  // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA
   // ──────────────────────────────────────────────────────────────────
-  var slug   = String(game.id || currentDetailId);
+  var slug   = slugifyTitle(game.name);
   var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
 
@@ -5164,7 +5105,7 @@ function jdStResetCookieConsent(){
   try{localStorage.removeItem('jd_cookie_consent');}catch(e){}
   try{closeSettings();}catch(e){}
   try{jdOpenPolicies('cookies');}catch(e){}
-  try{showToast('🍪 Cookies y privacidad');}catch(e){}
+  try{showToast('Cookies y privacidad');}catch(e){}
 }
 function filterChip(type){
   var chipMap={popular:'popular',updated:'updated',all:'all'};
@@ -5539,13 +5480,11 @@ function slugify(name){
 
 function findGameBySlug(slug){
   if(!slug || !siteState.gamesList) return null;
-  var raw = String(slug);
-  var bare = raw.replace(/-mod$/, '');
+  var bare = slug.replace(/-mod$/, '');
   return siteState.gamesList.find(function(g){
     if(g.visible === false) return false;
-    if(String(g.id) === raw || String(g.id) === bare) return true;
     var s = slugify(g.name);
-    return s === raw || s === bare || s + '-mod' === raw;
+    return s === slug || s === bare || s + '-mod' === slug;
   }) || null;
 }
 
@@ -5603,9 +5542,6 @@ function checkDeepLink(){
     var found = null;
     if(directId){
       found = games.find(function(x){ return x.visible !== false && String(x.id) === String(directId); }) || null;
-    }
-    if(modSlug && !found){
-      found = games.find(function(g){ return g.visible !== false && String(g.id) === String(modSlug); }) || null;
     }
     if(modSlug && !found){
       var incomingNorm = _normSlug(modSlug);
@@ -7768,22 +7704,68 @@ window.onload=function(){
 </script>
 
 <!-- ══ BANNER DE CONSENTIMIENTO DE COOKIES (GDPR / ePrivacy) ═══════════════
-     Requerido por la Cláusula 9 del Acuerdo de Monetag. NO bloquea ni retrasa
-     el script de Monetag — solo informa al usuario y guarda su elección.
-     Las cookies se siguen sirviendo normalmente; la negativa solo se registra
-     para fines de cumplimiento legal y para informar a Monetag si lo solicita.
+     Requerido por la Cláusula 9 del Acuerdo de Monetag. NO bloquea, no retrasa
+     y no modifica el script de Monetag; solo informa y guarda la elección local.
 ═══════════════════════════════════════════════════════════════════════════ -->
-<!-- Banner de cookies MINI: chip discreto en esquina superior derecha.
-     z-index BAJO (9999) para NO competir con In-Page Push / Vignette de Monetag,
-     que viven cerca de los bordes con z-index muy altos. -->
-<div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" data-disabled="settings-only" style="display:none!important;position:fixed;top:10px;right:10px;z-index:-1;background:rgba(15,23,42,.96);color:#fff;border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:11px;line-height:1.3;max-width:230px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-    <span style="font-size:13px">🍪</span>
-    <span style="opacity:.92">Usamos cookies para anuncios. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')" style="color:#60a5fa;text-decoration:underline">Más</a></span>
-  </div>
-  <div style="display:flex;gap:5px">
-    <button onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies" style="flex:1;background:#22c55e;color:#0a0a0a;border:0;border-radius:6px;padding:5px 8px;font-weight:800;font-size:11px;cursor:pointer">Aceptar</button>
-    <button onclick="jdCookieConsent('reject')" aria-label="Rechazar cookies" style="flex:1;background:#334155;color:#fff;border:0;border-radius:6px;padding:5px 8px;font-weight:700;font-size:11px;cursor:pointer">Rechazar</button>
+<style id="jd-cookie-banner-style">
+  #jd-cookie-banner{
+    display:none;
+    position:fixed;
+    right:12px;
+    bottom:12px;
+    z-index:2500;
+    width:min(300px, calc(100vw - 24px));
+    color:#eef5ff;
+    background:linear-gradient(180deg, rgba(11,18,32,.98), rgba(15,23,42,.96));
+    border:1px solid rgba(148,163,184,.32);
+    border-radius:12px;
+    box-shadow:0 12px 34px rgba(0,0,0,.42);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    padding:10px;
+    text-align:left;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  #jd-cookie-banner .jd-cookie-title{
+    display:block;
+    margin:0 0 3px;
+    color:#f8fafc;
+    font-size:12px;
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:.01em;
+  }
+  #jd-cookie-banner .jd-cookie-copy{
+    margin:0;
+    color:#cbd5e1;
+    font-size:11px;
+    line-height:1.35;
+  }
+  #jd-cookie-banner .jd-cookie-copy a{color:#93c5fd;text-decoration:none;font-weight:700}
+  #jd-cookie-banner .jd-cookie-actions{display:flex;gap:7px;margin-top:9px}
+  #jd-cookie-banner button{
+    min-height:30px;
+    flex:1;
+    border:0;
+    border-radius:8px;
+    padding:6px 8px;
+    font-size:11px;
+    line-height:1;
+    font-weight:800;
+    cursor:pointer;
+  }
+  #jd-cookie-banner .jd-cookie-accept{background:#38bdf8;color:#06101d}
+  #jd-cookie-banner .jd-cookie-reject{background:#1e293b;color:#e2e8f0;border:1px solid rgba(148,163,184,.28)}
+  @media (max-width:420px){
+    #jd-cookie-banner{right:10px;bottom:10px;width:min(286px, calc(100vw - 20px));padding:9px;border-radius:11px}
+  }
+</style>
+<div id="jd-cookie-banner" role="status" aria-live="polite" aria-label="Aviso de privacidad y cookies">
+  <strong class="jd-cookie-title">Privacidad y anuncios</strong>
+  <p class="jd-cookie-copy">Usamos cookies para anuncios, medición y seguridad del sitio. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Ver detalles</a></p>
+  <div class="jd-cookie-actions">
+    <button class="jd-cookie-accept" onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies">Aceptar</button>
+    <button class="jd-cookie-reject" onclick="jdCookieConsent('reject')" aria-label="Usar solo cookies necesarias">Necesarias</button>
   </div>
 </div>
 <script>
@@ -7793,14 +7775,20 @@ window.onload=function(){
     var saved=null;
     try{ saved=localStorage.getItem(KEY); }catch(e){}
     if(!saved){
-      // El aviso ya no aparece flotando arriba: se gestiona desde Ajustes → Cookies.
-      try{ localStorage.setItem('jd_cookie_notice_location','settings_panel'); }catch(e){}
+      try{ localStorage.setItem('jd_cookie_notice_location','compact_corner_banner'); }catch(e){}
+      var _show=function(){
+        var b=document.getElementById('jd-cookie-banner');
+        if(b){ b.style.display='block'; }
+      };
+      var _schedule=function(){ setTimeout(_show, 1400); };
+      if(document.readyState==='complete'){ _schedule(); }
+      else { window.addEventListener('load', _schedule, {once:true}); }
     }
     window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');
       if(b) b.style.display='none';
-      try{ if(typeof showToast==='function'){ showToast(choice==='accept'?'✓ Cookies aceptadas':'✓ Solo cookies necesarias'); } }catch(_t){}
+      try{ if(typeof showToast==='function'){ showToast(choice==='accept'?'Cookies aceptadas':'Solo cookies necesarias'); } }catch(_t){}
       if(returnHome){
         try{ if(typeof window.jdClosePolicies==='function') window.jdClosePolicies(); }catch(_c){}
         try{
@@ -7835,7 +7823,10 @@ window.onload=function(){
       var pv=document.getElementById('policies-view');
       if(pv){ pv.classList.add('hidden'); pv.style.display='none'; }
       document.body.classList.remove('policies-open');
-      try{ history.replaceState(null,'',window.location.pathname); }catch(_e){}
+      try{
+        var keep=window.location.pathname + window.location.search;
+        history.replaceState(null,'', keep || '/');
+      }catch(_e){}
       setTimeout(function(){ window.scrollTo(0,0); },0);
     };
     document.addEventListener('keydown',function(e){
@@ -7957,8 +7948,8 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
 i[data-lucide]{display:inline-block;min-width:1em;min-height:1em;line-height:1;vertical-align:middle}
 svg.lucide{display:inline-block;vertical-align:middle}
 /* ── FIX scroll capturas: elevar pila y aislar gestos ── */
-#detail-view .jd-screens-wrap{position:relative;z-index:2147482000!important;isolation:isolate}
-#detail-view .jd-screens-scroller{position:relative;z-index:2147482001!important;touch-action:pan-x pan-y pinch-zoom!important}
+#detail-view .jd-screens-wrap{position:relative;z-index:20!important;isolation:isolate}
+#detail-view .jd-screens-scroller{position:relative;z-index:21!important;touch-action:pan-x pan-y pinch-zoom!important}
 </style>
 <script id="jd-icon-watcher">
 (function(){
@@ -8000,7 +7991,5 @@ svg.lucide{display:inline-block;vertical-align:middle}
   window.addEventListener('load',schedule);
 })();
 </script>
-<!-- V9 SEO: runtime title/meta/JSON-LD injector for /?mod= pages -->
-<script defer src="/jd-seo.js"></script>
 </body>
 </html>
