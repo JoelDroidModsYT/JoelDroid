@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="250925" async data-cfasync="false"></script>
+
 <link rel="preconnect" href="https://e2ertt.com" crossorigin>
 <link rel="dns-prefetch" href="https://e2ertt.com">
-<script>(function(){var APP_VERSION='1.3.0-full-fix';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.2.4-cpm-cookies-monetag-priority';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -39,25 +37,33 @@
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="manifest" href="/manifest.webmanifest">
 
-<!-- ══ CANONICAL + ROBOTS ══ -->
-<link rel="canonical" href="https://joeldroidmods.com/">
+<!-- ══ CANONICAL + ROBOTS — corregido para evitar duplicados por ?mod ══ -->
+<link id="jd-canonical" rel="canonical" href="https://joeldroidmods.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-<meta name="googlebot" content="index,follow">
-<meta name="bingbot" content="index,follow">
+<meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 
-<!-- ══ HREFLANG — clave para tráfico EE.UU. / Europa / LATAM / Brasil ══
-     Sustituye los href por las URLs reales de cada versión cuando crees subpáginas
-     /en/, /pt/, /es/. Si por ahora todo el contenido está en una sola página,
-     deja x-default apuntando a / y elimina los demás hasta tenerlas. -->
+<!-- Solo se declaran idiomas que existen realmente. No anunciar /en/ ni /pt/ si esas rutas no existen. -->
 <link rel="alternate" hreflang="es" href="https://joeldroidmods.com/">
-<link rel="alternate" hreflang="en" href="https://joeldroidmods.com/en/">
-<link rel="alternate" hreflang="pt-BR" href="https://joeldroidmods.com/pt/">
 <link rel="alternate" hreflang="x-default" href="https://joeldroidmods.com/">
 
-<!-- ══ GOOGLE SEARCH CONSOLE ══
-     Si ya verificaste por DNS, puedes BORRAR esta línea.
-     Si quieres verificar también por META, sustituye el valor por el código real. -->
-<!-- <meta name="google-site-verification" content="PEGAR_AQUI_TU_CODIGO"> -->
+<!-- Ajuste temprano del canonical renderizado: si la URL trae ?mod=ID, el canonical visible para Google queda en esa ficha.
+     Nota: para indexación perfecta, el servidor también debe entregar este canonical ya en el HTML inicial. -->
+<script>
+(function _jdEarlyCanonical(){
+  try{
+    var base='https://joeldroidmods.com/';
+    var params=new URLSearchParams(window.location.search||'');
+    var mod=(params.get('mod')||'').trim();
+    var canonical=base;
+    if(mod && /^[A-Za-z0-9_-]{1,90}$/.test(mod)) canonical=base+'?mod='+encodeURIComponent(mod);
+    var link=document.getElementById('jd-canonical')||document.querySelector('link[rel="canonical"]');
+    if(link) link.setAttribute('href', canonical);
+    var og=document.querySelector('meta[property="og:url"]');
+    if(og) og.setAttribute('content', canonical);
+  }catch(e){}
+})();
+</script>
 
 <!-- ══ OPEN GRAPH (Facebook, WhatsApp, Telegram) ══ -->
 <meta property="og:type" content="website">
@@ -238,9 +244,8 @@ var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 //     match /comments/{id} { allow read, write: if request.auth != null; }
 //   }
 // }
-var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:0,
-  // pollMs:0 = desactivado. El valor anterior (3000) podía disparar actividad
-  // de background que Monetag interpreta como tráfico de baja calidad → CPM bajo.
+var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
+  // Gist de respaldo para sincronización
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
 };
 </script>
@@ -1766,10 +1771,8 @@ window.__JD_REST_DONE = false;
     }).catch(function(){});
   })();
 
-  /* Firestore REST — corre SIEMPRE en paralelo con el Gist.
-     Si el Gist falla/tarda, Firestore sirve de respaldo garantizado.
-     Si el Gist ya respondió primero, __JD_REST_DONE evita sobrescribir. */
-  (function(){
+  /* Firestore REST como fallback — solo si Gist no responde y no hay caché */
+  if(!hasCache){
     fetch(FS_URL)
       .then(function(r){return r.json();})
       .then(function(d){
@@ -1779,7 +1782,7 @@ window.__JD_REST_DONE = false;
         _renderNow(docs.map(_parseDoc));
       })
       .catch(function(){});
-  })();
+  }
 
   /* ── Auto-guardar en Gist cuando admin tiene token ── */
   window.__jdSaveGamesToGist=function(games){
@@ -4667,12 +4670,11 @@ function showDetail(id){
   }catch(e){}
 
   // ══ ACTUALIZAR URL CON ?mod= PARA COMPARTIR ══════════════════════
-  // Cada juego obtiene una URL legible con el nombre real.
-  // Ejemplo: https://joeldroidmods.com/?mod=Bus-Simulator-Indonesia-Mod
+  // Cada juego (incluyendo los nuevos de Firebase) obtiene su propia
+  // URL limpia automáticamente al abrir la ficha de detalle.
+  // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA-Mod
   try {
-    var _slug = (typeof slugifyTitle === 'function')
-      ? slugifyTitle(game.name || game.nombre || '')
-      : String(game.id || id);
+    var _slug = String(game.id || id);
     var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
     window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
   } catch(e) {}
@@ -5096,7 +5098,7 @@ function jdStResetCookieConsent(){
   try{localStorage.removeItem('jd_cookie_consent');}catch(e){}
   try{closeSettings();}catch(e){}
   try{jdOpenPolicies('cookies');}catch(e){}
-  try{showToast('🍪 Cookies y privacidad');}catch(e){}
+  try{showToast('Cookies y privacidad');}catch(e){}
 }
 function filterChip(type){
   var chipMap={popular:'popular',updated:'updated',all:'all'};
@@ -7684,18 +7686,10 @@ window.onload=function(){
    No neutraliza anuncios, no modifica iframes y no elimina sandbox.
    ═══════════════════════════════════════════════════════════════ */
 (function JDDetailPageMode(){
-  // FIX v1.3.0: sync() en DOMContentLoaded NUNCA activa detail-open.
-  // Solo QUITA detail-open si detail-view está oculto.
-  // showDetail() y closeDetail() son los ÚNICOS que ponen detail-open.
-  // El bug anterior: si detail-view no tenía 'hidden' por alguna race condition,
-  // sync() ponía detail-open → #home-view quedaba display:none → página en blanco.
   function sync(){
     var dv=document.getElementById('detail-view');
-    if(!dv) return;
-    if(dv.classList.contains('hidden')){
-      document.body.classList.remove('detail-open');
-    }
-    // Si NO tiene hidden, showDetail() ya gestionó detail-open correctamente.
+    var open=!!(dv && !dv.classList.contains('hidden'));
+    document.body.classList.toggle('detail-open', open);
   }
   window.JDDetailPageMode={sync:sync};
   document.addEventListener('DOMContentLoaded', sync);
@@ -7703,22 +7697,68 @@ window.onload=function(){
 </script>
 
 <!-- ══ BANNER DE CONSENTIMIENTO DE COOKIES (GDPR / ePrivacy) ═══════════════
-     Requerido por la Cláusula 9 del Acuerdo de Monetag. NO bloquea ni retrasa
-     el script de Monetag — solo informa al usuario y guarda su elección.
-     Las cookies se siguen sirviendo normalmente; la negativa solo se registra
-     para fines de cumplimiento legal y para informar a Monetag si lo solicita.
+     Requerido por la Cláusula 9 del Acuerdo de Monetag. NO bloquea, no retrasa
+     y no modifica el script de Monetag; solo informa y guarda la elección local.
 ═══════════════════════════════════════════════════════════════════════════ -->
-<!-- Banner de cookies MINI: chip discreto en esquina superior derecha.
-     z-index BAJO (9999) para NO competir con In-Page Push / Vignette de Monetag,
-     que viven cerca de los bordes con z-index muy altos. -->
-<div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" style="display:none;position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:9000;background:rgba(15,23,42,.97);color:#fff;border:1px solid rgba(59,130,246,.45);border-radius:10px;padding:8px 12px;box-shadow:0 8px 22px rgba(0,0,0,.45);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:12px;line-height:1.3;max-width:340px;width:calc(100% - 24px);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-    <span style="font-size:13px">🍪</span>
-    <span style="opacity:.92">Usamos cookies para anuncios. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')" style="color:#60a5fa;text-decoration:underline">Más</a></span>
-  </div>
-  <div style="display:flex;gap:5px">
-    <button onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies" style="flex:1;background:#22c55e;color:#0a0a0a;border:0;border-radius:6px;padding:5px 8px;font-weight:800;font-size:11px;cursor:pointer">Aceptar</button>
-    <button onclick="jdCookieConsent('reject')" aria-label="Rechazar cookies" style="flex:1;background:#334155;color:#fff;border:0;border-radius:6px;padding:5px 8px;font-weight:700;font-size:11px;cursor:pointer">Rechazar</button>
+<style id="jd-cookie-banner-style">
+  #jd-cookie-banner{
+    display:none;
+    position:fixed;
+    right:12px;
+    bottom:12px;
+    z-index:2500;
+    width:min(300px, calc(100vw - 24px));
+    color:#eef5ff;
+    background:linear-gradient(180deg, rgba(11,18,32,.98), rgba(15,23,42,.96));
+    border:1px solid rgba(148,163,184,.32);
+    border-radius:12px;
+    box-shadow:0 12px 34px rgba(0,0,0,.42);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    padding:10px;
+    text-align:left;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  #jd-cookie-banner .jd-cookie-title{
+    display:block;
+    margin:0 0 3px;
+    color:#f8fafc;
+    font-size:12px;
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:.01em;
+  }
+  #jd-cookie-banner .jd-cookie-copy{
+    margin:0;
+    color:#cbd5e1;
+    font-size:11px;
+    line-height:1.35;
+  }
+  #jd-cookie-banner .jd-cookie-copy a{color:#93c5fd;text-decoration:none;font-weight:700}
+  #jd-cookie-banner .jd-cookie-actions{display:flex;gap:7px;margin-top:9px}
+  #jd-cookie-banner button{
+    min-height:30px;
+    flex:1;
+    border:0;
+    border-radius:8px;
+    padding:6px 8px;
+    font-size:11px;
+    line-height:1;
+    font-weight:800;
+    cursor:pointer;
+  }
+  #jd-cookie-banner .jd-cookie-accept{background:#38bdf8;color:#06101d}
+  #jd-cookie-banner .jd-cookie-reject{background:#1e293b;color:#e2e8f0;border:1px solid rgba(148,163,184,.28)}
+  @media (max-width:420px){
+    #jd-cookie-banner{right:10px;bottom:10px;width:min(286px, calc(100vw - 20px));padding:9px;border-radius:11px}
+  }
+</style>
+<div id="jd-cookie-banner" role="status" aria-live="polite" aria-label="Aviso de privacidad y cookies">
+  <strong class="jd-cookie-title">Privacidad y anuncios</strong>
+  <p class="jd-cookie-copy">Usamos cookies para anuncios, medición y seguridad del sitio. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Ver detalles</a></p>
+  <div class="jd-cookie-actions">
+    <button class="jd-cookie-accept" onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies">Aceptar</button>
+    <button class="jd-cookie-reject" onclick="jdCookieConsent('reject')" aria-label="Usar solo cookies necesarias">Necesarias</button>
   </div>
 </div>
 <script>
@@ -7728,16 +7768,20 @@ window.onload=function(){
     var saved=null;
     try{ saved=localStorage.getItem(KEY); }catch(e){}
     if(!saved){
-      try{ localStorage.setItem('jd_cookie_notice_location','bottom_mini_banner'); }catch(e){}
-      // Mostrar mini-banner inferior cuando el DOM esté listo (no bloquea Monetag)
-      var _show=function(){ var b=document.getElementById('jd-cookie-banner'); if(b){ b.style.display='block'; } };
-      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',_show); } else { _show(); }
+      try{ localStorage.setItem('jd_cookie_notice_location','compact_corner_banner'); }catch(e){}
+      var _show=function(){
+        var b=document.getElementById('jd-cookie-banner');
+        if(b){ b.style.display='block'; }
+      };
+      var _schedule=function(){ setTimeout(_show, 1400); };
+      if(document.readyState==='complete'){ _schedule(); }
+      else { window.addEventListener('load', _schedule, {once:true}); }
     }
     window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');
       if(b) b.style.display='none';
-      try{ if(typeof showToast==='function'){ showToast(choice==='accept'?'✓ Cookies aceptadas':'✓ Solo cookies necesarias'); } }catch(_t){}
+      try{ if(typeof showToast==='function'){ showToast(choice==='accept'?'Cookies aceptadas':'Solo cookies necesarias'); } }catch(_t){}
       if(returnHome){
         try{ if(typeof window.jdClosePolicies==='function') window.jdClosePolicies(); }catch(_c){}
         try{
@@ -7772,7 +7816,10 @@ window.onload=function(){
       var pv=document.getElementById('policies-view');
       if(pv){ pv.classList.add('hidden'); pv.style.display='none'; }
       document.body.classList.remove('policies-open');
-      try{ history.replaceState(null,'',window.location.pathname); }catch(_e){}
+      try{
+        var keep=window.location.pathname + window.location.search;
+        history.replaceState(null,'', keep || '/');
+      }catch(_e){}
       setTimeout(function(){ window.scrollTo(0,0); },0);
     };
     document.addEventListener('keydown',function(e){
