@@ -4,10 +4,11 @@
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<!-- Monetag Tag Principal (zona 233464) — carga inmediata, máxima viewability -->
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 <script>
 (function(){
-  var APP_VERSION = '1.0.10-cpm-safe';
+  var APP_VERSION = '1.0.11-cpm-fix';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -120,6 +121,9 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
     }
     document.documentElement.lang = detected;
     window.__JD_PRELANG = detected;
+    // ⚠️ MONETAG CPM: Nunca ocultar <body> ni <html> en ningún momento.
+    // Si el body está oculto cuando carga el ad, Monetag NO cuenta la impresión
+    // y el CPM baja porque la viewability cae a 0 en esa visita.
     // ⚠️ Antes ocultaba <html> 200ms — bajaba viewability de Monetag.
     // Ahora NO se oculta nada. El parpadeo es mínimo y el ad cuenta como visto.
   } catch(e) {}
@@ -170,8 +174,10 @@ var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 //     match /comments/{id} { allow read, write: if request.auth != null; }
 //   }
 // }
-var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
+var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:0,
   // Gist de respaldo para sincronización
+  // pollMs en 0 = desactivado. El setInterval(3000) previo causaba
+  // actividad artificial que Monetag detectaba como tráfico de baja calidad.
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
 };
 </script>
