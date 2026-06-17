@@ -7,7 +7,7 @@
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 <script>
 (function(){
-  var APP_VERSION = '1.0.9';
+  var APP_VERSION = '1.0.10-cpm-safe';
   window.__JD_APP_VERSION = APP_VERSION;
   try{ localStorage.setItem('__jd_app_version', APP_VERSION); }catch(e){}
 })();
@@ -136,11 +136,8 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 <script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
-// ══════════════════════════════════════════════════════════════════
 // 🔥 FIREBASE — JoelDroid Mods YT — CONFIGURADO Y LISTO
-// ══════════════════════════════════════════════════════════════════
 // Credenciales reales del proyecto joeldroid-mods
-// ── LOGO JOELDROID EMBEBIDO — aparece sin depender de logo.png externo ──────
 var JD_LOGO_B64 = "data:image/webp;base64,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";
 var FIREBASE_CONFIG = {
   apiKey:            "AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M",
@@ -150,17 +147,14 @@ var FIREBASE_CONFIG = {
   messagingSenderId: "308221632883",
   appId:             "1:308221632883:web:a50829da7b400d74f12506"
 };
-// ── TU UID DE ADMINISTRADOR ────────────────────────────────────
 // Obtén tu UID en: Firebase Console → Authentication → Users
 // Pega aquí el UID de la fila de tu cuenta de email admin.
 // Después de pegarlo, sube el archivo a GitHub y ejecuta
 // "Login Admin Firebase" en el Panel de Control del sitio.
 var ADMIN_UID   = "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
 var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
-// ══════════════════════════════════════════════════════════════════
 // 📋 REGLAS DE FIRESTORE — pega esto en Firebase Console → Firestore → Reglas
 // (Reemplaza TU_UID_AQUI con tu UID real antes de publicar)
-// ══════════════════════════════════════════════════════════════════
 // rules_version = '2';
 // service cloud.firestore {
 //   match /databases/{database}/documents {
@@ -425,7 +419,6 @@ html{scroll-behavior:smooth}
 #site-announcement.hidden{display:none!important;margin:0!important;padding:0!important;border:none!important;}
 #ann-text-ui{font-weight:900;color:#f87171;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;line-height:1.4;letter-spacing:.02em}.light-mode #ann-text-ui{color:#dc2626}
 #announcement-icon-wrapper{/* animation removed to stop flicker */}
-/* ── COPYRIGHT PROFESIONAL ── */
 .jd-copyright{margin-top:18px;padding:14px 16px;border-top:1px solid rgba(59,130,246,.18);text-align:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 .jd-copyright .jd-cr-brand{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;background:linear-gradient(90deg,#3b82f6,#06b6d4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
 .jd-copyright .jd-cr-main{font-size:11px;font-weight:700;color:var(--text-main);opacity:.92;letter-spacing:.02em}
@@ -625,7 +618,6 @@ html,body{overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;}
 .recommended-card .rec-visit-btn{background:var(--btn-gradient);border:none;border-radius:12px;color:#fff;font-size:9px;font-weight:900;padding:6px 14px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s ease;white-space:nowrap}
 .recommended-card .rec-visit-btn:active{transform:scale(.95)}
 [data-i18n]{transition:opacity .2s ease}
-/* ── Mejoras de realismo ── */
 .icon-img{transition:transform .25s ease,box-shadow .25s ease}
 .game-card:hover .icon-img{transform:scale(1.06);box-shadow:0 4px 16px rgba(0,0,0,.5)}
 .ios-icon-large{transition:transform .3s ease}
@@ -637,13 +629,11 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 .light-mode .game-card{box-shadow:0 2px 16px rgba(37,99,235,.12),var(--neon-border)}
 @keyframes btnPulse{0%,100%{box-shadow:0 4px 12px rgba(37,99,235,.3)}50%{box-shadow:0 4px 24px rgba(37,99,235,.6)}}
 #det-download-home-btn{animation:btnPulse 2.5s ease-in-out infinite}
-/* ── Video sections futuristas ── */
 #video-section,#install-tutorial-section{position:relative}
 .vid-header{background:linear-gradient(135deg,rgba(37,99,235,.15),rgba(6,182,212,.1));border-bottom:1px solid var(--border-color);padding:14px 16px;display:flex;align-items:center;gap:10px}
 .vid-header .vid-badge{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-size:7px;font-weight:900;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;box-shadow:0 0 8px rgba(239,68,68,.6);animation:livePulse 1.8s ease-in-out infinite}
 @keyframes livePulse{0%,100%{box-shadow:0 0 6px rgba(239,68,68,.5)}50%{box-shadow:0 0 14px rgba(239,68,68,.9)}}
 .vid-header .vid-title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;background:linear-gradient(90deg,var(--brand-color),#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-/* ── Mini-estrella en tarjeta home (solo lectura, una línea) ── */
 .card-mini-stars{display:inline-flex;gap:1px;align-items:center;font-size:10px;color:#f59e0b;letter-spacing:-.5px;line-height:1}
 .card-mini-rating{font-size:9px;font-weight:800;color:#f59e0b;margin-left:3px;opacity:.85}
 .comments-list::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:2px}
@@ -903,7 +893,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 }
 .light-mode #share-fab svg{stroke:#2563eb}
 .light-mode #share-fab::before{background:rgba(255,255,255,.95);color:#0f172a}
-/* ── JD COMPACT GRID ─────────────────────────────────────────────
    3 columns mobile → 4 tablet → 5 PC → 6 desktop
    Cards are ultra-compact: fixed-height image, tight text, slim button
    ──────────────────────────────────────────────────────────────── */
@@ -917,7 +906,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 @media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
 @media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
 @media(min-width:1024px) { .jd-grid { grid-template-columns: repeat(5,1fr); gap:12px; } }
-/* ── CARD ────────────────────────────────────────────────────────*/
 .jd-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -933,7 +921,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
 }
 .jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
 .jd-card:active { transform: scale(.97); }
-/* ── IMAGE BOX: cuadrado con altura máxima limitada ──────────*/
 .jd-img-box {
   position: relative;
   width: 100%;
@@ -970,7 +957,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   transition: transform .28s;
 }
 .jd-card:hover .jd-img { transform: scale(1.04); }
-/* ── MOD badge top-left ──────────────────────────────────────────*/
 .jd-mod-badge {
   position: absolute;
   top: 4px; left: 4px;
@@ -986,7 +972,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   z-index: 2;
   line-height: 1.3;
 }
-/* ── UPDATE badge top-right ──────────────────────────────────────*/
 .jd-upd-badge {
   position: absolute;
   top: 4px; right: 4px;
@@ -1000,7 +985,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   z-index: 2;
   line-height: 1.3;
 }
-/* ── TEXT AREA ───────────────────────────────────────────────────*/
 .jd-info {
   padding: 4px 5px 4px;
   display: flex;
@@ -1030,7 +1014,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   text-overflow: ellipsis;
   opacity: .85;
 }
-/* ── VERSION PILL bajo el ícono — borde celeste, fondo transparente ── */
 .jd-ver-pill{
   position:absolute;left:50%;bottom:5px;transform:translateX(-50%);
   display:inline-flex;align-items:center;gap:2px;
@@ -1050,13 +1033,11 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   background:#67e8f9;box-shadow:0 0 6px #22d3ee,0 0 10px rgba(74,222,128,.55);
 }
 .light-mode .jd-ver-pill{color:#0369a1;background:rgba(255,255,255,.88);border-color:rgba(6,182,212,.95);text-shadow:0 1px 0 rgba(255,255,255,.75);box-shadow:0 1px 5px rgba(15,23,42,.28),0 0 8px rgba(6,182,212,.35),inset 0 0 6px rgba(6,182,212,.13)}
-/* ── STARS: always 5, gold when rated, dim when not ─────────────*/
 .jd-stars { display:none !important; }
 .jd-star  { font-size:8px; line-height:1; }
 .jd-star.on  { color:#f59e0b; }
 .jd-star.off { color:rgba(255,255,255,.18); }
 .light-mode .jd-star.off { color:rgba(0,0,0,.15); }
-/* ── DOWNLOAD BUTTON: ultra-slim for 3-col ───────────────────────*/
 .jd-btn {
   margin-top: auto;
   width: 100%;
@@ -1165,7 +1146,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   background-size: 300% 100%;
   animation: jd-shimmer 1.2s ease-in-out infinite;
 }
-/* ── GLASSMORPHISM language panel ────────────────────────────────*/
 .jd-lang-panel {
   position: absolute;
   top: calc(100% + 6px);
@@ -1366,7 +1346,6 @@ body.policies-open #share-fab{
   </div>
 </nav>
 <script>
-// ── CAPA 1: Caché local — renderizado INMEDIATO sin esperar nada ────
 window.__JD_STATIC_GAMES = (function(){
   try{
     var ss = sessionStorage.getItem('jd_ss_games');
@@ -1376,7 +1355,6 @@ window.__JD_STATIC_GAMES = (function(){
   }catch(e){}
   return [];
 })();
-// ── Renderizado directo desde caché (0ms) ─────────────────────────
 // Si hay datos en caché, renderizar las tarjetas AHORA mismo
 // sin esperar DOMContentLoaded ni Firebase ni ningún otro script
 (function(){
@@ -1431,7 +1409,6 @@ window.__JD_STATIC_GAMES = (function(){
     document.addEventListener('DOMContentLoaded', _doRender);
   }
 })();
-// ── CAPA 2: REST fetch directo a Firestore (no necesita SDK) ─────────
 // Se ejecuta en paralelo — si responde antes que el SDK renderiza ya.
 window.__JD_REST_DONE = false;
 /* ════════════════════════════════════════════════════════════════════════
@@ -1450,7 +1427,6 @@ window.__JD_REST_DONE = false;
   var CDN_URL       = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?v='+_bust;
   var FS_URL        = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
                       '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
-  /* ── Parser Firestore REST ── */
   function _parseDoc(doc){
     var f=doc.fields||{};
     function _s(x){if(!x)return '';return x.stringValue!==undefined?x.stringValue:String(x.integerValue||x.doubleValue||'');}
@@ -1478,7 +1454,6 @@ window.__JD_REST_DONE = false;
     return games.filter(function(g){return g.visible!==false;})
       .sort(function(a,b){return b.timestamp!==a.timestamp?b.timestamp-a.timestamp:a.order-b.order;});
   }
-  /* ── Render — fuerza repintado si hay cambios reales ── */
   function _renderNow(games, force){
     if(window.__JD_REST_DONE && !force) return;
     window.__JD_REST_DONE = true;
@@ -1563,7 +1538,6 @@ window.__JD_REST_DONE = false;
       })
       .catch(function(){});
   }
-  /* ── Auto-guardar en Gist cuando admin tiene token ── */
   window.__jdSaveGamesToGist=function(games){
     if(!games||!games.length)return;
     try{
@@ -2063,12 +2037,9 @@ window.__JD_REST_DONE = false;
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-// ════════════════════════════════════════════════════════════════
 // SISTEMA DE TEMAS DE FONDO — 12 temas, tiempo real, panel admin
-// ════════════════════════════════════════════════════════════════
 var _bgStyleEl=null;
 var _bgActive='neon';
-// ── Definición de todos los temas ────────────────────────────────
 var BG_THEMES={
   neon:{
     label:'Figuras Neón',icon:'⬡',
@@ -2313,7 +2284,6 @@ var BG_THEMES={
     }
   }
 };
-// ── Motor principal de fondos ─────────────────────────────────────
 function applyLightColors(){
   var lc = siteState.lightColors || {};
   var s = document.documentElement.style;
@@ -2392,7 +2362,6 @@ function jdClosePolicies(){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 // applyBgTheme se llama desde DOMContentLoaded después de loadSettings()
-// ════════════════════════════════════════════════════════════════
 // SISTEMA DE TRADUCCIÓN PROFESIONAL FINAL
 // • Diccionario local (UI instantánea, 10 idiomas completos)
 // • MyMemory API para contenido dinámico (descripciones, anuncio,
@@ -2400,9 +2369,7 @@ function jdClosePolicies(){
 // • Caché RAM + localStorage (no repite llamadas)
 // • Auto-detección idioma navegador al cargar
 // • Retraduce cuando el admin cambia cualquier texto
-// ════════════════════════════════════════════════════════════════
 var currentLang='es';
-// ── Programador no-invasivo: ejecuta trabajo pesado en tiempo libre ──
 // Usa MessageChannel (microtask yield) como polyfill de rIC para Safari
 var _jdIdle = (function(){
   if(typeof requestIdleCallback === 'function'){
@@ -2422,12 +2389,10 @@ var LANG_FLAGS={
   ja:'https://flagcdn.com/w40/jp.png',tr:'https://flagcdn.com/w40/tr.png',
   hi:'https://flagcdn.com/w40/in.png',fr:'https://flagcdn.com/w40/fr.png'
 };
-// ══════════════════════════════════════════════════════════════════
 // 📖 DICCIONARIO JSON PROFESIONAL — JoelDroid Mods YT
 // Cubre TODA la UI: home, detalle, botones, advertencias, comentarios.
 // Para agregar un idioma nuevo: copiar el bloque 'en' y traducir valores.
 // Claves = texto original en español. Valor = traducción al idioma destino.
-// ══════════════════════════════════════════════════════════════════
 var TR={
 es:{
   'Todo':'Todo','Actualizados':'Actualizados','Popular':'Popular',
@@ -2740,7 +2705,6 @@ fr:{
   'Share':'Partager'
 }
 };
-// ── Traducción instantánea por clave de diccionario ───────────────
 function tStr(es){
   if(currentLang==='es') return es;
   var d=TR[currentLang];
@@ -2760,7 +2724,6 @@ function t(key){
   if(es===null||es===undefined) return key;
   return tStr(es);
 }
-// ── MyMemory API: contenido dinamico con fallback robusto ───────────
 // Si la API falla (limite excedido, sin conexion), muestra el texto
 // ORIGINAL de Firebase. NUNCA muestra mensajes de error de la API.
 function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
@@ -2829,7 +2792,6 @@ function trEl(id,text){
   el.innerText=text;
   trAPI(text,function(tr){var e=document.getElementById(id);if(e)e.innerText=tr;});
 }
-// ── Detectar idioma del navegador/dispositivo ─────────────────────
 function detectBrowserLanguage(){
   // Revisar todos los idiomas preferidos del navegador/dispositivo
   var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||navigator.userLanguage||'es'];
@@ -2843,7 +2805,6 @@ function detectBrowserLanguage(){
   }
   return'es';
 }
-// ── Mapa key → español para data-i18n heredados ───────────────────
 var LANG_FLAGS_KEYS={search_placeholder:'Buscar aplicaciones...',
   filter_all:'Todo',filter_updated:'Actualizados',filter_popular:'Popular',
   video_title:'Tutorial Oficial',install_tutorial_title:'Tutorial de Instalación',
@@ -2862,7 +2823,6 @@ var LANG_FLAGS_KEYS={search_placeholder:'Buscar aplicaciones...',
   rec_visit_btn:'Ver Juego',rec_download_btn:'Descargar Mod',
   safe_label:'Mediafire-Seguro',verification_text:'Verificado'
 };
-// ── applyTranslations: Sistema profesional — diccionario + API fallback ──
 // PARTE CRÍTICA (síncrona, <1ms): idioma + visibilidad + filtros visibles
 // PARTE DIFERIDA (idle): querySelectorAll pesados, trAPI calls a la red
 function applyTranslations(lang){
@@ -2872,7 +2832,6 @@ function applyTranslations(lang){
   if(document.documentElement.style.visibility === 'hidden'){
     document.documentElement.style.visibility = '';
   }
-  // ── CRÍTICO INMEDIATO: solo los elementos visibles above-the-fold ──
   // Filtros (siempre visibles)
   var chips = {all:'Todo', updated:'Actualizados', popular:'Popular'};
   Object.keys(chips).forEach(function(k){
@@ -2894,7 +2853,6 @@ function applyTranslations(lang){
   });
   // Modo claro (inmediato para evitar flash de color)
   applyLightColors();
-  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea los anuncios ──
   _jdIdle(function(){
     // 1) Todos los [data-i18n] del DOM
     document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -2938,7 +2896,6 @@ function applyTranslations(lang){
     _jdStopObserver();
     return;
   }
-  // ── DIFERIDO AL IDLE: llamadas a la API de traducción (red) ───────
   _jdIdle(function(){
     // Comunicado de anuncio
     var ann = document.getElementById('ann-text-ui');
@@ -2966,7 +2923,6 @@ function applyTranslations(lang){
     _jdTranslateNewCards();
   });
 }
-// ── selectLanguage: cambia idioma sin re-renderizar cards (evita parpadeo) ──
 function selectLanguage(langCode, flagUrl){
   var m = document.getElementById('lang-menu');
   if(m) m.classList.remove('active');
@@ -3306,7 +3262,6 @@ function showDetailAndScroll(id){
 }
 function refreshIcons(){if(window.lucide)window.lucide.createIcons();}
 function resetPage(){window.location.href=_jdBaseUrl();}
-/* ── URL base limpia: elimina /index.html del pathname ──────────
    https://joeldroidmods.com/index.html → https://joeldroidmods.com/
    ──────────────────────────────────────────────────────────────── */
 function _jdBaseUrl(){
@@ -3328,11 +3283,9 @@ function setFilter(filter){
   renderGames();
   updateBannerBasedOnFilter();
 }
-// ════════════════════════════════════════════════════════════════
 // ⚡ ULTRA-FAST PRE-RENDER — carga juegos desde localStorage en 0ms
 // Se ejecuta ANTES de Firebase. En visitas repetidas los juegos
 // aparecen al instante, sin ninguna espera de red.
-// ════════════════════════════════════════════════════════════════
 var _JD_CACHE_KEY = 'jd_games_cache_v2';
 function _saveGamesCache(games){
   try{
@@ -3377,9 +3330,7 @@ function _loadGamesFromCache(){
     return true;
   }catch(e){ return false; }
 }
-// ════════════════════════════════════════════════════════════════
 // SKELETON PLACEHOLDERS — se muestran al instante mientras Firebase carga
-// ════════════════════════════════════════════════════════════════
 function _renderSkeletons(n){
   var list = document.getElementById('game-list');
   if(!list) return;
@@ -3397,9 +3348,7 @@ function _renderSkeletons(n){
   list.innerHTML = '';
   list.appendChild(frag);
 }
-// ════════════════════════════════════════════════════════════════
 // RENDER GAMES — Lazy Loading + Paginación (12 iniciales) + Timestamp sort
-// ════════════════════════════════════════════════════════════════
 var _gamesPage = 0;
 var _gamesPageSize = 12;
 var _gamesFiltered = [];
@@ -3476,7 +3425,6 @@ function renderGames(){
   }
   _gamesFiltered = games;
   _gamesPage = 0;
-  // ── Renderizar SIN vaciar primero → elimina el flash/parpadeo ──
   // Pintamos el nuevo lote en un fragment fuera del DOM,
   // luego hacemos el swap en un solo replaceChildren() sin frame vacío.
   _renderGamesBatch(list, 0, _gamesPageSize, true /* replace */);
@@ -3518,26 +3466,22 @@ function _renderGamesBatch(list, start, count, replace){
   var dlBtnText = (_defaults.indexOf(_adminBtn) >= 0) ? tStr('Descargar APK') : _adminBtn;
   var frag = document.createDocumentFragment();
   games.forEach(function(g, _gIdx){
-    /* ── Badge labels ──────────────────────────────────────────── */
     var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
     var modColor = g.modBadgeBgColor || '#ef4444';
     var updateTag = (g.updateBadgeVisible && g.updateBadgeText)
       ? '<span class="jd-upd-badge">'+g.updateBadgeText+'</span>' : '';
-    /* ── Stars: read real rating, always show 5 ────────────────── */
     var miniR   = _loadGameRatings(g.id);
     var miniAvg = miniR.total > 0 ? (miniR.sum / miniR.total) : 0;
     var starsHtml = '';
     for(var si=1; si<=5; si++){
       starsHtml += '<span class="jd-star '+(si <= Math.round(miniAvg) ? 'on' : 'off')+'">&#9733;</span>';
     }
-    /* ── Mod-type label (translatable, NOT the game name) ──────── */
     var features  = g.features || [];
     var modSuffix = features.length > 0 ? features[0]
       : (g.modBadgeVisible !== false && g.modBadgeText ? g.modBadgeText : 'MOD APK');
     var card = document.createElement('div');
     card.className = 'jd-card';
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
-    /* ── Badges exclusivos del filtro POPULAR (PREMIUM + TOP) ── */
     var _popularBadgesHtml = '';
     if(currentFilter === 'popular' && siteState.popularBanner && siteState.popularBanner.visible !== false){
       var _pb = siteState.popularBanner;
@@ -3562,7 +3506,6 @@ function _renderGamesBatch(list, start, count, replace){
       ' referrerpolicy="no-referrer"'+
       ' onload="this.classList.add(\'loaded\')"'+
       ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">';
-    /* ── VERSION PILL — bajo el ícono, mismo tamaño que mod label ── */
     var _verTxt = (g.ver || g.version || '').toString().trim();
     var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
     card.innerHTML =
@@ -3592,7 +3535,6 @@ function _renderGamesBatch(list, start, count, replace){
       '</div>';
     frag.appendChild(card);
   });
-  // ── Swap sin flash: si replace=true sustituir cards existentes en un solo frame ──
   if(replace){
     // Construir nuevo contenido como array de nodos (fragment ya tiene los cards)
     var newNodes = Array.from(frag.childNodes);
@@ -3663,7 +3605,6 @@ function _loadMoreGames(){
     });
   }
 }
-// ── Lazy Loading de imágenes con IntersectionObserver ────────────
 var _lazyIO = null;
 function _initLazyImages(){
   var imgs = document.querySelectorAll('img.lazy-img[data-src]');
@@ -3710,25 +3651,17 @@ function showDetail(id){
   // Registrar click para estadísticas
   try{ _trackClick(id, game.name||game.nombre||''); }catch(e){}
   try{ document.title = game.name + ' MOD - JoelDroidMods.com'; }catch(e){}
-  // ══ ACTUALIZAR URL CON ?mod= PARA COMPARTIR ══════════════════════
   // Cada juego (incluyendo los nuevos de Firebase) obtiene su propia
   // URL limpia automáticamente al abrir la ficha de detalle.
   // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA-Mod
-  try {
-    var _slug = (typeof slugifyTitle === 'function')
-      ? slugifyTitle(game.name || game.nombre || '')
-      : String(id);
-    var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
-    window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
-  } catch(e) {}
-  // ══ ACTUALIZAR META OG TAGS DINÁMICAMENTE ════════════════════════
+  try { var _slug=(typeof slugifyTitle==='function')?slugifyTitle(game.name||game.nombre||''):String(id); var _currentMod=''; try{_currentMod=(new URLSearchParams(window.location.search||'')).get('mod')||'';}catch(_u){} var _urlMod=_slug; if(_currentMod){var _cm=String(_currentMod).toLowerCase(),_sg=String(_slug).toLowerCase(); if(String(id)===String(_currentMod)||_cm===_sg||(game.slug&&String(game.slug).toLowerCase()===_cm)||(game.nombre_url&&String(game.nombre_url).toLowerCase()===_cm)) _urlMod=_currentMod;} var _shareUrl=_jdBaseUrl()+'?mod='+encodeURIComponent(_urlMod); window.history.replaceState({modId:String(id),slug:_urlMod},document.title,_shareUrl); } catch(e) {}
   // Así WhatsApp/Telegram ven la imagen y descripción del juego exacto
   // cuando alguien copia el link MIENTRAS tiene la ficha abierta.
   try {
     var _gameName  = game.name || game.nombre || '';
     var _gameDesc  = game.description || game.descripcion || ('Descarga el MOD APK de ' + _gameName + ' creado por JoelDroid Mods YT');
     var _gameThumb = game.thumb || game.imagen || game.icon || '';
-    var _ogBase    = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
+    var _ogBase    = _shareUrl || (_jdBaseUrl() + '?mod=' + encodeURIComponent(_slug));
     var _setMeta = function(sel, attr, val) {
       var el = document.querySelector(sel);
       if (el) el.setAttribute(attr, val);
@@ -3750,7 +3683,6 @@ function showDetail(id){
     _setMeta('meta[property="og:url"]',          'content', _ogBase);
     _setMeta('link[rel="canonical"]',            'href',    _ogBase);
   } catch(e) {}
-  // ══════════════════════════════════════════════════════════════════
   var dv=document.getElementById('detail-view');
   if(dv)dv.scrollTop=0;
   // Normalizar campos — acepta esquema en español (Firebase manual) O inglés (panel)
@@ -3812,7 +3744,6 @@ function showDetail(id){
   if(dlBtn)dlBtn.style.background='linear-gradient(135deg,'+siteState.buttonSettings.globalDetailButtonColor+','+colorPalette.blue.hex+')';
   var featCont=document.getElementById('det-mod-features');
   if(featCont)featCont.innerHTML=(game.features||[]).map(function(f){return'<span class="mod-tag">'+f+'</span>';}).join('');
-  // ── Capturas de pantalla (estilo Play Store) ──────────────────
   var _scrSec=document.getElementById('det-screens-section');
   var _scrCont=document.getElementById('det-screens-scroller');
   var _scrList=Array.isArray(game.screenshots)?game.screenshots:(Array.isArray(game.capturas)?game.capturas:[]);
@@ -3927,7 +3858,6 @@ function closeDetail(){
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods YT | Los Mejores MOD APK para Android'; }catch(e){}
   try{ window.history.replaceState({}, '', window.location.pathname); }catch(e){}
-  // ══ RESTAURAR META OG AL ESTADO GENERAL DEL SITIO ════════════════
   try {
     var _setMeta = function(sel, attr, val) {
       var el = document.querySelector(sel);
@@ -3944,18 +3874,15 @@ function closeDetail(){
     _setMeta('meta[property="og:url"]',          'content', _siteBase);
     _setMeta('link[rel="canonical"]',            'href',    _siteBase);
   } catch(e) {}
-  // ══════════════════════════════════════════════════════════════════
 }
 function shareGame(){
   if(!currentDetailId) return;
   var game = siteState.gamesList.find(function(g){ return String(g.id) === String(currentDetailId); });
   if(!game) return;
-  // ── URL ULTRA-LIMPIA — solo ?mod=Nombre-Del-Juego ──────────────────
   // Compatible con GitHub Pages (archivo único index.html).
   // Sin /p/, sin id=xxxx, 100% profesional y legible.
   //
   // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA
-  // ──────────────────────────────────────────────────────────────────
   var slug   = slugifyTitle(game.name);
   var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
@@ -3969,11 +3896,9 @@ function shareGame(){
     _shareFallback(shareUrl);
   }
 }
-// ────────────────────────────────────────────────────────────────────
 // SLUGIFY — nombre de juego → slug legible para URL
 // "Global Truck Online" → "Global-Truck-Online-Mod"
 // "Futbol Liga!!"       → "Futbol-Liga-Mod"
-// ────────────────────────────────────────────────────────────────────
 function slugifyTitle(title){
   if(!title) return 'Mod';
   return title
@@ -4152,12 +4077,10 @@ function autoThemeDetection(){
 // ============================================================
 // SETTINGS PERSISTENCE
 // ============================================================
-// ════════════════════════════════════════════════════════════════
 // PERSISTENCIA GLOBAL — GitHub Gist (tiempo real, todos los usuarios)
 // El admin configura su token y Gist ID en el panel de admin.
 // Cuando guarda → se publica en GitHub → todos los visitantes
 // cargan esos datos al abrir el sitio.
-// ════════════════════════════════════════════════════════════════
 var _ghCfg=null;
 var _syncPending=false;
 function _loadGHConfig(){
@@ -4315,7 +4238,6 @@ function changeBrandColor(color, _save){
   // NO guardar cuando se llama desde applyUIChanges (render normal)
   if(_save===true) saveSettings();
 }
-// ════════════════════════════════════════════════════════════════
 function applyUIChanges(){
   var setTxt=function(id,v){var el=document.getElementById(id);if(el)el.innerText=v;};
   setTxt('site-title-ui',siteState.ui.title);
@@ -4480,14 +4402,8 @@ function checkDeepLink(){
     }
     if(modSlug && !found){
       var incomingNorm = _normSlug(modSlug);
-      found = games.find(function(g){
-        if(g.visible === false) return false;
-        var name = g.name || g.nombre || '';
-        var generated = (typeof slugifyTitle === 'function') ? _normSlug(slugifyTitle(name)) : _normSlug(name);
-        return generated === incomingNorm || _normSlug(name) === incomingNorm ||
-          (g.slug && _normSlug(g.slug) === incomingNorm) ||
-          (g.nombre_url && _normSlug(g.nombre_url) === incomingNorm);
-      }) || null;
+      found = games.find(function(g){return g.visible !== false && String(g.id) === String(modSlug);}) || null;
+      if(!found){found = games.find(function(g){if(g.visible === false) return false;var name = g.name || g.nombre || '';var generated = (typeof slugifyTitle === 'function') ? _normSlug(slugifyTitle(name)) : _normSlug(name);return generated === incomingNorm || _normSlug(name) === incomingNorm || (g.slug && _normSlug(g.slug) === incomingNorm) || (g.nombre_url && _normSlug(g.nombre_url) === incomingNorm);}) || null;}
       if(!found && incomingNorm.length >= 4){
         found = games.find(function(g){
           if(g.visible === false) return false;
@@ -4511,12 +4427,9 @@ function checkDeepLink(){
     }
   }catch(e){}
 }
-// ══════════════════════════════════════════════════════════════════════
 // SISTEMA DE PUNTUACIÓN Y COMENTARIOS — localStorage + tiempo real
 // Los datos persisten en el navegador y se sincronizan via GitHub Pages
 // con localStorage (cada usuario tiene sus datos guardados)
-// ══════════════════════════════════════════════════════════════════════
-// ── Rating (estrellas 1-5) ────────────────────────────────────────
 function _loadRatings(){
   try{return JSON.parse(localStorage.getItem('jd_ratings')||'{"total":0,"sum":0,"dist":[0,0,0,0,0],"userRating":0}');}
   catch(e){return{total:0,sum:0,dist:[0,0,0,0,0],userRating:0};}
@@ -4562,7 +4475,6 @@ function renderRatings(){
     }
   }
 }
-// ── Comentarios ────────────────────────────────────────────────────
 function _loadComments(){
   try{return JSON.parse(localStorage.getItem('jd_comments')||'[]');}
   catch(e){return[];}
@@ -4644,25 +4556,20 @@ function initRatingsAndComments(){
   // Cada juego tiene su propio sistema en el detail view (initDetRatingsComments).
   // Esta función se mantiene por compatibilidad pero no hace nada en la home.
 }
-// ════════════════════════════════════════════════════════════════
 // SISTEMA DE AUTENTICACIÓN — 100% localStorage
 // @gmail.com requerido. Envío de email vía EmailJS (gratuito).
 // Datos: jd_users[] / jd_session / jd_reset_codes
-// ════════════════════════════════════════════════════════════════
 var _AUTH = (function(){
-  // ── helpers de storage ──────────────────────────────────────
   function _getUsers(){ try{return JSON.parse(localStorage.getItem('jd_users')||'[]');}catch(e){return[];} }
   function _saveUsers(u){ try{localStorage.setItem('jd_users',JSON.stringify(u));}catch(e){} }
   function _getSession(){ try{return JSON.parse(localStorage.getItem('jd_session')||'null');}catch(e){return null;} }
   function _saveSession(s){ try{localStorage.setItem('jd_session',s?JSON.stringify(s):'null');}catch(e){} }
   function _getCodes(){ try{return JSON.parse(localStorage.getItem('jd_rcodes')||'{}');}catch(e){return{};} }
   function _saveCodes(c){ try{localStorage.setItem('jd_rcodes',JSON.stringify(c));}catch(e){} }
-  // ── validación ───────────────────────────────────────────────
   function _validGmail(e){ return /^[a-zA-Z0-9._%+\-]+@gmail\.com$/.test(e.trim()); }
   function _hash(s){
     var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(36);
   }
-  // ── register ─────────────────────────────────────────────────
   function register(username, email, pass){
     email=email.trim().toLowerCase(); username=username.trim();
     if(!username||username.length<3) return{ok:false,msg:'El nombre debe tener al menos 3 caracteres'};
@@ -4677,7 +4584,6 @@ var _AUTH = (function(){
     _saveSession({id:user.id,username:user.username,email:user.email});
     return{ok:true,user:user};
   }
-  // ── login ────────────────────────────────────────────────────
   function login(email, pass){
     email=email.trim().toLowerCase();
     var users=_getUsers();
@@ -4687,12 +4593,9 @@ var _AUTH = (function(){
     _saveSession({id:user.id,username:user.username,email:user.email});
     return{ok:true,user:user};
   }
-  // ── logout ───────────────────────────────────────────────────
   function logout(){ _saveSession(null); }
-  // ── session ──────────────────────────────────────────────────
   function getSession(){ return _getSession(); }
   function isLoggedIn(){ var s=_getSession(); return !!(s&&s.id); }
-  // ── reset password (código local, 6 dígitos) ──────────────────
   function sendResetCode(email){
     email=email.trim().toLowerCase();
     if(!_validGmail(email)) return{ok:false,msg:'Solo se aceptan correos @gmail.com'};
@@ -4731,12 +4634,10 @@ var _AUTH = (function(){
     delete codes[email]; _saveCodes(codes);
     return{ok:true};
   }
-  // ── get all users (para admin email panel) ───────────────────
   function getAllUsers(){ return _getUsers().map(function(u){return{id:u.id,username:u.username,email:u.email,joined:u.joined};}); }
   return{register:register,login:login,logout:logout,getSession:getSession,isLoggedIn:isLoggedIn,
          sendResetCode:sendResetCode,verifyResetCode:verifyResetCode,getAllUsers:getAllUsers};
 })();
-// ── UI Auth ─────────────────────────────────────────────────────
 function openAuthModal(tab){
   var m=document.getElementById('auth-modal');
   if(!m)return;
@@ -4917,10 +4818,8 @@ document.addEventListener('click',function(e){
   var m=document.getElementById('auth-modal');
   if(m&&e.target===m)closeAuthModal();
 });
-// ════════════════════════════════════════════════════════════════
 // RATINGS + COMENTARIOS POR JUEGO (en detail view)
 // Datos guardados como jd_gr_{gameId} y jd_gc_{gameId}
-// ════════════════════════════════════════════════════════════════
 var _currentGameId=null;
 function _loadGameRatings(gid){
   try{return JSON.parse(localStorage.getItem('jd_gr_'+gid)||'{"total":0,"sum":0,"dist":[0,0,0,0,0],"votes":{}}');}
@@ -5115,10 +5014,8 @@ function initDetRatingsComments(gameId){
 }
 function openEmailPanel(){}
 function closeEmailPanel(){}
-// ════════════════════════════════════════════════════════════════
 // SISTEMA DE ESCENAS ESTACIONALES — Tiempo real, panel de control
 // 12 escenas globales: geo base + 11 temas
-// ════════════════════════════════════════════════════════════════
 var SCENES = {
   none:   {label:'Ninguna',icon:'⬜',desc:'Solo figuras base'},
   navidad:{label:'Navidad',icon:'🎄',desc:'Árboles, copos, regalos'},
@@ -5174,7 +5071,6 @@ function _spawn(html,cls,sz,left,dur,delay,extra){
   _sceneEls.push(el);
   return el;
 }
-// ── ESCENAS ──────────────────────────────────────────────────────
 function _sceneNavidad(){
   var isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
   var items=[
@@ -5545,7 +5441,6 @@ function _fillGHInputs(){
   if(ti&&cfg.token)ti.value=cfg.token;
   if(gi&&cfg.gistId)gi.value=cfg.gistId;
 }
-// ════════════════════════════════════════════════════════════════
 function shareApp(){
   var url=_jdBaseUrl().replace(/\/$/, ''); // URL base limpia sin index.html
   var title='JoelDroid Mods YT — Mods Premium';
@@ -5670,9 +5565,7 @@ function refreshStats(){
   if(!_db){showToast('⚠️ Firebase no conectado');return;}
   _listenStats(); showToast('📊 Estadísticas en vivo activadas');
 }
-// ════════════════════════════════════════════════════════════════
 // Fix 5: Favicon con hash de la URL del logo — elimina caché definitivamente
-// ════════════════════════════════════════════════════════════════
 function _refreshFavicon(){
   // El favicon está embebido en base64 directamente en el HTML (data: URI).
   // No se sobreescribe con logo.png externo — siempre muestra el logo de JoelDroid.
@@ -5687,12 +5580,9 @@ function _initShareBtn(){
     btn.style.setProperty('--tooltip-display','none');
   }
 }
-// ════════════════════════════════════════════════════════════════
 // 🔥 MOTOR FIREBASE — Firestore + Auth en tiempo real
-// ════════════════════════════════════════════════════════════════
 //
 // REGLAS DE FIRESTORE (pega esto en Firebase Console → Firestore → Reglas):
-// ─────────────────────────────────────────────────────────────────
 // rules_version = '2';
 // service cloud.firestore {
 //   match /databases/{database}/documents {
@@ -5717,17 +5607,13 @@ function _initShareBtn(){
 //     }
 //   }
 // }
-// ─────────────────────────────────────────────────────────────────
-// ════════════════════════════════════════════════════════════════
 // 🔥 MOTOR FIREBASE — Sincronización global en tiempo real
 // Todos los visitantes ven los cambios del panel al instante.
 // El admin hace un cambio → Firestore → onSnapshot → todos los usuarios.
-// ════════════════════════════════════════════════════════════════
 var _db = null, _fbAuth = null, _fbUser = null;
 var _fbReady = false, _fbInitDone = false;
 var _fbModsUnsub = null, _fbCfgUnsub = null, _fbStatsUnsub = null;
 var _syncPollTimer = null, _lastSyncHash = '';
-// ── Inicializar Firebase con caché offline + reintentos inteligentes ──
 var _fbRetryCount = 0;
 function _initFirebase(){
   if(_fbInitDone) return;
@@ -5748,22 +5634,18 @@ function _initFirebase(){
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db     = firebase.firestore();
     _fbAuth = firebase.auth();
-    // ── Persistencia offline — UNA sola llamada ──
     _db.enablePersistence({ synchronizeTabs: false }).catch(function(){});
     // Sesión persistente — el admin no se desloguea al cerrar
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady = true;
-    // ── ARRANCAR LISTENERS (UNA SOLA VEZ) ─────────────────────
     _fbListenMods();
     _fbListenConfig();
     _fbListenStatsPublic();
-    // ── Reconexión automática al volver online ─────────────────
     window.addEventListener('online', function(){
       _fbListenMods();
       _fbListenConfig();
       _fbListenStatsPublic();
     });
-    // ── Escuchar autenticación ────────────────────────────────
     _fbAuth.onAuthStateChanged(function(user){
       _fbUser = user;
       _updateAdminBtns(user);
@@ -5793,16 +5675,13 @@ function _initFirebase(){
     setTimeout(_initFirebase, 5000);
   }
 }
-// ════════════════════════════════════════════════════════════════
 // LISTENERS EN TIEMPO REAL — se disparan en TODOS los dispositivos
 // cuando el admin hace cualquier cambio desde el panel
-// ════════════════════════════════════════════════════════════════
 // Escuchar mods — cuando admin agrega/edita/elimina un juego,
 // aparece/desaparece en tiempo real en TODOS los celulares del mundo
 function _fbListenMods(){
   if(!_db) return;
   if(_fbModsUnsub){ _fbModsUnsub(); _fbModsUnsub = null; }
-  // ── CACHÉ-FIRST: 3 capas — sessionStorage → localStorage → Firestore IndexedDB ──
   // Si __JD_STATIC_GAMES ya tiene datos, los juegos YA están pintados (0ms).
   // Firestore caché es la 3ª capa para sincronizar con datos más recientes.
   if(window.__JD_STATIC_GAMES && window.__JD_STATIC_GAMES.length){
@@ -5840,7 +5719,6 @@ function _fbListenMods(){
       }
     })
     .catch(function(){ /* caché vacía en primera visita — ignorar */ });
-  // ── PRIMERA VISITA SIN CACHÉ: obtener desde red con timeout de 2s ──
   // Si en 2 segundos no llega respuesta de Firestore, forzar un get()
   // para que los juegos aparezcan lo antes posible.
   var _fbFirstSnapReceived = false;
@@ -5877,7 +5755,6 @@ function _fbListenMods(){
       })
       .catch(function(){});
   }, 500); // fallback: 500ms
-  // ── TIEMPO REAL: actualiza desde red (puede llegar después) ───────
   _fbModsUnsub = _db.collection('mods')
     .orderBy('order', 'asc')
     .onSnapshot(function(snap){
@@ -5977,13 +5854,11 @@ function _fbListenConfig(){
       siteState = _mergeState(cfg);
       siteState.gamesList = prevGames; // los juegos vienen de _fbListenMods
       _applyAllUI();
-      // ── TRADUCCION DINAMICA: cuando el admin cambia textos en el Panel
       // (anuncios, banners, etc.), re-traducir en todos los idiomas activos.
       if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
         _trMem = {};  // limpiar cache — nombre correcto de la variable
         setTimeout(function(){ applyTranslations(currentLang); }, 250);
       }
-      // ── FAVICON + LOGO DINAMICO: si el admin cambio el logo, actualizar para todos ──
       _refreshFavicon();
       // Actualizar también el logo en el header y detail view con la nueva URL
       if(cfg && cfg.ui && cfg.ui.logoUrl){
@@ -5997,10 +5872,7 @@ function _fbListenConfig(){
       }
     });
 }
-// ════════════════════════════════════════════════════════════════
 // ESCRITURA — Solo el admin puede escribir (lo garantizan las Reglas)
-// ════════════════════════════════════════════════════════════════
-// ── Guardar un juego en Firestore ──────────────────────────────
 function _fbSaveGame(game){
   if(!_db || !_isAdmin()) return Promise.resolve();
   var id = String(game.id || Date.now());
@@ -6013,14 +5885,12 @@ function _fbSaveGame(game){
     .then(function(){ _updateSyncUI(true, '✅ Juego guardado en Firebase'); })
     .catch(function(e){ _updateSyncUI(false, '❌ Error guardando juego: '+e.message); return Promise.reject(e); });
 }
-// ── Eliminar un juego de Firestore ─────────────────────────────
 function _fbDeleteGame(id){
   if(!_db || !_isAdmin()) return Promise.resolve();
   return _db.collection('mods').doc(String(id)).delete()
     .then(function(){ _updateSyncUI(true, '✅ Juego eliminado de Firebase'); })
     .catch(function(e){ _updateSyncUI(false, '❌ Error eliminando juego: '+e.message); return Promise.reject(e); });
 }
-// ── Guardar configuración del sitio en Firestore (logo, colores, banners, etc.) ──
 function _fbSaveSiteConfig(){
   if(!_db || !_isAdmin()) return;
   var cfg = Object.assign({}, siteState);
@@ -6030,7 +5900,6 @@ function _fbSaveSiteConfig(){
     .then(function(){ _updateSyncUI(true, '✅ Configuración guardada — Conexión Segura ✓'); })
     .catch(function(e){ _updateSyncUI(false, '❌ Error guardando config: '+e.message); });
 }
-// ── Migrar juegos locales a Firestore si está vacío ────────────
 function _autoMigrateToFirestore(){
   if(!_db || !_isAdmin()) return;
   var games = siteState.gamesList || [];
@@ -6050,7 +5919,6 @@ function _autoMigrateToFirestore(){
     .then(function(){ _updateSyncUI(true, '✅ '+games.length+' juegos migrados a Firebase'); })
     .catch(function(e){ _updateSyncUI(false, '❌ Error en migración: '+e.message); });
 }
-// ── Migrar manualmente desde el panel ─────────────────────────
 function fbMigrateLocalGames(){
   _autoMigrateToFirestore();
 }
@@ -6081,9 +5949,7 @@ function emergencyReset(){ _jdClearOwnStorageOnly(); window.location.reload(); }
 function fbAdminLogin(){}
 function fbAdminLogout(){}
 /* dead code removed: testJSONBin */
-// ════════════════════════════════════════════════════════════════
 // HELPERS
-// ════════════════════════════════════════════════════════════════
 function _isAdmin(){
   // Verificación primaria: usuario Firebase activo
   if(_fbUser && ADMIN_UID && _fbUser.uid === ADMIN_UID) return true;
@@ -6209,19 +6075,14 @@ function _syncSave(msg){
     _updateSyncUI(null, msg||'Guardado localmente');
   }
 }
-// ══════════════════════════════════════════════════════════════════
 // ARRANQUE DE LA APP — Todo dentro de DOMContentLoaded
 // Elimina el error "Cannot set properties of null"
 // porque el DOM ya existe cuando se ejecuta el código
-// ══════════════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════════
 // SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
 // Flujo: irADescarga() → sessionStorage + localStorage (doble respaldo)
 //        → modal anuncio 5s → descarga.html?id=X&modo=Y
 // descarga.html lee jd_dl_payload desde sessionStorage (instantáneo)
 // o localStorage (fallback cross-tab) o re-carga desde Firebase.
-// ════════════════════════════════════════════════════════════════
 // Prefetch de descarga.html al cargar el index
 (function _prefetchDescarga() {
   try {
@@ -6292,7 +6153,6 @@ window.addEventListener('DOMContentLoaded', function() {
   _appInited = true;
   // Manejar redireccionamiento desde 404.html
   if(_handle404Redirect()) return;
-  // ── PASO 0: Carga ultra-rápida — 3 capas de caché ──────────────
   // Capa 1: __JD_STATIC_GAMES (sessionStorage+localStorage ya en memoria)
   // Capa 2: _loadGamesFromCache() renderiza inmediatamente si hay datos
   // Capa 3: Firebase actualiza en segundo plano
@@ -6305,7 +6165,6 @@ window.addEventListener('DOMContentLoaded', function() {
   if(!_cacheHit && (!_list || !_list.querySelector('.jd-card'))){
     _renderSkeletons(12);
   }
-  // ── Tema y language — usa la detección pre-render del <head> si está disponible
   if(!loadThemePreference()) autoThemeDetection();
   // __JD_PRELANG fue detectado ANTES del render (script inline del <head>)
   // Si existe, lo usamos directamente — evita flash y doble detección
@@ -6313,24 +6172,20 @@ window.addEventListener('DOMContentLoaded', function() {
     || (typeof window.__JD_PRELANG !== 'undefined' ? window.__JD_PRELANG : null)
     || detectBrowserLanguage();
   currentLang = savedLang;
-  // ── Renderizar interfaz con datos locales sin repintar si el cargador instantáneo ya pintó tarjetas
   if(!_cacheHit || !_list || !_list.querySelector('.jd-card')) renderGames();
   applyUIChanges();
   applyTranslations(savedLang);
   checkDeepLink();
   if(location.hash==='#policies') setTimeout(function(){ try{jdOpenPolicies();}catch(e){} },0);
-  // ── Elementos seguros: ya existen porque DOMContentLoaded garantiza DOM listo
   var cy = document.getElementById('current-year');
   if(cy) cy.textContent = new Date().getFullYear();
   var cyd = document.getElementById('current-year-det');
   if(cyd) cyd.textContent = new Date().getFullYear();
-  // ── Fondo animado, escena, FABs
   setTimeout(function(){ applyBgTheme(siteState.bgTheme||'neon'); }, 0);
   _updateFAB();
   _restoreScene();
   setTimeout(_fillGHInputs, 500);
   _initShareBtn();
-  // ── Seguridad anti-hack (dentro de DOM listo)
   try{
     (function _antiHack(){
       // Anti-clickjacking ELIMINADO: interfería con iframes de Monetag
@@ -6385,7 +6240,6 @@ window.addEventListener('DOMContentLoaded', function() {
       document.head.appendChild(_wm);
     })();
   }catch(_e){}
-  // ── 🔥 Firebase: arranca DESPUÉS del DOM
   //    _fbListenMods y _fbListenConfig activarán onSnapshot
   //    → cualquier cambio del admin aparece en tiempo real para TODOS
   //    Se llama con setTimeout(0) para no bloquear el render inicial
@@ -6399,7 +6253,6 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   })();
   setTimeout(function(){ try{ _trackVisit(); }catch(e){} }, 3000);
-  // ── Performance: prefetch descarga.html ─────────────────────
   try{
     // Service Worker omitido (compatibilidad TrebEdit)
   }catch(e){}
@@ -6527,9 +6380,9 @@ window.onload=function(){
   document.addEventListener('DOMContentLoaded', sync);
 })();
 </script>
-<div id="jd-cookie-banner" role="status" aria-live="polite" aria-label="Aviso de cookies" style="display:none;position:fixed;right:8px;bottom:8px;z-index:900;max-width:178px;background:rgba(15,23,42,.94);color:#fff;border:1px solid rgba(96,165,250,.32);border-radius:8px;padding:6px 7px;box-shadow:0 4px 14px rgba(0,0,0,.28);font:10.5px/1.25 system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
-  <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px"><span style="font-weight:800">Cookies</span><a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')" style="color:#7dd3fc;text-decoration:none;margin-left:auto">Info</a></div>
-  <div style="display:flex;gap:4px"><button onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies" style="flex:1;border:0;border-radius:5px;padding:4px 5px;background:#22c55e;color:#07120a;font-size:10px;font-weight:800">OK</button><button onclick="jdCookieConsent('reject')" aria-label="Solo cookies necesarias" style="flex:1;border:0;border-radius:5px;padding:4px 5px;background:#334155;color:#fff;font-size:10px;font-weight:700">No</button></div>
+<div id="jd-cookie-banner" role="status" aria-live="polite" aria-label="Aviso de cookies" style="display:none;position:fixed;right:6px;bottom:6px;z-index:60;width:118px;max-width:32vw;background:rgba(15,23,42,.90);color:#fff;border:1px solid rgba(96,165,250,.25);border-radius:7px;padding:4px 5px;box-shadow:0 2px 8px rgba(0,0,0,.22);font:9px/1.15 system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="font-weight:800">Cookies</span><a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')" style="color:#7dd3fc;text-decoration:none;margin-left:auto">Info</a></div>
+  <div style="display:flex;gap:3px"><button onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies" style="flex:1;border:0;border-radius:4px;padding:3px 4px;background:#22c55e;color:#07120a;font-size:9px;font-weight:800">OK</button><button onclick="jdCookieConsent('reject')" aria-label="Solo cookies necesarias" style="flex:1;border:0;border-radius:4px;padding:3px 4px;background:#334155;color:#fff;font-size:9px;font-weight:700">No</button></div>
 </div>
 <script>
 (function(){try{var KEY='jd_cookie_consent';try{if(!localStorage.getItem(KEY)){setTimeout(function(){var b=document.getElementById('jd-cookie-banner');if(b)b.style.display='block';},900);}}catch(e){}
