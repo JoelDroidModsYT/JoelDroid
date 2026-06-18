@@ -551,21 +551,22 @@
     }
     _loadRecommended();
 
-    /* Clic en botón → Direct Link Monetag (pestaña nueva) + descarga APK (pestaña actual) */
+    /* Clic en botón → abre directamente el enlace */
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
         if (!timerDone) return;
         var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
-        if (!url || url === '#') return;
-
-        // 1) Direct Link de Monetag en pestaña nueva (un solo window.open por clic)
-        try {
-          window.open('https://omg10.com/4/11164434', '_blank', 'noopener,noreferrer');
-        } catch (err) {}
-
-        // 2) Descarga del APK en la pestaña actual (navegación normal, no es pop-up)
-        window.location.href = url;
+        if (url && url !== '#') {
+        // Abre el Direct Link como un Popunder limpio en pestaña nueva completa
+var linkAnuncio = document.createElement('a');
+linkAnuncio.href = 'https://omg10.com/4/11164434';
+linkAnuncio.target = '_blank';
+linkAnuncio.rel = 'noopener noreferrer';
+linkAnuncio.click();
+        
+          
+        }
       });
     }
 
