@@ -1,35 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ MONETAG MULTITAG — UN SOLO SCRIPT, prioridad máxima (recupera CPM alto histórico) ══ -->
-<script src="//quge5.com/88/tag.min.js" data-zone="250925" data-cfasync="false" fetchpriority="high"></script>
+<!-- ══ CPM URGENTE — volver a la zona histórica que generaba CPM alto ══ -->
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 
-<!-- ══ SLUG RESOLVER — convierte /?mod=slug-bonito → ID real de Firestore antes de que la app lea el parámetro.
-     Edita JD_SLUG_MAP para añadir tus slugs amigables. Si el slug no está en el mapa, se mantiene tal cual. ══ -->
+<!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
   var JD_SLUG_MAP = {
-    // 'slug-amigable': 'IdRealDeFirestore',
     'euro-truck-simulator-2': 'LwoLXfJV5dYt96ipaSYB',
     'bus-simulator-indonesia': 'BzIn6q9GWiFHhfgOePBl',
     'off-the-road-2': 'lc312vOotB1Zv9FkjIzt',
     'global-truck-online': 'JFjfn0C85QG8HfZcBL1t'
   };
+  var JD_ID_TO_SLUG = {};
   try{
-    var p = new URLSearchParams(location.search);
-    var m = p.get('mod');
-    if(m && JD_SLUG_MAP[m]){
-      p.set('mod', JD_SLUG_MAP[m]);
-      var newUrl = location.pathname + '?' + p.toString() + location.hash;
-      history.replaceState(null,'',newUrl);
-    }
+    Object.keys(JD_SLUG_MAP).forEach(function(slug){ JD_ID_TO_SLUG[JD_SLUG_MAP[slug]] = slug; });
     window.__JD_SLUG_MAP = JD_SLUG_MAP;
+    window.__JD_ID_TO_SLUG = JD_ID_TO_SLUG;
   }catch(e){}
 })();</script>
-
-
-
-<link rel="preconnect" href="https://e2ertt.com" crossorigin>
-<link rel="dns-prefetch" href="https://e2ertt.com">
+<script>(function(){var APP_VERSION='1.2.7-cpm-restore-zone-233464';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){var APP_VERSION='1.2.6-cpm-seo-monetag-stability';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
@@ -170,7 +163,7 @@
 <script>
 (function _jdSafeVersionMarker(){
   try{
-    localStorage.setItem('jd_site_version','20260621_CPM_SEO_MONETAG_STABILITY_v126');
+    localStorage.setItem('jd_site_version','20260621_CPM_RESTORE_ZONE_233464_v127');
   }catch(e){}
 })();
 </script>
@@ -2690,8 +2683,31 @@ function _jdVisitScore(g){
   return live > 0 ? live : seeded;
 }
 
+function _jdNormalizePublicSlug(s){
+  try{ s = decodeURIComponent(String(s || '')); }catch(e){ s = String(s || ''); }
+  return s.normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/\.html?$/i,'')
+    .replace(/-Mod$/i,'')
+    .replace(/Mod$/i,'')
+    .replace(/[^a-zA-Z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')
+    .toLowerCase() || 'mod';
+}
+function _jdPublicSlug(g){
+  if(!g) return 'mod';
+  var id = String(g.id || '').trim();
+  try{
+    var rev = window.__JD_ID_TO_SLUG || {};
+    if(id && rev[id]) return rev[id];
+  }catch(e){}
+  var explicit = (g.slug || g.nombre_url || g.urlSlug || '').toString().trim();
+  if(explicit) return _jdNormalizePublicSlug(explicit);
+  var name = (g.name || g.nombre || '').toString().trim();
+  if(name) return _jdNormalizePublicSlug(name);
+  return id || 'mod';
+}
 function _jdSlug(g){
-  return (g && (g.id || g.slug) ) || encodeURIComponent(((g&&g.name)||'').toLowerCase().replace(/\s+/g,'-'));
+  return _jdPublicSlug(g);
 }
 function _jdUpdateItemListJsonLd(games){
   try{
@@ -3161,7 +3177,7 @@ function showDetail(id){
   // URL limpia automáticamente al abrir la ficha de detalle.
   // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA-Mod
   try {
-    var _slug = String(game.id || id);
+    var _slug = (typeof _jdPublicSlug === 'function') ? _jdPublicSlug(game) : String(game.id || id);
     var _shareUrl = _jdBaseUrl() + '?mod=' + encodeURIComponent(_slug);
     window.history.replaceState({ modId: String(id), slug: _slug }, document.title, _shareUrl);
   } catch(e) {}
@@ -3470,7 +3486,7 @@ function shareGame(){
   //
   // Ejemplo: https://joeldroidmods.com/?mod=Truck-Simulator-PRO-USA
   // ──────────────────────────────────────────────────────────────────
-  var slug   = slugifyTitle(game.name);
+  var slug   = (typeof _jdPublicSlug === 'function') ? _jdPublicSlug(game) : slugifyTitle(game.name);
   var base   = _jdBaseUrl();
   var shareUrl = base + '?mod=' + encodeURIComponent(slug);
 
@@ -4004,6 +4020,11 @@ function checkDeepLink(){
     var modSlug  = window.__JD_DEEPLINK.mod;
     var directId = window.__JD_DEEPLINK.id;
     var gameSlug = window.__JD_DEEPLINK.game;
+    try{
+      if(modSlug && !directId && window.__JD_SLUG_MAP && window.__JD_SLUG_MAP[modSlug]){
+        directId = window.__JD_SLUG_MAP[modSlug];
+      }
+    }catch(_mapErr){}
     if(!modSlug && !directId && !gameSlug) return;
 
     function _normSlug(s){
@@ -5855,9 +5876,9 @@ function irADescarga(gameId, modo) {
   // Serializar TODOS los campos → sessionStorage + localStorage (doble respaldo)
   if (game) {
     try {
-      var _slug = (typeof slugifyTitle === 'function')
-        ? slugifyTitle(game.name || game.nombre || '')
-        : String(gameId);
+      var _slug = (typeof _jdPublicSlug === 'function')
+        ? _jdPublicSlug(game)
+        : ((typeof slugifyTitle === 'function') ? slugifyTitle(game.name || game.nombre || '') : String(gameId));
       var _link1 = game.downloadButtonLink1 || game.enlace || game.link || '#';
       var _link2 = game.downloadButtonLink2 || game.enlace2 || _link1;
       var payload = {
