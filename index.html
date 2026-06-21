@@ -7,11 +7,13 @@
 
 <script>(function(s){s.dataset.zone='10800679',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 
+<script src="https://5gvci.com/act/files/tag.min.js?z=10922349" data-cfasync="false" async></script>
+
 
 
 <link rel="preconnect" href="https://e2ertt.com" crossorigin>
 <link rel="dns-prefetch" href="https://e2ertt.com">
-<script>(function(){var APP_VERSION='1.2.5-cpm-recovery-monetag-priority';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.2.6-cpm-seo-monetag-stability';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -151,7 +153,7 @@
 <script>
 (function _jdSafeVersionMarker(){
   try{
-    localStorage.setItem('jd_site_version','20260618_CPM_RECOVERY_v124');
+    localStorage.setItem('jd_site_version','20260621_CPM_SEO_MONETAG_STABILITY_v126');
   }catch(e){}
 })();
 </script>
@@ -4049,7 +4051,7 @@ function renderRecommendedGames(currentId){
           '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'+
           '<span>'+tStr('Ver Juego')+'</span>'+
         '</button>'+
-        '<button onclick="showDetailAndScroll('+g.id+')" class="rec-visit-btn flex-1 justify-center" style="background:linear-gradient(135deg,'+colorPalette.green.hex+','+colorPalette.cyan.hex+');">'+
+        '<button onclick="showDetailAndScroll(\''+String(g.id).replace(/'/g,'\\\'')+'\')" class="rec-visit-btn flex-1 justify-center" style="background:linear-gradient(135deg,'+colorPalette.green.hex+','+colorPalette.cyan.hex+');">'+
           '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
           '<span>'+tStr('Descargar Mod')+'</span>'+
         '</button>'+
@@ -5547,10 +5549,12 @@ function checkDeepLink(){
       found = games.find(function(g){
         if(g.visible === false) return false;
         var name = g.name || g.nombre || '';
+        var rawId = String(g.id || '');
+        var rawSlug = String(g.slug || g.nombre_url || '');
         var generated = (typeof slugifyTitle === 'function') ? _normSlug(slugifyTitle(name)) : _normSlug(name);
-        return generated === incomingNorm || _normSlug(name) === incomingNorm ||
-          (g.slug && _normSlug(g.slug) === incomingNorm) ||
-          (g.nombre_url && _normSlug(g.nombre_url) === incomingNorm);
+        return rawId === String(modSlug) || _normSlug(rawId) === incomingNorm ||
+          (rawSlug && (rawSlug === String(modSlug) || _normSlug(rawSlug) === incomingNorm)) ||
+          generated === incomingNorm || _normSlug(name) === incomingNorm;
       }) || null;
       if(!found && incomingNorm.length >= 4){
         found = games.find(function(g){
@@ -7982,9 +7986,6 @@ svg.lucide{display:inline-block;vertical-align:middle}
 })();
 </script>
 
-
-
-<script src="https://5gvci.com/act/files/tag.min.js?z=10922349" data-cfasync="false" async></script>
 </body>
 
 
