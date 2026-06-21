@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /descarga.html
+Disallow: /*?utm_*
+Disallow: /*&utm_*
 
-# JoelDroid Mods usa un único sistema indexable:
-# home y fichas dinámicas /?mod=ID. No se referencia jd-redirects.js ni /mods/*.html.
-
+# JoelDroid Mods — un único sistema indexable:
+# home (/) + fichas dinámicas /?mod=slug-amigable
 Sitemap: https://joeldroidmods.com/sitemap.xml

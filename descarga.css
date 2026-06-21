@@ -1,0 +1,135 @@
+/* ===== Block 1 ===== */
+/* ── Reset ── */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto}
+    body{
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      background:#0c1425;color:#fff;
+      -webkit-font-smoothing:antialiased;
+      -webkit-tap-highlight-color:transparent;
+      animation:jdFadeIn .18s ease-out both;
+    }
+    @keyframes jdFadeIn{from{opacity:0}to{opacity:1}}
+
+    /* ── Layout ── */
+    .dl-page{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:stretch}
+
+    /* ── Nav ── */
+    .dl-nav{
+      width:100%;flex-shrink:0;
+      background:rgba(6,11,24,.97);
+      border-bottom:1px solid rgba(37,99,235,.18);
+      padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+    }
+    .dl-back-btn{
+      display:flex;align-items:center;gap:4px;
+      background:transparent;border:none;
+      color:rgba(255,255,255,.8);font-size:13px;font-weight:600;
+      cursor:pointer;padding:6px 2px;text-decoration:none;
+      font-family:'Inter',sans-serif;touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .dl-back-btn:active{opacity:.5}
+    .dl-nav-logo{display:flex;align-items:center;gap:10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    .dl-nav-logo-icon{
+      width:36px;height:36px;border-radius:20%;flex-shrink:0;
+      background:linear-gradient(135deg,#2563eb,#06b6d4);
+      box-shadow:0 0 10px rgba(37,99,235,.45);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .logo-zap{animation:logoGlow 2s infinite alternate ease-in-out}
+    @keyframes logoGlow{
+      0%  {filter:drop-shadow(0 0 2px rgba(255,255,255,.5));transform:scale(1)}
+      100%{filter:drop-shadow(0 0 6px rgba(255,255,255,1));transform:scale(1.1)}
+    }
+    .dl-nav-logo-texts{display:flex;flex-direction:column}
+    .dl-nav-logo-title{font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;line-height:1;color:#fff}
+    .dl-nav-logo-sub{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.38em;opacity:.55;color:rgba(255,255,255,.7)}
+
+    /* ── Body ── */
+    .dl-body{flex:1;width:100%;max-width:480px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:0}
+
+    /* ── Hero ── */
+    .dl-hero{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;margin-bottom:8px}
+    .dl-hero-icon{width:105px;height:105px;border-radius:22px;object-fit:cover;border:2px solid rgba(255,255,255,.1);box-shadow:0 8px 28px rgba(0,0,0,.55);background:linear-gradient(135deg,#0a0f18,#0d1a2e)}
+    .dl-hero-icon-ph{width:105px;height:105px;border-radius:22px;border:2px solid rgba(255,255,255,.1);box-shadow:0 8px 28px rgba(0,0,0,.55);background:linear-gradient(135deg,#0a0f18,#0d1a2e);display:flex;align-items:center;justify-content:center;font-size:42px}
+    .dl-hero-name{font-size:1.05rem;font-weight:400;line-height:1.3;color:#e2e8f0;text-align:center;max-width:100%;padding:0 8px;letter-spacing:-.01em;word-break:break-word;white-space:normal;overflow:visible}
+    .dl-hero-name strong{font-weight:700;color:#fff}
+    .dl-hero-android{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:rgba(255,255,255,.5)}
+    .dl-hero-check{width:15px;height:15px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 6px rgba(34,197,94,.6)}
+
+    /* ── Stats ── */
+    .dl-stats-row{display:flex;gap:6px;width:100%;flex-shrink:0;margin-bottom:8px}
+    .dl-stat-chip{flex:1;display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:6px 4px}
+    .dl-stat-label{font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.38);margin-bottom:2px}
+    .dl-stat-value{font-size:10px;font-weight:900;color:#e2e8f0}
+    .dl-stat-value.green{color:#4ade80}
+    .dl-stat-value.blue {color:#93c5fd}
+
+    /* ── Contador ── */
+    .dl-counter-section{display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0;width:100%}
+    .dl-waiting-text{font-size:9px;font-weight:800;letter-spacing:.18em;color:rgba(148,197,253,.65);text-align:center;text-transform:uppercase;padding:5px 14px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:20px}
+    .dl-counter-row{display:flex;align-items:center;gap:18px;width:100%;background:linear-gradient(135deg,rgba(15,23,42,.9),rgba(10,17,32,.95));border:1px solid rgba(37,99,235,.25);border-radius:20px;padding:16px 18px;box-shadow:0 0 24px rgba(37,99,235,.12),inset 0 1px 0 rgba(255,255,255,.04);position:relative;overflow:hidden}
+    .dl-counter-row::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.5),transparent)}
+    .dl-counter-ring{width:90px;height:90px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 10px rgba(37,99,235,.35))}
+    .dl-counter-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+    .dl-counter-ring circle{fill:none}
+    .dl-ring-bg   {stroke:rgba(255,255,255,.07);stroke-width:3}
+    .dl-ring-track{stroke:rgba(30,64,175,.2);stroke-width:10}
+    .dl-ring-fg{stroke:url(#ringGrad);stroke-linecap:round;stroke-width:4;transition:stroke-dashoffset .9s linear;filter:drop-shadow(0 0 5px rgba(56,189,248,.7))}
+    .dl-counter-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+    .dl-counter-num{font-size:2.2rem;font-weight:900;line-height:1;color:#fff;letter-spacing:-.04em;text-shadow:0 0 20px rgba(56,189,248,.6)}
+    .dl-counter-label{font-size:6px;font-weight:800;color:rgba(148,197,253,.5);letter-spacing:.15em;text-transform:uppercase;margin-top:1px}
+    .dl-counter-info{flex:1;display:flex;flex-direction:column;gap:6px}
+    .dl-counter-info-txt{font-size:11px;font-weight:800;color:rgba(255,255,255,.8);line-height:1.4;letter-spacing:-.01em}
+    .dl-progress-wrap{width:100%;background:rgba(255,255,255,.07);border-radius:99px;height:4px;overflow:hidden}
+    .dl-progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,#2563eb,#38bdf8);transition:width .9s linear;box-shadow:0 0 5px rgba(56,189,248,.5);width:0%}
+    .dl-progress-pct{font-size:9px;font-weight:700;color:rgba(148,197,253,.5);text-align:right;letter-spacing:.05em}
+
+    /* ── Botón final ── */
+    @keyframes btnPulse{
+      0%,100%{box-shadow:0 0 28px rgba(37,99,235,.55),0 6px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+      50%    {box-shadow:0 0 46px rgba(37,99,235,.85),0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18)}
+    }
+    @keyframes dlIconBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(4px)}}
+    @keyframes btnShine{0%{left:-100%}60%,100%{left:150%}}
+
+    .dl-btn-final{display:none;width:100%;padding:14px 16px;border:none;border-radius:18px;background:linear-gradient(135deg,#1d4ed8 0%,#0ea5e9 55%,#06b6d4 100%);color:#fff;cursor:pointer;transition:all .25s;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 28px rgba(37,99,235,.55),0 6px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18);position:relative;overflow:hidden;animation:btnPulse 2.5s ease-in-out infinite;flex-shrink:0;text-decoration:none;font-family:'Inter',sans-serif}
+    .dl-btn-final.visible{display:flex}
+    .dl-btn-final:active{transform:scale(.97);opacity:.92}
+    .dl-btn-final::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:btnShine 2.8s ease-in-out infinite}
+    .dl-btn-icon-wrap{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;flex-shrink:0;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);animation:dlIconBounce 1.4s ease-in-out infinite}
+    .dl-btn-text-col{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1;min-width:0;overflow:hidden}
+    .dl-btn-label-top{font-size:7px;font-weight:700;opacity:.65;letter-spacing:.22em;text-transform:uppercase;line-height:1;white-space:nowrap;overflow:hidden;max-width:100%;animation:dlLabelScroll 5s linear infinite alternate}
+    @keyframes dlLabelScroll{0%,30%{transform:translateX(0)}70%,100%{transform:translateX(calc(-100% + 120px))}}
+    .dl-btn-game-title{font-size:12px;font-weight:700;line-height:1.25;color:#fff;white-space:normal;word-break:break-word;max-width:100%;letter-spacing:-.01em;overflow-wrap:break-word}
+    .dl-btn-size-badge{flex-shrink:0;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 10px;font-size:8px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
+
+    /* ── Juegos recomendados ── */
+    .dl-reco-section{width:100%;margin-top:18px;display:none;flex-direction:column;gap:10px}
+    .dl-reco-section.visible{display:flex}
+    .dl-reco-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
+    .dl-reco-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;color:rgba(148,197,253,.78)}
+    .dl-reco-count{font-size:8px;font-weight:900;color:rgba(255,255,255,.38);text-transform:uppercase;white-space:nowrap}
+    .dl-reco-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+    .dl-reco-card{min-width:0;text-decoration:none;color:#fff;background:linear-gradient(135deg,rgba(15,23,42,.92),rgba(10,17,32,.98));border:1px solid rgba(37,99,235,.22);border-radius:16px;padding:9px;display:flex;gap:9px;align-items:center;box-shadow:0 0 18px rgba(37,99,235,.08),inset 0 1px 0 rgba(255,255,255,.04);overflow:hidden;touch-action:manipulation}
+    .dl-reco-card:active{transform:scale(.98);opacity:.9}
+    .dl-reco-img{width:42px;height:42px;border-radius:11px;object-fit:cover;flex-shrink:0;background:linear-gradient(135deg,#0a0f18,#0d1a2e);border:1px solid rgba(255,255,255,.08)}
+    .dl-reco-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+    .dl-reco-name{font-size:9px;font-weight:900;line-height:1.25;color:#e2e8f0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .dl-reco-meta{font-size:7px;font-weight:800;color:rgba(148,197,253,.48);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dl-reco-badge{font-size:7px;font-weight:900;color:#4ade80;white-space:nowrap}
+
+    /* ── Zona de anuncios Monetag ── */
+    /*
+     * Esta zona está completamente libre: sin display:none, sin z-index que tape,
+     * sin overflow:hidden que recorte, sin pointer-events bloqueados.
+     * Monetag puede renderizar banners, popunders y formatos nativos sin restricciones.
+     */
+    .monetag-slot{
+      width:100%;
+      display:block;
+      text-align:center;
+      margin-top:16px;
+      /* Sin min-height forzado — Monetag define su propio tamaño */
+    }
