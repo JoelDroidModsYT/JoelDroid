@@ -271,21 +271,17 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </head>
 <body class="no-scrollbar">
 <script>
-/* ══ THEME BOOTSTRAP (anti-FOUC) — oscuro por defecto + AUTO real ══ */
+/* ══ THEME BOOTSTRAP (anti-FOUC) — CLARO por defecto, oscuro opcional ══ */
 (function(){
   try{
     var manual = localStorage.getItem('jd_manual_theme')==='1';
     var saved  = localStorage.getItem('darkMode'); // 'dark' | 'light'
     var isDark;
     if(manual && saved){ isDark = (saved==='dark'); }
-    else {
-      // AUTO: respeta el sistema operativo del usuario (no la hora)
-      var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-      isDark = mql ? mql.matches : true; // por defecto: oscuro
-    }
+    else { isDark = false; } // ► Modo CLARO por defecto en visitas nuevas
     if(!isDark) document.body.classList.add('light-mode');
     window.__JD_INITIAL_DARK = isDark;
-  }catch(e){ /* por defecto oscuro */ }
+  }catch(e){ document.body.classList.add('light-mode'); }
 })();
 </script>
 
@@ -2399,7 +2395,7 @@ var lazyObserver=null; // kept for legacy compat
 // STATE
 // ============================================================
 var currentDetailId=null;
-var isDarkMode=true;
+var isDarkMode=false;
 var currentFilter='all';
 /* ═══ CARGA INSTANTÁNEA DE ICONOS POR URL EXTERNA ═══
    Las imágenes de Firebase Storage ya viven en CDN de Google y cargan rápido.
@@ -3661,23 +3657,11 @@ function loadThemePreference(){
   return false;
 }
 function autoThemeDetection(){
-  // AUTO POR HORA LOCAL: 06:00-18:59 => modo CLARO ; 19:00-05:59 => modo OSCURO
-  function _isNight(){ var h=new Date().getHours(); return (h>=19 || h<6); }
-  isDarkMode = _isNight();
-  document.body.classList.toggle('light-mode',!isDarkMode);
+  // ► Sin manual: CLARO por defecto (modo principal del sitio).
+  if(localStorage.getItem('jd_manual_theme')==='1') return;
+  isDarkMode = false;
+  document.body.classList.add('light-mode');
   _jdSyncThemeIcon();
-  // Re-evaluar cada 15 min mientras el usuario tenga la pestaña abierta
-  if(!window.__jdAutoThemeTimer){
-    window.__jdAutoThemeTimer = setInterval(function(){
-      if(localStorage.getItem('jd_manual_theme')==='1') return;
-      var night=_isNight();
-      if(night!==isDarkMode){
-        isDarkMode=night;
-        document.body.classList.toggle('light-mode',!isDarkMode);
-        _jdSyncThemeIcon();
-      }
-    }, 15*60*1000);
-  }
 }
 // Sincroniza el icono del tema reemplazando el nodo (lucide a veces no
 // re-renderiza el mismo <svg>, lo que provocaba que el primer click no

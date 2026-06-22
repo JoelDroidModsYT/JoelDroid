@@ -102,7 +102,7 @@
     .dl-btn-text-col{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1;min-width:0;overflow:hidden}
     .dl-btn-label-top{font-size:7px;font-weight:700;opacity:.65;letter-spacing:.22em;text-transform:uppercase;line-height:1;white-space:nowrap;overflow:hidden;max-width:100%;animation:dlLabelScroll 5s linear infinite alternate}
     @keyframes dlLabelScroll{0%,30%{transform:translateX(0)}70%,100%{transform:translateX(calc(-100% + 120px))}}
-    .dl-btn-game-title{font-size:12px;font-weight:700;line-height:1.25;color:#fff;white-space:normal;word-break:break-word;max-width:100%;letter-spacing:-.01em;overflow-wrap:break-word}
+    .dl-btn-game-title{font-size:13px;font-weight:800;line-height:1.15;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.015em;display:block}
     .dl-btn-size-badge{flex-shrink:0;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 10px;font-size:8px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
 
     /* ── Juegos recomendados ── */
@@ -133,3 +133,82 @@
       margin-top:16px;
       /* Sin min-height forzado — Monetag define su propio tamaño */
     }
+
+    /* ════════════════════════════════════════════════════════════════
+       ► MODO CLARO (predeterminado del sitio)
+       Botones planos, sin sombras ni resplandores cyberpunk heredados.
+       Las zonas de Monetag NO se tocan: sin display:none ni pointer-events:none.
+    ════════════════════════════════════════════════════════════════ */
+    html.light-mode, body.light-mode{
+      background:#f0f4f8 !important;
+      color:#0f172a !important;
+    }
+    body.light-mode .dl-nav{
+      background:rgba(255,255,255,.98);
+      border-bottom:1px solid rgba(37,99,235,.18);
+    }
+    body.light-mode .dl-back-btn{color:#0f172a}
+    body.light-mode .dl-nav-logo-title{color:#0f172a}
+    body.light-mode .dl-nav-logo-sub{color:rgba(15,23,42,.55)}
+    body.light-mode .dl-hero-icon,
+    body.light-mode .dl-hero-icon-ph{
+      border:1px solid rgba(15,23,42,.12);
+      box-shadow:0 4px 14px rgba(15,23,42,.08);
+      background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
+    }
+    body.light-mode .dl-hero-name{color:#0f172a}
+    body.light-mode .dl-hero-name strong{color:#0f172a}
+    body.light-mode .dl-hero-android{color:rgba(15,23,42,.6)}
+    body.light-mode .dl-stat-chip{
+      background:#ffffff;
+      border:1px solid rgba(15,23,42,.1);
+    }
+    body.light-mode .dl-stat-label{color:rgba(15,23,42,.55)}
+    body.light-mode .dl-stat-value{color:#0f172a}
+    body.light-mode .dl-waiting-text{
+      color:#1d4ed8;
+      background:rgba(37,99,235,.08);
+      border:1px solid rgba(37,99,235,.2);
+    }
+    body.light-mode .dl-counter-row{
+      background:#ffffff;
+      border:1px solid rgba(15,23,42,.1);
+      box-shadow:none;
+    }
+    body.light-mode .dl-counter-num{color:#0f172a;text-shadow:none}
+    body.light-mode .dl-counter-label{color:rgba(15,23,42,.55)}
+    body.light-mode .dl-counter-info-txt{color:#0f172a}
+    body.light-mode .dl-progress-wrap{background:rgba(15,23,42,.08)}
+    body.light-mode .dl-progress-pct{color:rgba(15,23,42,.55)}
+    body.light-mode .dl-counter-ring{filter:none}
+    body.light-mode .dl-ring-bg{stroke:rgba(15,23,42,.08)}
+    body.light-mode .dl-ring-fg{filter:none}
+
+    /* ► BOTÓN FINAL: limpio, plano, sin sombras ni resplandores en modo claro */
+    body.light-mode .dl-btn-final{
+      box-shadow:none !important;
+      animation:none !important;
+      background:linear-gradient(135deg,#2563eb,#0ea5e9) !important;
+    }
+    body.light-mode .dl-btn-final::after{display:none !important}
+    body.light-mode .dl-btn-icon-wrap{
+      animation:none;
+      background:rgba(255,255,255,.22);
+    }
+
+    /* ► Recomendados en modo claro */
+    body.light-mode .dl-reco-title{color:#1d4ed8}
+    body.light-mode .dl-reco-count{color:rgba(15,23,42,.5)}
+    body.light-mode .dl-reco-card{
+      background:#ffffff;
+      border:1px solid rgba(15,23,42,.1);
+      box-shadow:0 2px 8px rgba(15,23,42,.06);
+      color:#0f172a;
+    }
+    body.light-mode .dl-reco-img{
+      background:linear-gradient(135deg,#e2e8f0,#cbd5e1);
+      border:1px solid rgba(15,23,42,.08);
+    }
+    body.light-mode .dl-reco-name{color:#0f172a}
+    body.light-mode .dl-reco-meta{color:rgba(15,23,42,.55)}
+    body.light-mode .dl-reco-badge{color:#059669}

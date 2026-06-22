@@ -1,6 +1,8 @@
 /* ===== Block 1 ===== */
-html{background:#020408}
+/* ► FOUC fallback en modo CLARO (predeterminado del sitio) */
+html{background:#f0f4f8}
   body{opacity:1}
+
 
 /* ===== Block 2 ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@600;700;800&display=swap');
