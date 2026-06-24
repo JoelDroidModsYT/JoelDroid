@@ -792,9 +792,9 @@ window.__JD_REST_DONE = false;
       <div class="flex-grow">
         <h1 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1 notranslate">---</h1>
         <p id="det-verification-text" class="text-blue-500 text-[10px] font-bold uppercase tracking-wider mb-3 notranslate">JoelDroid Mods YT • Verificado</p>
-        <button id="det-download-home-btn" onclick="scrollToDownloads()" class="btn-download-main px-8 py-2 rounded-full text-[12px] font-black uppercase tracking-tighter text-white active:scale-95 transition-all">
-          <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim"></i>
-          <span data-i18n="download_mod_btn">Descargar Mod Apk</span>
+        <button id="det-download-home-btn" onclick="scrollToDownloads()" class="btn-download-main btn-download-main--oneline px-6 py-2 rounded-full text-[12px] font-black uppercase tracking-tight text-white active:scale-95 transition-all" style="white-space:nowrap;flex-wrap:nowrap;max-width:100%;">
+          <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim" style="flex-shrink:0"></i>
+          <span data-i18n="download_mod_btn" style="white-space:nowrap;display:inline-block;line-height:1">Descargar Mod Apk</span>
         </button>
       </div>
     </div>
@@ -6418,6 +6418,41 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
 })();
 </script>
 
+<script>
+/* ── Normalizador "Apk": fuerza primera mayúscula en la extensión .APK ──
+   Observa los textos de los botones de descarga (Opción 1 / Opción 2)
+   y reemplaza .APK / .apk por ".Apk" cada vez que cambian.
+   NO toca ningún slot de Monetag ni anuncios. */
+(function(){
+  function fixApk(txt){
+    if(!txt) return txt;
+    return String(txt).replace(/\.A\s*P\s*K\b/gi, '.Apk');
+  }
+  function applyTo(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    var t = el.textContent;
+    var n = fixApk(t);
+    if(n !== t) el.textContent = n;
+  }
+  function run(){
+    applyTo('btn-descarga-1-texto');
+    applyTo('btn-descarga-2-texto');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    run();
+    ['btn-descarga-1-texto','btn-descarga-2-texto'].forEach(function(id){
+      var el = document.getElementById(id); if(!el) return;
+      try{
+        new MutationObserver(function(){ run(); })
+          .observe(el, { characterData:true, childList:true, subtree:true });
+      }catch(e){}
+    });
+    /* Re-aplica tras los renders dinámicos del detalle */
+    setTimeout(run, 600); setTimeout(run, 1500); setTimeout(run, 3000);
+  });
+})();
+</script>
 </body>
 
 

@@ -1586,3 +1586,66 @@ svg.lucide{display:inline-block;vertical-align:middle}
 /* ── FIX scroll capturas: elevar pila y aislar gestos ── */
 #detail-view .jd-screens-wrap{position:relative;z-index:20!important;isolation:isolate}
 #detail-view .jd-screens-scroller{position:relative;z-index:21!important;touch-action:pan-x pan-y pinch-zoom!important}
+
+/* ===== Block FINAL — Parche CPM/CTR Modo Claro v20260624 =====
+   • Botón "DESCARGAR MOD APK" en UNA SOLA línea siempre.
+   • Sin sombras neón / cyberpunk en modo claro: estilo plano y limpio.
+   • NO se tocan los slots de Monetag ni los pointer-events de anuncios.
+*/
+.btn-download-main,
+.btn-download-main--oneline{
+  white-space:nowrap !important;
+  flex-wrap:nowrap !important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  max-width:100%;
+  padding-left:20px;
+  padding-right:20px;
+}
+.btn-download-main > span,
+.btn-download-main--oneline > span{
+  white-space:nowrap !important;
+  display:inline-block;
+  line-height:1;
+}
+@media (max-width: 380px){
+  .btn-download-main,
+  .btn-download-main--oneline{
+    font-size:11px !important;
+    padding-left:14px !important;
+    padding-right:14px !important;
+    letter-spacing:.01em !important;
+  }
+}
+
+/* ► Limpieza de sombras tipo neón en MODO CLARO (no afecta modo oscuro) */
+.light-mode .btn-download-main,
+.light-mode .btn-dl-card,
+.light-mode .dl-safe-pill,
+.light-mode .dl-game-heading,
+.light-mode .btn-dl-title,
+.light-mode .btn-dl-option,
+.light-mode .btn-dl-eyebrow{
+  text-shadow:none !important;
+}
+.light-mode .btn-download-main{
+  box-shadow:0 4px 10px rgba(37,99,235,.18) !important;
+}
+.light-mode .btn-dl-card{
+  box-shadow:0 6px 16px -6px rgba(37,99,235,.32) !important;
+  border:1px solid rgba(15,23,42,.08) !important;
+}
+.light-mode .btn-dl-card::before{ display:none !important; }
+.light-mode .dl-safe-pill{
+  box-shadow:none !important;
+  background:rgba(16,185,129,.10) !important;
+  color:#059669 !important;
+  border:1px solid rgba(16,185,129,.45) !important;
+}
+.light-mode .dl-game-heading{
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+  color:#0b1220 !important;
+}

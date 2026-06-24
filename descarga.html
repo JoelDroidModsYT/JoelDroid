@@ -209,9 +209,15 @@
       if (t) { try { window._jdGetCachedImg(t, el, ph); } catch(e){ if(el){el.src=t; el.onload=function(){el.style.display=''; if(ph) ph.style.display='none';}; el.onerror=function(){el.style.display='none'; if(ph) ph.style.display='flex';};} } }
       var nameEl = document.getElementById('dl-page-name');
       var vc = String(v||'').replace(/^v+/i,'');
-      if (nameEl && n) nameEl.innerHTML = '<strong style="opacity:1;transition:opacity .2s">' + _esc(n) + ' (Mod Dinero Infinito)</strong><br><span style="font-weight:400;font-size:.9em;color:rgba(226,232,240,.7)">' + (vc ? 'v'+vc : '') + '.apk</span>';
+      if (nameEl && n) nameEl.innerHTML =
+        '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + '</strong>' +
+        '<span class="dl-hero-name-sub">Mod: Monedas / Llaves Infinitas' + (vc ? ' • Versión '+_esc(vc) : '') + '</span>';
       var btnT = document.getElementById('dl-btn-final-texto');
-      if (btnT && n) { var bt = n+' (Mod Dinero Infinito)'+(vc?' v'+vc+'.apk':'')+(s?' · '+s:''); btnT.textContent = bt; }
+      if (btnT && n) {
+        btnT.innerHTML =
+          '<span class="dl-btn-name-line">' + _esc(n) + (vc?' v'+_esc(vc)+'.Apk':'.Apk') + '</span>' +
+          '<span class="dl-btn-mod-line">Mod Monedas / Llaves Infinitas</span>';
+      }
       var bdg = document.getElementById('dl-btn-size-badge');
       if (bdg && s) bdg.textContent = s;
       var sv = document.getElementById('dl-stat-ver');
@@ -274,16 +280,15 @@
 
     function _buildHeroTitle(n, v) {
       var vc = _cleanVer(v);
-      return '<strong style="opacity:1;transition:opacity .2s">' + _esc(n) + ' (Mod Dinero Infinito)</strong><br><span style="font-weight:400;font-size:.9em;color:rgba(226,232,240,.7)">' + (vc ? 'v' + vc : '') + '.apk</span>';
+      return '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + '</strong>' +
+             '<span class="dl-hero-name-sub">Mod: Monedas / Llaves Infinitas' + (vc ? ' • Versión '+_esc(vc) : '') + '</span>';
     }
     function _cleanVer(v) { return String(v||'').replace(/^v+/i,''); }
 
-    function _buildBtnText(n, v, s) {
+    function _buildBtnHTML(n, v) {
       var vc = _cleanVer(v);
-      var t = n + ' (Mod Dinero Infinito)';
-      if (vc) t += ' v' + vc + '.apk';
-      if (s) t += ' · ' + s;
-      return t;
+      return '<span class="dl-btn-name-line">' + _esc(n) + (vc?' v'+_esc(vc)+'.Apk':'.Apk') + '</span>' +
+             '<span class="dl-btn-mod-line">Mod Monedas / Llaves Infinitas</span>';
     }
 
     /* Timer */
@@ -330,11 +335,11 @@
       if (timerDone && btnFinal && realUrl) btnFinal.setAttribute('data-real-url', realUrl);
 
       if (nameEl)  nameEl.innerHTML    = _buildHeroTitle(n, v);
-      if (btnTexto) btnTexto.textContent = _buildBtnText(n, v, s);
+      if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(n, v);
       if (btnBadge && s) btnBadge.textContent = s;
       if (statVer  && v) statVer.textContent  = v;
       if (statSize && s) statSize.textContent = s;
-      try { document.title = n + ' (Mod Dinero Infinito) ' + (v ? v + '.apk' : '.apk') + ' | JoelDroid Mods YT'; } catch(e) {}
+      try { var _vc=_cleanVer(v); document.title = n + ' (Mod Monedas Infinitas) ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT'; } catch(e) {}
 
       if (t && iconEl) {
         if (window._jdGetCachedImg) {
