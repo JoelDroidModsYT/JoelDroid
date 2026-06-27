@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ CPM URGENTE — volver a la zona histórica que generaba CPM alto ══ -->
+<!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ══ MONETAG SMART TAG — zona histórica 233464, prioridad inmediata tras esqueleto ══ -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high" crossorigin>
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+
+<!-- ══ APP VERSION ÚNICA — sin duplicados para no romper sesión/cookies de Monetag ══ -->
+<script>(function(){var APP_VERSION='1.2.8-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -22,9 +29,8 @@
     window.__JD_ID_TO_SLUG = JD_ID_TO_SLUG;
   }catch(e){}
 })();</script>
-<script>(function(){var APP_VERSION='1.2.7-cpm-restore-zone-233464';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
-<script>(function(){var APP_VERSION='1.2.6-cpm-seo-monetag-stability';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
+
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -35,8 +41,6 @@
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ══ TITLE & DESCRIPTION OPTIMIZADOS PARA GOOGLE (largo cola + año) ══ -->
 <title>JoelDroid Mods - MOD APK & Games for Android | 2026</title>
