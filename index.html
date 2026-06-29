@@ -13,7 +13,18 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@600;700;800&display=swap"></noscript>
 
 <!-- ══ APP VERSION ÚNICA — sin duplicados para no romper sesión/cookies de Monetag ══ -->
-<script>(function(){var APP_VERSION='1.2.8-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){
+  var CURRENT_VERSION='1.2.9';
+  window.__JD_APP_VERSION=CURRENT_VERSION;
+  try{
+    var oldVersion=localStorage.getItem('__jd_app_version');
+    if(oldVersion!==CURRENT_VERSION){
+      sessionStorage.removeItem('jd_ss_games');
+      localStorage.removeItem('jd_games_cache_v2');
+      localStorage.setItem('__jd_app_version',CURRENT_VERSION);
+    }
+  }catch(e){}
+})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -213,8 +224,8 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 <script>
   window.__jdReveal = function(){};
 </script>
-<!-- Tailwind/Lucide/EmailJS: prioridad normal; Monetag queda arriba con prioridad alta. -->
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- Tailwind compilado (sin CDN bloqueante) — Lucide/EmailJS: prioridad normal; Monetag arriba con prioridad alta. -->
+<link rel="stylesheet" href="tailwind.min.css">
 <script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -283,7 +294,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
     var saved  = localStorage.getItem('darkMode'); // 'dark' | 'light'
     var isDark;
     if(manual && saved){ isDark = (saved==='dark'); }
-    else { isDark = false; } // ► Modo CLARO por defecto en visitas nuevas
+    else { isDark = true; } // ► Modo OSCURO por defecto en visitas nuevas (anti-FOUC)
     if(!isDark) document.body.classList.add('light-mode');
     window.__JD_INITIAL_DARK = isDark;
   }catch(e){ document.body.classList.add('light-mode'); }

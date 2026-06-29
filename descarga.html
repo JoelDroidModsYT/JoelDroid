@@ -27,7 +27,7 @@
   try{
     var manual = localStorage.getItem('jd_manual_theme')==='1';
     var saved  = localStorage.getItem('darkMode');
-    var isDark = (manual && saved) ? (saved==='dark') : false;
+    var isDark = (manual && saved) ? (saved==='dark') : true;
     if(!isDark){
       document.documentElement.classList.add('light-mode');
       document.body && document.body.classList.add('light-mode');
