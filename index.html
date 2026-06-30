@@ -8,7 +8,7 @@
 <!-- ══ MONETAG SMART TAG — zona histórica 233464, prioridad inmediata tras esqueleto ══ -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" 
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" crossorigin>
 <script src="https://quge5.com/88/tag.min.js" data-zone="254955" async data-cfasync="false"></script>
 
 <!-- ══ APP VERSION ÚNICA — sin duplicados para no romper sesión/cookies de Monetag ══ -->
@@ -279,13 +279,13 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 (function(){
   try{
     var manual = localStorage.getItem('jd_manual_theme')==='1';
-    var saved  = localStorage.getItem('darkMode'); // 'dark' | 'light'
+    var saved  = localStorage.getItem('darkMode');
     var isDark;
     if(manual && saved){ isDark = (saved==='dark'); }
-    else { isDark = false; } // ► Modo CLARO por defecto en visitas nuevas
+    else { isDark = true; } // ► Modo OSCURO por defecto
     if(!isDark) document.body.classList.add('light-mode');
     window.__JD_INITIAL_DARK = isDark;
-  }catch(e){ document.body.classList.add('light-mode'); }
+  }catch(e){ /* dark por defecto: no añadir light-mode */ }
 })();
 </script>
 
@@ -6210,18 +6210,9 @@ window.onload=function(){
 (function(){
   try{
     var KEY='jd_cookie_consent';
-    var saved=null;
-    try{ saved=localStorage.getItem(KEY); }catch(e){}
-    if(!saved){
-      try{ localStorage.setItem('jd_cookie_notice_location','compact_corner_banner'); }catch(e){}
-      var _show=function(){
-        var b=document.getElementById('jd-cookie-banner');
-        if(b){ b.style.display='block'; }
-      };
-      var _schedule=function(){ setTimeout(_show, 0); };
-      if(document.readyState==='complete'){ _schedule(); }
-      else { window.addEventListener('load', _schedule, {once:true}); }
-    }
+    /* Banner desactivado: auto-aceptación silenciosa para no estorbar la UX ni el CPM */
+    try{ if(!localStorage.getItem(KEY)) localStorage.setItem(KEY,'accept|'+Date.now()); }catch(e){}
+    var _b=document.getElementById('jd-cookie-banner'); if(_b){ _b.style.display='none'; _b.setAttribute('hidden',''); }
     window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');

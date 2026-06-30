@@ -8,7 +8,7 @@
 <!-- ══ MONETAG SMART TAG — zona histórica 233464, prioridad inmediata tras esqueleto ══ -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" 
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" crossorigin>
 <script src="https://quge5.com/88/tag.min.js" data-zone="254953" async data-cfasync="false"></script>
 
 <meta name="robots" content="noindex,follow,max-image-preview:large">
@@ -30,15 +30,13 @@
   try{
     var manual = localStorage.getItem('jd_manual_theme')==='1';
     var saved  = localStorage.getItem('darkMode');
-    var isDark = (manual && saved) ? (saved==='dark') : false;
+    var isDark = (manual && saved) ? (saved==='dark') : true;
     if(!isDark){
       document.documentElement.classList.add('light-mode');
       document.body && document.body.classList.add('light-mode');
     }
     window.__JD_INITIAL_DARK = isDark;
-  }catch(e){
-    document.documentElement.classList.add('light-mode');
-  }
+  }catch(e){ /* dark por defecto */ }
 })();
 </script>
 

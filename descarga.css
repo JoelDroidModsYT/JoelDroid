@@ -246,3 +246,8 @@
     body.light-mode .dl-stat-value,
     body.light-mode .dl-stat-label,
     body.light-mode .dl-waiting-text{text-shadow:none !important}
+
+
+/* JD DARK SAFETY — máxima legibilidad en modo oscuro por defecto */
+html:not(.light-mode) body, body:not(.light-mode){background:#0c1425;color:#fff}
+html:not(.light-mode) body *:where(p,span,h1,h2,h3,h4,a,li,label,strong){color:inherit}
