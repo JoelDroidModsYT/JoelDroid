@@ -8,11 +8,11 @@
 <!-- ══ MONETAG SMART TAG — zona histórica 233464, prioridad inmediata tras esqueleto ══ -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high" crossorigin>
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<link rel="preload" 
+<script src="https://quge5.com/88/tag.min.js" data-zone="254955" async data-cfasync="false"></script>
 
 <!-- ══ APP VERSION ÚNICA — sin duplicados para no romper sesión/cookies de Monetag ══ -->
-<script>(function(){var APP_VERSION='1.2.8-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.2.9-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -6306,21 +6306,7 @@ window.onload=function(){
 
 <script>
 /* ══════════════════════════════════════════════════════════════════
-   SCROLLER DE CAPTURAS — versión robusta anti-congelamiento
-   ──────────────────────────────────────────────────────────────────
-   El bug anterior: setPointerCapture + pointermove con preventDefault
-   se quedaba "atascado" cuando Monetag abría una pestaña/popup a mitad
-   del gesto: el navegador nunca recibía pointerup, mouseDrag quedaba
-   en true y todo el carrusel dejaba de aceptar scroll.
-   Solución:
-   - El scroll en táctil lo gestiona el navegador (CSS overflow-x:auto).
-     NO interceptamos touchmove, NO usamos preventDefault.
-   - El drag con ratón (desktop) usa solo mousedown/mousemove/mouseup,
-     SIN pointer capture (la causa real del bloqueo).
-   - Reset agresivo del estado cuando la pestaña vuelve al primer plano,
-     pierde foco o el navegador dispara pageshow/touchcancel.
-   - El listener vive en window para detectar el regreso desde anuncios
-     incluso si Monetag inyecta overlays encima del scroller.
+   
    ══════════════════════════════════════════════════════════════════ */
 function _jdBindScreenScroller(scroller){
   if(!scroller || scroller.__jdBound) return;
