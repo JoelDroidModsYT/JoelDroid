@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false"></script>
-<!-- ══ ESQUELETO BÁSICO ══ -->
+<!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ══ FUENTES — preconnect + preload no bloqueante, después de Monetag ══ -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@600;700;800&display=swap"></noscript>
+<!-- ══ MONETAG SMART TAG — zona histórica 233464, prioridad inmediata tras esqueleto ══ -->
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high" crossorigin>
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 
 <!-- ══ APP VERSION ÚNICA — sin duplicados para no romper sesión/cookies de Monetag ══ -->
 <script>(function(){var APP_VERSION='1.2.8-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
