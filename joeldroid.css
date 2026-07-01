@@ -1650,3 +1650,34 @@ svg.lucide{display:inline-block;vertical-align:middle}
   text-shadow:none !important;
   color:#0b1220 !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ► BLOQUEO ESTRICTO DE MODO OSCURO (añadido - fix inicialización)
+   Si algún script residual llegara a inyectar .light-mode en <html>/<body>,
+   estas reglas mantienen el ecosistema oscuro Cyber-Industrial intacto.
+   No se elimina la definición original .light-mode arriba para preservar
+   compatibilidad de selectores; simplemente se re-mapean sus variables.
+   ═══════════════════════════════════════════════════════════════════════ */
+html.light-mode, body.light-mode, .light-mode {
+  --bg-color:        #020408 !important;
+  --card-bg:         rgba(13,17,23,.95) !important;
+  --text-main:       #ffffff !important;
+  --text-secondary:  rgba(255,255,255,.6) !important;
+  --border-color:    rgba(37,99,235,.7) !important;
+  --nav-bg:          rgba(2,4,8,.98) !important;
+  --overlay-bg:      #020408 !important;
+  --search-bg:       rgba(255,255,255,.05) !important;
+  --settings-panel-bg: rgba(13,17,23,.9) !important;
+  --announcement-bg: rgba(239,68,68,.15) !important;
+  --announcement-border: rgba(239,68,68,.5) !important;
+  --announcement-text: #f87171 !important;
+  --toast-bg:        rgba(13,17,23,.7) !important;
+  --toast-text:      #ffffff !important;
+  --title-text-color:     #ffffff !important;
+  --subtitle-text-color:  rgba(255,255,255,.6) !important;
+  --copyright-text-color: rgba(255,255,255,.55) !important;
+  --logo-color:      #ffffff !important;
+  background-color:  #020408 !important;
+  color:             #ffffff !important;
+}

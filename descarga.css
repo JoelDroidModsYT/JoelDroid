@@ -246,3 +246,14 @@
     body.light-mode .dl-stat-value,
     body.light-mode .dl-stat-label,
     body.light-mode .dl-waiting-text{text-shadow:none !important}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ► BLOQUEO ESTRICTO DE MODO OSCURO (añadido - fix inicialización)
+   Neutraliza cualquier inyección residual de .light-mode manteniendo
+   tarjetas, temporizador y "Juegos Recomendados" con fondo oscuro.
+   ═══════════════════════════════════════════════════════════════════════ */
+html.light-mode, body.light-mode, .light-mode {
+  background: #0c1425 !important;
+  color: #ffffff !important;
+}
