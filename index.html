@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ CPM URGENTE — volver a la zona histórica que generaba CPM alto ══ -->
+<!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="255286" async data-cfasync="false" fetchpriority="high"></script>
+
+
+
+<!-- App version marker -->
+<script>(function(){var APP_VERSION='1.2.9-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -22,9 +30,8 @@
     window.__JD_ID_TO_SLUG = JD_ID_TO_SLUG;
   }catch(e){}
 })();</script>
-<script>(function(){var APP_VERSION='1.2.7-cpm-restore-zone-233464';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
-<script>(function(){var APP_VERSION='1.2.6-cpm-seo-monetag-stability';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
-<script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
+<script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado');}catch(e){}};})();</script>
+
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -35,14 +42,13 @@
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ══ TITLE & DESCRIPTION OPTIMIZADOS PARA GOOGLE (largo cola + año) ══ -->
 <title>JoelDroid Mods - MOD APK & Games for Android | 2026</title>
 <meta name="description" content="Download safe MOD APK for Android on JoelDroid Mods: truck simulator, bus simulator, car parking, Off The Road 2, Global Truck Online, unlimited money.">
 <meta name="keywords" content="mod apk 2026, download mod apk android, truck simulator mod apk, bus simulator mod apk, car parking mod apk, Off The Road 2 MOD APK, Global Truck Online MOD APK, unlimited money, JoelDroid Mods">
 <meta name="author" content="JoelDroid Mods YT">
+<meta name="theme-color" content="#020408">
 <meta name="theme-color" content="#020408" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f0f4f8" media="(prefers-color-scheme: light)">
 
@@ -146,28 +152,18 @@
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
 
-<!-- ══ FAVICON FALLBACK EMBEBIDO removido ═══════════════════════════
-     Se eliminan data-URIs pesados del head para reducir parseo inicial
-     y dejar más margen a la carga prioritaria de Monetag.
-     Se mantienen los favicons reales por ruta (/favicon.ico, /logo.png, /apple-touch-icon.png). -->
-<!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 // Favicon embebido en base64 — no necesita cache-busting ni archivos externos
 // El logo de JoelDroid está hardcodeado en los link[rel=icon] del <head>
 </script>
-<!-- ══ AUTO-UPDATE SEGURO — NO toca Monetag ni borra cachés ═══════════════
-     Antes este bloque limpiaba localStorage/sessionStorage/caches y service workers.
-     Eso puede borrar señales de frecuencia/caché de anuncios y bajar CPM.
-     Ahora solo guarda la versión propia del sitio, sin recargar ni limpiar nada.
-     ════════════════════════════════════════════════════════════════ -->
+<!-- Site version marker -->
 <script>
 (function _jdSafeVersionMarker(){
   try{
-    localStorage.setItem('jd_site_version','20260621_CPM_RESTORE_ZONE_233464_v127');
+    localStorage.setItem('jd_site_version','20260621_v129');
   }catch(e){}
 })();
 </script>
-<!-- ════════════════════════════════════════════════════════════════ -->
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
 </script>
@@ -198,17 +194,14 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
     }
     document.documentElement.lang = detected;
     window.__JD_PRELANG = detected;
-    // ⚠️ Antes ocultaba <html> 200ms — bajaba viewability de Monetag.
-    // Ahora NO se oculta nada. El parpadeo es mínimo y el ad cuenta como visto.
   } catch(e) {}
 })();
 </script>
-<!-- ══ FIX FOUC SUAVE: no se oculta toda la página al arrancar ══
-     Así el primer render y los scripts publicitarios no esperan a Tailwind. -->
+<!-- Sin ocultar la página al arrancar (evita FOUC) -->
 <script>
   window.__jdReveal = function(){};
 </script>
-<!-- Tailwind/Lucide/EmailJS: prioridad normal; Monetag queda arriba con prioridad alta. -->
+<!-- Librerías: Tailwind, Lucide, EmailJS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -263,8 +256,6 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
 };
 </script>
-<!-- ══ JD HOTFIX 2026-06-01: scroll/capturas + estabilidad sin tocar Monetag ══ -->
-<!-- JD FIX 2026-06-01: corrige regex partido en comentarios para que el script principal no se corte y Firebase pueda iniciar. Monetag/Multitag intacto. -->
 
 
 <link rel="stylesheet" href="joeldroid.css">
@@ -275,13 +266,13 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 (function(){
   try{
     var manual = localStorage.getItem('jd_manual_theme')==='1';
-    var saved  = localStorage.getItem('darkMode'); // 'dark' | 'light'
+    var saved  = localStorage.getItem('darkMode');
     var isDark;
     if(manual && saved){ isDark = (saved==='dark'); }
-    else { isDark = false; } // ► Modo CLARO por defecto en visitas nuevas
+    else { isDark = true; } // ► Modo OSCURO por defecto
     if(!isDark) document.body.classList.add('light-mode');
     window.__JD_INITIAL_DARK = isDark;
-  }catch(e){ document.body.classList.add('light-mode'); }
+  }catch(e){ /* dark por defecto: no añadir light-mode */ }
 })();
 </script>
 
@@ -657,8 +648,6 @@ window.__JD_REST_DONE = false;
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Cookies</a>
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('terms')">Términos</a>
-        <span class="jd-cr-divider"></span>
-        Publicidad servida por <strong>Monetag</strong>
       </div>
     </div>
   </footer>
@@ -674,7 +663,7 @@ window.__JD_REST_DONE = false;
       </button>
       <div class="jd-policy-title">
         <h1 id="jd-policy-main-title">Centro Legal y de Información</h1>
-        <p>Privacidad · Cookies · Publicidad · Términos · Sobre Nosotros</p>
+        <p>Privacidad · Cookies · Términos · Sobre Nosotros</p>
       </div>
     </header>
 
@@ -686,7 +675,7 @@ window.__JD_REST_DONE = false;
       <ul>
         <li><strong>Verificación previa:</strong> cada archivo publicado es revisado para confirmar que se ajusta a la descripción.</li>
         <li><strong>Actualización constante:</strong> mantenemos un registro de versiones para que el usuario sepa siempre qué edición está descargando.</li>
-        <li><strong>Transparencia publicitaria:</strong> trabajamos exclusivamente con una red publicitaria autorizada (Monetag) y no utilizamos pop-ups engañosos ni descargas forzadas.</li>
+        <li><strong>Transparencia publicitaria:</strong> no utilizamos pop-ups engañosos ni descargas forzadas.</li>
         <li><strong>Respeto al desarrollador original:</strong> todo el contenido modificado se ofrece con fines informativos y de evaluación; recomendamos siempre apoyar a los estudios originales adquiriendo sus versiones oficiales.</li>
       </ul>
       <p>El proyecto es operado por <strong>JoelDroid Labs</strong>, un equipo pequeño enfocado en pruebas, edición y difusión de contenido Android desde el canal de YouTube del mismo nombre.</p>
@@ -708,31 +697,13 @@ window.__JD_REST_DONE = false;
       <p>El tratamiento de datos se realiza siguiendo las directrices aplicables del <strong>RGPD (UE)</strong>, la <strong>ePrivacy</strong>, la <strong>CCPA (California)</strong> y la <strong>LGPD (Brasil)</strong>. El usuario puede limpiar las cookies y datos del sitio en cualquier momento desde la configuración de su navegador.</p>
     </article>
 
-    <article class="jd-policy-card" data-policy-section="ads">
-      <h2>Red Publicitaria — Monetag</h2>
-      <p>El sitio se sostiene económicamente mediante publicidad servida por <strong>Monetag</strong>, una red publicitaria internacional con políticas estrictas de calidad y seguridad de tráfico.</p>
-      <h3>¿Qué hace Monetag?</h3>
-      <ul>
-        <li>Sirve anuncios contextuales y de retargeting compatibles con el contenido del sitio.</li>
-        <li>Utiliza cookies, identificadores publicitarios y almacenamiento local para limitar la frecuencia de visualización y medir conversiones.</li>
-        <li>Aplica filtros anti-fraude y verificaciones automáticas de calidad de tráfico.</li>
-      </ul>
-      <h3>Documentación oficial</h3>
-      <ul>
-        <li>Política de privacidad: <a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">monetag.com/privacy-policy</a></li>
-        <li>Términos del servicio: <a href="https://monetag.com/terms/" target="_blank" rel="noopener">monetag.com/terms</a></li>
-      </ul>
-      <p>El script original de Monetag se carga con máxima prioridad desde el <code>&lt;head&gt;</code> del documento, sin modificaciones ni envoltorios, garantizando su correcto funcionamiento.</p>
-    </article>
-
     <article class="jd-policy-card" data-policy-section="cookies">
       <h2>Política de Cookies</h2>
       <p>Una cookie es un pequeño archivo de texto que un sitio web guarda en el navegador del usuario para recordar preferencias o medir el uso del sitio.</p>
       <h3>Tipos de cookies utilizadas</h3>
       <ul>
         <li><strong>Estrictamente necesarias:</strong> idioma, tema (claro/oscuro), versión del sitio. Sin estas el sitio no funciona correctamente.</li>
-        <li><strong>Publicitarias (Monetag):</strong> identificadores anónimos para limitar la frecuencia de anuncios y medir su rendimiento.</li>
-        <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
+                <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
       </ul>
       <h3>Gestión del consentimiento</h3>
       <p>Mediante el panel inferior puedes aceptar todas las cookies o mantener únicamente las estrictamente necesarias. Tu decisión queda guardada localmente en este navegador.</p>
@@ -792,9 +763,9 @@ window.__JD_REST_DONE = false;
       <div class="flex-grow">
         <h1 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1 notranslate">---</h1>
         <p id="det-verification-text" class="text-blue-500 text-[10px] font-bold uppercase tracking-wider mb-3 notranslate">JoelDroid Mods YT • Verificado</p>
-        <button id="det-download-home-btn" onclick="scrollToDownloads()" class="btn-download-main px-8 py-2 rounded-full text-[12px] font-black uppercase tracking-tighter text-white active:scale-95 transition-all">
-          <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim"></i>
-          <span data-i18n="download_mod_btn">Descargar Mod Apk</span>
+        <button id="det-download-home-btn" onclick="scrollToDownloads()" class="btn-download-main btn-download-main--oneline px-6 py-2 rounded-full text-[12px] font-black uppercase tracking-tight text-white active:scale-95 transition-all" style="white-space:nowrap;flex-wrap:nowrap;max-width:100%;">
+          <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim" style="flex-shrink:0"></i>
+          <span data-i18n="download_mod_btn" style="white-space:nowrap;display:inline-block;line-height:1">Descargar Mod Apk</span>
         </button>
       </div>
     </div>
@@ -904,7 +875,7 @@ window.__JD_REST_DONE = false;
         <!-- ══ VIDEO TUTORIAL YOUTUBE — lite embed (no carga iframe hasta el click) ══
              100% pasivo: solo una <img> de la miniatura + botón play.
              No carga el iframe de YouTube en el load inicial, por lo que NO
-             interfiere con Monetag (sin scripts externos, sin <iframe> al inicio,
+             no interfiere,
              sin peticiones a youtube.com hasta que el usuario hace click). -->
 <div class="jd-yt-tut" id="jd-yt-tutorial">
           <div class="jd-yt-tut-kicker">▶ Video Tutorial</div>
@@ -1011,9 +982,6 @@ window.__JD_REST_DONE = false;
         </script>
 
 
-
-
-
     <!-- ══ COMUNIDAD OFICIAL — WhatsApp + Telegram ══════════════════════════
          Botones de unión a las comunidades oficiales del sitio. Colocado debajo
          del video tutorial y antes del bloque de valoración y comentarios.
@@ -1096,8 +1064,6 @@ window.__JD_REST_DONE = false;
         Marca y contenido protegidos por propiedad intelectual.
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies()">Privacidad &amp; Cookies</a>
-        <span class="jd-cr-divider"></span>
-        Publicidad por <strong>Monetag</strong>
       </div>
     </div>
   </div>
@@ -2274,8 +2240,7 @@ function _jdStartObserver(){
   var gl = document.getElementById('game-list');
   if(!gl) return;
   _jdObserver = new MutationObserver(function(muts){
-    /* Si el idioma ya es español, desconectar para no consumir CPU
-       cada vez que Monetag inyecta un slot publicitario. */
+    /* Si el idioma ya es español, desconectar para no consumir CPU. */
     if(currentLang === 'es'){
       try{ _jdObserver.disconnect(); }catch(_){} _jdObserver = null; return;
     }
@@ -2286,8 +2251,7 @@ function _jdStartObserver(){
       muts.forEach(function(m){
         m.addedNodes.forEach(function(node){
           if(node.nodeType !== 1) return;
-          /* Filtrar: solo procesar nodos con elementos traducibles propios.
-             Evita disparar con slots de ads, iframes, scripts, etc. */
+          /* Filtrar: solo procesar nodos con elementos traducibles propios. */
           if(!node.querySelector || (!node.querySelector('[data-jd-tr]') && !node.querySelector('.global-dl-btn-text'))) return;
           node.querySelectorAll('[data-jd-tr]').forEach(function(el){ _jdTranslateEl(el); });
           node.querySelectorAll('.global-dl-btn-text').forEach(function(b){
@@ -2318,13 +2282,11 @@ function _jdStartDetailObserver(){
     clearTimeout(_jdDetObserver._t);
     _jdDetObserver._t = setTimeout(function(){
       _jdTranslateDetailView();
-      /* Auto-desconectar: el contenido ya está traducido,
-         no necesita seguir vigilando (evita reflows por anuncios) */
+      /* Auto-desconectar: el contenido ya está traducido. */
       if(_jdDetObserver){ _jdDetObserver.disconnect(); _jdDetObserver = null; }
     }, 400);
   });
-  /* subtree:false — CRÍTICO: subtree:true dispara con cada
-     mutación de anuncios Monetag y congela el scroll */
+  /* subtree:false por rendimiento */
   _jdDetObserver.observe(dv, { childList: true, subtree: false });
 }
 
@@ -2395,7 +2357,7 @@ var lazyObserver=null; // kept for legacy compat
 // STATE
 // ============================================================
 var currentDetailId=null;
-var isDarkMode=false;
+var isDarkMode=true;
 var currentFilter='all';
 /* ═══ CARGA INSTANTÁNEA DE ICONOS POR URL EXTERNA ═══
    Las imágenes de Firebase Storage ya viven en CDN de Google y cargan rápido.
@@ -3406,8 +3368,7 @@ function showDetail(id){
   var dtSub=document.getElementById('detail-site-subtitle-ui');
   if(dtSub)dtSub.innerText=siteState.ui.subtitle;
 
-  /* Mostrar detalle como página real, no como modal/capa flotante.
-     Monetag queda intacto: no se ocultan iframes, no se tocan sandbox ni overlays. */
+  /* Mostrar detalle como página real, no como modal/capa flotante. */
   document.body.classList.add('detail-open');
   if(dv){
     dv.classList.remove('hidden');
@@ -3659,8 +3620,8 @@ function loadThemePreference(){
 function autoThemeDetection(){
   // ► Sin manual: CLARO por defecto (modo principal del sitio).
   if(localStorage.getItem('jd_manual_theme')==='1') return;
-  isDarkMode = false;
-  document.body.classList.add('light-mode');
+  isDarkMode = true;
+  document.body.classList.remove('light-mode');
   _jdSyncThemeIcon();
 }
 // Sincroniza el icono del tema reemplazando el nodo (lucide a veces no
@@ -4519,7 +4480,6 @@ document.addEventListener('click',function(e){
 
 // ════════════════════════════════════════════════════════════════
 // RATINGS + LIKES/DISLIKES + COMENTARIOS (v3 — Firestore + fallback local)
-// No toca Monetag. La cuenta local activa la UI y Firebase guarda si está disponible.
 // ════════════════════════════════════════════════════════════════
 var _currentGameId=null;
 var _jdRcUnsubR=null, _jdRcUnsubC=null;
@@ -5965,13 +5925,8 @@ window.addEventListener('DOMContentLoaded', function() {
   // ── Seguridad anti-hack (dentro de DOM listo)
   try{
     (function _antiHack(){
-      // Anti-clickjacking ELIMINADO: interfería con iframes de Monetag
-      // causando freeze del scroll táctil y bloqueo de anuncios.
     
-      // 2) Limpieza de campos sensibles: solo en blur (no setInterval).
-      //    El setInterval(3000) anterior generaba actividad continua sin
-      //    interacción, patrón que los bots de calidad de Monetag marcan
-      //    como tráfico de baja calidad → CPM cae.
+      // Limpieza de campos sensibles: solo en blur.
       ['gh-token-in','sec-current-code','sec-new-code'].forEach(function(id){
         var el=document.getElementById(id);
         if(!el) return;
@@ -5980,9 +5935,6 @@ window.addEventListener('DOMContentLoaded', function() {
         });
       });
     
-      // 3) Bloqueo de clic-derecho ELIMINADO.
-      //    Monetag penaliza patrones "user-hostile" leves; además impide
-      //    interacciones legítimas (guardar imagen, inspeccionar, etc.).
     
       // 4) Proteger contra console injection — override básico en producción
       // Solo se activa si hay config de GitHub (= sitio en producción real)
@@ -5998,10 +5950,7 @@ window.addEventListener('DOMContentLoaded', function() {
       };
       setTimeout(_patchConsole,2000);
     
-      // 5) Sanitizador XSS — restringido para NO matar parámetros legítimos
-      //    de Monetag/redes (subid, click_id, etc.). Antes el patrón
-      //    onload=|onerror= producía falsos positivos y se borraba toda
-      //    la query string con replaceState → Monetag perdía atribución.
+      // Sanitizador XSS conservador.
       var _sanitizeURL=function(){
         try{
           var params=decodeURIComponent(window.location.search+window.location.hash);
@@ -6173,12 +6122,8 @@ window.onload=function(){
 </div>
 
 
-
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   DETALLE EN MODO PÁGINA — compatibilidad limpia con Monetag
-   No neutraliza anuncios, no modifica iframes y no elimina sandbox.
-   ═══════════════════════════════════════════════════════════════ */
+/* DETALLE EN MODO PÁGINA */
 (function JDDetailPageMode(){
   function sync(){
     var dv=document.getElementById('detail-view');
@@ -6190,10 +6135,7 @@ window.onload=function(){
 })();
 </script>
 
-<!-- ══ BANNER DE CONSENTIMIENTO DE COOKIES (GDPR / ePrivacy) ═══════════════
-     Requerido por la Cláusula 9 del Acuerdo de Monetag. NO bloquea, no retrasa
-     y no modifica el script de Monetag; solo informa y guarda la elección local.
-═══════════════════════════════════════════════════════════════════════════ -->
+<!-- Aviso de cookies (silencioso, auto-aceptado) -->
 <div id="jd-cookie-banner" role="status" aria-live="polite" aria-label="Aviso de privacidad y cookies">
   <strong class="jd-cookie-title">Privacidad y anuncios</strong>
   <p class="jd-cookie-copy">Usamos cookies para anuncios, medición y seguridad del sitio. <a href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Ver detalles</a></p>
@@ -6206,18 +6148,9 @@ window.onload=function(){
 (function(){
   try{
     var KEY='jd_cookie_consent';
-    var saved=null;
-    try{ saved=localStorage.getItem(KEY); }catch(e){}
-    if(!saved){
-      try{ localStorage.setItem('jd_cookie_notice_location','compact_corner_banner'); }catch(e){}
-      var _show=function(){
-        var b=document.getElementById('jd-cookie-banner');
-        if(b){ b.style.display='block'; }
-      };
-      var _schedule=function(){ setTimeout(_show, 0); };
-      if(document.readyState==='complete'){ _schedule(); }
-      else { window.addEventListener('load', _schedule, {once:true}); }
-    }
+    /* Banner desactivado: auto-aceptación silenciosa. */
+    try{ if(!localStorage.getItem(KEY)) localStorage.setItem(KEY,'accept|'+Date.now()); }catch(e){}
+    var _b=document.getElementById('jd-cookie-banner'); if(_b){ _b.style.display='none'; _b.setAttribute('hidden',''); }
     window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');
@@ -6278,45 +6211,10 @@ window.onload=function(){
   </div>
   <img id="jd-screen-lightbox-img" src="" alt="Captura ampliada">
 </div>
-<script>
-(function JDAdReturnScrollGuard(){
-  window.__jdLastAdReturn = 0;
-  window.__jdWasHiddenForAd = false;
-  function releaseScroll(){
-    try{
-      if(!document.getElementById('jd-screen-lightbox') || !document.getElementById('jd-screen-lightbox').classList.contains('show')){
-        document.body.style.overflow=''; document.documentElement.style.overflow='';
-      }
-      var s=document.getElementById('det-screens-scroller'); if(s){s.__jdMoved=false;}
-    }catch(e){}
-  }
-  document.addEventListener('visibilitychange',function(){
-    if(document.hidden){window.__jdWasHiddenForAd=true;return;}
-    if(window.__jdWasHiddenForAd){window.__jdLastAdReturn=Date.now();window.__jdWasHiddenForAd=false;}
-    setTimeout(releaseScroll,80);
-  },{passive:true});
-  window.addEventListener('pageshow',function(){window.__jdLastAdReturn=Date.now();setTimeout(releaseScroll,80);},{passive:true});
-  window.addEventListener('focus',function(){setTimeout(releaseScroll,80);},{passive:true});
-})();
-</script>
 
 <script>
 /* ══════════════════════════════════════════════════════════════════
-   SCROLLER DE CAPTURAS — versión robusta anti-congelamiento
-   ──────────────────────────────────────────────────────────────────
-   El bug anterior: setPointerCapture + pointermove con preventDefault
-   se quedaba "atascado" cuando Monetag abría una pestaña/popup a mitad
-   del gesto: el navegador nunca recibía pointerup, mouseDrag quedaba
-   en true y todo el carrusel dejaba de aceptar scroll.
-   Solución:
-   - El scroll en táctil lo gestiona el navegador (CSS overflow-x:auto).
-     NO interceptamos touchmove, NO usamos preventDefault.
-   - El drag con ratón (desktop) usa solo mousedown/mousemove/mouseup,
-     SIN pointer capture (la causa real del bloqueo).
-   - Reset agresivo del estado cuando la pestaña vuelve al primer plano,
-     pierde foco o el navegador dispara pageshow/touchcancel.
-   - El listener vive en window para detectar el regreso desde anuncios
-     incluso si Monetag inyecta overlays encima del scroller.
+   
    ══════════════════════════════════════════════════════════════════ */
 function _jdBindScreenScroller(scroller){
   if(!scroller || scroller.__jdBound) return;
@@ -6326,7 +6224,7 @@ function _jdBindScreenScroller(scroller){
   function resetState(){
     moved=false; isMouseDrag=false; scroller.__jdMoved=false;
   }
-  // Reset cuando la pestaña vuelve a primer plano (regreso de anuncio Monetag)
+  // Reset cuando la pestaña vuelve a primer plano
   document.addEventListener('visibilitychange',function(){ if(!document.hidden) resetState(); });
   window.addEventListener('blur',resetState);
   window.addEventListener('pageshow',resetState);
@@ -6362,7 +6260,6 @@ function _jdBindScreenScroller(scroller){
     var card=e.target&&e.target.closest?e.target.closest('.jd-screen-card'):null;
     if(!card) return;
     if(moved||scroller.__jdMoved){ e.preventDefault(); e.stopPropagation(); resetState(); return; }
-    if(window.__jdLastAdReturn && Date.now()-window.__jdLastAdReturn<700){ e.preventDefault(); e.stopPropagation(); resetState(); return; }
     jdScreenOpen(card.getAttribute('data-full-src')||'');
   },true);
   scroller.addEventListener('keydown',function(e){
@@ -6370,7 +6267,7 @@ function _jdBindScreenScroller(scroller){
     if(card && (e.key==='Enter'||e.key===' ')){e.preventDefault();jdScreenOpen(card.getAttribute('data-full-src')||'');}
   });
 }
-function jdScreenOpen(src){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb||!im||!src)return;if(window.__jdLastAdReturn&&Date.now()-window.__jdLastAdReturn<700)return;im.src=src;lb.classList.add('show');document.documentElement.classList.add('jd-screen-open');document.body.style.overflow='';document.documentElement.style.overflow='';}
+function jdScreenOpen(src){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb||!im||!src)return;im.src=src;lb.classList.add('show');document.documentElement.classList.add('jd-screen-open');document.body.style.overflow='';document.documentElement.style.overflow='';}
 function jdScreenClose(){var lb=document.getElementById('jd-screen-lightbox');var im=document.getElementById('jd-screen-lightbox-img');if(!lb)return;lb.classList.remove('show');document.documentElement.classList.remove('jd-screen-open');if(im)im.removeAttribute('src');document.body.style.overflow='';document.documentElement.style.overflow='';}
 function jdScreenBack(){jdScreenClose();}
 document.addEventListener('keydown',function(e){var lb=document.getElementById('jd-screen-lightbox');if(e.key==='Escape'&&lb&&lb.classList.contains('show'))jdScreenClose();});
@@ -6418,6 +6315,38 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
 })();
 </script>
 
+<script>
+/* Normalizador "Apk": fuerza primera mayúscula en la extensión .APK */
+(function(){
+  function fixApk(txt){
+    if(!txt) return txt;
+    return String(txt).replace(/\.A\s*P\s*K\b/gi, '.Apk');
+  }
+  function applyTo(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    var t = el.textContent;
+    var n = fixApk(t);
+    if(n !== t) el.textContent = n;
+  }
+  function run(){
+    applyTo('btn-descarga-1-texto');
+    applyTo('btn-descarga-2-texto');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    run();
+    ['btn-descarga-1-texto','btn-descarga-2-texto'].forEach(function(id){
+      var el = document.getElementById(id); if(!el) return;
+      try{
+        new MutationObserver(function(){ run(); })
+          .observe(el, { characterData:true, childList:true, subtree:true });
+      }catch(e){}
+    });
+    /* Re-aplica tras los renders dinámicos del detalle */
+    setTimeout(run, 600); setTimeout(run, 1500); setTimeout(run, 3000);
+  });
+})();
+</script>
 </body>
 
 
