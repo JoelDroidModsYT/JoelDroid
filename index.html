@@ -1,18 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- ══ MONETAG SMART TAG — zona histórica 233464, prioridad inmediata tras esqueleto ══ -->
+<!-- ══ CPM URGENTE — volver a la zona histórica que generaba CPM alto ══ -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" crossorigin>
-<script src="https://quge5.com/88/tag.min.js" data-zone="254955" async data-cfasync="false"></script>
-
-<!-- ══ APP VERSION ÚNICA — sin duplicados para no romper sesión/cookies de Monetag ══ -->
-<script>(function(){var APP_VERSION='1.2.9-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -29,8 +22,9 @@
     window.__JD_ID_TO_SLUG = JD_ID_TO_SLUG;
   }catch(e){}
 })();</script>
+<script>(function(){var APP_VERSION='1.2.7-cpm-restore-zone-233464';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.2.6-cpm-seo-monetag-stability';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 <script>(function(){window.jdLogError=function(){};window.jdErrorMonitor={list:function(){return[]},clear:function(){},export:function(){}};window.jdOpenErrorMonitor=function(){try{showToast('✅ Monitor pausado para máxima compatibilidad con anuncios');}catch(e){}};})();</script>
-
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -41,6 +35,8 @@
 <link rel="dns-prefetch" href="https://firestore.googleapis.com">
 <link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
 <!-- ════════════════════════════════════════════════════════════════ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ══ TITLE & DESCRIPTION OPTIMIZADOS PARA GOOGLE (largo cola + año) ══ -->
 <title>JoelDroid Mods - MOD APK & Games for Android | 2026</title>
@@ -279,13 +275,13 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 (function(){
   try{
     var manual = localStorage.getItem('jd_manual_theme')==='1';
-    var saved  = localStorage.getItem('darkMode');
+    var saved  = localStorage.getItem('darkMode'); // 'dark' | 'light'
     var isDark;
     if(manual && saved){ isDark = (saved==='dark'); }
-    else { isDark = true; } // ► Modo OSCURO por defecto
+    else { isDark = false; } // ► Modo CLARO por defecto en visitas nuevas
     if(!isDark) document.body.classList.add('light-mode');
     window.__JD_INITIAL_DARK = isDark;
-  }catch(e){ /* dark por defecto: no añadir light-mode */ }
+  }catch(e){ document.body.classList.add('light-mode'); }
 })();
 </script>
 
@@ -796,9 +792,9 @@ window.__JD_REST_DONE = false;
       <div class="flex-grow">
         <h1 id="det-name" class="font-black text-2xl tracking-tighter leading-tight uppercase mb-1 notranslate">---</h1>
         <p id="det-verification-text" class="text-blue-500 text-[10px] font-bold uppercase tracking-wider mb-3 notranslate">JoelDroid Mods YT • Verificado</p>
-        <button id="det-download-home-btn" onclick="scrollToDownloads()" class="btn-download-main btn-download-main--oneline px-6 py-2 rounded-full text-[12px] font-black uppercase tracking-tight text-white active:scale-95 transition-all" style="white-space:nowrap;flex-wrap:nowrap;max-width:100%;">
-          <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim" style="flex-shrink:0"></i>
-          <span data-i18n="download_mod_btn" style="white-space:nowrap;display:inline-block;line-height:1">Descargar Mod Apk</span>
+        <button id="det-download-home-btn" onclick="scrollToDownloads()" class="btn-download-main px-8 py-2 rounded-full text-[12px] font-black uppercase tracking-tighter text-white active:scale-95 transition-all">
+          <i data-lucide="arrow-down-to-line" class="w-4 h-4 download-anim"></i>
+          <span data-i18n="download_mod_btn">Descargar Mod Apk</span>
         </button>
       </div>
     </div>
@@ -6210,9 +6206,18 @@ window.onload=function(){
 (function(){
   try{
     var KEY='jd_cookie_consent';
-    /* Banner desactivado: auto-aceptación silenciosa para no estorbar la UX ni el CPM */
-    try{ if(!localStorage.getItem(KEY)) localStorage.setItem(KEY,'accept|'+Date.now()); }catch(e){}
-    var _b=document.getElementById('jd-cookie-banner'); if(_b){ _b.style.display='none'; _b.setAttribute('hidden',''); }
+    var saved=null;
+    try{ saved=localStorage.getItem(KEY); }catch(e){}
+    if(!saved){
+      try{ localStorage.setItem('jd_cookie_notice_location','compact_corner_banner'); }catch(e){}
+      var _show=function(){
+        var b=document.getElementById('jd-cookie-banner');
+        if(b){ b.style.display='block'; }
+      };
+      var _schedule=function(){ setTimeout(_show, 0); };
+      if(document.readyState==='complete'){ _schedule(); }
+      else { window.addEventListener('load', _schedule, {once:true}); }
+    }
     window.jdCookieConsent=function(choice,returnHome){
       try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');
@@ -6297,7 +6302,21 @@ window.onload=function(){
 
 <script>
 /* ══════════════════════════════════════════════════════════════════
-   
+   SCROLLER DE CAPTURAS — versión robusta anti-congelamiento
+   ──────────────────────────────────────────────────────────────────
+   El bug anterior: setPointerCapture + pointermove con preventDefault
+   se quedaba "atascado" cuando Monetag abría una pestaña/popup a mitad
+   del gesto: el navegador nunca recibía pointerup, mouseDrag quedaba
+   en true y todo el carrusel dejaba de aceptar scroll.
+   Solución:
+   - El scroll en táctil lo gestiona el navegador (CSS overflow-x:auto).
+     NO interceptamos touchmove, NO usamos preventDefault.
+   - El drag con ratón (desktop) usa solo mousedown/mousemove/mouseup,
+     SIN pointer capture (la causa real del bloqueo).
+   - Reset agresivo del estado cuando la pestaña vuelve al primer plano,
+     pierde foco o el navegador dispara pageshow/touchcancel.
+   - El listener vive en window para detectar el regreso desde anuncios
+     incluso si Monetag inyecta overlays encima del scroller.
    ══════════════════════════════════════════════════════════════════ */
 function _jdBindScreenScroller(scroller){
   if(!scroller || scroller.__jdBound) return;
@@ -6399,41 +6418,6 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
 })();
 </script>
 
-<script>
-/* ── Normalizador "Apk": fuerza primera mayúscula en la extensión .APK ──
-   Observa los textos de los botones de descarga (Opción 1 / Opción 2)
-   y reemplaza .APK / .apk por ".Apk" cada vez que cambian.
-   NO toca ningún slot de Monetag ni anuncios. */
-(function(){
-  function fixApk(txt){
-    if(!txt) return txt;
-    return String(txt).replace(/\.A\s*P\s*K\b/gi, '.Apk');
-  }
-  function applyTo(id){
-    var el = document.getElementById(id);
-    if(!el) return;
-    var t = el.textContent;
-    var n = fixApk(t);
-    if(n !== t) el.textContent = n;
-  }
-  function run(){
-    applyTo('btn-descarga-1-texto');
-    applyTo('btn-descarga-2-texto');
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    run();
-    ['btn-descarga-1-texto','btn-descarga-2-texto'].forEach(function(id){
-      var el = document.getElementById(id); if(!el) return;
-      try{
-        new MutationObserver(function(){ run(); })
-          .observe(el, { characterData:true, childList:true, subtree:true });
-      }catch(e){}
-    });
-    /* Re-aplica tras los renders dinámicos del detalle */
-    setTimeout(run, 600); setTimeout(run, 1500); setTimeout(run, 3000);
-  });
-})();
-</script>
 </body>
 
 

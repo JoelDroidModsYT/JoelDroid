@@ -19,7 +19,7 @@
       width:100%;flex-shrink:0;
       background:rgba(6,11,24,.97);
       border-bottom:1px solid rgba(37,99,235,.18);
-      padding:7px 16px;display:flex;align-items:center;justify-content:space-between;
+      padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
     }
     .dl-back-btn{
       display:flex;align-items:center;gap:4px;
@@ -32,12 +32,11 @@
     .dl-back-btn:active{opacity:.5}
     .dl-nav-logo{display:flex;align-items:center;gap:10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
     .dl-nav-logo-icon{
-      width:34px;height:34px;border-radius:20%;flex-shrink:0;
+      width:36px;height:36px;border-radius:20%;flex-shrink:0;
       background:linear-gradient(135deg,#2563eb,#06b6d4);
       box-shadow:0 0 10px rgba(37,99,235,.45);
       display:flex;align-items:center;justify-content:center;overflow:hidden;
     }
-    .dl-nav-logo-img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
     .logo-zap{animation:logoGlow 2s infinite alternate ease-in-out}
     @keyframes logoGlow{
       0%  {filter:drop-shadow(0 0 2px rgba(255,255,255,.5));transform:scale(1)}
@@ -48,7 +47,7 @@
     .dl-nav-logo-sub{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.38em;opacity:.55;color:rgba(255,255,255,.7)}
 
     /* ── Body ── */
-    .dl-body{flex:1;width:100%;max-width:480px;margin:0 auto;padding:22px 16px 32px;display:flex;flex-direction:column;gap:0}
+    .dl-body{flex:1;width:100%;max-width:480px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:0}
 
     /* ── Hero ── */
     .dl-hero{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;margin-bottom:8px}
@@ -57,7 +56,6 @@
     .dl-hero-name{font-size:1.05rem;font-weight:400;line-height:1.3;color:#e2e8f0;text-align:center;max-width:100%;padding:0 8px;letter-spacing:-.01em;word-break:break-word;white-space:normal;overflow:visible}
     .dl-hero-name strong{font-weight:700;color:#fff}
     .dl-hero-android{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:rgba(255,255,255,.5)}
-    .dl-hero-android-txt{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.01em}
     .dl-hero-check{width:15px;height:15px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 6px rgba(34,197,94,.6)}
 
     /* ── Stats ── */
@@ -96,19 +94,16 @@
     @keyframes dlIconBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(4px)}}
     @keyframes btnShine{0%{left:-100%}60%,100%{left:150%}}
 
-    .dl-btn-final{display:none;width:100%;min-height:84px;padding:16px 14px;border:none;border-radius:18px;background:linear-gradient(135deg,#1d4ed8 0%,#0ea5e9 55%,#06b6d4 100%);color:#fff;cursor:pointer;transition:all .25s;align-items:center;justify-content:flex-start;gap:12px;box-shadow:0 0 28px rgba(37,99,235,.55),0 6px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18);position:relative;overflow:hidden;animation:btnPulse 2.5s ease-in-out infinite;flex-shrink:0;text-decoration:none;font-family:'Inter',sans-serif;text-align:left}
+    .dl-btn-final{display:none;width:100%;padding:14px 16px;border:none;border-radius:18px;background:linear-gradient(135deg,#1d4ed8 0%,#0ea5e9 55%,#06b6d4 100%);color:#fff;cursor:pointer;transition:all .25s;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 28px rgba(37,99,235,.55),0 6px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18);position:relative;overflow:hidden;animation:btnPulse 2.5s ease-in-out infinite;flex-shrink:0;text-decoration:none;font-family:'Inter',sans-serif}
     .dl-btn-final.visible{display:flex}
     .dl-btn-final:active{transform:scale(.97);opacity:.92}
-    .dl-btn-final::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:btnShine 2.8s ease-in-out infinite;pointer-events:none}
-    .dl-btn-icon-wrap{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;flex-shrink:0;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);animation:dlIconBounce 1.6s ease-in-out infinite}
-    .dl-btn-text-col{display:flex;flex-direction:column;align-items:flex-start;gap:4px;flex:1 1 auto;min-width:0}
-    .dl-btn-label-top{font-size:8px;font-weight:800;opacity:.75;letter-spacing:.18em;text-transform:uppercase;line-height:1.1;white-space:normal;max-width:100%;color:#e0f2fe}
-    .dl-btn-game-title{font-size:13px;font-weight:800;line-height:1.25;color:#fff;width:100%;letter-spacing:-.01em;display:flex;flex-direction:column;gap:3px;min-width:0}
-    .dl-btn-name-line{display:block;font-size:13.5px;font-weight:900;line-height:1.25;color:#fff;white-space:normal;overflow-wrap:break-word;word-break:break-word;width:100%;letter-spacing:-.01em}
-    .dl-btn-mod-line{display:block;font-size:10.5px;font-weight:700;line-height:1.3;color:rgba(255,255,255,.92);white-space:normal;overflow-wrap:break-word;word-break:break-word;width:100%;letter-spacing:.01em}
-    .dl-hero-name-strong{display:block;font-weight:800;font-size:1.05rem;line-height:1.25;color:#fff}
-    .dl-hero-name-sub{display:block;margin-top:4px;font-weight:700;font-size:.78rem;letter-spacing:.01em;color:#cbd5e1}
-    .dl-btn-size-badge{flex-shrink:0;align-self:center;background:rgba(255,255,255,.20);border-radius:20px;padding:5px 11px;font-size:9px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
+    .dl-btn-final::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:btnShine 2.8s ease-in-out infinite}
+    .dl-btn-icon-wrap{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;flex-shrink:0;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);animation:dlIconBounce 1.4s ease-in-out infinite}
+    .dl-btn-text-col{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1;min-width:0;overflow:hidden}
+    .dl-btn-label-top{font-size:7px;font-weight:700;opacity:.65;letter-spacing:.22em;text-transform:uppercase;line-height:1;white-space:nowrap;overflow:hidden;max-width:100%;animation:dlLabelScroll 5s linear infinite alternate}
+    @keyframes dlLabelScroll{0%,30%{transform:translateX(0)}70%,100%{transform:translateX(calc(-100% + 120px))}}
+    .dl-btn-game-title{font-size:13px;font-weight:800;line-height:1.15;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.015em;display:block}
+    .dl-btn-size-badge{flex-shrink:0;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 10px;font-size:8px;font-weight:900;white-space:nowrap;letter-spacing:.04em}
 
     /* ── Juegos recomendados ── */
     .dl-reco-section{width:100%;margin-top:18px;display:none;flex-direction:column;gap:10px}
@@ -136,9 +131,7 @@
       display:block;
       text-align:center;
       margin-top:16px;
-      min-height:90px;
-      contain:layout;
-      /* min-height reserva espacio y evita CLS mientras Monetag carga; el script ajusta su tamaño real */
+      /* Sin min-height forzado — Monetag define su propio tamaño */
     }
 
     /* ════════════════════════════════════════════════════════════════
@@ -165,14 +158,10 @@
     }
     body.light-mode .dl-hero-name{color:#0f172a}
     body.light-mode .dl-hero-name strong{color:#0f172a}
-    body.light-mode .dl-hero-name strong,
-    body.light-mode .dl-hero-name-strong{color:#0b1220 !important;font-weight:900;text-shadow:none}
-    body.light-mode .dl-hero-name-sub{color:#1e3a8a !important;font-weight:700}
     body.light-mode .dl-hero-android{color:rgba(15,23,42,.6)}
     body.light-mode .dl-stat-chip{
       background:#ffffff;
       border:1px solid rgba(15,23,42,.1);
-      box-shadow:none;
     }
     body.light-mode .dl-stat-label{color:rgba(15,23,42,.55)}
     body.light-mode .dl-stat-value{color:#0f172a}
@@ -196,25 +185,16 @@
     body.light-mode .dl-ring-fg{filter:none}
 
     /* ► BOTÓN FINAL: limpio, plano, sin sombras ni resplandores en modo claro */
-    /* ► BOTÓN FINAL en modo claro — pulse suave + brillo translúcido (CTR) */
-    @keyframes btnPulseLight{
-      0%,100%{box-shadow:0 6px 18px rgba(37,99,235,.28),0 0 0 0 rgba(37,99,235,.35)}
-      50%    {box-shadow:0 10px 26px rgba(37,99,235,.36),0 0 0 8px rgba(37,99,235,0)}
-    }
     body.light-mode .dl-btn-final{
-      animation:btnPulseLight 2.4s ease-in-out infinite !important;
+      box-shadow:none !important;
+      animation:none !important;
       background:linear-gradient(135deg,#2563eb,#0ea5e9) !important;
-      box-shadow:0 6px 18px rgba(37,99,235,.28);
     }
-    body.light-mode .dl-btn-final::after{display:block !important;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
+    body.light-mode .dl-btn-final::after{display:none !important}
     body.light-mode .dl-btn-icon-wrap{
-      background:rgba(255,255,255,.25);
+      animation:none;
+      background:rgba(255,255,255,.22);
     }
-
-    /* ► Texto Android 5.0+ — alto contraste en modo claro (azul marino industrial) */
-    body.light-mode .dl-hero-android{color:#1e293b}
-    body.light-mode .dl-hero-android-txt{color:#0f1f3d !important;font-weight:800}
-    body.light-mode .dl-hero-android svg{color:#1e3a8a;fill:#1e3a8a}
 
     /* ► Recomendados en modo claro */
     body.light-mode .dl-reco-title{color:#1d4ed8}
@@ -232,22 +212,3 @@
     body.light-mode .dl-reco-name{color:#0f172a}
     body.light-mode .dl-reco-meta{color:rgba(15,23,42,.55)}
     body.light-mode .dl-reco-badge{color:#059669}
-
-    /* ► Botón final — limpieza extra modo claro (sin sombras neón) */
-    body.light-mode .dl-btn-name-line{color:#ffffff;text-shadow:none}
-    body.light-mode .dl-btn-mod-line{color:rgba(255,255,255,.92);text-shadow:none}
-    body.light-mode .dl-btn-icon-wrap{box-shadow:none;text-shadow:none}
-    body.light-mode .dl-btn-size-badge{background:rgba(255,255,255,.22);box-shadow:none;text-shadow:none}
-    body.light-mode .dl-btn-label-top{color:rgba(255,255,255,.95);text-shadow:none}
-    /* Quitar TODOS los resplandores cyberpunk heredados en modo claro */
-    body.light-mode .dl-hero-icon,
-    body.light-mode .dl-counter-num,
-    body.light-mode .dl-counter-label,
-    body.light-mode .dl-stat-value,
-    body.light-mode .dl-stat-label,
-    body.light-mode .dl-waiting-text{text-shadow:none !important}
-
-
-/* JD DARK SAFETY — máxima legibilidad en modo oscuro por defecto */
-html:not(.light-mode) body, body:not(.light-mode){background:#0c1425;color:#fff}
-html:not(.light-mode) body *:where(p,span,h1,h2,h3,h4,a,li,label,strong){color:inherit}
