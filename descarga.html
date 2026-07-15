@@ -103,7 +103,7 @@
             <circle class="dl-ring-fg" id="dl-ring-fg" cx="45" cy="45" r="38" stroke-dasharray="238.8" stroke-dashoffset="0"/>
           </svg>
           <div class="dl-counter-inner">
-            <div id="dl-counter-num" class="dl-counter-num">15</div>
+            <div id="dl-counter-num" class="dl-counter-num">10</div>
             <div class="dl-counter-label">seg</div>
           </div>
         </div>
@@ -218,6 +218,7 @@
       }
       var bdg = document.getElementById('dl-btn-size-badge');
       if (bdg && s) bdg.textContent = s;
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats }; } catch(_e){}
       var sv = document.getElementById('dl-stat-ver');
       if (sv) sv.textContent = vc || v || '—';
       var ss = document.getElementById('dl-stat-size');
@@ -251,7 +252,7 @@
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
-  var TOTAL  = 15;
+  var TOTAL  = 10;
   var CIRCUM = 238.8;
   var left   = TOTAL;
 
@@ -344,6 +345,7 @@
       if (nameEl)  nameEl.innerHTML    = _buildHeroTitle(n, v, feats);
       if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(n, v, feats);
       if (btnBadge && s) btnBadge.textContent = s;
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats }; } catch(_e){}
       if (statVer  && v) statVer.textContent  = v;
       if (statSize && s) statSize.textContent = s;
       try { var _vc=_cleanVer(v); var _mt=_modTxt(feats); document.title = n + ' (Mod ' + _mt + ') ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT'; } catch(e) {}
@@ -447,17 +449,135 @@
     }
     _loadRecommended();
 
-    /* Clic en botón → abre directamente el enlace */
+    /* ═══ FLUJO DE 4 ESTADOS (Activador → Verificando → Final) ═══ */
+    var btnState = 'activador';    // activador | verificando | final
+    var COOLDOWN = 7;
+    var CUTI_URL = 'https://cutt.ly/joeldroidmods';  // fallback si no hay cutiUrl
+
+    function _labelTop(){ return btnFinal ? btnFinal.querySelector('.dl-btn-label-top') : null; }
+    function _sizeBadge(){ return document.getElementById('dl-btn-size-badge'); }
+    function _cleanApk(name){ return String(name||'').replace(/\.apk$/i,'').trim(); }
+
+    function _renderActivador(){
+      if (!btnFinal) return;
+      btnState = 'activador';
+      btnFinal.classList.remove('estado-verificando','estado-final');
+      btnFinal.classList.add('estado-activador');
+      btnFinal.style.pointerEvents = '';
+      var lt = _labelTop(); if (lt) lt.textContent = '👉 ¡HAZ CLIC AQUÍ PARA OBTENER EL ENLACE!';
+      var meta = window._jdMeta || {};
+      if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
+      var bdg = _sizeBadge();
+      if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
+      // Limpia barra/mini de estados previos
+      var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
+      var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
+    }
+
+    function _renderVerificando(){
+      if (!btnFinal) return;
+      btnState = 'verificando';
+      btnFinal.classList.remove('estado-activador','estado-final');
+      btnFinal.classList.add('estado-verificando');
+      btnFinal.style.pointerEvents = 'none';
+      var meta = window._jdMeta || {};
+      var lt = _labelTop();
+      if (lt) lt.textContent = '⏳ VERIFICANDO TU ENLACE DE DESCARGA DE ' + String(meta.name||'').toUpperCase() + '...';
+      if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
+      // Oculta badge de peso
+      var bdg = _sizeBadge(); if (bdg) bdg.style.display = 'none';
+      // Inserta mini timer
+      var mini = document.createElement('span');
+      mini.className = 'dl-btn-mini-timer';
+      mini.textContent = '[ ' + COOLDOWN + 's ]';
+      btnFinal.appendChild(mini);
+      // Inserta barra de progreso
+      var bar = document.createElement('div');
+      bar.className = 'dl-btn-progress';
+      bar.innerHTML = '<div class="dl-btn-progress-fill"></div>';
+      btnFinal.appendChild(bar);
+      var fill = bar.querySelector('.dl-btn-progress-fill');
+
+      var left = COOLDOWN;
+      var start = Date.now();
+      // Anima la barra suavemente
+      var raf;
+      function tickBar(){
+        var elapsed = (Date.now() - start) / 1000;
+        var pct = Math.min(elapsed / COOLDOWN, 1) * 100;
+        if (fill) fill.style.width = pct + '%';
+        if (pct < 100) raf = requestAnimationFrame(tickBar);
+      }
+      raf = requestAnimationFrame(tickBar);
+
+      var iv = setInterval(function(){
+        left--;
+        if (left <= 0){
+          clearInterval(iv);
+          if (raf) cancelAnimationFrame(raf);
+          _renderFinal();
+        } else {
+          mini.textContent = '[ ' + left + 's ]';
+        }
+      }, 1000);
+    }
+
+    function _renderFinal(){
+      if (!btnFinal) return;
+      btnState = 'final';
+      btnFinal.classList.remove('estado-activador','estado-verificando');
+      btnFinal.classList.add('estado-final');
+      btnFinal.style.pointerEvents = '';
+      var lt = _labelTop(); if (lt) lt.textContent = '✓ ¡ENLACE VERIFICADO Y SEGURO!';
+      var meta = window._jdMeta || {};
+      var vc = _cleanVer(meta.ver||'');
+      var baseName = _cleanApk(meta.name||'MOD APK');
+      var premiumLine = baseName + (vc ? ' v'+vc : '') + ' Mod Dinero Infinito Monedas Infinitas Premium.Apk';
+      if (btnTexto) {
+        btnTexto.innerHTML = '<span class="dl-btn-name-line">' + _esc(premiumLine) + '</span>' +
+                             '<span class="dl-btn-mod-line">✓ Descarga oficial verificada</span>';
+      }
+      // Limpia mini/barra
+      var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
+      var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
+      // Restaura badge
+      var bdg = _sizeBadge();
+      if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
+    }
+
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
         if (!timerDone) return;
         var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
-        if (url && url !== '#') {
-          window.open(url, '_blank', 'noopener,noreferrer');
+
+        if (btnState === 'activador') {
+          // Primer clic: abre URL real en nueva pestaña (popunder Monetag) y pasa a verificando
+          if (url && url !== '#') {
+            try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(_e){}
+          }
+          _renderVerificando();
+          return;
         }
+
+        if (btnState === 'final') {
+          // Segundo clic: abre URL real en segundo plano y redirige pestaña actual al acortador Cuti
+          if (url && url !== '#') {
+            try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(_e){}
+          }
+          try { window.location.href = CUTI_URL; } catch(_e){}
+          return;
+        }
+        // estado 'verificando' está bloqueado por pointer-events:none
       });
     }
+
+    // Al finalizar el contador principal → renderiza estado ACTIVADOR
+    var _origFinish = _finishTimer;
+    _finishTimer = function(){
+      _origFinish();
+      _renderActivador();
+    };
 
     if (gameId) {
       if (_trySessionStorage()) { _startTimer(); _fetchFirebase(); }
