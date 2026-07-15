@@ -231,7 +231,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   JOELDROID MODS YT — descarga.html
+   JOELDROID MODS YT — descarga.html  (fixed flow + mobile timer)
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -249,12 +249,24 @@
   var gameId  = (params.get('id')   || '').trim();
   var modoNum = params.get('modo') === '2' ? 2 : 1;
 
+  /* URL DINÁMICA de Cuty.io obtenida de Firestore (nunca fija) */
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
   var TOTAL  = 10;
   var CIRCUM = 238.8;
-  var left   = TOTAL;
+
+  /* Handles globales para limpiar SIEMPRE al cambiar de estado */
+  var mainIv   = null;   // contador inicial 10s
+  var verifyIv = null;   // contador verificación 7s
+  var verifyRaf= null;   // rAF barra
+  var verifyTargetTs = 0;
+
+  function _clearMain(){ if (mainIv){ clearInterval(mainIv); mainIv = null; } }
+  function _clearVerify(){
+    if (verifyIv){ clearInterval(verifyIv); verifyIv = null; }
+    if (verifyRaf){ cancelAnimationFrame(verifyRaf); verifyRaf = null; }
+  }
 
   document.addEventListener('DOMContentLoaded', function () {
 
@@ -276,36 +288,66 @@
     if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM);
 
     function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function _cleanVer(v) { return String(v||'').replace(/^v+/i,''); }
+    function _cleanApk(name){ return String(name||'').replace(/\.apk$/i,'').trim(); }
 
+    /* ── Features del MOD: soporta múltiples nombres de campo Firestore ── */
     function _getFeats(d){
-      var f = d && d.features;
-      if (typeof f === 'string') { try { f = JSON.parse(f); } catch(e){ f = []; } }
+      if (!d) return [];
+      var f = d.modFeatures || d.features || d.caracteristicas || d.mod || d.modText;
+      if (typeof f === 'string') {
+        var s = f.trim();
+        if (!s) return [];
+        // Intenta JSON, si no, separa por / , | o saltos de línea
+        try {
+          var j = JSON.parse(s);
+          if (Array.isArray(j)) f = j;
+          else f = [s];
+        } catch(e){
+          f = s.split(/\s*[\/|,\n]+\s*/);
+        }
+      }
       if (!Array.isArray(f)) f = [];
-      return f.filter(Boolean).slice(0,2);
+      f = f.map(function(x){ return String(x||'').trim(); })
+           .filter(function(x){ return x && !/^moneda\s*0$/i.test(x) && x !== '0'; });
+      return f.slice(0, 3);
     }
-    function _modTxt(feats){ return (feats && feats.length) ? feats.join(' / ') : 'APK'; }
+    function _modTxt(feats){
+      return (feats && feats.length) ? feats.join(' / ') : 'Dinero Infinito';
+    }
 
     function _buildHeroTitle(n, v, feats) {
       var vc = _cleanVer(v);
       return '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + '</strong>' +
              '<span class="dl-hero-name-sub">Mod: ' + _esc(_modTxt(feats)) + (vc ? ' • Versión '+_esc(vc) : '') + '</span>';
     }
-    function _cleanVer(v) { return String(v||'').replace(/^v+/i,''); }
-
     function _buildBtnHTML(n, v, feats) {
       var vc = _cleanVer(v);
       return '<span class="dl-btn-name-line">' + _esc(n) + (vc?' v'+_esc(vc)+'.Apk':'.Apk') + '</span>' +
              '<span class="dl-btn-mod-line">Mod ' + _esc(_modTxt(feats)) + '</span>';
     }
 
-    /* Timer */
-    function _renderTimer() {
+    /* ─────────────── TIMER INICIAL 10s (con Date.now para no congelarse) ─────────────── */
+    var mainTargetTs = 0;
+
+    function _renderTimer(left) {
       var ratio = Math.min((TOTAL - left) / TOTAL, 1);
       if (numEl) numEl.textContent = String(Math.max(left, 0));
       if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM - CIRCUM * ratio);
       var pct = Math.round(ratio * 100);
       if (barEl) barEl.style.width = pct + '%';
       if (pctEl) pctEl.textContent = pct + '%';
+    }
+
+    function _tickMain(){
+      var left = Math.ceil((mainTargetTs - Date.now()) / 1000);
+      if (left <= 0){
+        _clearMain();
+        _renderTimer(0);
+        _finishTimer();
+      } else {
+        _renderTimer(left);
+      }
     }
 
     function _finishTimer() {
@@ -316,39 +358,43 @@
         if (realUrl) btnFinal.setAttribute('data-real-url', realUrl);
         btnFinal.classList.add('visible');
       }
+      _renderActivador();
     }
 
     function _startTimer() {
       if (timerRunning) return;
       timerRunning = true;
-      _renderTimer();
-      var iv = setInterval(function () {
-        left--;
-        if (left <= 0) { clearInterval(iv); _finishTimer(); }
-        else           { _renderTimer(); }
-      }, 1000);
+      mainTargetTs = Date.now() + TOTAL * 1000;
+      _renderTimer(TOTAL);
+      _clearMain();
+      mainIv = setInterval(_tickMain, 250);
     }
 
+    /* ─────────────── DATOS DEL JUEGO ─────────────── */
     function _applyData(d) {
       var n = d.name  || d.nombre  || 'MOD APK';
       var v = d.ver   || d.version || '';
       var s = d.size  || d.peso    || '';
       var t = d.thumb || d.imagen  || d.icon || '';
 
+      // URL DINÁMICA de Cuty.io (link acortado guardado por juego en Firestore).
       var url = modoNum === 2
-        ? (d.downloadButtonLink2 || d.link2 || d.downloadButtonLink1 || d.link1 || '')
-        : (d.downloadButtonLink1 || d.link1 || '');
+        ? (d.cutyUrl2 || d.cuty2 || d.downloadButtonLink2 || d.link2 || d.cutyUrl || d.downloadButtonLink1 || d.link1 || '')
+        : (d.cutyUrl  || d.cuty  || d.downloadButtonLink1 || d.link1 || '');
       realUrl = url || '';
-      if (timerDone && btnFinal && realUrl) btnFinal.setAttribute('data-real-url', realUrl);
+      if (btnFinal && realUrl) btnFinal.setAttribute('data-real-url', realUrl);
 
       var feats = _getFeats(d);
       if (nameEl)  nameEl.innerHTML    = _buildHeroTitle(n, v, feats);
-      if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(n, v, feats);
+      if (btnTexto && btnState === 'idle') btnTexto.innerHTML = _buildBtnHTML(n, v, feats);
       if (btnBadge && s) btnBadge.textContent = s;
       try { window._jdMeta = { name:n, ver:v, size:s, feats:feats }; } catch(_e){}
       if (statVer  && v) statVer.textContent  = v;
       if (statSize && s) statSize.textContent = s;
-      try { var _vc=_cleanVer(v); var _mt=_modTxt(feats); document.title = n + ' (Mod ' + _mt + ') ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT'; } catch(e) {}
+      try {
+        var _vc=_cleanVer(v), _mt=_modTxt(feats);
+        document.title = n + ' (Mod ' + _mt + ') ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT';
+      } catch(e) {}
 
       if (t && iconEl) {
         if (window._jdGetCachedImg) {
@@ -359,7 +405,7 @@
           iconEl.onerror = function(){ iconEl.style.display='none'; if(iconPh) iconPh.style.display='flex'; };
           iconEl.src = t;
         }
-      } else {
+      } else if (!t) {
         if (iconEl) iconEl.style.display = 'none';
         if (iconPh) iconPh.style.display = 'flex';
       }
@@ -388,7 +434,7 @@
       } catch(e) { console.warn('[descarga] Firebase:', e.message); if (!timerRunning) _startTimer(); }
     }
 
-    /* Recomendados: lee games.json primero y Firestore como respaldo. */
+    /* ─────────────── RECOMENDADOS (sin cambios) ─────────────── */
     function _slugifyReco(text) {
       return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
         .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,90);
@@ -400,10 +446,10 @@
       function _b(x,d){ return x?x.booleanValue!==false:d!==false; }
       function _a(x){ if(!x||!x.arrayValue)return []; return (x.arrayValue.values||[]).map(function(v){return _s(v);}).filter(Boolean); }
       var id=(doc.name||'').split('/').pop();
-      return {id:id,name:_s(f.name||f.nombre),description:_s(f.description||f.descripcion),thumb:_s(f.thumb||f.imagen||f.icon),ver:_s(f.ver||f.version),size:_s(f.size||f.peso),visible:_b(f.visible),features:_a(f.features),timestamp:parseInt(_s(f.timestamp)||'0',10)||0,order:parseInt(_s(f.order)||'0',10)||0};
+      return {id:id,name:_s(f.name||f.nombre),description:_s(f.description||f.descripcion),thumb:_s(f.thumb||f.imagen||f.icon),ver:_s(f.ver||f.version),size:_s(f.size||f.peso),visible:_b(f.visible),features:_a(f.features||f.modFeatures),timestamp:parseInt(_s(f.timestamp)||'0',10)||0,order:parseInt(_s(f.order)||'0',10)||0};
     }
     function _normalizeRecoGame(g){
-      return {id:String(g.id||''),name:g.name||g.nombre||'Juego MOD',description:g.description||g.descripcion||'',thumb:g.thumb||g.imagen||g.icon||'',ver:g.ver||g.version||'',size:g.size||g.peso||'',visible:g.visible!==false,features:g.features||g.caracteristicas||[],timestamp:g.timestamp||0,order:g.order||0};
+      return {id:String(g.id||''),name:g.name||g.nombre||'Juego MOD',description:g.description||g.descripcion||'',thumb:g.thumb||g.imagen||g.icon||'',ver:g.ver||g.version||'',size:g.size||g.peso||'',visible:g.visible!==false,features:g.features||g.modFeatures||g.caracteristicas||[],timestamp:g.timestamp||0,order:g.order||0};
     }
     function _shuffleReco(list){
       var seed;
@@ -449,17 +495,33 @@
     }
     _loadRecommended();
 
-    /* ═══ FLUJO DE 4 ESTADOS (Activador → Verificando → Final) ═══ */
-    var btnState = 'activador';    // activador | verificando | final
+    /* ═══════════════════════════════════════════════════════════════
+       FLUJO SECUENCIAL: activador → verificando (7s) → final
+       - 1er clic:  abre Monetag (popunder/direct-link) en nueva pestaña
+                    e inicia verificación obligatoria.
+       - Verificando: bloqueado 7s (temporizador absoluto anti-freeze).
+       - 2do clic (final): redirige a la URL REAL dinámica de Cuty.io
+                            leída de Firestore (nunca fija).
+    ═══════════════════════════════════════════════════════════════ */
+    var btnState = 'idle';          // idle | activador | verificando | final
     var COOLDOWN = 7;
-    var CUTI_URL = 'https://cutt.ly/joeldroidmods';  // fallback si no hay cutiUrl
+
+    /* Monetag direct-link opcional; si está vacío, se dispara solo por click
+       gracias al script data-zone ya cargado en <head>. */
+    var MONETAG_DIRECT_URL = '';    // p.ej. 'https://otieu.com/4/xxxxxx'
 
     function _labelTop(){ return btnFinal ? btnFinal.querySelector('.dl-btn-label-top') : null; }
     function _sizeBadge(){ return document.getElementById('dl-btn-size-badge'); }
-    function _cleanApk(name){ return String(name||'').replace(/\.apk$/i,'').trim(); }
+
+    function _resetBtnExtras(){
+      if (!btnFinal) return;
+      var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
+      var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
+    }
 
     function _renderActivador(){
       if (!btnFinal) return;
+      _clearVerify();
       btnState = 'activador';
       btnFinal.classList.remove('estado-verificando','estado-final');
       btnFinal.classList.add('estado-activador');
@@ -469,116 +531,137 @@
       if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
       var bdg = _sizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
-      // Limpia barra/mini de estados previos
-      var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
-      var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
+      _resetBtnExtras();
     }
 
     function _renderVerificando(){
       if (!btnFinal) return;
+      _clearVerify();
       btnState = 'verificando';
       btnFinal.classList.remove('estado-activador','estado-final');
       btnFinal.classList.add('estado-verificando');
       btnFinal.style.pointerEvents = 'none';
+
       var meta = window._jdMeta || {};
       var lt = _labelTop();
       if (lt) lt.textContent = '⏳ VERIFICANDO TU ENLACE DE DESCARGA DE ' + String(meta.name||'').toUpperCase() + '...';
       if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
-      // Oculta badge de peso
       var bdg = _sizeBadge(); if (bdg) bdg.style.display = 'none';
-      // Inserta mini timer
+
+      _resetBtnExtras();
       var mini = document.createElement('span');
       mini.className = 'dl-btn-mini-timer';
       mini.textContent = '[ ' + COOLDOWN + 's ]';
       btnFinal.appendChild(mini);
-      // Inserta barra de progreso
+
       var bar = document.createElement('div');
       bar.className = 'dl-btn-progress';
       bar.innerHTML = '<div class="dl-btn-progress-fill"></div>';
       btnFinal.appendChild(bar);
       var fill = bar.querySelector('.dl-btn-progress-fill');
 
-      var left = COOLDOWN;
-      var start = Date.now();
-      // Anima la barra suavemente
-      var raf;
-      function tickBar(){
-        var elapsed = (Date.now() - start) / 1000;
-        var pct = Math.min(elapsed / COOLDOWN, 1) * 100;
-        if (fill) fill.style.width = pct + '%';
-        if (pct < 100) raf = requestAnimationFrame(tickBar);
-      }
-      raf = requestAnimationFrame(tickBar);
+      // TIEMPO ABSOLUTO (Date.now) → sobrevive a que el navegador móvil
+      // pause la pestaña mientras el ad de Monetag está en primer plano.
+      verifyTargetTs = Date.now() + COOLDOWN * 1000;
 
-      var iv = setInterval(function(){
-        left--;
-        if (left <= 0){
-          clearInterval(iv);
-          if (raf) cancelAnimationFrame(raf);
+      function _tickVerify(){
+        var remainMs = verifyTargetTs - Date.now();
+        var remainS  = Math.ceil(remainMs / 1000);
+        var pct = Math.min(1 - remainMs / (COOLDOWN * 1000), 1) * 100;
+        if (pct < 0) pct = 0;
+        if (fill) fill.style.width = pct + '%';
+        if (remainMs <= 0){
+          _clearVerify();
+          if (mini) mini.textContent = '[ 0s ]';
           _renderFinal();
-        } else {
-          mini.textContent = '[ ' + left + 's ]';
+          return;
         }
-      }, 1000);
+        if (mini) mini.textContent = '[ ' + Math.max(remainS, 1) + 's ]';
+      }
+      _tickVerify();
+      // Intervalo corto (250 ms) + rAF para que el catch-up al enfocar sea instantáneo.
+      verifyIv = setInterval(_tickVerify, 250);
+      function _raf(){ if (btnState !== 'verificando') return; _tickVerify(); verifyRaf = requestAnimationFrame(_raf); }
+      verifyRaf = requestAnimationFrame(_raf);
     }
 
     function _renderFinal(){
       if (!btnFinal) return;
+      _clearVerify();
       btnState = 'final';
       btnFinal.classList.remove('estado-activador','estado-verificando');
       btnFinal.classList.add('estado-final');
       btnFinal.style.pointerEvents = '';
-      var lt = _labelTop(); if (lt) lt.textContent = '✓ ¡ENLACE VERIFICADO Y SEGURO!';
+      var lt = _labelTop(); if (lt) lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
       var meta = window._jdMeta || {};
       var vc = _cleanVer(meta.ver||'');
       var baseName = _cleanApk(meta.name||'MOD APK');
-      var premiumLine = baseName + (vc ? ' v'+vc : '') + ' Mod Dinero Infinito Monedas Infinitas Premium.Apk';
+      var modLbl = _modTxt(meta.feats||[]);
+      var premiumLine = baseName + (vc ? ' v'+vc : '') + ' Mod ' + modLbl + '.Apk';
       if (btnTexto) {
         btnTexto.innerHTML = '<span class="dl-btn-name-line">' + _esc(premiumLine) + '</span>' +
-                             '<span class="dl-btn-mod-line">✓ Descarga oficial verificada</span>';
+                             '<span class="dl-btn-mod-line">✓ DESCARGAR AHORA</span>';
       }
-      // Limpia mini/barra
-      var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
-      var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
-      // Restaura badge
+      _resetBtnExtras();
       var bdg = _sizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
     }
 
+    /* Re-sincroniza el contador al volver a enfocar la pestaña (móvil) */
+    function _onFocusResync(){
+      if (btnState === 'verificando'){
+        var remainMs = verifyTargetTs - Date.now();
+        if (remainMs <= 0){
+          _renderFinal();
+        } else {
+          // Fuerza un tick inmediato
+          var mini = btnFinal && btnFinal.querySelector('.dl-btn-mini-timer');
+          var fill = btnFinal && btnFinal.querySelector('.dl-btn-progress-fill');
+          if (mini) mini.textContent = '[ ' + Math.max(Math.ceil(remainMs/1000), 1) + 's ]';
+          if (fill) fill.style.width = (Math.min(1 - remainMs/(COOLDOWN*1000), 1) * 100) + '%';
+        }
+      } else if (!timerDone && timerRunning){
+        _tickMain();
+      }
+    }
+    window.addEventListener('focus', _onFocusResync);
+    window.addEventListener('pageshow', _onFocusResync);
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible') _onFocusResync();
+    });
+
+    /* ────────── CLICKS ────────── */
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
         if (!timerDone) return;
-        var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
 
         if (btnState === 'activador') {
-          // Primer clic: abre URL real en nueva pestaña (popunder Monetag) y pasa a verificando
-          if (url && url !== '#') {
-            try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(_e){}
-          }
+          // 1er clic: dispara Monetag en NUEVA pestaña e inicia verificación.
+          // El data-zone de Monetag inyecta popunder al detectar el gesto de click.
+          // Si tienes un direct-link, ponlo en MONETAG_DIRECT_URL para forzar apertura.
+          try {
+            if (MONETAG_DIRECT_URL) {
+              window.open(MONETAG_DIRECT_URL, '_blank', 'noopener,noreferrer');
+            }
+          } catch(_e){}
           _renderVerificando();
           return;
         }
 
         if (btnState === 'final') {
-          // Segundo clic: abre URL real en segundo plano y redirige pestaña actual al acortador Cuti
+          // 2do clic: redirige a la URL REAL dinámica de Cuty.io del juego (Firestore).
+          var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
           if (url && url !== '#') {
-            try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(_e){}
+            try { window.location.href = url; } catch(_e){ window.open(url, '_self'); }
           }
-          try { window.location.href = CUTI_URL; } catch(_e){}
           return;
         }
-        // estado 'verificando' está bloqueado por pointer-events:none
+        // 'verificando' está bloqueado por pointer-events:none
       });
     }
 
-    // Al finalizar el contador principal → renderiza estado ACTIVADOR
-    var _origFinish = _finishTimer;
-    _finishTimer = function(){
-      _origFinish();
-      _renderActivador();
-    };
-
+    /* ────────── ARRANQUE ────────── */
     if (gameId) {
       if (_trySessionStorage()) { _startTimer(); _fetchFirebase(); }
       else if (typeof firebase !== 'undefined') { _fetchFirebase(); }
