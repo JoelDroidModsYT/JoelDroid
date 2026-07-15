@@ -1,14 +1,19 @@
+# JoelDroid Mods — robots.txt
+# Indexación masiva del catálogo dinámico (?mod=slug).
+# Bloqueo de hashes de descarga (?id=), página de descarga y tracking.
+
 User-agent: *
 Allow: /
-Allow: /*?mod=euro-truck-simulator-2
-Allow: /*?mod=bus-simulator-indonesia
-Allow: /*?mod=off-the-road-2
-Allow: /*?mod=global-truck-online
-Disallow: /descarga.html
-Disallow: /*?utm_*
-Disallow: /*&utm_*
-Disallow: /*?mod=*
-Disallow: /*&mod=*
+Allow: /*?mod=
+Allow: /*&mod=
 
-# JoelDroid Mods — indexable: home + slugs limpios. Descarga y IDs aleatorios fuera del rastreo.
+Disallow: /descarga.html
+Disallow: /descarga
+Disallow: /*?id=
+Disallow: /*&id=
+Disallow: /*?utm_
+Disallow: /*&utm_
+Disallow: /*?fbclid=
+Disallow: /*?gclid=
+
 Sitemap: https://joeldroidmods.com/sitemap.xml
