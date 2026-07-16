@@ -87,7 +87,7 @@
 
     <div class="dl-counter-section" id="dl-counter-area">
 
-      <div class="dl-waiting-text" id="dl-waiting-text">Preparando enlace seguro...</div>
+      <div class="dl-waiting-text" id="dl-waiting-text">🛡️ Preparando servidor de descarga seguro...</div>
 
       <div class="dl-counter-row" id="dl-ring-wrap">
         <div class="dl-counter-ring">
@@ -103,12 +103,12 @@
             <circle class="dl-ring-fg" id="dl-ring-fg" cx="45" cy="45" r="38" stroke-dasharray="238.8" stroke-dashoffset="0"/>
           </svg>
           <div class="dl-counter-inner">
-            <div id="dl-counter-num" class="dl-counter-num">10</div>
+            <div id="dl-counter-num" class="dl-counter-num">12</div>
             <div class="dl-counter-label">seg</div>
           </div>
         </div>
         <div class="dl-counter-info">
-          <div class="dl-counter-info-txt">Preparando tu enlace de descarga seguro...</div>
+          <div class="dl-counter-info-txt">Analizando archivo para una descarga segura...</div>
           <div class="dl-progress-wrap"><div id="dl-progress-bar" class="dl-progress-bar"></div></div>
           <div class="dl-progress-pct" id="dl-progress-pct">0%</div>
         </div>
@@ -253,19 +253,19 @@
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
-  var TOTAL  = 10;
+  var SERVER_READY_SECS = 12;   // 1er temporizador (asimétrico: 12s)
   var CIRCUM = 238.8;
 
   /* Handles globales para limpiar SIEMPRE al cambiar de estado */
-  var mainIv   = null;   // contador inicial 10s
-  var verifyIv = null;   // contador verificación 7s
-  var verifyRaf= null;   // rAF barra
-  var verifyTargetTs = 0;
+  var serverReadyIv   = null;   // contador inicial 10s
+  var fileScannerIv = null;   // contador verificación 7s
+  var fileScannerRaf= null;   // rAF barra
+  var securityCheckTs = 0;
 
-  function _clearMain(){ if (mainIv){ clearInterval(mainIv); mainIv = null; } }
-  function _clearVerify(){
-    if (verifyIv){ clearInterval(verifyIv); verifyIv = null; }
-    if (verifyRaf){ cancelAnimationFrame(verifyRaf); verifyRaf = null; }
+  function _clearServerReady(){ if (serverReadyIv){ clearInterval(serverReadyIv); serverReadyIv = null; } }
+  function _clearFileScanner(){
+    if (fileScannerIv){ clearInterval(fileScannerIv); fileScannerIv = null; }
+    if (fileScannerRaf){ cancelAnimationFrame(fileScannerRaf); fileScannerRaf = null; }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -328,10 +328,10 @@
     }
 
     /* ─────────────── TIMER INICIAL 10s (con Date.now para no congelarse) ─────────────── */
-    var mainTargetTs = 0;
+    var serverReadyTs = 0;
 
     function _renderTimer(left) {
-      var ratio = Math.min((TOTAL - left) / TOTAL, 1);
+      var ratio = Math.min((SERVER_READY_SECS - left) / SERVER_READY_SECS, 1);
       if (numEl) numEl.textContent = String(Math.max(left, 0));
       if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM - CIRCUM * ratio);
       var pct = Math.round(ratio * 100);
@@ -339,18 +339,18 @@
       if (pctEl) pctEl.textContent = pct + '%';
     }
 
-    function _tickMain(){
-      var left = Math.ceil((mainTargetTs - Date.now()) / 1000);
+    function _tickServerReady(){
+      var left = Math.ceil((serverReadyTs - Date.now()) / 1000);
       if (left <= 0){
-        _clearMain();
+        _clearServerReady();
         _renderTimer(0);
-        _finishTimer();
+        _finishServerReady();
       } else {
         _renderTimer(left);
       }
     }
 
-    function _finishTimer() {
+    function _finishServerReady() {
       timerDone = true;
       if (waitTxt)  waitTxt.style.display  = 'none';
       if (ringWrap) ringWrap.style.display = 'none';
@@ -361,13 +361,13 @@
       _renderActivador();
     }
 
-    function _startTimer() {
+    function _startServerReady() {
       if (timerRunning) return;
       timerRunning = true;
-      mainTargetTs = Date.now() + TOTAL * 1000;
-      _renderTimer(TOTAL);
-      _clearMain();
-      mainIv = setInterval(_tickMain, 250);
+      serverReadyTs = Date.now() + SERVER_READY_SECS * 1000;
+      _renderTimer(SERVER_READY_SECS);
+      _clearServerReady();
+      serverReadyIv = setInterval(_tickServerReady, 250);
     }
 
     /* ─────────────── DATOS DEL JUEGO ─────────────── */
@@ -428,10 +428,10 @@
       try {
         if (!firebase.apps.length) firebase.initializeApp(FB_CFG);
         firebase.firestore().collection('mods').doc(String(gameId)).onSnapshot(
-          function(doc) { if (doc.exists) { var d = doc.data(); d.id = doc.id; _applyData(d); } if (!timerRunning) _startTimer(); },
-          function(err) { console.warn('[descarga] Firestore:', err.message); if (!timerRunning) _startTimer(); }
+          function(doc) { if (doc.exists) { var d = doc.data(); d.id = doc.id; _applyData(d); } if (!timerRunning) _startServerReady(); },
+          function(err) { console.warn('[descarga] Firestore:', err.message); if (!timerRunning) _startServerReady(); }
         );
-      } catch(e) { console.warn('[descarga] Firebase:', e.message); if (!timerRunning) _startTimer(); }
+      } catch(e) { console.warn('[descarga] Firebase:', e.message); if (!timerRunning) _startServerReady(); }
     }
 
     /* ─────────────── RECOMENDADOS (sin cambios) ─────────────── */
@@ -504,7 +504,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var COOLDOWN = 7;
+    var SECURITY_SCAN_SECS = 10;  // 2do temporizador (asimétrico: 10s)
 
     /* Monetag direct-link opcional; si está vacío, se dispara solo por click
        gracias al script data-zone ya cargado en <head>. */
@@ -521,7 +521,7 @@
 
     function _renderActivador(){
       if (!btnFinal) return;
-      _clearVerify();
+      _clearFileScanner();
       btnState = 'activador';
       btnFinal.classList.remove('estado-verificando','estado-final');
       btnFinal.classList.add('estado-activador');
@@ -534,9 +534,9 @@
       _resetBtnExtras();
     }
 
-    function _renderVerificando(){
+    function _renderSecurityScan(){
       if (!btnFinal) return;
-      _clearVerify();
+      _clearFileScanner();
       btnState = 'verificando';
       btnFinal.classList.remove('estado-activador','estado-final');
       btnFinal.classList.add('estado-verificando');
@@ -544,14 +544,14 @@
 
       var meta = window._jdMeta || {};
       var lt = _labelTop();
-      if (lt) lt.textContent = '⏳ VERIFICANDO TU ENLACE DE DESCARGA DE ' + String(meta.name||'').toUpperCase() + '...';
+      if (lt) lt.textContent = '🛡️ Analizando archivo para una descarga segura...';
       if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
       var bdg = _sizeBadge(); if (bdg) bdg.style.display = 'none';
 
       _resetBtnExtras();
       var mini = document.createElement('span');
       mini.className = 'dl-btn-mini-timer';
-      mini.textContent = '[ ' + COOLDOWN + 's ]';
+      mini.textContent = '[ ' + SECURITY_SCAN_SECS + 's ]';
       btnFinal.appendChild(mini);
 
       var bar = document.createElement('div');
@@ -562,37 +562,39 @@
 
       // TIEMPO ABSOLUTO (Date.now) → sobrevive a que el navegador móvil
       // pause la pestaña mientras el ad de Monetag está en primer plano.
-      verifyTargetTs = Date.now() + COOLDOWN * 1000;
+      securityCheckTs = Date.now() + SECURITY_SCAN_SECS * 1000;
 
-      function _tickVerify(){
-        var remainMs = verifyTargetTs - Date.now();
+      function _tickFileScanner(){
+        var remainMs = securityCheckTs - Date.now();
         var remainS  = Math.ceil(remainMs / 1000);
-        var pct = Math.min(1 - remainMs / (COOLDOWN * 1000), 1) * 100;
+        var pct = Math.min(1 - remainMs / (SECURITY_SCAN_SECS * 1000), 1) * 100;
         if (pct < 0) pct = 0;
         if (fill) fill.style.width = pct + '%';
         if (remainMs <= 0){
-          _clearVerify();
+          _clearFileScanner();
           if (mini) mini.textContent = '[ 0s ]';
-          _renderFinal();
+          _renderVerifiedLink();
           return;
         }
         if (mini) mini.textContent = '[ ' + Math.max(remainS, 1) + 's ]';
+        var _lt = _labelTop();
+        if (_lt) _lt.textContent = '🛡️ Analizando archivo para una descarga segura... [ ' + Math.max(remainS,1) + 's ]';
       }
-      _tickVerify();
+      _tickFileScanner();
       // Intervalo corto (250 ms) + rAF para que el catch-up al enfocar sea instantáneo.
-      verifyIv = setInterval(_tickVerify, 250);
-      function _raf(){ if (btnState !== 'verificando') return; _tickVerify(); verifyRaf = requestAnimationFrame(_raf); }
-      verifyRaf = requestAnimationFrame(_raf);
+      fileScannerIv = setInterval(_tickFileScanner, 250);
+      function _raf(){ if (btnState !== 'verificando') return; _tickFileScanner(); fileScannerRaf = requestAnimationFrame(_raf); }
+      fileScannerRaf = requestAnimationFrame(_raf);
     }
 
-    function _renderFinal(){
+    function _renderVerifiedLink(){
       if (!btnFinal) return;
-      _clearVerify();
+      _clearFileScanner();
       btnState = 'final';
       btnFinal.classList.remove('estado-activador','estado-verificando');
       btnFinal.classList.add('estado-final');
       btnFinal.style.pointerEvents = '';
-      var lt = _labelTop(); if (lt) lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+      var lt = _labelTop(); if (lt) lt.textContent = '✅ ENLACE SEGURO VERIFICADO • DESCARGAR APK' + (meta.size ? ' (' + meta.size + ')' : '');
       var meta = window._jdMeta || {};
       var vc = _cleanVer(meta.ver||'');
       var baseName = _cleanApk(meta.name||'MOD APK');
@@ -610,18 +612,18 @@
     /* Re-sincroniza el contador al volver a enfocar la pestaña (móvil) */
     function _onFocusResync(){
       if (btnState === 'verificando'){
-        var remainMs = verifyTargetTs - Date.now();
+        var remainMs = securityCheckTs - Date.now();
         if (remainMs <= 0){
-          _renderFinal();
+          _renderVerifiedLink();
         } else {
           // Fuerza un tick inmediato
           var mini = btnFinal && btnFinal.querySelector('.dl-btn-mini-timer');
           var fill = btnFinal && btnFinal.querySelector('.dl-btn-progress-fill');
           if (mini) mini.textContent = '[ ' + Math.max(Math.ceil(remainMs/1000), 1) + 's ]';
-          if (fill) fill.style.width = (Math.min(1 - remainMs/(COOLDOWN*1000), 1) * 100) + '%';
+          if (fill) fill.style.width = (Math.min(1 - remainMs/(SECURITY_SCAN_SECS*1000), 1) * 100) + '%';
         }
       } else if (!timerDone && timerRunning){
-        _tickMain();
+        _tickServerReady();
       }
     }
     window.addEventListener('focus', _onFocusResync);
@@ -645,7 +647,7 @@
               window.open(MONETAG_DIRECT_URL, '_blank', 'noopener,noreferrer');
             }
           } catch(_e){}
-          _renderVerificando();
+          _renderSecurityScan();
           return;
         }
 
@@ -663,15 +665,15 @@
 
     /* ────────── ARRANQUE ────────── */
     if (gameId) {
-      if (_trySessionStorage()) { _startTimer(); _fetchFirebase(); }
+      if (_trySessionStorage()) { _startServerReady(); _fetchFirebase(); }
       else if (typeof firebase !== 'undefined') { _fetchFirebase(); }
       else {
         var _wFb = setInterval(function() {
           if (typeof firebase !== 'undefined') { clearInterval(_wFb); _fetchFirebase(); }
         }, 80);
-        setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startTimer(); }, 2500);
+        setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startServerReady(); }, 2500);
       }
-    } else { _startTimer(); }
+    } else { _startServerReady(); }
 
   });
 })();
