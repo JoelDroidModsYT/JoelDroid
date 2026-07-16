@@ -591,20 +591,40 @@
       if (!btnFinal) return;
       _clearFileScanner();
       btnState = 'final';
+      /* Restablece estilo ACTIVO brillante: quita bloqueo/gris de verificación */
       btnFinal.classList.remove('estado-activador','estado-verificando');
       btnFinal.classList.add('estado-final');
       btnFinal.style.pointerEvents = '';
-      var lt = _labelTop(); if (lt) lt.textContent = '✅ ENLACE SEGURO VERIFICADO • DESCARGAR APK' + (meta.size ? ' (' + meta.size + ')' : '');
-      var meta = window._jdMeta || {};
-      var vc = _cleanVer(meta.ver||'');
-      var baseName = _cleanApk(meta.name||'MOD APK');
-      var modLbl = _modTxt(meta.feats||[]);
-      var premiumLine = baseName + (vc ? ' v'+vc : '') + ' Mod ' + modLbl + '.Apk';
-      if (btnTexto) {
-        btnTexto.innerHTML = '<span class="dl-btn-name-line">' + _esc(premiumLine) + '</span>' +
-                             '<span class="dl-btn-mod-line">✓ DESCARGAR AHORA</span>';
-      }
+      btnFinal.style.opacity = '';
+      btnFinal.style.filter = '';
+      btnFinal.style.cursor = 'pointer';
+
+      /* Limpia badge del segundero [ 0s ] y barra de progreso */
       _resetBtnExtras();
+      var stale = btnFinal.querySelectorAll('.dl-btn-mini-timer, .dl-btn-progress');
+      for (var i=0; i<stale.length; i++){ stale[i].style.display='none'; stale[i].remove(); }
+
+      /* Datos reales dinámicos del juego (nombre, versión, features) */
+      var meta = window._jdMeta || {};
+      var vc = _cleanVer(meta.ver || '');
+      var baseName = _cleanApk(meta.name || 'MOD APK');
+      var modLbl = _modTxt(meta.feats || []);
+      var titleLine = baseName + (vc ? ' ' + vc : '') + '.Apk';
+      var modLine   = 'Mod ' + modLbl;
+
+      /* Encabezado llamativo (reemplaza "Analizando archivo...") */
+      var lt = _labelTop();
+      if (lt) {
+        lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+        lt.style.opacity = '1';
+      }
+
+      if (btnTexto) {
+        btnTexto.innerHTML =
+          '<span class="dl-btn-name-line">' + _esc(titleLine) + '</span>' +
+          '<span class="dl-btn-mod-line">'  + _esc(modLine)   + '</span>';
+      }
+
       var bdg = _sizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
     }
