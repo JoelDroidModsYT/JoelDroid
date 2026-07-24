@@ -2800,7 +2800,7 @@ function renderGames(){
   _gamesPage = 1;
 
   // Pager numerado (reemplaza infinite-scroll)
-  _renderPagination(list);
+  _setupInfiniteScroll(list);
 
   refreshIcons();
 
@@ -2959,113 +2959,73 @@ function _setupLoadMoreSentinel(list){
 }
 
 // ════════════════════════════════════════════════════════════════
-// PAGINACIÓN NUMERADA — estilo PlayMods / AN1
-// Después de la fila 6 (24 juegos) aparece la barra: « 1 2 3 … »
+// INFINITE SCROLL — sin barra de páginas, carga en lotes al llegar al final
+// (Reemplaza al pager numerado. Elimina barrera visual, mejora tiempo de
+//  permanencia y por tanto impresiones publicitarias.)
 // ════════════════════════════════════════════════════════════════
-function _renderPagination(list){
-  // limpiar pager previo
-  var old = document.getElementById('jd-pager');
-  if(old && old.parentNode) old.parentNode.removeChild(old);
+var _gamesIOSentinel = null;
+var _gamesIO = null;
+var _GAMES_BATCH_MORE = 12; // lote incremental al hacer scroll
 
-  var total = _gamesFiltered.length;
-  var pages = Math.max(1, Math.ceil(total / _gamesPageSize));
-  if(pages <= 1) return; // no hace falta paginar
+function _setupInfiniteScroll(list){
+  // Limpieza de restos del pager legado
+  var oldPager = document.getElementById('jd-pager');
+  if(oldPager && oldPager.parentNode) oldPager.parentNode.removeChild(oldPager);
 
-  var current = _gamesPage; // página actualmente mostrada (1-based)
-  var pager = document.createElement('div');
-  pager.id = 'jd-pager';
-  pager.style.cssText = 'display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin:20px auto 30px;padding:0 12px;';
+  // Desconectar observer previo si existe
+  if(_gamesIO){ try{ _gamesIO.disconnect(); }catch(_e){} _gamesIO = null; }
+  if(_gamesIOSentinel && _gamesIOSentinel.parentNode){ _gamesIOSentinel.parentNode.removeChild(_gamesIOSentinel); }
 
-  function btn(label, page, opts){
-    opts = opts || {};
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = label;
-    var active = opts.active;
-    var disabled = opts.disabled;
-    b.style.cssText = [
-      'min-width:34px','height:34px','padding:0 10px',
-      'font-size:12px','font-weight:800','font-family:inherit',
-      'border-radius:8px','cursor:'+(disabled?'not-allowed':'pointer'),
-      'border:1px solid '+(active?'transparent':'var(--border-color)'),
-      'background:'+(active?'var(--btn-gradient)':'var(--card-bg)'),
-      'color:'+(active?'#fff':'var(--text-main)'),
-      'opacity:'+(disabled?'.35':'1'),
-      'transition:transform .15s ease, box-shadow .15s ease',
-      active?'box-shadow:var(--neon-border)':'',
-    ].join(';');
-    if(!disabled && !active){
-      b.onmouseenter = function(){ b.style.transform='translateY(-1px)'; b.style.boxShadow='0 4px 12px rgba(37,99,235,.25)'; };
-      b.onmouseleave = function(){ b.style.transform=''; b.style.boxShadow=''; };
-    }
-    if(!disabled && !active){
-      b.onclick = function(){ _goToPage(page); };
-    }
-    pager.appendChild(b);
+  var total = (_gamesFiltered||[]).length;
+  var shown = list.querySelectorAll('.jd-card').length;
+  if(shown >= total) return; // todo cargado
+
+  // Sentinel invisible después del grid
+  var sen = document.createElement('div');
+  sen.id = 'jd-infinite-sentinel';
+  sen.style.cssText = 'height:1px;width:100%;margin:0;padding:0;';
+  list.parentNode && list.parentNode.insertBefore(sen, list.nextSibling);
+  _gamesIOSentinel = sen;
+
+  if(!('IntersectionObserver' in window)){
+    // Fallback: cargar todo de una
+    _renderGamesBatch(list, shown, total - shown, false);
+    _gamesPage = Math.ceil(total / _gamesPageSize);
+    return;
   }
 
-  // « anterior
-  btn('‹', Math.max(1,current-1), { disabled: current<=1 });
-
-  // ventana de páginas: muestra hasta 5 alrededor de la actual
-  var win = 2;
-  var start = Math.max(1, current-win);
-  var end   = Math.min(pages, current+win);
-  if(start > 1){
-    btn('1', 1, { active: current===1 });
-    if(start > 2){
-      var dots = document.createElement('span');
-      dots.textContent = '…'; dots.style.cssText='opacity:.5;padding:0 4px;font-weight:700';
-      pager.appendChild(dots);
+  _gamesIO = new IntersectionObserver(function(entries){
+    for(var i=0;i<entries.length;i++){
+      if(!entries[i].isIntersecting) continue;
+      var curShown = list.querySelectorAll('.jd-card').length;
+      var totalNow = (_gamesFiltered||[]).length;
+      if(curShown >= totalNow){
+        _gamesIO.disconnect(); _gamesIO=null;
+        if(_gamesIOSentinel && _gamesIOSentinel.parentNode) _gamesIOSentinel.parentNode.removeChild(_gamesIOSentinel);
+        return;
+      }
+      _renderGamesBatch(list, curShown, _GAMES_BATCH_MORE, false /* append */);
+      _gamesPage = Math.ceil((curShown + _GAMES_BATCH_MORE) / _gamesPageSize);
+      refreshIcons();
+      if(currentLang !== 'es'){
+        _gamesFiltered.slice(curShown, curShown+_GAMES_BATCH_MORE).forEach(function(g){
+          trAPI(g.description, function(tr){
+            document.querySelectorAll('[data-cdesc="'+g.id+'"]').forEach(function(e){ e.innerText=tr; });
+          });
+        });
+      }
     }
-  }
-  for(var p=start; p<=end; p++){ btn(String(p), p, { active: p===current }); }
-  if(end < pages){
-    if(end < pages-1){
-      var dots2 = document.createElement('span');
-      dots2.textContent = '…'; dots2.style.cssText='opacity:.5;padding:0 4px;font-weight:700';
-      pager.appendChild(dots2);
-    }
-    btn(String(pages), pages, { active: current===pages });
-  }
-
-  // siguiente »
-  btn('›', Math.min(pages,current+1), { disabled: current>=pages });
-
-  // contador discreto
-  var info = document.createElement('span');
-  info.style.cssText = 'width:100%;text-align:center;font-size:10px;opacity:.5;margin-top:6px;font-weight:700;letter-spacing:.05em;text-transform:uppercase';
-  var from = (current-1)*_gamesPageSize + 1;
-  var to   = Math.min(current*_gamesPageSize, total);
-  info.textContent = 'Mostrando '+from+'–'+to+' de '+total;
-  pager.appendChild(info);
-
-  list.parentNode && list.parentNode.insertBefore(pager, list.nextSibling);
+  }, { rootMargin: '600px 0px 600px 0px', threshold: 0 });
+  _gamesIO.observe(sen);
 }
 
+// Stubs de compatibilidad — el pager numerado ya no existe.
+function _renderPagination(list){ _setupInfiniteScroll(list); }
 function _goToPage(n){
   var list = document.getElementById('game-list');
-  if(!list || !_gamesFiltered) return;
-  var pages = Math.max(1, Math.ceil(_gamesFiltered.length / _gamesPageSize));
-  n = Math.max(1, Math.min(pages, n|0));
-  _gamesPage = n;
-  var start = (n-1) * _gamesPageSize;
-  _renderGamesBatch(list, start, _gamesPageSize, true /* replace */);
-  _renderPagination(list);
-  refreshIcons();
-  // Traducir nuevas tarjetas si el idioma no es ES
-  if(currentLang !== 'es'){
-    _gamesFiltered.slice(start, start+_gamesPageSize).forEach(function(g){
-      trAPI(g.description, function(tr){
-        document.querySelectorAll('[data-cdesc="'+g.id+'"]').forEach(function(e){ e.innerText=tr; });
-      });
-    });
-  }
-  // scroll suave al inicio del grid
-  try{
-    var top = list.getBoundingClientRect().top + window.pageYOffset - 80;
-    window.scrollTo({ top: Math.max(0,top), behavior: 'smooth' });
-  }catch(_e){ window.scrollTo(0,0); }
+  if(!list) return;
+  _setupInfiniteScroll(list);
+  try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch(_e){ window.scrollTo(0,0); }
 }
 
 function _loadMoreGames(){
