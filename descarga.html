@@ -103,7 +103,7 @@
             <circle class="dl-ring-fg" id="dl-ring-fg" cx="45" cy="45" r="38" stroke-dasharray="238.8" stroke-dashoffset="0"/>
           </svg>
           <div class="dl-counter-inner">
-            <div id="dl-counter-num" class="dl-counter-num">12</div>
+            <div id="dl-counter-num" class="dl-counter-num">15</div>
             <div class="dl-counter-label">seg</div>
           </div>
         </div>
@@ -253,7 +253,7 @@
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
-  var SERVER_READY_SECS = 12;   // 1er temporizador (asimétrico: 12s)
+  var SERVER_READY_SECS = 15;   // 1er temporizador (asimétrico: 15s)
   var CIRCUM = 238.8;
 
   /* Handles globales para limpiar SIEMPRE al cambiar de estado */
@@ -504,7 +504,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var SECURITY_SCAN_SECS = 10;  // 2do temporizador (asimétrico: 10s)
+    var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
 
     /* Monetag direct-link opcional; si está vacío, se dispara solo por click
        gracias al script data-zone ya cargado en <head>. */
@@ -675,7 +675,18 @@
           // 2do clic: redirige a la URL REAL dinámica de Cuty.io del juego (Firestore).
           var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
           if (url && url !== '#') {
-            try { window.location.href = url; } catch(_e){ window.open(url, '_self'); }
+            // Abrir SIEMPRE en pestaña nueva para preservar la sesión del sitio
+            // (mejor CPM: el usuario mantiene abierta la pestaña original).
+            try {
+              var w = window.open(url, '_blank', 'noopener,noreferrer');
+              if (!w) { // popup bloqueado: fallback a target=_blank vía anchor
+                var a = document.createElement('a');
+                a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                document.body.appendChild(a); a.click(); a.remove();
+              }
+            } catch(_e){
+              try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(__e){}
+            }
           }
           return;
         }
