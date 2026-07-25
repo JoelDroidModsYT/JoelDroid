@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="254955" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false" fetchpriority="high"></script>
 
 
 
@@ -673,20 +673,11 @@
 
         if (btnState === 'final') {
           // 2do clic: redirige a la URL REAL dinámica de Cuty.io del juego (Firestore).
+          // Navegación en la MISMA pestaña (flujo original, sin abrir ventanas extra).
           var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
           if (url && url !== '#') {
-            // Abrir SIEMPRE en pestaña nueva para preservar la sesión del sitio
-            // (mejor CPM: el usuario mantiene abierta la pestaña original).
-            try {
-              var w = window.open(url, '_blank', 'noopener,noreferrer');
-              if (!w) { // popup bloqueado: fallback a target=_blank vía anchor
-                var a = document.createElement('a');
-                a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-                document.body.appendChild(a); a.click(); a.remove();
-              }
-            } catch(_e){
-              try { window.open(url, '_blank', 'noopener,noreferrer'); } catch(__e){}
-            }
+            try { window.location.href = url; }
+            catch(_e){ try { window.location.assign(url); } catch(__e){} }
           }
           return;
         }
