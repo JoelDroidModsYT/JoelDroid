@@ -68,6 +68,11 @@
     .dl-stat-value.green{color:#4ade80}
     .dl-stat-value.blue {color:#93c5fd}
 
+    /* ── Contexto real de la descarga ── */
+    .dl-context-section{width:100%;margin:0 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(15,23,42,.78),rgba(10,17,32,.92));border:1px solid rgba(37,99,235,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+    .dl-context-title{font-size:13px;font-weight:900;line-height:1.25;color:#f8fafc;letter-spacing:0;text-align:center;margin:0 0 4px;overflow-wrap:break-word;word-break:break-word}
+    .dl-context-text{font-size:10.5px;font-weight:700;line-height:1.38;color:rgba(226,232,240,.82);text-align:center;margin:0;overflow-wrap:break-word;word-break:break-word}
+
     /* ── Contador ── */
     .dl-counter-section{display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0;width:100%}
     .dl-waiting-text{font-size:9px;font-weight:800;letter-spacing:.18em;color:rgba(148,197,253,.65);text-align:center;text-transform:uppercase;padding:5px 14px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:20px}
@@ -176,6 +181,9 @@
     }
     body.light-mode .dl-stat-label{color:rgba(15,23,42,.55)}
     body.light-mode .dl-stat-value{color:#0f172a}
+    body.light-mode .dl-context-section{background:#ffffff;border:1px solid rgba(15,23,42,.1);box-shadow:0 2px 8px rgba(15,23,42,.06)}
+    body.light-mode .dl-context-title{color:#0f172a}
+    body.light-mode .dl-context-text{color:rgba(15,23,42,.72)}
     body.light-mode .dl-waiting-text{
       color:#1d4ed8;
       background:rgba(37,99,235,.08);
@@ -247,16 +255,6 @@
     body.light-mode .dl-stat-label,
     body.light-mode .dl-waiting-text{text-shadow:none !important}
 
-
-/* ═══════════════════════════════════════════════════════════════════════
-   ► BLOQUEO ESTRICTO DE MODO OSCURO (añadido - fix inicialización)
-   Neutraliza cualquier inyección residual de .light-mode manteniendo
-   tarjetas, temporizador y "Juegos Recomendados" con fondo oscuro.
-   ═══════════════════════════════════════════════════════════════════════ */
-html.light-mode, body.light-mode, .light-mode {
-  background: #0c1425 !important;
-  color: #ffffff !important;
-}
 
 /* ═══════════════════════════════════════════════════════════════════════
    ► FLUJO DE 4 ESTADOS DEL BOTÓN DE DESCARGA

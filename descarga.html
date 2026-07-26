@@ -4,15 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false" fetchpriority="high"></script>
-
-
-
-<meta name="robots" content="noindex,follow,max-image-preview:large">
-<link rel="canonical" href="https://joeldroidmods.com/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
+<link rel="canonical" id="dl-canonical" href="https://joeldroidmods.com/descarga.html">
 <title>Descarga - JOELDROID MODS YT</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <meta name="theme-color" content="#007bff">
@@ -22,6 +16,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="descarga.css">
+
+<!-- Monetag: tag oficial colocado después de las señales básicas de contexto de la página.
+     Se mantiene una sola carga, sin preload duplicado ni atributos no recomendados. -->
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false"></script>
 </head>
 <body>
 <script>
@@ -84,6 +84,11 @@
       <div class="dl-stat-chip"><span class="dl-stat-label">Peso</span><span class="dl-stat-value" id="dl-stat-size">—</span></div>
       <div class="dl-stat-chip"><span class="dl-stat-label">Seguridad</span><span class="dl-stat-value green" id="dl-stat-sec">✓ Seguro</span></div>
     </div>
+
+    <section class="dl-context-section" id="dl-context-section" aria-label="Información de descarga segura">
+      <h1 id="dl-context-title" class="dl-context-title">Descarga APK MOD para Android</h1>
+      <p id="dl-context-text" class="dl-context-text">Servidor seguro de JOELDROID MODS YT con verificación de archivo, versión, peso y características del MOD.</p>
+    </section>
 
     <div class="dl-counter-section" id="dl-counter-area">
 
@@ -200,6 +205,16 @@
     feats = feats.filter(Boolean).slice(0,2);
     var modTxt = feats.length ? feats.join(' / ') : 'APK';
     function _esc(x){ return String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function _metaDesc(name, ver, size, mod){
+      return 'Descarga ' + (name || 'APK MOD') + (ver ? ' versión ' + ver : '') + (size ? ' (' + size + ')' : '') + ' para Android. MOD: ' + (mod || 'APK') + '. Archivo verificado por JOELDROID MODS YT.';
+    }
+    function _setMeta(name, ver, size, mod){
+      var desc = _metaDesc(name, ver, size, mod);
+      var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
+      if (md) md.setAttribute('content', desc.slice(0, 160));
+      var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
+      if (can) can.setAttribute('href', location.origin + location.pathname + (gid ? '?id=' + encodeURIComponent(gid) : ''));
+    }
     if (t) { try { window._jdCacheImg(t); } catch(e){} }
     document.addEventListener('DOMContentLoaded', function(){
       var el = document.getElementById('dl-page-icon');
@@ -223,7 +238,12 @@
       if (sv) sv.textContent = vc || v || '—';
       var ss = document.getElementById('dl-stat-size');
       if (ss && s) ss.textContent = s;
-      if (n) try { document.title = n + ' (Mod Dinero Infinito) ' + (vc ? 'v'+vc+'.apk' : '.apk') + ' | JoelDroid Mods YT'; } catch(e){}
+      if (n) try { document.title = n + ' (Mod ' + modTxt + ') ' + (vc ? 'v'+vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT'; } catch(e){}
+      try { _setMeta(n, vc || v, s, modTxt); } catch(e){}
+      var ctxTitle = document.getElementById('dl-context-title');
+      var ctxText = document.getElementById('dl-context-text');
+      if (ctxTitle && n) ctxTitle.textContent = 'Descargar ' + n + (vc ? ' v' + vc : '') + ' APK MOD para Android';
+      if (ctxText && n) ctxText.textContent = 'Archivo verificado de ' + n + (s ? ' de ' + s : '') + '. MOD: ' + modTxt + '. Compatible con Android y preparado desde servidor seguro.';
     }, { once: true });
   } catch(e){}
 })();
@@ -316,6 +336,21 @@
       return (feats && feats.length) ? feats.join(' / ') : 'Dinero Infinito';
     }
 
+    function _updatePageSignals(n, v, s, feats){
+      var vc = _cleanVer(v);
+      var mod = _modTxt(feats);
+      var cleanName = _cleanApk(n || 'MOD APK');
+      var desc = 'Descarga ' + cleanName + (vc ? ' versión ' + vc : '') + (s ? ' (' + s + ')' : '') + ' para Android. MOD: ' + mod + '. Archivo APK verificado por JOELDROID MODS YT.';
+      var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
+      if (md) md.setAttribute('content', desc.slice(0, 160));
+      var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
+      if (can) can.setAttribute('href', location.origin + location.pathname + (gameId ? '?id=' + encodeURIComponent(gameId) : ''));
+      var ctxTitle = document.getElementById('dl-context-title');
+      var ctxText = document.getElementById('dl-context-text');
+      if (ctxTitle) ctxTitle.textContent = 'Descargar ' + cleanName + (vc ? ' v' + vc : '') + ' APK MOD para Android';
+      if (ctxText) ctxText.textContent = 'Archivo verificado de ' + cleanName + (s ? ' de ' + s : '') + '. MOD: ' + mod + '. Compatible con Android y preparado desde servidor seguro.';
+    }
+
     function _buildHeroTitle(n, v, feats) {
       var vc = _cleanVer(v);
       return '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + '</strong>' +
@@ -395,6 +430,7 @@
         var _vc=_cleanVer(v), _mt=_modTxt(feats);
         document.title = n + ' (Mod ' + _mt + ') ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT';
       } catch(e) {}
+      _updatePageSignals(n, v, s, feats);
 
       if (t && iconEl) {
         if (window._jdGetCachedImg) {
@@ -496,19 +532,14 @@
     _loadRecommended();
 
     /* ═══════════════════════════════════════════════════════════════
-       FLUJO SECUENCIAL: activador → verificando (7s) → final
-       - 1er clic:  abre Monetag (popunder/direct-link) en nueva pestaña
-                    e inicia verificación obligatoria.
-       - Verificando: bloqueado 7s (temporizador absoluto anti-freeze).
+       FLUJO SECUENCIAL: activador → verificando → final
+       - 1er clic: inicia verificación obligatoria con gesto real de usuario.
+       - Verificando: bloqueado con temporizador absoluto anti-freeze.
        - 2do clic (final): redirige a la URL REAL dinámica de Cuty.io
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
     var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
-
-    /* Monetag direct-link opcional; si está vacío, se dispara solo por click
-       gracias al script data-zone ya cargado en <head>. */
-    var MONETAG_DIRECT_URL = '';    // p.ej. 'https://otieu.com/4/xxxxxx'
 
     function _labelTop(){ return btnFinal ? btnFinal.querySelector('.dl-btn-label-top') : null; }
     function _sizeBadge(){ return document.getElementById('dl-btn-size-badge'); }
@@ -659,14 +690,7 @@
         if (!timerDone) return;
 
         if (btnState === 'activador') {
-          // 1er clic: dispara Monetag en NUEVA pestaña e inicia verificación.
-          // El data-zone de Monetag inyecta popunder al detectar el gesto de click.
-          // Si tienes un direct-link, ponlo en MONETAG_DIRECT_URL para forzar apertura.
-          try {
-            if (MONETAG_DIRECT_URL) {
-              window.open(MONETAG_DIRECT_URL, '_blank', 'noopener,noreferrer');
-            }
-          } catch(_e){}
+          // 1er clic: gesto real de usuario; el tag oficial ya está cargado en <head>.
           _renderSecurityScan();
           return;
         }
