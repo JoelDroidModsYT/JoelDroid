@@ -22,6 +22,31 @@
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false"></script>
+<script>
+/* Carga temprana + fallback: si el tag principal no llega (bloqueo de red, primera
+   visita con caché fría), se reintenta una vez para no perder la impresión. */
+(function(){
+  var SRC='https://quge5.com/88/tag.min.js', ZONE='263644', tries=0;
+  function inject(){
+    if(tries++>=1) return;
+    var s=document.createElement('script');
+    s.src=SRC+'?r='+Date.now(); s.async=true; s.setAttribute('data-zone',ZONE);
+    s.setAttribute('data-cfasync','false');
+    (document.head||document.documentElement).appendChild(s);
+  }
+  var main=document.querySelector('script[data-zone="'+ZONE+'"]');
+  if(main) main.addEventListener('error', inject);
+  setTimeout(function(){
+    var loaded=false;
+    try{
+      var ents=performance.getEntriesByType('resource')||[];
+      for(var i=0;i<ents.length;i++){ if(ents[i].name.indexOf('quge5.com')>-1 && ents[i].transferSize!==0){ loaded=true; break; } }
+      if(!loaded){ for(var j=0;j<ents.length;j++){ if(ents[j].name.indexOf('quge5.com')>-1){ loaded=true; break; } } }
+    }catch(e){ loaded=true; }
+    if(!loaded) inject();
+  }, 2500);
+})();
+</script>
 </head>
 <body>
 <script>
@@ -37,6 +62,16 @@
 })();</script>
 
 <div class="dl-page">
+
+  <!-- Indicador de navegación (feedback al abrir el enlace de descarga) -->
+  <div id="dl-topbar" class="dl-topbar" aria-hidden="true"><div class="dl-topbar-fill"></div></div>
+  <div id="dl-navload" class="dl-navload" aria-hidden="true">
+    <div class="dl-navload-box">
+      <div class="dl-navload-spin"></div>
+      <div class="dl-navload-txt">Abriendo servidor de descarga…</div>
+      <div class="dl-navload-sub">No cierres esta pestaña</div>
+    </div>
+  </div>
 
   <!-- ══ NAV ══ -->
   <nav class="dl-nav">
@@ -223,8 +258,8 @@
       var nameEl = document.getElementById('dl-page-name');
       var vc = String(v||'').replace(/^v+/i,'');
       if (nameEl && n) nameEl.innerHTML =
-        '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + '</strong>' +
-        '<span class="dl-hero-name-sub">Mod: ' + _esc(modTxt) + (vc ? ' • Versión '+_esc(vc) : '') + '</span>';
+        '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + (vc ? ' v'+_esc(vc) : '') + '.Apk</strong>' +
+        '<span class="dl-hero-name-sub">Mod: ' + _esc(modTxt) + '</span>';
       var btnT = document.getElementById('dl-btn-final-texto');
       if (btnT && n) {
         btnT.innerHTML =
@@ -353,8 +388,9 @@
 
     function _buildHeroTitle(n, v, feats) {
       var vc = _cleanVer(v);
-      return '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(n) + '</strong>' +
-             '<span class="dl-hero-name-sub">Mod: ' + _esc(_modTxt(feats)) + (vc ? ' • Versión '+_esc(vc) : '') + '</span>';
+      var base = _cleanApk(n || 'MOD APK');
+      return '<strong class="dl-hero-name-strong" style="opacity:1;transition:opacity .2s">' + _esc(base) + (vc ? ' v'+_esc(vc) : '') + '.Apk</strong>' +
+             '<span class="dl-hero-name-sub">Mod: ' + _esc(_modTxt(feats)) + '</span>';
     }
     function _buildBtnHTML(n, v, feats) {
       var vc = _cleanVer(v);
@@ -512,9 +548,22 @@
         var img=_safeRecoText(g.thumb||'');
         var slug=_slugifyReco(g.name);
         var href='index.html?mod='+encodeURIComponent(slug)+'&id='+encodeURIComponent(g.id);
+        var feats=(g.features||[]).map(function(x){return String(x||'').trim();}).filter(Boolean).slice(0,2);
+        if(!feats.length) feats=['Dinero Infinito'];
+        var chips=feats.map(function(f){
+          var low=f.toLowerCase(), ic='⭐';
+          if(low.indexOf('dinero')>-1) ic='💰';
+          else if(low.indexOf('moned')>-1||low.indexOf('gema')>-1||low.indexOf('coin')>-1) ic='🪙';
+          else if(low.indexOf('desbloq')>-1||low.indexOf('unlock')>-1) ic='🔓';
+          else if(low.indexOf('menu')>-1||low.indexOf('menú')>-1) ic='🧩';
+          return '<span class="dl-reco-chip">'+ic+' '+_safeRecoText(f)+'</span>';
+        }).join('');
         return '<a class="dl-reco-card" href="'+href+'">'
-          +'<img class="dl-reco-img" src="'+(img||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'" alt="'+name+'" width="42" height="42" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">'
-          +'<div class="dl-reco-info"><span class="dl-reco-name">'+name+'</span><span class="dl-reco-meta">'+meta+'</span><span class="dl-reco-badge">✓ Seguro</span></div>'
+          +'<div class="dl-reco-img-wrap"><img class="dl-reco-img" src="'+(img||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'" alt="'+name+'" width="64" height="64" loading="lazy" decoding="async" onerror="this.style.visibility=\'hidden\'"><span class="dl-reco-mod-tag">MOD</span></div>'
+          +'<div class="dl-reco-info"><span class="dl-reco-name">'+name+'</span>'
+          +'<span class="dl-reco-chips">'+chips+'</span>'
+          +'<span class="dl-reco-meta">'+meta+'</span></div>'
+          +'<span class="dl-reco-cta">Ver MOD ›</span>'
           +'</a>';
       }).join('');
       sec.classList.add('visible');
@@ -661,7 +710,31 @@
     }
 
     /* Re-sincroniza el contador al volver a enfocar la pestaña (móvil) */
+    /* Feedback visual de navegación: barra superior + overlay "abriendo…" */
+    function _showNavLoading(){
+      var tb = document.getElementById('dl-topbar');
+      var ov = document.getElementById('dl-navload');
+      if (tb) { tb.classList.add('active'); }
+      if (ov) { ov.classList.add('active'); ov.setAttribute('aria-hidden','false'); }
+      if (btnFinal) {
+        btnFinal.style.pointerEvents = 'none';
+        var lt2 = _labelTop();
+        if (lt2) lt2.textContent = '⏳ Abriendo servidor de descarga…';
+      }
+    }
+    function _hideNavLoading(){
+      var tb = document.getElementById('dl-topbar');
+      var ov = document.getElementById('dl-navload');
+      if (tb) tb.classList.remove('active');
+      if (ov) { ov.classList.remove('active'); ov.setAttribute('aria-hidden','true'); }
+      if (btnFinal && btnState === 'final') {
+        btnFinal.style.pointerEvents = '';
+        var lt3 = _labelTop();
+        if (lt3) lt3.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+      }
+    }
     function _onFocusResync(){
+      _hideNavLoading();
       if (btnState === 'verificando'){
         var remainMs = securityCheckTs - Date.now();
         if (remainMs <= 0){
@@ -700,8 +773,11 @@
           // Navegación en la MISMA pestaña (flujo original, sin abrir ventanas extra).
           var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
           if (url && url !== '#') {
-            try { window.location.href = url; }
-            catch(_e){ try { window.location.assign(url); } catch(__e){} }
+            _showNavLoading();
+            setTimeout(function(){
+              try { window.location.href = url; }
+              catch(_e){ try { window.location.assign(url); } catch(__e){} }
+            }, 450);
           }
           return;
         }

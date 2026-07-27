@@ -394,3 +394,60 @@
 
 /* Asegura que texto/badge queden por encima del shimmer */
 .dl-btn-final > *{position:relative;z-index:2}
+
+/* ═══ Indicador de navegación (feedback tras el clic final) ═══ */
+.dl-topbar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:9999;opacity:0;pointer-events:none;transition:opacity .15s}
+.dl-topbar.active{opacity:1}
+.dl-topbar-fill{height:100%;width:0%;background:linear-gradient(90deg,#38bdf8,#22d3ee,#7dd3fc);box-shadow:0 0 12px rgba(56,189,248,.9)}
+.dl-topbar.active .dl-topbar-fill{animation:jdTopbar 1.6s cubic-bezier(.25,.8,.3,1) forwards}
+@keyframes jdTopbar{0%{width:0}40%{width:65%}75%{width:88%}100%{width:100%}}
+
+.dl-navload{position:fixed;inset:0;z-index:9998;display:none;align-items:center;justify-content:center;background:rgba(6,11,24,.78);backdrop-filter:blur(3px)}
+.dl-navload.active{display:flex;animation:jdFadeIn .15s ease-out both}
+.dl-navload-box{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 26px;border-radius:18px;background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(10,17,32,.98));border:1px solid rgba(56,189,248,.35);box-shadow:0 0 34px rgba(37,99,235,.35)}
+.dl-navload-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(125,211,252,.22);border-top-color:#38bdf8;animation:jdNavSpin .8s linear infinite}
+@keyframes jdNavSpin{to{transform:rotate(360deg)}}
+.dl-navload-txt{font-size:12.5px;font-weight:900;color:#e0f2fe;letter-spacing:.02em;text-align:center}
+.dl-navload-sub{font-size:9.5px;font-weight:700;color:rgba(148,197,253,.7);letter-spacing:.08em;text-transform:uppercase}
+
+/* ═══ Hero: título en una sola línea lógica ═══ */
+.dl-hero-name-strong{font-size:1.08rem;font-weight:900;line-height:1.28;color:#fff;word-break:break-word}
+.dl-hero-name-sub{color:#93c5fd;font-weight:800;font-size:.76rem}
+
+/* ═══ Juegos recomendados — rediseño llamativo ═══ */
+.dl-reco-section{margin-top:22px;gap:12px}
+.dl-reco-title{font-size:11px;letter-spacing:.14em;color:#7dd3fc}
+.dl-reco-count{font-size:8.5px}
+.dl-reco-grid{grid-template-columns:1fr;gap:10px}
+.dl-reco-card{
+  padding:11px 12px;gap:12px;border-radius:18px;
+  border:1px solid rgba(56,189,248,.28);
+  background:linear-gradient(135deg,rgba(17,28,52,.96),rgba(9,15,30,.98));
+  box-shadow:0 6px 20px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.dl-reco-card:active{transform:scale(.985)}
+.dl-reco-img-wrap{position:relative;flex-shrink:0;width:60px;height:60px}
+.dl-reco-img{width:60px;height:60px;border-radius:15px;border:1px solid rgba(255,255,255,.1)}
+.dl-reco-mod-tag{
+  position:absolute;left:-3px;bottom:-4px;
+  font-size:7px;font-weight:900;letter-spacing:.08em;color:#06121f;
+  background:linear-gradient(135deg,#4ade80,#22d3ee);
+  padding:2px 6px;border-radius:20px;box-shadow:0 2px 8px rgba(34,211,238,.45);
+}
+.dl-reco-info{gap:4px}
+.dl-reco-name{font-size:12px;font-weight:900;color:#f1f5f9;-webkit-line-clamp:1}
+.dl-reco-chips{display:flex;flex-wrap:wrap;gap:4px}
+.dl-reco-chip{
+  font-size:8px;font-weight:900;letter-spacing:.02em;color:#fde68a;
+  background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);
+  padding:2px 7px;border-radius:20px;white-space:nowrap;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;
+}
+.dl-reco-meta{font-size:8px;color:rgba(148,197,253,.6)}
+.dl-reco-cta{
+  flex-shrink:0;align-self:center;font-size:9px;font-weight:900;letter-spacing:.04em;color:#e0f2fe;
+  background:linear-gradient(135deg,#2563eb,#0ea5e9);padding:7px 11px;border-radius:12px;
+  box-shadow:0 4px 14px rgba(37,99,235,.4);white-space:nowrap;
+}
+@media (min-width:420px){ .dl-reco-grid{grid-template-columns:1fr} }
