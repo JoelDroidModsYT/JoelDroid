@@ -93,11 +93,6 @@
       <div class="dl-stat-chip"><span class="dl-stat-label">Seguridad</span><span class="dl-stat-value green" id="dl-stat-sec">✓ Seguro</span></div>
     </div>
 
-    <section class="dl-context-section" id="dl-context-section" aria-label="Información de descarga segura">
-      <h1 id="dl-context-title" class="dl-context-title">Descarga APK MOD para Android</h1>
-      <p id="dl-context-text" class="dl-context-text">Servidor seguro de JOELDROID MODS YT con verificación de archivo, versión, peso y características del MOD.</p>
-    </section>
-
     <div class="dl-counter-section" id="dl-counter-area">
 
       <div class="dl-waiting-text" id="dl-waiting-text">🛡️ Preparando servidor de descarga seguro...</div>
@@ -148,7 +143,7 @@
     <!-- ══ INFORMACIÓN DEL JUEGO (entre paso 1 completado y paso 2) ══ -->
     <section id="dl-gameinfo-section" class="dl-gameinfo-section" aria-label="Información del juego" hidden>
       <span class="dl-gameinfo-kicker">Información del juego</span>
-      <h2 id="dl-gameinfo-title" class="dl-gameinfo-title">Características del MOD</h2>
+      <h2 id="dl-gameinfo-title" class="dl-gameinfo-title">Información del juego</h2>
       <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo verificado y preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
       <div class="dl-gameinfo-grid">
         <div class="dl-gameinfo-item"><b>Versión</b><span id="dl-gameinfo-ver">—</span></div>
@@ -157,10 +152,6 @@
         <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">✓ Verificado</span></div>
       </div>
       <div id="dl-gameinfo-feats" class="dl-gameinfo-feats"></div>
-      <div class="dl-gameinfo-hint">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        <span>Desplázate abajo para completar la verificación final y obtener el enlace de descarga.</span>
-      </div>
     </section>
 
     <section id="dl-final-stage" class="dl-final-stage" aria-label="Verificación final del APK" hidden>
@@ -302,17 +293,13 @@
       }
       var bdg = document.getElementById('dl-btn-size-badge');
       if (bdg && s) bdg.textContent = s;
-      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats }; } catch(_e){}
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(d.description||d.descripcion||'') }; } catch(_e){}
       var sv = document.getElementById('dl-stat-ver');
       if (sv) sv.textContent = vc || v || '—';
       var ss = document.getElementById('dl-stat-size');
       if (ss && s) ss.textContent = s;
       if (n) try { document.title = n + ' (Mod ' + modTxt + ') ' + (vc ? 'v'+vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT'; } catch(e){}
       try { _setMeta(n, vc || v, s, modTxt); } catch(e){}
-      var ctxTitle = document.getElementById('dl-context-title');
-      var ctxText = document.getElementById('dl-context-text');
-      if (ctxTitle && n) ctxTitle.textContent = 'Descargar ' + n + (vc ? ' v' + vc : '') + ' APK MOD para Android';
-      if (ctxText && n) ctxText.textContent = 'Archivo verificado de ' + n + (s ? ' de ' + s : '') + '. MOD: ' + modTxt + '. Compatible con Android y preparado desde servidor seguro.';
     }, { once: true });
   } catch(e){}
 })();
@@ -426,10 +413,6 @@
       if (md) md.setAttribute('content', desc.slice(0, 160));
       var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
       if (can) can.setAttribute('href', location.origin + location.pathname + (gameId ? '?id=' + encodeURIComponent(gameId) : ''));
-      var ctxTitle = document.getElementById('dl-context-title');
-      var ctxText = document.getElementById('dl-context-text');
-      if (ctxTitle) ctxTitle.textContent = 'Descargar ' + cleanName + (vc ? ' v' + vc : '') + ' APK MOD para Android';
-      if (ctxText) ctxText.textContent = 'Archivo verificado de ' + cleanName + (s ? ' de ' + s : '') + '. MOD: ' + mod + '. Compatible con Android y preparado desde servidor seguro.';
     }
 
     function _buildHeroTitle(n, v, feats) {
@@ -511,7 +494,7 @@
       if (lowerFinalBadge && s) lowerFinalBadge.textContent = s;
       if (stageGameLabel) stageGameLabel.textContent = _cleanApk(n) + (_cleanVer(v) ? ' v' + _cleanVer(v) : '') + '.Apk';
       if (stageModLabel) stageModLabel.textContent = 'Mod: ' + _modTxt(feats);
-      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats }; } catch(_e){}
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(d.description||d.descripcion||'') }; } catch(_e){}
       if (statVer  && v) statVer.textContent  = v;
       if (statSize && s) statSize.textContent = s;
       try {
@@ -662,9 +645,19 @@
     function _scrollToFinalStage(){
       if (!finalStage) return;
       setTimeout(function(){
-        try { finalStage.scrollIntoView({ behavior:'smooth', block:'center' }); }
-        catch(e) { try { finalStage.scrollIntoView(true); } catch(_e){} }
-      }, 160);
+        try {
+          // Centrar el temporizador de 12s en la mitad de la pantalla del móvil.
+          var target = document.getElementById('dl-stage-scan') || finalStage;
+          var rect = target.getBoundingClientRect();
+          var absY = rect.top + window.pageYOffset;
+          var vh = window.innerHeight || document.documentElement.clientHeight;
+          var y = absY - (vh / 2) + (rect.height / 2);
+          if (y < 0) y = 0;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        } catch(e) {
+          try { finalStage.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(_e){}
+        }
+      }, 180);
     }
 
     function _renderActivador(){
@@ -697,6 +690,13 @@
         btnFinal.classList.add('estado-completado');
         btnFinal.style.pointerEvents = 'none';
         var topLt = _labelTop(); if (topLt) topLt.textContent = '✓ Paso inicial completado · continúa abajo';
+        // Nombre en UNA SOLA LÍNEA para el estado completado (no confundir con enlace real)
+        if (btnTexto) {
+          var _cn = _cleanApk(meta.name || 'MOD APK');
+          var _cv = _cleanVer(meta.ver || '');
+          var _oneLine = _cn + (_cv ? ' v' + _cv : '') + '.Apk';
+          btnTexto.innerHTML = '<span class="dl-btn-name-line dl-oneline">' + _esc(_oneLine) + '</span>';
+        }
       }
 
       finalStage.hidden = false;
@@ -716,7 +716,10 @@
         if (giVer) giVer.textContent = _v ? 'v' + _v : (meta.ver || '—');
         if (giSize) giSize.textContent = meta.size || '—';
         if (giTitle) giTitle.textContent = _cleanApk(_n) + (_v ? ' v' + _v : '') + '.Apk';
-        if (giDesc) giDesc.textContent = 'MOD: ' + _modTxt(_feats) + '. Archivo verificado desde servidor seguro y compatible con Android 5.0+. Continúa abajo para el paso final.';
+        if (giDesc) {
+          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Archivo verificado desde servidor seguro y compatible con Android 5.0+.');
+          giDesc.textContent = _mdesc;
+        }
         if (giFeats) {
           giFeats.innerHTML = (_feats.length ? _feats : ['Dinero Infinito']).map(function(f){
             var low = String(f||'').toLowerCase(), ic = '⭐';

@@ -1,7 +1,9 @@
 /* ===== Block 1 ===== */
 /* ── Reset ── */
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto}
+    html,body{width:100%;overflow-x:hidden}
+    html{height:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
+    body{height:auto;overflow-y:visible;min-height:100vh;-webkit-overflow-scrolling:touch}
     body{
       font-family:'Inter',system-ui,-apple-system,sans-serif;
       background:#0c1425;color:#fff;
@@ -316,45 +318,43 @@
   z-index:1;
 }
 
-    /* ► ESTADO COMPLETADO (paso 1 hecho) — AZUL suave, discreto, pequeño.
-       No debe competir visualmente con el enlace final verificado. */
+    /* ► ESTADO COMPLETADO (paso 1 hecho) — AZUL puro, compacto, una sola línea.
+       No compite con el enlace final verificado. */
     .dl-btn-final.estado-completado{
-      background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 60%,#1d4ed8 100%);
+      background:linear-gradient(135deg,#1e40af 0%,#2563eb 55%,#1d4ed8 100%) !important;
       animation:none !important;
-      filter:saturate(.85) brightness(.92);
+      filter:none !important;
       cursor:default;
-      opacity:.88;
-      min-height:58px !important;
-      padding:9px 12px !important;
-      border-radius:14px !important;
-      box-shadow:0 2px 8px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08) !important;
-      gap:9px !important;
+      opacity:1;
+      min-height:52px !important;
+      padding:8px 12px !important;
+      border-radius:12px !important;
+      box-shadow:0 2px 8px rgba(29,78,216,.35),inset 0 1px 0 rgba(255,255,255,.10) !important;
+      gap:10px !important;
+      border:1px solid rgba(147,197,253,.35) !important;
     }
     .dl-btn-final.estado-completado::after{display:none !important}
     .dl-btn-final.estado-completado::before{display:none !important}
     .dl-btn-final.estado-completado .dl-btn-icon-wrap{
-      animation:none;background:rgba(255,255,255,.14);
-      width:32px !important;height:32px !important;border-radius:9px !important;
+      animation:none;background:rgba(255,255,255,.16);
+      width:28px !important;height:28px !important;border-radius:8px !important;
     }
-    .dl-btn-final.estado-completado .dl-btn-icon-wrap svg{width:15px;height:15px}
+    .dl-btn-final.estado-completado .dl-btn-icon-wrap svg{width:14px;height:14px}
     .dl-btn-final.estado-completado .dl-btn-label-top{
-      color:#bfdbfe;opacity:.85;font-size:7px !important;letter-spacing:.14em;
+      color:#dbeafe;opacity:.9;font-size:7px !important;letter-spacing:.14em;
     }
-    .dl-btn-final.estado-completado .dl-btn-game-title{gap:1px !important}
-    .dl-btn-final.estado-completado .dl-btn-name-line{
-      font-size:11.5px !important;font-weight:800 !important;
+    .dl-btn-final.estado-completado .dl-btn-game-title{gap:0 !important}
+    .dl-btn-final.estado-completado .dl-btn-name-line,
+    .dl-btn-final.estado-completado .dl-oneline{
+      font-size:12px !important;font-weight:800 !important;
+      display:block !important;
       white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;
-      word-break:normal !important;
+      word-break:normal !important;max-width:100% !important;
     }
-    .dl-btn-final.estado-completado .dl-btn-mod-line{
-      font-size:9px !important;font-weight:600 !important;opacity:.78;
-      white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;
-      word-break:normal !important;
-    }
+    .dl-btn-final.estado-completado .dl-btn-mod-line{display:none !important}
     .dl-btn-final.estado-completado .dl-btn-size-badge{
-      font-size:8px !important;padding:3px 8px !important;background:rgba(255,255,255,.14) !important;
+      font-size:8px !important;padding:3px 8px !important;background:rgba(255,255,255,.16) !important;
     }
-
 /* ═══ ESTADO 2: VERIFICANDO — bloqueado + label con latido ═══ */
 @keyframes jdVerifyHeartbeat{
   0%,100%{opacity:.72;text-shadow:0 0 4px rgba(251,146,60,.4)}
@@ -450,10 +450,10 @@
 .dl-navload-sub{font-size:9.5px;font-weight:700;color:rgba(148,197,253,.7);letter-spacing:.08em;text-transform:uppercase}
 
 /* ═══ Etapa final separada: scroll natural + verificación abajo ═══ */
-html{scroll-behavior:smooth}
+html{scroll-behavior:auto}
 .dl-final-stage[hidden]{display:none !important}
 .dl-final-stage{
-  width:100%;margin:56px 0 12px;display:none;flex-direction:column;gap:12px;
+  width:100%;margin:36px 0 12px;display:none;flex-direction:column;gap:12px;
   scroll-margin-top:80px;
 }
 .dl-final-stage.visible{display:flex;animation:jdFinalStageIn .28s ease-out both}
@@ -464,7 +464,7 @@ html{scroll-behavior:smooth}
   border-radius:999px;padding:6px 14px;text-align:center;
 }
 .dl-stage-card{
-  width:100%;border-radius:22px;padding:15px;
+  width:100%;border-radius:18px;padding:12px;
   background:linear-gradient(145deg,rgba(12,25,49,.98),rgba(8,14,28,.98));
   border:1px solid rgba(56,189,248,.32);
   box-shadow:0 14px 36px rgba(0,0,0,.38),0 0 30px rgba(37,99,235,.18),inset 0 1px 0 rgba(255,255,255,.06);
@@ -474,31 +474,31 @@ html{scroll-behavior:smooth}
   content:'';position:absolute;left:0;right:0;top:0;height:3px;
   background:linear-gradient(90deg,#1d4ed8,#2563eb,#38bdf8);
 }
-.dl-stage-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.dl-stage-head{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
 .dl-stage-icon{
-  width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   border-radius:15px;background:linear-gradient(135deg,rgba(34,197,94,.22),rgba(14,165,233,.24));
   border:1px solid rgba(125,211,252,.32);font-size:21px;box-shadow:0 0 20px rgba(56,189,248,.2);
 }
 .dl-stage-copybox{min-width:0;flex:1}
-.dl-stage-title{font-size:16px;font-weight:950;line-height:1.18;color:#f8fafc;margin:0 0 5px;letter-spacing:0;overflow-wrap:break-word}
-.dl-stage-copy{font-size:11px;font-weight:750;line-height:1.42;color:rgba(203,213,225,.84);margin:0;overflow-wrap:break-word}
+.dl-stage-title{font-size:14px;font-weight:900;line-height:1.22;color:#f8fafc;margin:0 0 4px;letter-spacing:0;overflow-wrap:break-word}
+.dl-stage-copy{font-size:10.5px;font-weight:700;line-height:1.4;color:rgba(203,213,225,.84);margin:0;overflow-wrap:break-word}
 .dl-stage-scan{
-  display:grid;grid-template-columns:68px 1fr;gap:12px;align-items:center;
-  margin-bottom:14px;padding:12px;border-radius:18px;
+  display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center;
+  margin-bottom:10px;padding:9px 10px;border-radius:14px;
   background:rgba(15,23,42,.62);border:1px solid rgba(148,163,184,.16);
 }
 .dl-stage-meter{
-  width:68px;height:68px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:56px;height:56px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(circle at 50% 35%,rgba(56,189,248,.26),rgba(15,23,42,.9));
   border:1px solid rgba(125,211,252,.34);box-shadow:inset 0 0 16px rgba(56,189,248,.14),0 0 18px rgba(37,99,235,.16);
 }
-.dl-stage-num{font-size:27px;font-weight:950;line-height:.9;color:#fff;text-shadow:0 0 14px rgba(125,211,252,.7)}
+.dl-stage-num{font-size:22px;font-weight:950;line-height:.9;color:#fff;text-shadow:0 0 14px rgba(125,211,252,.7)}
 .dl-stage-meter span{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#bae6fd;margin-top:4px}
 .dl-stage-progress{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
 .dl-stage-progress-fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,#1d4ed8,#2563eb,#38bdf8);box-shadow:0 0 14px rgba(56,189,248,.65);transition:width .12s linear}
 .dl-stage-status{grid-column:2;font-size:10px;font-weight:850;line-height:1.3;color:#fde68a;letter-spacing:.01em}
-.dl-download-final{min-height:92px;margin-top:2px}
+.dl-download-final{min-height:76px;margin-top:2px}
 .dl-download-final .dl-btn-label-top{font-size:8px;letter-spacing:.12em;color:#ecfeff}
 .dl-stage-info-grid{display:grid;grid-template-columns:1fr;gap:8px;width:100%}
 .dl-stage-info{
@@ -542,34 +542,34 @@ body.light-mode .dl-stage-info span{color:#0f172a}
 .dl-reco-count{font-size:8.5px}
 .dl-reco-grid{grid-template-columns:1fr;gap:10px}
 .dl-reco-card{
-  padding:11px 12px;gap:12px;border-radius:18px;
+  padding:7px 9px;gap:9px;border-radius:13px;
   border:1px solid rgba(56,189,248,.28);
   background:linear-gradient(135deg,rgba(17,28,52,.96),rgba(9,15,30,.98));
   box-shadow:0 6px 20px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
   transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
 }
 .dl-reco-card:active{transform:scale(.985)}
-.dl-reco-img-wrap{position:relative;flex-shrink:0;width:60px;height:60px}
-.dl-reco-img{width:60px;height:60px;border-radius:15px;border:1px solid rgba(255,255,255,.1)}
+.dl-reco-img-wrap{position:relative;flex-shrink:0;width:42px;height:42px}
+.dl-reco-img{width:42px;height:42px;border-radius:11px;border:1px solid rgba(255,255,255,.1)}
 .dl-reco-mod-tag{
   position:absolute;left:-3px;bottom:-4px;
-  font-size:7px;font-weight:900;letter-spacing:.08em;color:#06121f;
+  font-size:6px;font-weight:900;letter-spacing:.08em;color:#06121f;
   background:linear-gradient(135deg,#4ade80,#22d3ee);
   padding:2px 6px;border-radius:20px;box-shadow:0 2px 8px rgba(34,211,238,.45);
 }
 .dl-reco-info{gap:4px}
-.dl-reco-name{font-size:12px;font-weight:900;color:#f1f5f9;-webkit-line-clamp:1}
+.dl-reco-name{font-size:10.5px;font-weight:900;color:#f1f5f9;-webkit-line-clamp:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .dl-reco-chips{display:flex;flex-wrap:wrap;gap:4px}
 .dl-reco-chip{
-  font-size:8px;font-weight:900;letter-spacing:.02em;color:#fde68a;
+  font-size:7px;font-weight:900;letter-spacing:.02em;color:#fde68a;
   background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);
-  padding:2px 7px;border-radius:20px;white-space:nowrap;
+  padding:1px 6px;border-radius:20px;white-space:nowrap;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;
 }
-.dl-reco-meta{font-size:8px;color:rgba(148,197,253,.6)}
+.dl-reco-meta{font-size:7.5px;color:rgba(148,197,253,.6)}
 .dl-reco-cta{
-  flex-shrink:0;align-self:center;font-size:9px;font-weight:900;letter-spacing:.04em;color:#e0f2fe;
-  background:linear-gradient(135deg,#2563eb,#0ea5e9);padding:7px 11px;border-radius:12px;
+  flex-shrink:0;align-self:center;font-size:8px;font-weight:900;letter-spacing:.04em;color:#e0f2fe;
+  background:linear-gradient(135deg,#2563eb,#0ea5e9);padding:5px 8px;border-radius:9px;
   box-shadow:0 4px 14px rgba(37,99,235,.4);white-space:nowrap;
 }
 @media (min-width:420px){ .dl-reco-grid{grid-template-columns:1fr} }
@@ -577,55 +577,47 @@ body.light-mode .dl-stage-info span{color:#0f172a}
 
 /* ═══ Información del juego (entre paso 1 y paso 2) ═══ */
 .dl-gameinfo-section{
-  width:100%;margin:28px 0 12px;display:none;flex-direction:column;gap:10px;
-  padding:14px 14px 16px;border-radius:18px;
+  width:100%;margin:32px 0 20px;display:none;flex-direction:column;gap:9px;
+  padding:14px 14px 16px;border-radius:16px;
   background:linear-gradient(145deg,rgba(12,25,49,.9),rgba(8,14,28,.94));
-  border:1px solid rgba(56,189,248,.22);
-  box-shadow:0 6px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);
+  border:1px solid rgba(56,189,248,.20);
+  box-shadow:0 4px 16px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.04);
 }
 .dl-gameinfo-section.visible{display:flex;animation:jdFinalStageIn .28s ease-out both}
 .dl-gameinfo-kicker{
-  align-self:flex-start;font-size:8.5px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  align-self:flex-start;font-size:8px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
   color:#7dd3fc;background:rgba(37,99,235,.14);border:1px solid rgba(56,189,248,.28);
-  border-radius:999px;padding:5px 11px;
+  border-radius:999px;padding:4px 10px;
 }
 .dl-gameinfo-title{
-  font-size:14px;font-weight:900;line-height:1.25;color:#f1f5f9;margin:0;
+  font-size:12.5px;font-weight:800;line-height:1.3;color:#f1f5f9;margin:0;
   overflow-wrap:break-word;word-break:break-word;
 }
 .dl-gameinfo-desc{
-  font-size:11px;font-weight:600;line-height:1.5;color:rgba(203,213,225,.82);
+  font-size:11px;font-weight:500;line-height:1.55;color:rgba(203,213,225,.85);
   margin:0;overflow-wrap:break-word;
 }
 .dl-gameinfo-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px;
 }
 .dl-gameinfo-item{
-  display:flex;flex-direction:column;gap:2px;
+  display:flex;flex-direction:column;gap:1px;
   background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.14);
-  border-radius:12px;padding:8px 10px;min-width:0;
+  border-radius:10px;padding:6px 9px;min-width:0;
 }
 .dl-gameinfo-item b{
-  font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7dd3fc;
+  font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7dd3fc;
 }
 .dl-gameinfo-item span{
-  font-size:11px;font-weight:800;color:#e2e8f0;
+  font-size:10px;font-weight:800;color:#e2e8f0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.dl-gameinfo-feats{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.dl-gameinfo-feats{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
 .dl-gameinfo-feat{
-  font-size:9.5px;font-weight:800;color:#fde68a;
+  font-size:9px;font-weight:800;color:#fde68a;
   background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.32);
-  padding:4px 9px;border-radius:20px;
+  padding:3px 8px;border-radius:20px;
 }
-.dl-gameinfo-hint{
-  display:flex;align-items:center;gap:8px;
-  font-size:10px;font-weight:800;color:#93c5fd;
-  padding:8px 10px;border-radius:12px;
-  background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.28);
-  letter-spacing:.02em;line-height:1.35;
-}
-.dl-gameinfo-hint svg{flex-shrink:0;color:#38bdf8}
 
 body.light-mode .dl-gameinfo-section{
   background:#ffffff;border:1px solid rgba(15,23,42,.1);
@@ -638,4 +630,3 @@ body.light-mode .dl-gameinfo-item{background:#f8fafc;border-color:rgba(15,23,42,
 body.light-mode .dl-gameinfo-item b{color:#1d4ed8}
 body.light-mode .dl-gameinfo-item span{color:#0f172a}
 body.light-mode .dl-gameinfo-feat{color:#92400e;background:rgba(251,191,36,.14);border-color:rgba(251,191,36,.4)}
-body.light-mode .dl-gameinfo-hint{color:#1d4ed8;background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.22)}
