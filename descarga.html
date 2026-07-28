@@ -145,6 +145,24 @@
 
     </div><!-- /dl-counter-section -->
 
+    <!-- ══ INFORMACIÓN DEL JUEGO (entre paso 1 completado y paso 2) ══ -->
+    <section id="dl-gameinfo-section" class="dl-gameinfo-section" aria-label="Información del juego" hidden>
+      <span class="dl-gameinfo-kicker">Información del juego</span>
+      <h2 id="dl-gameinfo-title" class="dl-gameinfo-title">Características del MOD</h2>
+      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo verificado y preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
+      <div class="dl-gameinfo-grid">
+        <div class="dl-gameinfo-item"><b>Versión</b><span id="dl-gameinfo-ver">—</span></div>
+        <div class="dl-gameinfo-item"><b>Peso</b><span id="dl-gameinfo-size">—</span></div>
+        <div class="dl-gameinfo-item"><b>Compatibilidad</b><span>Android 5.0+</span></div>
+        <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">✓ Verificado</span></div>
+      </div>
+      <div id="dl-gameinfo-feats" class="dl-gameinfo-feats"></div>
+      <div class="dl-gameinfo-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        <span>Desplázate abajo para completar la verificación final y obtener el enlace de descarga.</span>
+      </div>
+    </section>
+
     <section id="dl-final-stage" class="dl-final-stage" aria-label="Verificación final del APK" hidden>
       <div class="dl-stage-kicker">Paso final de descarga</div>
       <div class="dl-stage-card">
@@ -644,7 +662,7 @@
     function _scrollToFinalStage(){
       if (!finalStage) return;
       setTimeout(function(){
-        try { finalStage.scrollIntoView({ behavior:'smooth', block:'start' }); }
+        try { finalStage.scrollIntoView({ behavior:'smooth', block:'center' }); }
         catch(e) { try { finalStage.scrollIntoView(true); } catch(_e){} }
       }, 160);
     }
@@ -662,6 +680,8 @@
       var bdg = _sizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
       if (finalStage) { finalStage.hidden = true; finalStage.classList.remove('visible'); }
+      var _gi = document.getElementById('dl-gameinfo-section');
+      if (_gi) { _gi.hidden = true; _gi.classList.remove('visible'); }
       if (lowerFinal) { lowerFinal.classList.remove('visible','estado-final'); lowerFinal.style.pointerEvents='none'; }
       _resetBtnExtras();
     }
@@ -681,6 +701,34 @@
 
       finalStage.hidden = false;
       finalStage.classList.add('visible');
+      var gameInfoSec = document.getElementById('dl-gameinfo-section');
+      if (gameInfoSec) {
+        gameInfoSec.hidden = false;
+        gameInfoSec.classList.add('visible');
+        var giVer = document.getElementById('dl-gameinfo-ver');
+        var giSize = document.getElementById('dl-gameinfo-size');
+        var giTitle = document.getElementById('dl-gameinfo-title');
+        var giDesc = document.getElementById('dl-gameinfo-desc');
+        var giFeats = document.getElementById('dl-gameinfo-feats');
+        var _n = meta.name || 'MOD APK';
+        var _v = _cleanVer(meta.ver || '');
+        var _feats = meta.feats || [];
+        if (giVer) giVer.textContent = _v ? 'v' + _v : (meta.ver || '—');
+        if (giSize) giSize.textContent = meta.size || '—';
+        if (giTitle) giTitle.textContent = _cleanApk(_n) + (_v ? ' v' + _v : '') + '.Apk';
+        if (giDesc) giDesc.textContent = 'MOD: ' + _modTxt(_feats) + '. Archivo verificado desde servidor seguro y compatible con Android 5.0+. Continúa abajo para el paso final.';
+        if (giFeats) {
+          giFeats.innerHTML = (_feats.length ? _feats : ['Dinero Infinito']).map(function(f){
+            var low = String(f||'').toLowerCase(), ic = '⭐';
+            if (low.indexOf('dinero')>-1) ic='💰';
+            else if (low.indexOf('moned')>-1||low.indexOf('gema')>-1||low.indexOf('coin')>-1) ic='🪙';
+            else if (low.indexOf('desbloq')>-1||low.indexOf('unlock')>-1) ic='🔓';
+            else if (low.indexOf('menu')>-1||low.indexOf('menú')>-1) ic='🧩';
+            else if (low.indexOf('anunc')>-1||low.indexOf('ads')>-1) ic='🚫';
+            return '<span class="dl-gameinfo-feat">' + ic + ' ' + _esc(String(f)) + '</span>';
+          }).join('');
+        }
+      }
       if (stageTitle) stageTitle.textContent = 'Verificación final de ' + _cleanApk(meta.name || 'MOD APK');
       if (stageCopy) stageCopy.textContent = 'El enlace final se habilitará aquí abajo cuando termine la comprobación de seguridad.';
       if (stageScan) stageScan.style.display = '';

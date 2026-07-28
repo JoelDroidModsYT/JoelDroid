@@ -316,16 +316,44 @@
   z-index:1;
 }
 
+    /* ► ESTADO COMPLETADO (paso 1 hecho) — AZUL suave, discreto, pequeño.
+       No debe competir visualmente con el enlace final verificado. */
     .dl-btn-final.estado-completado{
-      background:linear-gradient(135deg,#0f766e,#0891b2);
-      animation:none;
-      filter:saturate(.95);
+      background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 60%,#1d4ed8 100%);
+      animation:none !important;
+      filter:saturate(.85) brightness(.92);
       cursor:default;
-      opacity:.92;
+      opacity:.88;
+      min-height:58px !important;
+      padding:9px 12px !important;
+      border-radius:14px !important;
+      box-shadow:0 2px 8px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08) !important;
+      gap:9px !important;
     }
-    .dl-btn-final.estado-completado::after{display:none}
-    .dl-btn-final.estado-completado .dl-btn-icon-wrap{animation:none;background:rgba(255,255,255,.18)}
-    .dl-btn-final.estado-completado .dl-btn-label-top{color:#ccfbf1;opacity:1}
+    .dl-btn-final.estado-completado::after{display:none !important}
+    .dl-btn-final.estado-completado::before{display:none !important}
+    .dl-btn-final.estado-completado .dl-btn-icon-wrap{
+      animation:none;background:rgba(255,255,255,.14);
+      width:32px !important;height:32px !important;border-radius:9px !important;
+    }
+    .dl-btn-final.estado-completado .dl-btn-icon-wrap svg{width:15px;height:15px}
+    .dl-btn-final.estado-completado .dl-btn-label-top{
+      color:#bfdbfe;opacity:.85;font-size:7px !important;letter-spacing:.14em;
+    }
+    .dl-btn-final.estado-completado .dl-btn-game-title{gap:1px !important}
+    .dl-btn-final.estado-completado .dl-btn-name-line{
+      font-size:11.5px !important;font-weight:800 !important;
+      white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;
+      word-break:normal !important;
+    }
+    .dl-btn-final.estado-completado .dl-btn-mod-line{
+      font-size:9px !important;font-weight:600 !important;opacity:.78;
+      white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;
+      word-break:normal !important;
+    }
+    .dl-btn-final.estado-completado .dl-btn-size-badge{
+      font-size:8px !important;padding:3px 8px !important;background:rgba(255,255,255,.14) !important;
+    }
 
 /* ═══ ESTADO 2: VERIFICANDO — bloqueado + label con latido ═══ */
 @keyframes jdVerifyHeartbeat{
@@ -425,8 +453,8 @@
 html{scroll-behavior:smooth}
 .dl-final-stage[hidden]{display:none !important}
 .dl-final-stage{
-  width:100%;margin:22px 0 8px;display:none;flex-direction:column;gap:12px;
-  scroll-margin-top:14px;
+  width:100%;margin:56px 0 12px;display:none;flex-direction:column;gap:12px;
+  scroll-margin-top:80px;
 }
 .dl-final-stage.visible{display:flex;animation:jdFinalStageIn .28s ease-out both}
 @keyframes jdFinalStageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -444,7 +472,7 @@ html{scroll-behavior:smooth}
 }
 .dl-stage-card::before{
   content:'';position:absolute;left:0;right:0;top:0;height:3px;
-  background:linear-gradient(90deg,#22c55e,#38bdf8,#2563eb);
+  background:linear-gradient(90deg,#1d4ed8,#2563eb,#38bdf8);
 }
 .dl-stage-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
 .dl-stage-icon{
@@ -468,7 +496,7 @@ html{scroll-behavior:smooth}
 .dl-stage-num{font-size:27px;font-weight:950;line-height:.9;color:#fff;text-shadow:0 0 14px rgba(125,211,252,.7)}
 .dl-stage-meter span{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#bae6fd;margin-top:4px}
 .dl-stage-progress{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
-.dl-stage-progress-fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,#22c55e,#38bdf8,#0ea5e9);box-shadow:0 0 14px rgba(56,189,248,.65);transition:width .12s linear}
+.dl-stage-progress-fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,#1d4ed8,#2563eb,#38bdf8);box-shadow:0 0 14px rgba(56,189,248,.65);transition:width .12s linear}
 .dl-stage-status{grid-column:2;font-size:10px;font-weight:850;line-height:1.3;color:#fde68a;letter-spacing:.01em}
 .dl-download-final{min-height:92px;margin-top:2px}
 .dl-download-final .dl-btn-label-top{font-size:8px;letter-spacing:.12em;color:#ecfeff}
@@ -545,3 +573,69 @@ body.light-mode .dl-stage-info span{color:#0f172a}
   box-shadow:0 4px 14px rgba(37,99,235,.4);white-space:nowrap;
 }
 @media (min-width:420px){ .dl-reco-grid{grid-template-columns:1fr} }
+
+
+/* ═══ Información del juego (entre paso 1 y paso 2) ═══ */
+.dl-gameinfo-section{
+  width:100%;margin:28px 0 12px;display:none;flex-direction:column;gap:10px;
+  padding:14px 14px 16px;border-radius:18px;
+  background:linear-gradient(145deg,rgba(12,25,49,.9),rgba(8,14,28,.94));
+  border:1px solid rgba(56,189,248,.22);
+  box-shadow:0 6px 20px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.dl-gameinfo-section.visible{display:flex;animation:jdFinalStageIn .28s ease-out both}
+.dl-gameinfo-kicker{
+  align-self:flex-start;font-size:8.5px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+  color:#7dd3fc;background:rgba(37,99,235,.14);border:1px solid rgba(56,189,248,.28);
+  border-radius:999px;padding:5px 11px;
+}
+.dl-gameinfo-title{
+  font-size:14px;font-weight:900;line-height:1.25;color:#f1f5f9;margin:0;
+  overflow-wrap:break-word;word-break:break-word;
+}
+.dl-gameinfo-desc{
+  font-size:11px;font-weight:600;line-height:1.5;color:rgba(203,213,225,.82);
+  margin:0;overflow-wrap:break-word;
+}
+.dl-gameinfo-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;
+}
+.dl-gameinfo-item{
+  display:flex;flex-direction:column;gap:2px;
+  background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.14);
+  border-radius:12px;padding:8px 10px;min-width:0;
+}
+.dl-gameinfo-item b{
+  font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#7dd3fc;
+}
+.dl-gameinfo-item span{
+  font-size:11px;font-weight:800;color:#e2e8f0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dl-gameinfo-feats{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.dl-gameinfo-feat{
+  font-size:9.5px;font-weight:800;color:#fde68a;
+  background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.32);
+  padding:4px 9px;border-radius:20px;
+}
+.dl-gameinfo-hint{
+  display:flex;align-items:center;gap:8px;
+  font-size:10px;font-weight:800;color:#93c5fd;
+  padding:8px 10px;border-radius:12px;
+  background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.28);
+  letter-spacing:.02em;line-height:1.35;
+}
+.dl-gameinfo-hint svg{flex-shrink:0;color:#38bdf8}
+
+body.light-mode .dl-gameinfo-section{
+  background:#ffffff;border:1px solid rgba(15,23,42,.1);
+  box-shadow:0 4px 14px rgba(15,23,42,.08);
+}
+body.light-mode .dl-gameinfo-kicker{color:#1d4ed8;background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.22)}
+body.light-mode .dl-gameinfo-title{color:#0f172a}
+body.light-mode .dl-gameinfo-desc{color:rgba(15,23,42,.72)}
+body.light-mode .dl-gameinfo-item{background:#f8fafc;border-color:rgba(15,23,42,.08)}
+body.light-mode .dl-gameinfo-item b{color:#1d4ed8}
+body.light-mode .dl-gameinfo-item span{color:#0f172a}
+body.light-mode .dl-gameinfo-feat{color:#92400e;background:rgba(251,191,36,.14);border-color:rgba(251,191,36,.4)}
+body.light-mode .dl-gameinfo-hint{color:#1d4ed8;background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.22)}
