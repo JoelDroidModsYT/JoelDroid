@@ -17,36 +17,9 @@
 
 <link rel="stylesheet" href="descarga.css">
 
-<!-- Monetag: tag oficial colocado después de las señales básicas de contexto de la página.
-     Se mantiene una sola carga, sin preload duplicado ni atributos no recomendados. -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false"></script>
-<script>
-/* Carga temprana + fallback: si el tag principal no llega (bloqueo de red, primera
-   visita con caché fría), se reintenta una vez para no perder la impresión. */
-(function(){
-  var SRC='https://quge5.com/88/tag.min.js', ZONE='263644', tries=0;
-  function inject(){
-    if(tries++>=1) return;
-    var s=document.createElement('script');
-    s.src=SRC+'?r='+Date.now(); s.async=true; s.setAttribute('data-zone',ZONE);
-    s.setAttribute('data-cfasync','false');
-    (document.head||document.documentElement).appendChild(s);
-  }
-  var main=document.querySelector('script[data-zone="'+ZONE+'"]');
-  if(main) main.addEventListener('error', inject);
-  setTimeout(function(){
-    var loaded=false;
-    try{
-      var ents=performance.getEntriesByType('resource')||[];
-      for(var i=0;i<ents.length;i++){ if(ents[i].name.indexOf('quge5.com')>-1 && ents[i].transferSize!==0){ loaded=true; break; } }
-      if(!loaded){ for(var j=0;j<ents.length;j++){ if(ents[j].name.indexOf('quge5.com')>-1){ loaded=true; break; } } }
-    }catch(e){ loaded=true; }
-    if(!loaded) inject();
-  }, 2500);
-})();
-</script>
 </head>
 <body>
 <script>
@@ -171,6 +144,49 @@
       </a>
 
     </div><!-- /dl-counter-section -->
+
+    <section id="dl-final-stage" class="dl-final-stage" aria-label="Verificación final del APK" hidden>
+      <div class="dl-stage-kicker">Paso final de descarga</div>
+      <div class="dl-stage-card">
+        <div class="dl-stage-head">
+          <div class="dl-stage-icon" aria-hidden="true">🛡️</div>
+          <div class="dl-stage-copybox">
+            <h2 id="dl-stage-title" class="dl-stage-title">Verificación final del archivo APK</h2>
+            <p id="dl-stage-copy" class="dl-stage-copy">Estamos preparando el enlace real del juego en una zona segura separada.</p>
+          </div>
+        </div>
+
+        <div id="dl-stage-scan" class="dl-stage-scan">
+          <div class="dl-stage-meter">
+            <strong id="dl-stage-num" class="dl-stage-num">12</strong>
+            <span>seg</span>
+          </div>
+          <div class="dl-stage-progress"><div id="dl-stage-progress-fill" class="dl-stage-progress-fill"></div></div>
+          <div id="dl-stage-status" class="dl-stage-status">Comprobando integridad del archivo y disponibilidad del servidor...</div>
+        </div>
+
+        <a href="#" id="dl-download-final" class="dl-download-final dl-btn-final" rel="noopener noreferrer">
+          <div class="dl-btn-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <div class="dl-btn-text-col">
+            <span class="dl-btn-label-top">✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR</span>
+            <span id="dl-download-final-texto" class="dl-btn-game-title">Cargando archivo...</span>
+          </div>
+          <span id="dl-download-size-badge" class="dl-btn-size-badge">—</span>
+        </a>
+      </div>
+
+      <div class="dl-stage-info-grid" aria-label="Detalles de seguridad">
+        <div class="dl-stage-info"><strong>APK del juego</strong><span id="dl-stage-game-label">Datos cargados desde el panel</span></div>
+        <div class="dl-stage-info"><strong>MOD verificado</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
+        <div class="dl-stage-info"><strong>Servidor listo</strong><span>Enlace preparado para Android</span></div>
+      </div>
+    </section>
 
     <section id="dl-reco-section" class="dl-reco-section" aria-label="Juegos recomendados">
       <div class="dl-reco-head">
@@ -339,6 +355,18 @@
     var statSize = document.getElementById('dl-stat-size');
     var btnTexto = document.getElementById('dl-btn-final-texto');
     var btnBadge = document.getElementById('dl-btn-size-badge');
+    var finalStage = document.getElementById('dl-final-stage');
+    var stageScan = document.getElementById('dl-stage-scan');
+    var stageNum = document.getElementById('dl-stage-num');
+    var stageFill = document.getElementById('dl-stage-progress-fill');
+    var stageStatus = document.getElementById('dl-stage-status');
+    var stageTitle = document.getElementById('dl-stage-title');
+    var stageCopy = document.getElementById('dl-stage-copy');
+    var stageGameLabel = document.getElementById('dl-stage-game-label');
+    var stageModLabel = document.getElementById('dl-stage-mod-label');
+    var lowerFinal = document.getElementById('dl-download-final');
+    var lowerFinalTexto = document.getElementById('dl-download-final-texto');
+    var lowerFinalBadge = document.getElementById('dl-download-size-badge');
 
     if (ringFg) ringFg.style.strokeDashoffset = String(CIRCUM);
 
@@ -394,7 +422,8 @@
     }
     function _buildBtnHTML(n, v, feats) {
       var vc = _cleanVer(v);
-      return '<span class="dl-btn-name-line">' + _esc(n) + (vc?' v'+_esc(vc)+'.Apk':'.Apk') + '</span>' +
+      var base = _cleanApk(n || 'MOD APK');
+      return '<span class="dl-btn-name-line">' + _esc(base) + (vc?' v'+_esc(vc)+'.Apk':'.Apk') + '</span>' +
              '<span class="dl-btn-mod-line">Mod ' + _esc(_modTxt(feats)) + '</span>';
     }
 
@@ -454,11 +483,16 @@
         : (d.cutyUrl  || d.cuty  || d.downloadButtonLink1 || d.link1 || '');
       realUrl = url || '';
       if (btnFinal && realUrl) btnFinal.setAttribute('data-real-url', realUrl);
+      if (lowerFinal && realUrl) lowerFinal.setAttribute('data-real-url', realUrl);
 
       var feats = _getFeats(d);
       if (nameEl)  nameEl.innerHTML    = _buildHeroTitle(n, v, feats);
       if (btnTexto && btnState === 'idle') btnTexto.innerHTML = _buildBtnHTML(n, v, feats);
+      if (lowerFinalTexto) lowerFinalTexto.innerHTML = _buildBtnHTML(n, v, feats);
       if (btnBadge && s) btnBadge.textContent = s;
+      if (lowerFinalBadge && s) lowerFinalBadge.textContent = s;
+      if (stageGameLabel) stageGameLabel.textContent = _cleanApk(n) + (_cleanVer(v) ? ' v' + _cleanVer(v) : '') + '.Apk';
+      if (stageModLabel) stageModLabel.textContent = 'Mod: ' + _modTxt(feats);
       try { window._jdMeta = { name:n, ver:v, size:s, feats:feats }; } catch(_e){}
       if (statVer  && v) statVer.textContent  = v;
       if (statSize && s) statSize.textContent = s;
@@ -590,20 +624,36 @@
     var btnState = 'idle';          // idle | activador | verificando | final
     var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
 
-    function _labelTop(){ return btnFinal ? btnFinal.querySelector('.dl-btn-label-top') : null; }
+    function _buttonLabelTop(btn){ return btn ? btn.querySelector('.dl-btn-label-top') : null; }
+    function _labelTop(){ return _buttonLabelTop(btnFinal); }
+    function _lowerLabelTop(){ return _buttonLabelTop(lowerFinal); }
     function _sizeBadge(){ return document.getElementById('dl-btn-size-badge'); }
+    function _lowerSizeBadge(){ return document.getElementById('dl-download-size-badge'); }
 
     function _resetBtnExtras(){
-      if (!btnFinal) return;
-      var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
-      var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
+      if (btnFinal) {
+        var mini = btnFinal.querySelector('.dl-btn-mini-timer'); if (mini) mini.remove();
+        var bar  = btnFinal.querySelector('.dl-btn-progress');   if (bar)  bar.remove();
+      }
+      if (lowerFinal) {
+        var lmini = lowerFinal.querySelector('.dl-btn-mini-timer'); if (lmini) lmini.remove();
+        var lbar  = lowerFinal.querySelector('.dl-btn-progress');   if (lbar)  lbar.remove();
+      }
+    }
+
+    function _scrollToFinalStage(){
+      if (!finalStage) return;
+      setTimeout(function(){
+        try { finalStage.scrollIntoView({ behavior:'smooth', block:'start' }); }
+        catch(e) { try { finalStage.scrollIntoView(true); } catch(_e){} }
+      }, 160);
     }
 
     function _renderActivador(){
       if (!btnFinal) return;
       _clearFileScanner();
       btnState = 'activador';
-      btnFinal.classList.remove('estado-verificando','estado-final');
+      btnFinal.classList.remove('estado-verificando','estado-final','estado-completado');
       btnFinal.classList.add('estado-activador');
       btnFinal.style.pointerEvents = '';
       var lt = _labelTop(); if (lt) lt.textContent = '👉 ¡HAZ CLIC AQUÍ PARA OBTENER EL ENLACE!';
@@ -611,37 +661,38 @@
       if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
       var bdg = _sizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
+      if (finalStage) { finalStage.hidden = true; finalStage.classList.remove('visible'); }
+      if (lowerFinal) { lowerFinal.classList.remove('visible','estado-final'); lowerFinal.style.pointerEvents='none'; }
       _resetBtnExtras();
     }
 
     function _renderSecurityScan(){
-      if (!btnFinal) return;
+      if (!finalStage) return;
       _clearFileScanner();
       btnState = 'verificando';
-      btnFinal.classList.remove('estado-activador','estado-final');
-      btnFinal.classList.add('estado-verificando');
-      btnFinal.style.pointerEvents = 'none';
-
       var meta = window._jdMeta || {};
-      var lt = _labelTop();
-      if (lt) lt.textContent = '🛡️ Analizando archivo para una descarga segura...';
-      if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
-      var bdg = _sizeBadge(); if (bdg) bdg.style.display = 'none';
+
+      if (btnFinal) {
+        btnFinal.classList.remove('estado-activador','estado-final','estado-verificando');
+        btnFinal.classList.add('estado-completado');
+        btnFinal.style.pointerEvents = 'none';
+        var topLt = _labelTop(); if (topLt) topLt.textContent = '✓ Paso inicial completado · continúa abajo';
+      }
+
+      finalStage.hidden = false;
+      finalStage.classList.add('visible');
+      if (stageTitle) stageTitle.textContent = 'Verificación final de ' + _cleanApk(meta.name || 'MOD APK');
+      if (stageCopy) stageCopy.textContent = 'El enlace final se habilitará aquí abajo cuando termine la comprobación de seguridad.';
+      if (stageScan) stageScan.style.display = '';
+      if (stageStatus) stageStatus.textContent = 'Comprobando integridad del archivo y disponibilidad del servidor...';
+      if (stageNum) stageNum.textContent = String(SECURITY_SCAN_SECS);
+      if (stageFill) stageFill.style.width = '0%';
+      if (lowerFinal) { lowerFinal.classList.remove('visible','estado-final'); lowerFinal.style.pointerEvents = 'none'; }
+      if (lowerFinalTexto) lowerFinalTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
+      var lowerBdg = _lowerSizeBadge(); if (lowerBdg) lowerBdg.textContent = meta.size || '—';
 
       _resetBtnExtras();
-      var mini = document.createElement('span');
-      mini.className = 'dl-btn-mini-timer';
-      mini.textContent = '[ ' + SECURITY_SCAN_SECS + 's ]';
-      btnFinal.appendChild(mini);
-
-      var bar = document.createElement('div');
-      bar.className = 'dl-btn-progress';
-      bar.innerHTML = '<div class="dl-btn-progress-fill"></div>';
-      btnFinal.appendChild(bar);
-      var fill = bar.querySelector('.dl-btn-progress-fill');
-
-      // TIEMPO ABSOLUTO (Date.now) → sobrevive a que el navegador móvil
-      // pause la pestaña mientras el ad de Monetag está en primer plano.
+      _scrollToFinalStage();
       securityCheckTs = Date.now() + SECURITY_SCAN_SECS * 1000;
 
       function _tickFileScanner(){
@@ -649,42 +700,34 @@
         var remainS  = Math.ceil(remainMs / 1000);
         var pct = Math.min(1 - remainMs / (SECURITY_SCAN_SECS * 1000), 1) * 100;
         if (pct < 0) pct = 0;
-        if (fill) fill.style.width = pct + '%';
+        if (stageFill) stageFill.style.width = pct + '%';
         if (remainMs <= 0){
           _clearFileScanner();
-          if (mini) mini.textContent = '[ 0s ]';
           _renderVerifiedLink();
           return;
         }
-        if (mini) mini.textContent = '[ ' + Math.max(remainS, 1) + 's ]';
-        var _lt = _labelTop();
-        if (_lt) _lt.textContent = '🛡️ Analizando archivo para una descarga segura... [ ' + Math.max(remainS,1) + 's ]';
+        if (stageNum) stageNum.textContent = String(Math.max(remainS, 1));
+        if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + Math.max(remainS,1) + 's ]';
       }
       _tickFileScanner();
-      // Intervalo corto (250 ms) + rAF para que el catch-up al enfocar sea instantáneo.
       fileScannerIv = setInterval(_tickFileScanner, 250);
       function _raf(){ if (btnState !== 'verificando') return; _tickFileScanner(); fileScannerRaf = requestAnimationFrame(_raf); }
       fileScannerRaf = requestAnimationFrame(_raf);
     }
 
     function _renderVerifiedLink(){
-      if (!btnFinal) return;
+      if (!lowerFinal) return;
       _clearFileScanner();
       btnState = 'final';
-      /* Restablece estilo ACTIVO brillante: quita bloqueo/gris de verificación */
-      btnFinal.classList.remove('estado-activador','estado-verificando');
-      btnFinal.classList.add('estado-final');
-      btnFinal.style.pointerEvents = '';
-      btnFinal.style.opacity = '';
-      btnFinal.style.filter = '';
-      btnFinal.style.cursor = 'pointer';
-
-      /* Limpia badge del segundero [ 0s ] y barra de progreso */
+      lowerFinal.classList.add('visible','estado-final');
+      lowerFinal.style.pointerEvents = '';
+      lowerFinal.style.opacity = '';
+      lowerFinal.style.filter = '';
+      lowerFinal.style.cursor = 'pointer';
+      if (realUrl) lowerFinal.setAttribute('data-real-url', realUrl);
+      if (stageScan) stageScan.style.display = 'none';
       _resetBtnExtras();
-      var stale = btnFinal.querySelectorAll('.dl-btn-mini-timer, .dl-btn-progress');
-      for (var i=0; i<stale.length; i++){ stale[i].style.display='none'; stale[i].remove(); }
 
-      /* Datos reales dinámicos del juego (nombre, versión, features) */
       var meta = window._jdMeta || {};
       var vc = _cleanVer(meta.ver || '');
       var baseName = _cleanApk(meta.name || 'MOD APK');
@@ -692,33 +735,29 @@
       var titleLine = baseName + (vc ? ' ' + vc : '') + '.Apk';
       var modLine   = 'Mod ' + modLbl;
 
-      /* Encabezado llamativo (reemplaza "Analizando archivo...") */
-      var lt = _labelTop();
-      if (lt) {
-        lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
-        lt.style.opacity = '1';
-      }
+      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+      if (stageCopy) stageCopy.textContent = 'Tu archivo está listo. Pulsa el botón azul para abrir el enlace final de descarga.';
+      var lt = _lowerLabelTop();
+      if (lt) { lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
 
-      if (btnTexto) {
-        btnTexto.innerHTML =
+      if (lowerFinalTexto) {
+        lowerFinalTexto.innerHTML =
           '<span class="dl-btn-name-line">' + _esc(titleLine) + '</span>' +
           '<span class="dl-btn-mod-line">'  + _esc(modLine)   + '</span>';
       }
-
-      var bdg = _sizeBadge();
+      var bdg = _lowerSizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
+      _scrollToFinalStage();
     }
 
-    /* Re-sincroniza el contador al volver a enfocar la pestaña (móvil) */
-    /* Feedback visual de navegación: barra superior + overlay "abriendo…" */
     function _showNavLoading(){
       var tb = document.getElementById('dl-topbar');
       var ov = document.getElementById('dl-navload');
       if (tb) { tb.classList.add('active'); }
       if (ov) { ov.classList.add('active'); ov.setAttribute('aria-hidden','false'); }
-      if (btnFinal) {
-        btnFinal.style.pointerEvents = 'none';
-        var lt2 = _labelTop();
+      if (lowerFinal) {
+        lowerFinal.style.pointerEvents = 'none';
+        var lt2 = _lowerLabelTop();
         if (lt2) lt2.textContent = '⏳ Abriendo servidor de descarga…';
       }
     }
@@ -727,9 +766,9 @@
       var ov = document.getElementById('dl-navload');
       if (tb) tb.classList.remove('active');
       if (ov) { ov.classList.remove('active'); ov.setAttribute('aria-hidden','true'); }
-      if (btnFinal && btnState === 'final') {
-        btnFinal.style.pointerEvents = '';
-        var lt3 = _labelTop();
+      if (lowerFinal && btnState === 'final') {
+        lowerFinal.style.pointerEvents = '';
+        var lt3 = _lowerLabelTop();
         if (lt3) lt3.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
       }
     }
@@ -740,11 +779,10 @@
         if (remainMs <= 0){
           _renderVerifiedLink();
         } else {
-          // Fuerza un tick inmediato
-          var mini = btnFinal && btnFinal.querySelector('.dl-btn-mini-timer');
-          var fill = btnFinal && btnFinal.querySelector('.dl-btn-progress-fill');
-          if (mini) mini.textContent = '[ ' + Math.max(Math.ceil(remainMs/1000), 1) + 's ]';
-          if (fill) fill.style.width = (Math.min(1 - remainMs/(SECURITY_SCAN_SECS*1000), 1) * 100) + '%';
+          var sec = Math.max(Math.ceil(remainMs/1000), 1);
+          if (stageNum) stageNum.textContent = String(sec);
+          if (stageFill) stageFill.style.width = (Math.min(1 - remainMs/(SECURITY_SCAN_SECS*1000), 1) * 100) + '%';
+          if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + sec + 's ]';
         }
       } else if (!timerDone && timerRunning){
         _tickServerReady();
@@ -756,32 +794,25 @@
       if (document.visibilityState === 'visible') _onFocusResync();
     });
 
-    /* ────────── CLICKS ────────── */
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
         if (!timerDone) return;
-
-        if (btnState === 'activador') {
-          // 1er clic: gesto real de usuario; el tag oficial ya está cargado en <head>.
-          _renderSecurityScan();
-          return;
+        if (btnState === 'activador') _renderSecurityScan();
+      });
+    }
+    if (lowerFinal) {
+      lowerFinal.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (btnState !== 'final') return;
+        var url = lowerFinal.getAttribute('data-real-url') || realUrl || '';
+        if (url && url !== '#') {
+          _showNavLoading();
+          setTimeout(function(){
+            try { window.location.href = url; }
+            catch(_e){ try { window.location.assign(url); } catch(__e){} }
+          }, 450);
         }
-
-        if (btnState === 'final') {
-          // 2do clic: redirige a la URL REAL dinámica de Cuty.io del juego (Firestore).
-          // Navegación en la MISMA pestaña (flujo original, sin abrir ventanas extra).
-          var url = btnFinal.getAttribute('data-real-url') || realUrl || '';
-          if (url && url !== '#') {
-            _showNavLoading();
-            setTimeout(function(){
-              try { window.location.href = url; }
-              catch(_e){ try { window.location.assign(url); } catch(__e){} }
-            }, 450);
-          }
-          return;
-        }
-        // 'verificando' está bloqueado por pointer-events:none
       });
     }
 
