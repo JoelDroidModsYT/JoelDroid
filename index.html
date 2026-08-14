@@ -5806,8 +5806,63 @@ function irADescarga(gameId, modo) {
     } catch(e) {}
   }
 
-  // Navegar directo a descarga — sin modal, sin espera
-  window.location.href = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  // ── Espera obligatoria de 5s antes de ir a descarga.html ──
+  var _destino = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  try { _jdPreDownloadWait(_destino, modo); }
+  catch(e) { window.location.href = _destino; }
+}
+
+// Overlay de preparación (5 segundos) — no toca ningún script de anuncios
+function _jdPreDownloadWait(destino, modo) {
+  if (window.__jdPreDlActive) return;
+  window.__jdPreDlActive = true;
+
+  var ov = document.getElementById('jd-predl');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'jd-predl';
+    ov.className = 'jd-predl';
+    ov.setAttribute('role', 'status');
+    ov.setAttribute('aria-live', 'polite');
+    ov.innerHTML =
+      '<div class="jd-predl-box">' +
+        '<div class="jd-predl-ring">' +
+          '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+            '<circle class="jd-predl-track" cx="50" cy="50" r="43"></circle>' +
+            '<circle class="jd-predl-prog" id="jd-predl-prog" cx="50" cy="50" r="43"></circle>' +
+          '</svg>' +
+          '<span class="jd-predl-num" id="jd-predl-num">5</span>' +
+        '</div>' +
+        '<p class="jd-predl-title">Preparando tu descarga…</p>' +
+        '<p class="jd-predl-sub" id="jd-predl-sub">Opción ' + (modo || 1) + ' · verificando servidor seguro</p>' +
+        '<div class="jd-predl-bar"><i id="jd-predl-fill"></i></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+  }
+  requestAnimationFrame(function(){ ov.classList.add('open'); });
+
+  var TOTAL = 5, left = TOTAL;
+  var numEl  = document.getElementById('jd-predl-num');
+  var fillEl = document.getElementById('jd-predl-fill');
+  var progEl = document.getElementById('jd-predl-prog');
+  var CIRC = 2 * Math.PI * 43;
+  if (progEl) { progEl.style.strokeDasharray = CIRC + ''; progEl.style.strokeDashoffset = CIRC + ''; }
+
+  var t0 = Date.now();
+  var iv = setInterval(function(){
+    var el = (Date.now() - t0) / 1000;
+    var pct = Math.min(1, el / TOTAL);
+    left = Math.max(0, Math.ceil(TOTAL - el));
+    if (numEl)  numEl.textContent = String(left);
+    if (fillEl) fillEl.style.width = (pct * 100).toFixed(1) + '%';
+    if (progEl) progEl.style.strokeDashoffset = (CIRC * (1 - pct)).toFixed(2);
+    if (pct >= 1) {
+      clearInterval(iv);
+      var sub = document.getElementById('jd-predl-sub');
+      if (sub) sub.textContent = 'Listo · abriendo página de descarga';
+      setTimeout(function(){ window.location.href = destino; }, 220);
+    }
+  }, 100);
 }
 
 // Alias (compatibilidad)

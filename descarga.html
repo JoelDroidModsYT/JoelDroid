@@ -167,7 +167,7 @@
 
         <div id="dl-stage-scan" class="dl-stage-scan">
           <div class="dl-stage-meter">
-            <strong id="dl-stage-num" class="dl-stage-num">12</strong>
+            <strong id="dl-stage-num" class="dl-stage-num">15</strong>
             <span>seg</span>
           </div>
           <div class="dl-stage-progress"><div id="dl-stage-progress-fill" class="dl-stage-progress-fill"></div></div>
@@ -623,7 +623,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
+    var SECURITY_SCAN_SECS  = 15;  // 2do temporizador (15s: mayor permanencia)
 
     function _buttonLabelTop(btn){ return btn ? btn.querySelector('.dl-btn-label-top') : null; }
     function _labelTop(){ return _buttonLabelTop(btnFinal); }
@@ -646,7 +646,7 @@
       if (!finalStage) return;
       setTimeout(function(){
         try {
-          // Centrar el temporizador de 12s en la mitad de la pantalla del móvil.
+          // Centrar el temporizador de 15s en la mitad de la pantalla del móvil.
           var target = document.getElementById('dl-stage-scan') || finalStage;
           var rect = target.getBoundingClientRect();
           var absY = rect.top + window.pageYOffset;
@@ -798,7 +798,8 @@
       }
       var bdg = _lowerSizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
-      _scrollToFinalStage();
+      /* SIN scroll automático al terminar: el usuario se queda exactamente
+         donde lo dejó el scroll inicial (temporizador centrado). */
     }
 
     function _showNavLoading(){
