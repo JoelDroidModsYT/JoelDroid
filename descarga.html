@@ -4,6 +4,13 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
+<!-- ══ MONETAG — MÁXIMA PRIORIDAD (milisegundo 0, antes de CSS/fuentes) ══ -->
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false" fetchpriority="high"></script>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
 <link rel="canonical" id="dl-canonical" href="https://joeldroidmods.com/descarga.html">
@@ -17,9 +24,74 @@
 
 <link rel="stylesheet" href="descarga.css">
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false"></script>
+<script>
+/* ══ URL LIMPIA POR NOMBRE DE JUEGO (descarga.html?mod=off-the-road-2&modo=1) ══
+   Resuelve slug ↔ id sin exponer códigos aleatorios en la URL. */
+(function(){
+  function norm(t){
+    return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,90);
+  }
+  var params = new URLSearchParams(window.location.search);
+  var id   = (params.get('id') || '').trim();
+  var slug = norm(params.get('mod') || params.get('slug') || '');
+  var modo = params.get('modo') === '2' ? 2 : 1;
+  var payload = null;
+  try{
+    var raw = sessionStorage.getItem('jd_dl_payload')
+           || localStorage.getItem('jd_dl_payload')
+           || localStorage.getItem('jd_dl_payload_bk');
+    if(raw) payload = JSON.parse(raw);
+  }catch(e){}
+  if(payload){
+    var pslug = norm(payload.slug || payload.name || payload.nombre || '');
+    if(!id && slug && pslug === slug) id = String(payload.id||'');
+    if(!slug && id && String(payload.id) === id) slug = pslug;
+  }
+  window.__JD_DL = { id:id, slug:slug, modo:modo, norm:norm };
+  function pretty(){
+    var sg = window.__JD_DL.slug;
+    if(!sg) return;
+    var url = location.pathname + '?mod=' + encodeURIComponent(sg) + '&modo=' + window.__JD_DL.modo;
+    try{ history.replaceState(history.state, document.title, url); }catch(e){}
+    var can = document.getElementById('dl-canonical');
+    if(can) can.setAttribute('href', location.origin + url);
+  }
+  window.__JD_DL.pretty = pretty;
+  pretty();
+  /* Resolución remota cuando el enlace se comparte sin caché local */
+  window.__JD_DL.resolve = function(cb){
+    if(window.__JD_DL.id) return cb(window.__JD_DL.id);
+    if(!window.__JD_DL.slug) return cb('');
+    var want = window.__JD_DL.slug;
+    function pick(list){
+      for(var i=0;i<list.length;i++){
+        var g = list[i]; if(!g) continue;
+        var cand = norm(g.slug || g.nombre_url || g.name || g.nombre || '');
+        if(cand === want || cand === want.replace(/-mod$/,'') || cand + '-mod' === want){
+          window.__JD_DL.id = String(g.id||''); window.__JD_DL.slug = want; pretty();
+          return cb(window.__JD_DL.id);
+        }
+      }
+      return cb('');
+    }
+    var gist='https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json?v='+Math.floor(Date.now()/60000);
+    fetch(gist,{cache:'no-cache'}).then(function(r){return r.json();}).then(function(d){
+      var games = Array.isArray(d) ? d : (d.games||[]);
+      if(!games.length) throw new Error('vacio');
+      pick(games);
+    }).catch(function(){
+      var fs='https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/mods?pageSize=200&key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
+      fetch(fs).then(function(r){return r.json();}).then(function(d){
+        pick((d.documents||[]).map(function(doc){
+          var f=doc.fields||{}; function sv(x){return x&&x.stringValue!==undefined?x.stringValue:'';}
+          return { id:(doc.name||'').split('/').pop(), name:sv(f.name||f.nombre), slug:sv(f.slug||f.nombre_url) };
+        }));
+      }).catch(function(){ cb(''); });
+    });
+  };
+})();
+</script>
 </head>
 <body>
 <script>
@@ -245,8 +317,7 @@
 })();
 (function(){
   try {
-    var params = new URLSearchParams(window.location.search);
-    var gid    = (params.get('id') || '').trim();
+    var gid = (window.__JD_DL && window.__JD_DL.id) || '';
     if (!gid) return;
     var raw = sessionStorage.getItem('jd_dl_payload')
            || localStorage.getItem('jd_dl_payload')
@@ -273,7 +344,8 @@
       var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
       if (md) md.setAttribute('content', desc.slice(0, 160));
       var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
-      if (can) can.setAttribute('href', location.origin + location.pathname + (gid ? '?id=' + encodeURIComponent(gid) : ''));
+      try { if (window.__JD_DL && window.__JD_DL.pretty) window.__JD_DL.pretty(); } catch(e){}
+      if (can && !(window.__JD_DL && window.__JD_DL.slug)) can.setAttribute('href', location.origin + location.pathname);
     }
     if (t) { try { window._jdCacheImg(t); } catch(e){} }
     document.addEventListener('DOMContentLoaded', function(){
@@ -322,8 +394,9 @@
   };
 
   var params  = new URLSearchParams(window.location.search);
-  var gameId  = (params.get('id')   || '').trim();
-  var modoNum = params.get('modo') === '2' ? 2 : 1;
+  var _DL     = window.__JD_DL || {};
+  var gameId  = (_DL.id || params.get('id') || '').trim();
+  var modoNum = (_DL.modo || (params.get('modo') === '2' ? 2 : 1)) === 2 ? 2 : 1;
 
   /* URL DINÁMICA de Cuty.io obtenida de Firestore (nunca fija) */
   var realUrl      = '';
@@ -411,8 +484,14 @@
       var desc = 'Descarga ' + cleanName + (vc ? ' versión ' + vc : '') + (s ? ' (' + s + ')' : '') + ' para Android. MOD: ' + mod + '. Archivo APK verificado por JOELDROID MODS YT.';
       var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
       if (md) md.setAttribute('content', desc.slice(0, 160));
+      try {
+        if (window.__JD_DL) {
+          if (!window.__JD_DL.slug && n) window.__JD_DL.slug = window.__JD_DL.norm(n);
+          window.__JD_DL.pretty();
+        }
+      } catch(e){}
       var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
-      if (can) can.setAttribute('href', location.origin + location.pathname + (gameId ? '?id=' + encodeURIComponent(gameId) : ''));
+      if (can && !(window.__JD_DL && window.__JD_DL.slug)) can.setAttribute('href', location.origin + location.pathname);
     }
 
     function _buildHeroTitle(n, v, feats) {
@@ -869,6 +948,7 @@
     }
 
     /* ────────── ARRANQUE ────────── */
+    function _boot() {
     if (gameId) {
       if (_trySessionStorage()) { _startServerReady(); _fetchFirebase(); }
       else if (typeof firebase !== 'undefined') { _fetchFirebase(); }
@@ -879,6 +959,15 @@
         setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startServerReady(); }, 2500);
       }
     } else { _startServerReady(); }
+    }
+
+    if (gameId) { _boot(); }
+    else if (window.__JD_DL && window.__JD_DL.slug && window.__JD_DL.resolve) {
+      _startServerReady();                       // el temporizador arranca ya: 0 espera extra
+      window.__JD_DL.resolve(function(rid){
+        if (rid) { gameId = String(rid); if (!_trySessionStorage()) _fetchFirebase(); }
+      });
+    } else { _boot(); }
 
   });
 })();

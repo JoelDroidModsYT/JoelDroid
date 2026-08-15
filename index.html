@@ -3062,10 +3062,13 @@ function _initLazyImages(){
   }
   imgs.forEach(function(img){ _lazyIO.observe(img); });
 }
-/* dead code removed: initLazyLoading */
-/* dead code removed: observeLazyImages */
+/* initLazyLoading fue eliminado: se deja un no-op para no romper la inicialización */
+function initLazyLoading(){}
+/* observeLazyImages fue eliminado: no-op para no romper la ejecución (llamadas aún existen) */
+function observeLazyImages(){}
 
-/* dead code removed: updateBannerBasedOnFilter */
+/* updateBannerBasedOnFilter fue eliminado: no-op para no romper la ejecución (llamadas aún existen) */
+function updateBannerBasedOnFilter(){}
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
@@ -5574,7 +5577,7 @@ function fbMigrateLocalGames(){
 
 function _jdClearOwnStorageOnly(){
   var keepPrefixes=['firebase:','_grecaptcha','__Secure-','__Host-'];
-  var removePrefixes=['jd_','_t_'];
+  var removePrefixes=['jd_']; // NO tocar claves de terceros/anuncios (frequency capping de Monetag)
   var removeExact=['siteState','selectedLang','currentLang'];
   try{
     var keys=[];
@@ -5589,7 +5592,7 @@ function _jdClearOwnStorageOnly(){
   try{
     var skeys=[];
     for(var j=0;j<sessionStorage.length;j++){
-      var s=sessionStorage.key(j); if(s && (s.indexOf('jd_')===0 || s.indexOf('_t_')===0)) skeys.push(s);
+      var s=sessionStorage.key(j); if(s && s.indexOf('jd_')===0) skeys.push(s);
     }
     skeys.forEach(function(k){ sessionStorage.removeItem(k); });
   }catch(e){}
@@ -5806,13 +5809,34 @@ function irADescarga(gameId, modo) {
     } catch(e) {}
   }
 
-  // ── Espera obligatoria de 5s antes de ir a descarga.html ──
-  var _destino = 'descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1);
+  // ── URL LIMPIA: descarga.html?mod=<slug-del-juego>&modo=N ──
+  var _slugDest = '';
+  try {
+    var _g = (typeof getGameById === 'function') ? getGameById(gameId) : null;
+    if (!_g && typeof siteState !== 'undefined' && siteState.gamesList) {
+      for (var _i = 0; _i < siteState.gamesList.length; _i++) {
+        if (String(siteState.gamesList[_i].id) === String(gameId)) { _g = siteState.gamesList[_i]; break; }
+      }
+    }
+    if (_g && typeof _jdPublicSlug === 'function') _slugDest = _jdPublicSlug(_g);
+  } catch(e) {}
+  if (!_slugDest) {
+    try {
+      var _pl = JSON.parse(sessionStorage.getItem('jd_dl_payload') || '{}');
+      if (String(_pl.id) === String(gameId) && _pl.slug) _slugDest = _pl.slug;
+    } catch(e) {}
+  }
+
+  var _destino = _slugDest
+    ? ('descarga.html?mod=' + encodeURIComponent(_slugDest) + '&modo=' + (modo || 1))
+    : ('descarga.html?id=' + encodeURIComponent(String(gameId)) + '&modo=' + (modo || 1));
+
   try { _jdPreDownloadWait(_destino, modo); }
   catch(e) { window.location.href = _destino; }
 }
 
-// Overlay de preparación (5 segundos) — no toca ningún script de anuncios
+// Transición instantánea a descarga.html (sin cuenta atrás)
+// No toca ningún script de anuncios: Monetag sigue con prioridad total.
 function _jdPreDownloadWait(destino, modo) {
   if (window.__jdPreDlActive) return;
   window.__jdPreDlActive = true;
@@ -5831,38 +5855,29 @@ function _jdPreDownloadWait(destino, modo) {
             '<circle class="jd-predl-track" cx="50" cy="50" r="43"></circle>' +
             '<circle class="jd-predl-prog" id="jd-predl-prog" cx="50" cy="50" r="43"></circle>' +
           '</svg>' +
-          '<span class="jd-predl-num" id="jd-predl-num">5</span>' +
+          '<span class="jd-predl-num" id="jd-predl-num">↓</span>' +
         '</div>' +
-        '<p class="jd-predl-title">Preparando tu descarga…</p>' +
-        '<p class="jd-predl-sub" id="jd-predl-sub">Opción ' + (modo || 1) + ' · verificando servidor seguro</p>' +
+        '<p class="jd-predl-title">Abriendo tu descarga…</p>' +
+        '<p class="jd-predl-sub" id="jd-predl-sub">Opción ' + (modo || 1) + ' · servidor seguro</p>' +
         '<div class="jd-predl-bar"><i id="jd-predl-fill"></i></div>' +
       '</div>';
     document.body.appendChild(ov);
   }
   requestAnimationFrame(function(){ ov.classList.add('open'); });
 
-  var TOTAL = 5, left = TOTAL;
-  var numEl  = document.getElementById('jd-predl-num');
   var fillEl = document.getElementById('jd-predl-fill');
   var progEl = document.getElementById('jd-predl-prog');
   var CIRC = 2 * Math.PI * 43;
   if (progEl) { progEl.style.strokeDasharray = CIRC + ''; progEl.style.strokeDashoffset = CIRC + ''; }
+  requestAnimationFrame(function(){
+    if (fillEl) { fillEl.style.transition = 'width .45s ease-out'; fillEl.style.width = '100%'; }
+    if (progEl) { progEl.style.transition = 'stroke-dashoffset .45s ease-out'; progEl.style.strokeDashoffset = '0'; }
+  });
 
-  var t0 = Date.now();
-  var iv = setInterval(function(){
-    var el = (Date.now() - t0) / 1000;
-    var pct = Math.min(1, el / TOTAL);
-    left = Math.max(0, Math.ceil(TOTAL - el));
-    if (numEl)  numEl.textContent = String(left);
-    if (fillEl) fillEl.style.width = (pct * 100).toFixed(1) + '%';
-    if (progEl) progEl.style.strokeDashoffset = (CIRC * (1 - pct)).toFixed(2);
-    if (pct >= 1) {
-      clearInterval(iv);
-      var sub = document.getElementById('jd-predl-sub');
-      if (sub) sub.textContent = 'Listo · abriendo página de descarga';
-      setTimeout(function(){ window.location.href = destino; }, 220);
-    }
-  }, 100);
+  // Navegación inmediata (una sola vez), sin espera artificial que asuste al usuario.
+  var _went = false;
+  var _go = function(){ if (_went) return; _went = true; window.location.href = destino; };
+  setTimeout(_go, 350);
 }
 
 // Alias (compatibilidad)
