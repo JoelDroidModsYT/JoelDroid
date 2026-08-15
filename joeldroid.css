@@ -726,32 +726,12 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
    ──────────────────────────────────────────────────────────────── */
 .jd-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
   padding: 2px 0 16px;
   contain: none;
 }
-@media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:8px; } }
-/* ── 4 columnas en móvil: tarjetas compactas y legibles ── */
-@media(max-width:479px){
-  .jd-grid{grid-template-columns:repeat(4,1fr);gap:5px}
-  .jd-card{border-radius:10px}
-  .jd-img-box{max-height:78px}
-  .jd-info{padding:3px 4px}
-  .jd-name{font-size:7.6px;line-height:1.18}
-  .jd-mod-label{font-size:6.8px}
-  .jd-grid .jd-mod-badge{font-size:5.6px!important;padding:1px 3px!important;border-radius:3px!important;top:3px!important;left:3px!important;letter-spacing:.02em!important}
-  .jd-grid .jd-upd-badge{font-size:5.4px!important;padding:1px 3px!important;top:3px!important;right:3px!important;letter-spacing:.02em!important}
-  .jd-ver-pill{font-size:6.4px!important;padding:1px 4px!important;bottom:4px}
-  .jd-grid .jd-btn{font-size:6.6px!important;padding:4px 3px!important;min-height:21px;gap:2px;border-radius:7px;white-space:nowrap;overflow:hidden}
-  .jd-grid .jd-btn svg{width:8px;height:8px;flex-shrink:0}
-  .jd-grid .jd-btn .global-dl-btn-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-}
-@media(max-width:340px){
-  .jd-grid{gap:4px}
-  .jd-img-box{max-height:68px}
-  .jd-name{font-size:7.1px}
-}
+@media(min-width:480px)  { .jd-grid { grid-template-columns: repeat(3,1fr); gap:8px; } }
 @media(min-width:768px)  { .jd-grid { grid-template-columns: repeat(4,1fr); gap:10px; } }
 @media(min-width:1024px) { .jd-grid { grid-template-columns: repeat(5,1fr); gap:12px; } }
 
@@ -1701,22 +1681,3 @@ html.light-mode, body.light-mode, .light-mode {
   background-color:  #020408 !important;
   color:             #ffffff !important;
 }
-
-
-/* ===== Espera de 5s antes de descarga.html ===== */
-.jd-predl{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(2,4,8,.9);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .18s ease}
-.jd-predl.open{opacity:1}
-.jd-predl-box{width:100%;max-width:300px;text-align:center;background:linear-gradient(160deg,rgba(13,17,23,.98),rgba(11,18,36,.98));border:1px solid rgba(37,99,235,.45);border-radius:20px;padding:22px 18px 18px;box-shadow:0 20px 50px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03)}
-.jd-predl-ring{position:relative;width:92px;height:92px;margin:0 auto 14px}
-.jd-predl-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.jd-predl-track{fill:none;stroke:rgba(148,163,184,.18);stroke-width:8}
-.jd-predl-prog{fill:none;stroke:#2563eb;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .1s linear;filter:drop-shadow(0 0 6px rgba(37,99,235,.6))}
-.jd-predl-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:1000;color:#fff}
-.jd-predl-title{font-size:14px;font-weight:900;color:#fff;margin:0}
-.jd-predl-sub{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.62);margin:5px 0 12px;line-height:1.4}
-.jd-predl-bar{height:6px;border-radius:999px;background:rgba(148,163,184,.18);overflow:hidden}
-.jd-predl-bar>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#2563eb,#3b82f6)}
-.light-mode .jd-predl{background:rgba(240,244,248,.92)}
-.light-mode .jd-predl-box{background:#fff;border-color:rgba(37,99,235,.28)}
-.light-mode .jd-predl-title,.light-mode .jd-predl-num{color:#0f172a}
-.light-mode .jd-predl-sub{color:rgba(15,23,42,.6)}
