@@ -323,7 +323,23 @@
 
   var params  = new URLSearchParams(window.location.search);
   var gameId  = (params.get('id')   || '').trim();
+  var slugParam = (params.get('mod') || '').trim().toLowerCase();
   var modoNum = params.get('modo') === '2' ? 2 : 1;
+
+  /* ── URL AMIGABLE: slug del juego en vez de códigos (?mod=fr-legends) ── */
+  function _slugify(text){
+    return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,90);
+  }
+  function _setPrettyUrl(slug){
+    if (!slug) return;
+    try {
+      var q = '?mod=' + encodeURIComponent(slug) + (modoNum === 2 ? '&modo=2' : '');
+      history.replaceState(null, '', location.pathname + q);
+      var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
+      if (can) can.setAttribute('href', location.origin + location.pathname + q);
+    } catch(e){}
+  }
 
   /* URL DINÁMICA de Cuty.io obtenida de Firestore (nunca fija) */
   var realUrl      = '';
@@ -412,7 +428,10 @@
       var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
       if (md) md.setAttribute('content', desc.slice(0, 160));
       var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
-      if (can) can.setAttribute('href', location.origin + location.pathname + (gameId ? '?id=' + encodeURIComponent(gameId) : ''));
+      if (can) {
+        var _sl = _slugify(cleanName);
+        can.setAttribute('href', location.origin + location.pathname + (_sl ? '?mod=' + encodeURIComponent(_sl) : (gameId ? '?id=' + encodeURIComponent(gameId) : '')));
+      }
     }
 
     function _buildHeroTitle(n, v, feats) {
@@ -502,6 +521,7 @@
         document.title = n + ' (Mod ' + _mt + ') ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT';
       } catch(e) {}
       _updatePageSignals(n, v, s, feats);
+      try { _setPrettyUrl(_slugify(_cleanApk(n))); } catch(_e){}
 
       if (t && iconEl) {
         if (window._jdGetCachedImg) {
@@ -647,7 +667,10 @@
       setTimeout(function(){
         try {
           // Centrar el temporizador de 12s en la mitad de la pantalla del móvil.
-          var target = document.getElementById('dl-stage-scan') || finalStage;
+          var target = document.getElementById('dl-stage-scan');
+          if (!target || target.style.display === 'none' || target.offsetHeight === 0) {
+            target = document.getElementById('dl-download-final') || finalStage;
+          }
           var rect = target.getBoundingClientRect();
           var absY = rect.top + window.pageYOffset;
           var vh = window.innerHeight || document.documentElement.clientHeight;
@@ -798,7 +821,8 @@
       }
       var bdg = _lowerSizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
-      _scrollToFinalStage();
+      /* SIN re-scroll: el botón final aparece en la misma tarjeta donde estaba
+         el cronómetro, así la vista queda intacta y el usuario no se pierde. */
     }
 
     function _showNavLoading(){
@@ -868,7 +892,7 @@
     }
 
     /* ────────── ARRANQUE ────────── */
-    if (gameId) {
+    function _bootWithId(){
       if (_trySessionStorage()) { _startServerReady(); _fetchFirebase(); }
       else if (typeof firebase !== 'undefined') { _fetchFirebase(); }
       else {
@@ -877,6 +901,46 @@
         }, 80);
         setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startServerReady(); }, 2500);
       }
+    }
+
+    /* Resuelve ?mod=nombre-del-juego → id real (caché local → Gist → Firestore REST) */
+    function _resolveSlugToId(cb){
+      var done = false;
+      function _fin(id){ if (!done){ done = true; cb(id); } }
+      function _match(list){
+        for (var i = 0; i < list.length; i++){
+          var g = list[i];
+          if (_slugify(g.name || g.nombre) === slugParam && g.id) return String(g.id);
+        }
+        return '';
+      }
+      try {
+        var raw = localStorage.getItem('jd_games_cache') || sessionStorage.getItem('jd_games_cache');
+        if (raw){ var arr = JSON.parse(raw); if (Array.isArray(arr)){ var cid = _match(arr); if (cid) return _fin(cid); } }
+      } catch(e){}
+      var gistUrl = 'https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json?v=' + Math.floor(Date.now()/60000);
+      fetch(gistUrl, { cache:'no-cache' })
+        .then(function(r){ if (!r.ok) throw new Error('gist'); return r.json(); })
+        .then(function(d){
+          var games = Array.isArray(d) ? d : (d.games || []);
+          var id = _match(games);
+          if (id) _fin(id); else throw new Error('no-match');
+        })
+        .catch(function(){
+          var fs = 'https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/mods?pageSize=200&key=' + FB_CFG.apiKey;
+          fetch(fs).then(function(r){ return r.json(); }).then(function(d){
+            _fin(_match((d.documents || []).map(_parseRecoDoc)));
+          }).catch(function(){ _fin(''); });
+        });
+    }
+
+    if (gameId) {
+      _bootWithId();
+    } else if (slugParam) {
+      _startServerReady(); // el temporizador arranca sin esperar la resolución
+      _resolveSlugToId(function(id){
+        if (id) { gameId = id; _bootWithId(); }
+      });
     } else { _startServerReady(); }
 
   });
