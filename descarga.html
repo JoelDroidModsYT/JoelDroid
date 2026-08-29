@@ -19,18 +19,20 @@
 
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
-<script src="https://quge5.com/88/tag.min.js" data-zone="263644" async data-cfasync="false"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="274485" async data-cfasync="false"></script>
 </head>
 <body>
 <script>
-/* THEME BOOTSTRAP (anti-FOUC) — OSCURO FORZADO SIEMPRE */
+/* THEME BOOTSTRAP (anti-FOUC) — sincronizado con index (localStorage) */
 (function(){
   try{
-    document.documentElement.classList.remove('light-mode');
-    if(document.body) document.body.classList.remove('light-mode');
-    localStorage.setItem('darkMode','dark');
-    localStorage.setItem('jd_manual_theme','1');
-    window.__JD_INITIAL_DARK = true;
+    var pref = localStorage.getItem('darkMode');
+    var isLight = (pref === 'light');
+    document.documentElement.classList.toggle('light-mode', isLight);
+    if(document.body) document.body.classList.toggle('light-mode', isLight);
+    var mt = document.querySelector('meta[name="theme-color"]');
+    if(mt) mt.setAttribute('content', isLight ? '#f0f4f8' : '#020408');
+    window.__JD_INITIAL_DARK = !isLight;
   }catch(e){ /* dark por defecto */ }
 })();</script>
 

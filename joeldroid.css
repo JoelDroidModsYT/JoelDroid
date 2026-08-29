@@ -1681,3 +1681,57 @@ html.light-mode, body.light-mode, .light-mode {
   background-color:  #020408 !important;
   color:             #ffffff !important;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   BARRA INFERIOR (tabbar estilo PlayMods) — compacta
+   ═══════════════════════════════════════════════════════════ */
+body{padding-bottom:62px}
+.jd-tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:250;
+  display:flex;align-items:stretch;justify-content:space-around;
+  height:54px;padding:4px 2px calc(2px + env(safe-area-inset-bottom,0px));
+  background:var(--nav-bg);
+  border-top:1px solid var(--border-color);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 -4px 18px rgba(0,0,0,.35);
+}
+.jd-tab{
+  flex:1;min-width:0;background:none;border:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  color:var(--text-secondary);font-family:'Inter',sans-serif;
+  font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;
+  padding:2px 1px;transition:color .2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.jd-tab span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.1}
+.jd-tab .jd-tab-ico,.jd-tab svg{width:18px;height:18px;stroke-width:2.2}
+.jd-tab.active{color:var(--brand-color)}
+.jd-tab.active svg{filter:drop-shadow(0 0 6px rgba(37,99,235,.55))}
+.jd-tab:active{opacity:.6}
+.light-mode .jd-tabbar{background:#ffffff;border-top:1px solid rgba(15,23,42,.1);box-shadow:0 -3px 14px rgba(15,23,42,.08)}
+.light-mode .jd-tab{color:rgba(15,23,42,.6)}
+.light-mode .jd-tab.active{color:#1d4ed8}
+body.detail-open .jd-tabbar,
+body.policies-open .jd-tabbar{display:none!important}
+
+/* FABs por encima de la tabbar */
+#user-fab{bottom:70px!important}
+#share-fab{bottom:126px!important}
+
+/* ═══════════════════════════════════════════════════════════
+   MODO CLARO — armonización final (sin grises apagados)
+   ═══════════════════════════════════════════════════════════ */
+html.light-mode,html.light-mode body,body.light-mode{background:#f0f4f8!important;color:#0f172a}
+.light-mode nav.sticky{background:rgba(255,255,255,.98)!important;border-bottom:1px solid rgba(37,99,235,.18)!important;box-shadow:0 2px 10px rgba(15,23,42,.05)}
+.light-mode .search-container{background:#ffffff!important;border:1px solid rgba(37,99,235,.3)!important;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+.light-mode .search-input,.light-mode .search-input::placeholder{color:#0f172a}
+.light-mode .search-input::placeholder{color:rgba(15,23,42,.45)}
+.light-mode .bg-gray-500\/10{background:rgba(37,99,235,.08)!important}
+.light-mode .animated-background{opacity:.35}
+.light-mode #site-title-ui,.light-mode h1,.light-mode h2,.light-mode h3{color:#0f172a}
+.light-mode .text-white{color:#0f172a!important}
+.light-mode .jd-lang-panel,.light-mode #settings-view{background:#ffffff!important;color:#0f172a;border:1px solid rgba(15,23,42,.1)!important}
+.light-mode .jd-lang-opt,.light-mode .jd-st-item,.light-mode .jd-st-item-text{color:#0f172a}
+.light-mode .jd-st-item{background:#f8fafc;border:1px solid rgba(15,23,42,.08)}
+
+.jd-tab,.light-mode .jd-tab{border:none!important;background:transparent!important;box-shadow:none!important}

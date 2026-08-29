@@ -630,3 +630,8 @@ body.light-mode .dl-gameinfo-item{background:#f8fafc;border-color:rgba(15,23,42,
 body.light-mode .dl-gameinfo-item b{color:#1d4ed8}
 body.light-mode .dl-gameinfo-item span{color:#0f172a}
 body.light-mode .dl-gameinfo-feat{color:#92400e;background:rgba(251,191,36,.14);border-color:rgba(251,191,36,.4)}
+
+/* ── Modo claro: armonización final (sincronizado con index) ── */
+html.light-mode,html.light-mode body,body.light-mode{background:#f0f4f8!important;color:#0f172a}
+body.light-mode .dl-page{background:#f0f4f8}
+body.light-mode ::placeholder{color:rgba(15,23,42,.45)}

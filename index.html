@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="255286" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="274484" async data-cfasync="false" fetchpriority="high"></script>
 
 
 
@@ -262,15 +262,14 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </head>
 <body class="no-scrollbar">
 <script>
-/* ══ THEME BOOTSTRAP (anti-FOUC) — OSCURO FORZADO SIEMPRE ══ */
+/* ══ THEME BOOTSTRAP (anti-FOUC) — respeta la preferencia del usuario ══ */
 (function(){
   try{
-    // Forzamos oscuro: ignoramos cualquier preferencia previa del usuario.
-    document.documentElement.classList.remove('light-mode');
-    if(document.body) document.body.classList.remove('light-mode');
-    localStorage.setItem('darkMode','dark');
-    localStorage.setItem('jd_manual_theme','1');
-    window.__JD_INITIAL_DARK = true;
+    var pref = localStorage.getItem('darkMode');
+    var isLight = (pref === 'light');
+    document.documentElement.classList.toggle('light-mode', isLight);
+    if(document.body) document.body.classList.toggle('light-mode', isLight);
+    window.__JD_INITIAL_DARK = !isLight;
   }catch(e){ /* dark por defecto */ }
 })();
 </script>
@@ -279,7 +278,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 <div class="animated-background" id="animated-bg"></div>
 
 <!-- NAV -->
-<nav class="sticky top-0 z-50 py-4 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]" style="will-change:transform;-webkit-transform:translateZ(0);transform:translateZ(0);backface-visibility:hidden;">
+<nav class="sticky top-0 z-50 py-2.5 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]" style="will-change:transform;-webkit-transform:translateZ(0);transform:translateZ(0);backface-visibility:hidden;">
   <div class="max-w-md mx-auto flex justify-between items-center">
     <div class="flex items-center gap-3">
       <div id="logo-container" class="flex items-center justify-center overflow-hidden shadow-lg" style="width:40px;height:40px;border-radius:20%;box-shadow:0 0 14px rgba(37,99,235,.6);flex-shrink:0;aspect-ratio:1/1;background:#020408;">
@@ -559,7 +558,7 @@ window.__JD_REST_DONE = false;
 })();
 </script>
 <!-- HOME VIEW -->
-<main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
+<main id="home-view" class="max-w-md mx-auto px-5 pt-1.5 pb-2 space-y-3">
   <div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
       <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
@@ -568,20 +567,9 @@ window.__JD_REST_DONE = false;
   </div>
 
   <div class="space-y-3">
-    <div class="search-container mx-1">
+    <div class="search-container mx-1 jd-search-tight">
       <i data-lucide="search" class="w-3.5 h-3.5 text-blue-500 opacity-70"></i>
       <input type="text" id="search-bar" class="search-input" placeholder="Buscar aplicaciones..." oninput="handleSearch()" data-i18n-placeholder="search_placeholder">
-    </div>
-    <div class="flex justify-center items-center gap-1.5 px-1 no-scrollbar overflow-x-hidden">
-      <div onclick="setFilter('all')" id="filter-all" class="filter-chip active flex-1 text-center">
-        <i data-lucide="list" class="w-3 h-3"></i><span data-i18n="filter_all">Todo</span>
-      </div>
-      <div onclick="setFilter('updated')" id="filter-updated" class="filter-chip flex-1 text-center">
-        <i data-lucide="refresh-cw" class="w-3 h-3"></i><span data-i18n="filter_updated">Actualizados</span>
-      </div>
-      <div onclick="setFilter('popular')" id="filter-popular" class="filter-chip flex-1 text-center">
-        <i data-lucide="flame" class="w-3 h-3"></i><span data-i18n="filter_popular">Popular</span>
-      </div>
     </div>
   </div>
 
@@ -3557,31 +3545,26 @@ function showToast(message){
 // ============================================================
 // THEME
 // ============================================================
-function toggleTheme(){
-  /* ► Bloqueado: el sitio es exclusivamente oscuro. */
-  isDarkMode = true;
-  document.documentElement.classList.remove('light-mode');
-  document.body.classList.remove('light-mode');
-  localStorage.setItem('darkMode','dark');
-  localStorage.setItem('jd_manual_theme','1');
+function jdApplyTheme(dark){
+  isDarkMode = !!dark;
+  document.documentElement.classList.toggle('light-mode', !isDarkMode);
+  document.body.classList.toggle('light-mode', !isDarkMode);
+  try{ localStorage.setItem('darkMode', isDarkMode?'dark':'light'); }catch(e){}
+  try{ localStorage.setItem('jd_manual_theme','1'); }catch(e){}
+  var mt=document.querySelector('meta[name="theme-color"]');
+  if(mt) mt.setAttribute('content', isDarkMode?'#020408':'#f0f4f8');
   try{ _jdSyncThemeIcon(); }catch(e){}
+  try{ applyLightColors(); }catch(e){}
   try{ applyUIChanges(); }catch(e){}
 }
+function toggleTheme(){ jdApplyTheme(!isDarkMode); }
 function loadThemePreference(){
-  /* ► Siempre oscuro: ignoramos LocalStorage. */
-  isDarkMode = true;
-  document.documentElement.classList.remove('light-mode');
-  document.body.classList.remove('light-mode');
-  try{ _jdSyncThemeIcon(); }catch(e){}
-  return true;
+  var pref=null;
+  try{ pref=localStorage.getItem('darkMode'); }catch(e){}
+  jdApplyTheme(pref!=='light');
+  return isDarkMode;
 }
-function autoThemeDetection(){
-  /* ► Oscuro obligatorio. */
-  isDarkMode = true;
-  document.documentElement.classList.remove('light-mode');
-  document.body.classList.remove('light-mode');
-  try{ _jdSyncThemeIcon(); }catch(e){}
-}
+function autoThemeDetection(){ loadThemePreference(); }
 // Sincroniza el icono del tema reemplazando el nodo (lucide a veces no
 // re-renderiza el mismo <svg>, lo que provocaba que el primer click no
 // reaccionara visualmente). Reemplazamos por un <i data-lucide> nuevo.
@@ -6304,6 +6287,43 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
     setTimeout(run, 600); setTimeout(run, 1500); setTimeout(run, 3000);
   });
 })();
+</script>
+
+<!-- ══ BARRA INFERIOR (estilo PlayMods) ══ -->
+<nav id="jd-tabbar" class="jd-tabbar" aria-label="Navegación inferior">
+  <button class="jd-tab active" id="jd-tab-home" onclick="jdTab('home')">
+    <i data-lucide="home" class="jd-tab-ico"></i><span data-i18n="filter_home">Inicio</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-all" onclick="jdTab('all')">
+    <i data-lucide="list" class="jd-tab-ico"></i><span data-i18n="filter_all">Todo</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-updated" onclick="jdTab('updated')">
+    <i data-lucide="refresh-cw" class="jd-tab-ico"></i><span data-i18n="filter_updated">Actualizados</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-popular" onclick="jdTab('popular')">
+    <i data-lucide="flame" class="jd-tab-ico"></i><span data-i18n="filter_popular">Popular</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-settings" onclick="openSettings()">
+    <i data-lucide="settings" class="jd-tab-ico"></i><span>Ajustes</span>
+  </button>
+</nav>
+<script>
+function jdTab(key){
+  try{
+    if(typeof jdClosePolicies==='function' && document.body.classList.contains('policies-open')) jdClosePolicies();
+    if(typeof closeDetail==='function' && document.body.classList.contains('detail-open')) closeDetail();
+  }catch(e){}
+  if(key==='home'){
+    try{ if(typeof resetPage==='function') resetPage(); else setFilter('all'); }catch(e){ try{setFilter('all');}catch(_){} }
+  }else{
+    try{ setFilter(key); }catch(e){}
+  }
+  ['home','all','updated','popular'].forEach(function(k){
+    var b=document.getElementById('jd-tab-'+k);
+    if(b) b.classList.toggle('active', k===key);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 </script>
 </body>
 
