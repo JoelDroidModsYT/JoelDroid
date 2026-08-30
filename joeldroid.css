@@ -1674,33 +1674,31 @@ svg.lucide{display:inline-block;vertical-align:middle}
 
 
 /* ═══════════════════════════════════════════════════════════════════════
-   ► BLOQUEO ESTRICTO DE MODO OSCURO (añadido - fix inicialización)
-   Si algún script residual llegara a inyectar .light-mode en <html>/<body>,
-   estas reglas mantienen el ecosistema oscuro Cyber-Industrial intacto.
-   No se elimina la definición original .light-mode arriba para preservar
-   compatibilidad de selectores; simplemente se re-mapean sus variables.
+   ► MODO CLARO REAL (corregido) — antes este bloque forzaba valores
+   oscuros con !important y rompía todo el light mode.
    ═══════════════════════════════════════════════════════════════════════ */
 html.light-mode, body.light-mode, .light-mode {
-  --bg-color:        #020408 !important;
-  --card-bg:         rgba(13,17,23,.95) !important;
-  --text-main:       #ffffff !important;
-  --text-secondary:  rgba(255,255,255,.6) !important;
-  --border-color:    rgba(37,99,235,.7) !important;
-  --nav-bg:          rgba(2,4,8,.98) !important;
-  --overlay-bg:      #020408 !important;
-  --search-bg:       rgba(255,255,255,.05) !important;
-  --settings-panel-bg: rgba(13,17,23,.9) !important;
-  --announcement-bg: rgba(239,68,68,.15) !important;
-  --announcement-border: rgba(239,68,68,.5) !important;
-  --announcement-text: #f87171 !important;
-  --toast-bg:        rgba(13,17,23,.7) !important;
-  --toast-text:      #ffffff !important;
-  --title-text-color:     #ffffff !important;
-  --subtitle-text-color:  rgba(255,255,255,.6) !important;
-  --copyright-text-color: rgba(255,255,255,.55) !important;
-  --logo-color:      #ffffff !important;
-  background-color:  #020408 !important;
-  color:             #ffffff !important;
+  --bg-color:        #f0f4f8 !important;
+  --card-bg:         #ffffff !important;
+  --text-main:       #0f172a !important;
+  --text-secondary:  rgba(15,23,42,.72) !important;
+  --border-color:    rgba(37,99,235,.35) !important;
+  --nav-bg:          rgba(255,255,255,.98) !important;
+  --overlay-bg:      #f4f7fb !important;
+  --search-bg:       rgba(15,23,42,.04) !important;
+  --settings-panel-bg: rgba(255,255,255,.96) !important;
+  --announcement-bg: rgba(239,68,68,.10) !important;
+  --announcement-border: rgba(239,68,68,.32) !important;
+  --announcement-text: #dc2626 !important;
+  --toast-bg:        rgba(255,255,255,.92) !important;
+  --toast-text:      #0f172a !important;
+  --title-text-color:     #0f172a !important;
+  --subtitle-text-color:  rgba(15,23,42,.62) !important;
+  --copyright-text-color: rgba(15,23,42,.72) !important;
+  --logo-color:      #0f172a !important;
+  --neon-border:     0 1px 6px rgba(15,23,42,.08) !important;
+  background-color:  #f0f4f8 !important;
+  color:             #0f172a !important;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1756,3 +1754,164 @@ html.light-mode,html.light-mode body,body.light-mode{background:#f0f4f8!importan
 .light-mode .jd-st-item{background:#f8fafc;border:1px solid rgba(15,23,42,.08)}
 
 .jd-tab,.light-mode .jd-tab{border:none!important;background:transparent!important;box-shadow:none!important}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ► PARCHE FINAL — badges compactos, modo claro completo, tabbar tema
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. BADGES MOD / UPDATE / TOP: más pequeños y bien separados ── */
+.jd-mod-badge,
+.jd-upd-badge{
+  font-size:5.6px !important;
+  font-weight:900 !important;
+  padding:1.5px 4px !important;
+  border-radius:4px !important;
+  line-height:1.25 !important;
+  letter-spacing:.04em !important;
+  max-width:42% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+  box-shadow:none !important;
+  text-shadow:none !important;
+  opacity:.97;
+}
+.jd-mod-badge{ top:5px !important; left:5px !important; right:auto !important; }
+.jd-upd-badge{ top:5px !important; right:5px !important; left:auto !important;
+  display:inline-flex !important; align-items:center !important; gap:2px !important; }
+.jd-upd-badge svg{ width:6px !important; height:6px !important; margin-right:1px !important; }
+.light-mode .jd-mod-badge,
+.light-mode .jd-upd-badge{ box-shadow:0 1px 3px rgba(15,23,42,.16) !important; }
+
+/* ── 2. SKELETONS: nunca negros en modo claro ── */
+.light-mode .jd-skeleton-card{
+  background:#ffffff !important;
+  border:1px solid rgba(37,99,235,.16) !important;
+  box-shadow:0 1px 5px rgba(15,23,42,.06) !important;
+}
+.light-mode .jd-skeleton-card .jd-sk-img,
+.light-mode .jd-skeleton-card .jd-sk-line,
+.light-mode .jd-skeleton-card .jd-sk-btn,
+.light-mode .jd-sk-img,.light-mode .jd-sk-line,.light-mode .jd-sk-btn{
+  background:linear-gradient(90deg,rgba(15,23,42,.05) 0%,rgba(15,23,42,.12) 40%,rgba(15,23,42,.05) 80%) !important;
+  background-size:300% 100% !important;
+  background-color:#eef2f7 !important;
+}
+.light-mode .jd-img,.light-mode .jd-img-box{ background-color:#eef2f7 !important; }
+.light-mode #game-list{ background:transparent !important; }
+
+/* ── 3. PIE DE PÁGINA / COPYRIGHT en modo claro ── */
+.light-mode .jd-copyright{ border-top-color:rgba(37,99,235,.18) !important; }
+.light-mode .jd-copyright .jd-cr-main{ color:#0f172a !important; opacity:1 !important; }
+.light-mode .jd-copyright .jd-cr-sub{ color:#475569 !important; opacity:1 !important; }
+.light-mode .jd-copyright .jd-cr-link{ color:#1d4ed8 !important; }
+.light-mode .copyright-text{ color:#334155 !important; opacity:1 !important; text-shadow:none !important; }
+
+/* ── 4. FICHA DETALLADA — MODO CLARO COMPLETO ── */
+.light-mode #detail-view{ background:#f4f7fb !important; color:#0f172a !important; }
+.light-mode #detail-view p,
+.light-mode #detail-view span,
+.light-mode #detail-view li,
+.light-mode #detail-view small,
+.light-mode #detail-view label,
+.light-mode #detail-view strong,
+.light-mode #detail-view h1,
+.light-mode #detail-view h2,
+.light-mode #detail-view h3,
+.light-mode #detail-view h4,
+.light-mode #detail-view textarea,
+.light-mode #detail-view input{ color:#0f172a !important; }
+.light-mode #detail-view textarea::placeholder,
+.light-mode #detail-view input::placeholder{ color:rgba(15,23,42,.45) !important; }
+
+/* Acentos que sí deben mantener color */
+.light-mode #detail-view .jd-comments-title,
+.light-mode #detail-view .det-avg-num,
+.light-mode #detail-view .ps-bar-label,
+.light-mode #detail-view .ps-score-txt,
+.light-mode #detail-view .ps-your-rating{ color:#b45309 !important; }
+.light-mode #detail-view .jd-comments-title{ color:#1d4ed8 !important; }
+.light-mode #detail-view .jd-yt-tut-kicker,
+.light-mode #detail-view .jd-comm-kicker{ color:#047857 !important; }
+
+/* Paneles/tarjetas oscuras → claras */
+.light-mode #detail-view .det-comment-card,
+.light-mode #detail-view .det-comment-input-wrap,
+.light-mode #detail-view .det-login-prompt,
+.light-mode #detail-view .jd-rating-main,
+.light-mode #detail-view .jd-rating-stat,
+.light-mode #detail-view .ps-vote-row-wrap,
+.light-mode #detail-view .ps-star-btn,
+.light-mode #detail-view .jd-rc,
+.light-mode #detail-view .jd-rc-shell,
+.light-mode #detail-view .de-premium-box,
+.light-mode #detail-view .jd-comments-shell,
+.light-mode #detail-view [style*="background:rgba(15,23,42"],
+.light-mode #detail-view [style*="background:rgba(13,17,23"],
+.light-mode #detail-view [style*="background:rgba(2,4,8"],
+.light-mode #detail-view [style*="background:#0f172a"],
+.light-mode #detail-view [style*="background:#020408"],
+.light-mode #detail-view [style*="background:#0d1117"]{
+  background:#ffffff !important;
+  border-color:rgba(37,99,235,.20) !important;
+  box-shadow:0 1px 6px rgba(15,23,42,.07) !important;
+}
+.light-mode #detail-view .jd-comments-shell{ box-shadow:none !important; background:transparent !important; }
+.light-mode #detail-view .ps-bar-bg{ background:rgba(15,23,42,.10) !important; }
+.light-mode #detail-view .ps-sf{ fill:#e2e8f0 !important; stroke:#94a3b8 !important; }
+.light-mode #detail-view .ps-star-btn.lit .ps-sf,
+.light-mode #detail-view .ps-star-btn.hover-lit .ps-sf{ fill:#f59e0b !important; stroke:#f59e0b !important; }
+.light-mode #detail-view .det-no-comments p,
+.light-mode #detail-view .det-comment-time,
+.light-mode #detail-view .jd-rc-kicker,
+.light-mode #detail-view .det-avg-sub,
+.light-mode #detail-view .jd-review-sub,
+.light-mode #detail-view .ps-vote-sublbl,
+.light-mode #detail-view .ps-bar-count{ color:#475569 !important; }
+.light-mode #detail-view hr,
+.light-mode #detail-view .jd-sep{ border-color:rgba(15,23,42,.12) !important; }
+
+/* Botones que deben conservar texto blanco sobre color */
+.light-mode #detail-view .btn-dl-card,
+.light-mode #detail-view .btn-dl-card *,
+.light-mode #detail-view .jd-comm-btn,
+.light-mode #detail-view .jd-comm-btn *,
+.light-mode #detail-view .det-send-btn,
+.light-mode #detail-view .det-send-btn *,
+.light-mode #detail-view .jd-mod-badge,
+.light-mode #detail-view .jd-upd-badge,
+.light-mode #detail-view .btn-download-main,
+.light-mode #detail-view .btn-download-main *{ color:#ffffff !important; }
+
+/* Características del MOD (lista con checks) legible en claro */
+.light-mode #detail-view .feature-item,
+.light-mode #detail-view .det-feature,
+.light-mode #detail-view .feature-row{
+  background:#ffffff !important;
+  border:1px solid rgba(37,99,235,.22) !important;
+  color:#0f172a !important;
+  box-shadow:0 1px 4px rgba(15,23,42,.06) !important;
+}
+
+/* ── 5. BOTÓN DE DESCARGA: cuenta regresiva SIEMPRE AZUL ── */
+.btn-dl-card.jd-dl-counting{ filter:none !important; opacity:1 !important; }
+.btn-dl-card.jd-dl-counting .btn-dl-eyebrow{ color:#dbeafe !important; }
+.btn-dl-card.jd-dl-counting.jd-dl-urgent{
+  animation:jdDlUrgentPulse .6s ease-in-out infinite !important;
+  box-shadow:0 0 0 3px rgba(96,165,250,.55),0 10px 26px -8px rgba(37,99,235,.75) !important;
+}
+.btn-dl-card.jd-dl-counting.jd-dl-urgent .btn-dl-eyebrow{ color:#ffffff !important; font-weight:1000 }
+.btn-dl-card.jd-dl-ready{
+  background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 45%,#3b82f6 100%) !important;
+  animation:jdDlReadyGlow 1.1s ease-in-out infinite;
+}
+.btn-dl-card.jd-dl-ready .btn-dl-eyebrow{ color:#ffffff !important; font-weight:1000 }
+.light-mode .btn-dl-card.jd-dl-counting .btn-dl-eyebrow,
+.light-mode .btn-dl-card.jd-dl-counting.jd-dl-urgent .btn-dl-eyebrow,
+.light-mode .btn-dl-card.jd-dl-ready .btn-dl-eyebrow{ color:#ffffff !important; }
+
+/* ── 6. TABBAR: 6 items del mismo tamaño (incluye tema) ── */
+.jd-tabbar{ justify-content:space-between !important; }
+.jd-tab{ flex:1 1 0 !important; min-width:0 !important; }
+#jd-tab-theme{ color:var(--text-secondary); }
+.light-mode #jd-tab-theme{ color:rgba(15,23,42,.6); }

@@ -3570,6 +3570,7 @@ function jdApplyTheme(dark){
   var mt=document.querySelector('meta[name="theme-color"]');
   if(mt) mt.setAttribute('content', isDarkMode?'#020408':'#f0f4f8');
   try{ _jdSyncThemeIcon(); }catch(e){}
+  try{ jdSyncTabThemeIcon(); }catch(e){}
   try{ applyLightColors(); }catch(e){}
   try{ applyUIChanges(); }catch(e){}
 }
@@ -5767,9 +5768,9 @@ function _syncSave(msg){
 })();
 
 // ════════════════════════════════════════════════════════════════
-// CRONÓMETRO DE 6s EN LOS BOTONES "OPCIÓN 1 / OPCIÓN 2" DE LA FICHA
-// 1er clic → arranca cuenta regresiva visible (6→0), botón bloqueado.
-// A los 3s el botón cambia de aspecto para llamar la atención.
+// CRONÓMETRO DE 7s EN LOS BOTONES "OPCIÓN 1 / OPCIÓN 2" DE LA FICHA
+// 1er clic → arranca cuenta regresiva visible (7→0), botón bloqueado.
+// A los 4s el botón cambia de aspecto (sigue AZUL) para avisar al usuario.
 // Al llegar a 0 el botón queda "listo" — recién en el 2do clic
 // se dispara irADescarga() y navega a descarga.html.
 // ════════════════════════════════════════════════════════════════
@@ -5799,7 +5800,7 @@ function jdHandleDlClick(btn, modo){
     return;
   }
 
-  // idle → arrancar cuenta regresiva de 6s
+  // idle → arrancar cuenta regresiva de 7s
   var eyebrowEl = btn.querySelector('.btn-dl-eyebrow');
   if(eyebrowEl && !eyebrowEl.dataset.dlOrig) eyebrowEl.dataset.dlOrig = eyebrowEl.textContent;
 
@@ -5807,10 +5808,10 @@ function jdHandleDlClick(btn, modo){
   btn.classList.add('jd-dl-counting');
   btn.classList.remove('jd-dl-ready','jd-dl-urgent');
 
-  var secs = 6;
+  var secs = 7;
   function render(){
-    if(eyebrowEl) eyebrowEl.textContent = '⏳ Espera ' + secs + 's…';
-    btn.classList.toggle('jd-dl-urgent', secs <= 3);
+    if(eyebrowEl) eyebrowEl.textContent = (secs <= 4 ? '⏳ ¡Prepárate! ' : '⏳ Espera ') + secs + 's…';
+    btn.classList.toggle('jd-dl-urgent', secs <= 4);
   }
   render();
 
@@ -5822,7 +5823,7 @@ function jdHandleDlClick(btn, modo){
       btn.dataset.dlState = 'ready';
       btn.classList.remove('jd-dl-counting');
       btn.classList.add('jd-dl-ready');
-      if(eyebrowEl) eyebrowEl.textContent = '✅ ¡Listo! Toca de nuevo para descargar';
+      if(eyebrowEl) eyebrowEl.textContent = '👉 ¡Listo! Toca DE NUEVO para descargar';
       return;
     }
     render();
@@ -6382,6 +6383,9 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
   <button class="jd-tab" id="jd-tab-popular" onclick="jdTab('popular')">
     <i data-lucide="flame" class="jd-tab-ico"></i><span data-i18n="filter_popular">Popular</span>
   </button>
+  <button class="jd-tab" id="jd-tab-theme" onclick="jdTabToggleTheme()">
+    <i data-lucide="moon" class="jd-tab-ico"></i><span id="jd-tab-theme-label">Tema</span>
+  </button>
   <button class="jd-tab" id="jd-tab-settings" onclick="openSettings()">
     <i data-lucide="settings" class="jd-tab-ico"></i><span>Ajustes</span>
   </button>
@@ -6407,6 +6411,44 @@ function jdTab(key){
   });
   window.scrollTo({top:0,behavior:'smooth'});
 }
+/* Botón de tema en la barra inferior (mismo tamaño que el resto) */
+function jdTabToggleTheme(){
+  try{ toggleTheme(); }catch(e){}
+  jdSyncTabThemeIcon();
+}
+function jdSyncTabThemeIcon(){
+  try{
+    var isLight = document.body.classList.contains('light-mode');
+    var btn = document.getElementById('jd-tab-theme'); if(!btn) return;
+    var lbl = document.getElementById('jd-tab-theme-label');
+    if(lbl) lbl.textContent = isLight ? 'Oscuro' : 'Claro';
+    var ico = btn.querySelector('i[data-lucide],svg');
+    if(ico){
+      var fresh = document.createElement('i');
+      fresh.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+      fresh.className = 'jd-tab-ico';
+      ico.replaceWith(fresh);
+      if(window.lucide && lucide.createIcons) lucide.createIcons();
+    }
+  }catch(e){}
+}
+/* Al entrar (siempre) arrancar en HOME con las 3 filas por defecto */
+function jdForceHomeStart(){
+  try{
+    _jdExpandedGrid = false;
+    ['home','all','updated','popular'].forEach(function(k){
+      var b=document.getElementById('jd-tab-'+k);
+      if(b) b.classList.toggle('active', k==='home');
+    });
+    if(typeof setFilter==='function') setFilter('all');
+  }catch(e){}
+}
+window.addEventListener('load', function(){
+  jdSyncTabThemeIcon();
+  jdForceHomeStart();
+  setTimeout(jdForceHomeStart, 600);
+  setTimeout(jdSyncTabThemeIcon, 800);
+});
 </script>
 </body>
 
