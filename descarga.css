@@ -566,6 +566,12 @@ body.light-mode .dl-stage-info span{color:#0f172a}
   padding:1px 6px;border-radius:20px;white-space:nowrap;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;
 }
+body.light-mode .dl-reco-chip{
+  color:#92400e;
+  background:rgba(251,191,36,.16);
+  border-color:rgba(180,83,9,.45);
+  text-shadow:0 1px 1px rgba(255,255,255,.6);
+}
 .dl-reco-meta{font-size:7.5px;color:rgba(148,197,253,.6)}
 .dl-reco-cta{
   flex-shrink:0;align-self:center;font-size:8px;font-weight:900;letter-spacing:.04em;color:#e0f2fe;
