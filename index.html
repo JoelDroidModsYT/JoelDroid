@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
+
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>    
 <!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="274484" async data-cfasync="false" fetchpriority="high"></script>
 
 
 
@@ -335,6 +334,17 @@ window.__JD_STATIC_GAMES = (function(){
   return [];
 })();
 
+// ── Firma de tarjeta: permite REUTILIZAR el DOM ya pintado (cero parpadeo) ──
+window._jdCardSig = function(g){
+  try{
+    var f = (g.features||[])[0]||'';
+    return [g.id,g.name,(g.thumb||''),(g.ver||g.version||''),
+            (g.modBadgeText||''),(g.modBadgeBgColor||''),(g.modBadgeVisible!==false?1:0),
+            (g.updateBadgeVisible&&g.updateBadgeText?g.updateBadgeText:''),
+            (g.homeButtonVisible!==false?1:0), f].join('~');
+  }catch(e){ return String(g && g.id || ''); }
+};
+
 // ── Renderizado directo desde caché (0ms) ─────────────────────────
 // Si hay datos en caché, renderizar las tarjetas AHORA mismo
 // sin esperar DOMContentLoaded ni Firebase ni ningún otro script
@@ -352,31 +362,41 @@ window.__JD_STATIC_GAMES = (function(){
     visible.sort(function(a,b){
       return b.timestamp !== a.timestamp ? b.timestamp-a.timestamp : a.order-b.order;
     });
-    visible.slice(0,24).forEach(function(g){
+    visible.slice(0,24).forEach(function(g, _i){
       var mc = g.modBadgeBgColor || '#ef4444';
+      var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
+      var _feats = g.features || [];
+      var modSuffix = _feats.length > 0 ? _feats[0]
+        : ((g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD APK');
       var card = document.createElement('div');
       card.className = 'jd-card';
+      card.dataset.gid = String(g.id);
+      card.dataset.sig = window._jdCardSig(g);
       card.setAttribute('onclick',"showDetail('"+g.id+"')");
       var _verTxt = (g.ver || g.version || '').toString().trim();
       var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
       card.innerHTML =
         '<div class="jd-img-box">'+
           '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
-               ' loading="eager" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
+               ' width="120" height="120" loading="eager" decoding="async" fetchpriority="'+(_i<9?'high':'auto')+'"'+
+               ' referrerpolicy="no-referrer" alt="'+g.name+'"'+
+               ' onload="this.classList.add(\'loaded\')"'+
+               ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">'+
           '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
-            (g.modBadgeText||'MOD')+'</span>'+
-          (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+            modLabel+'</span>'+
+          ((g.updateBadgeVisible && g.updateBadgeText)?'<span class="jd-upd-badge">'+g.updateBadgeText+'</span>':'')+
           _verHtml+
         '</div>'+
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+g.name+'</p>'+
-          '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
+          '<p class="jd-mod-label" data-jd-tr="mod">'+modSuffix+'</p>'+
+          '<button class="jd-btn"'+(g.homeButtonVisible!==false?'':' style="display:none;"')+
+            ' onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
             '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
             '<polyline points="7 10 12 15 17 10"/>'+
             '<line x1="12" y1="15" x2="12" y2="3"/></svg>'+
-            '<span>Descargar APK</span>'+
+            '<span class="global-dl-btn-text">Descargar APK</span>'+
           '</button>'+
         '</div>';
       frag.appendChild(card);
@@ -2841,7 +2861,31 @@ function _renderGamesBatch(list, start, count, replace){
   var dlBtnText = (_defaults.indexOf(_adminBtn) >= 0) ? tStr('Descargar APK') : _adminBtn;
 
   var frag = document.createDocumentFragment();
+  /* ── Mapa de tarjetas ya presentes en el DOM (render instantáneo o previo) ──
+     Si el juego no cambió, se REUTILIZA el nodo existente: la imagen no se
+     vuelve a pedir y no hay parpadeo ni retraso de 1-2 s. */
+  var _prevCards = {};
+  try{
+    Array.prototype.forEach.call(list.querySelectorAll('.jd-card[data-gid]'), function(c){
+      _prevCards[c.dataset.gid] = c;
+    });
+  }catch(_e){}
   games.forEach(function(g, _gIdx){
+    var _sig = (typeof window._jdCardSig==='function') ? window._jdCardSig(g) : null;
+    var _reuse = _sig ? _prevCards[String(g.id)] : null;
+    if(_reuse && _reuse.dataset.sig === _sig){
+      /* Actualizar solo el botón (texto/color de admin) y reusar el nodo */
+      try{
+        var _rb = _reuse.querySelector('.jd-btn');
+        if(_rb){
+          _rb.style.background = siteState.buttonSettings.globalHomeButtonColor || '';
+          var _rt = _rb.querySelector('.global-dl-btn-text');
+          if(_rt) _rt.textContent = dlBtnText;
+        }
+      }catch(_e2){}
+      frag.appendChild(_reuse);
+      return;
+    }
     /* ── Badge labels ──────────────────────────────────────────── */
     var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
     var modColor = g.modBadgeBgColor || '#ef4444';
@@ -2863,6 +2907,8 @@ function _renderGamesBatch(list, start, count, replace){
 
     var card = document.createElement('div');
     card.className = 'jd-card';
+    card.dataset.gid = String(g.id);
+    if(_sig) card.dataset.sig = _sig;
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
 
     /* ── Badges exclusivos del filtro POPULAR (PREMIUM + TOP) ── */
@@ -2893,9 +2939,14 @@ function _renderGamesBatch(list, start, count, replace){
 
     /* Carga instantánea: eager + alta prioridad + onload marca .loaded para apagar skeleton */
     var _thumb = (g.thumb||'').toString();
-    var _imgHtml = '<img src="'+(_thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
+    /* MISMA URL que el render instantáneo (proxy CDN) → la imagen ya está en caché
+       del navegador y aparece al instante, sin re-descarga ni parpadeo. */
+    var _thumbSrc = (typeof _jdFastImg==='function' && _thumb) ? _jdFastImg(_thumb) : _thumb;
+    var _absIdx = start + _gIdx;
+    var _imgHtml = '<img src="'+(_thumbSrc||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
       ' class="jd-img icon-img-loaded'+(_thumb?'':' loaded')+'" alt="'+g.name+'"'+
-      ' loading="'+(_gIdx < 12 ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_gIdx < 9 ? 'high' : 'auto')+'"'+
+      ' width="120" height="120"'+
+      ' loading="'+(_absIdx < Math.max(18,_gamesPageSize) ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_absIdx < 9 ? 'high' : 'auto')+'"'+
       ' referrerpolicy="no-referrer"'+
       ' onload="this.classList.add(\'loaded\')"'+
       ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">';
@@ -5775,58 +5826,108 @@ function _syncSave(msg){
 // se dispara irADescarga() y navega a descarga.html.
 // ════════════════════════════════════════════════════════════════
 var _jdDlTimers = {};
+var _JD_DL_SECS = 6;
+
+function _jdDlParts(btn){
+  if(!btn) return {};
+  var body = btn.querySelector('.btn-dl-body');
+  var bar  = btn.querySelector('.jd-dl-bar');
+  if(!bar){
+    bar = document.createElement('span');
+    bar.className = 'jd-dl-bar';
+    bar.innerHTML = '<i></i>';
+    btn.appendChild(bar);
+  }
+  var cnt = btn.querySelector('.jd-dl-count');
+  if(!cnt){
+    cnt = document.createElement('span');
+    cnt.className = 'jd-dl-count';
+    var size = btn.querySelector('.btn-dl-size');
+    if(size && size.parentNode) size.parentNode.insertBefore(cnt, size);
+    else btn.appendChild(cnt);
+  }
+  return { body:body, bar:bar, fill:bar.firstChild, count:cnt,
+           eyebrow: btn.querySelector('.btn-dl-eyebrow') };
+}
+
 function _jdResetDlTimers(){
   ['btn-descarga-1','btn-descarga-2'].forEach(function(bid){
     if(_jdDlTimers[bid]) { clearInterval(_jdDlTimers[bid]); delete _jdDlTimers[bid]; }
     var btn = document.getElementById(bid);
     if(!btn) return;
     btn.dataset.dlState = 'idle';
-    btn.classList.remove('jd-dl-counting','jd-dl-urgent','jd-dl-ready');
-    var ev = btn.querySelector('.btn-dl-eyebrow');
-    if(ev) ev.textContent = ev.dataset.dlOrig || ev.textContent;
+    btn.classList.remove('jd-dl-counting','jd-dl-urgent','jd-dl-ready',
+                         'jd-dl-hot','jd-dl-warm','jd-dl-near');
+    var p = _jdDlParts(btn);
+    if(p.fill) p.fill.style.width = '0%';
+    if(p.count) p.count.textContent = '';
+    if(p.eyebrow) p.eyebrow.textContent = p.eyebrow.dataset.dlOrig || p.eyebrow.textContent;
   });
 }
+
 function jdHandleDlClick(btn, modo){
   if(!btn) return;
   var state = btn.dataset.dlState || 'idle';
+  if(state === 'counting') return; // bloqueado mientras corre la cuenta
 
-  if(state === 'counting') return; // ignorar clics mientras cuenta
+  var p = _jdDlParts(btn);
+  if(p.eyebrow && !p.eyebrow.dataset.dlOrig) p.eyebrow.dataset.dlOrig = p.eyebrow.textContent;
 
   if(state === 'ready'){
     btn.dataset.dlState = 'idle';
-    btn.classList.remove('jd-dl-ready','jd-dl-urgent');
+    btn.classList.remove('jd-dl-ready','jd-dl-urgent','jd-dl-hot','jd-dl-warm','jd-dl-near');
     if(_jdDlTimers[btn.id]){ clearInterval(_jdDlTimers[btn.id]); delete _jdDlTimers[btn.id]; }
     irADescarga(currentDetailId, modo);
     return;
   }
 
-  // idle → arrancar cuenta regresiva de 7s
-  var eyebrowEl = btn.querySelector('.btn-dl-eyebrow');
-  if(eyebrowEl && !eyebrowEl.dataset.dlOrig) eyebrowEl.dataset.dlOrig = eyebrowEl.textContent;
-
+  // idle → arranca la cuenta regresiva de 6 s
   btn.dataset.dlState = 'counting';
   btn.classList.add('jd-dl-counting');
   btn.classList.remove('jd-dl-ready','jd-dl-urgent');
 
-  var secs = 7;
-  function render(){
-    if(eyebrowEl) eyebrowEl.textContent = (secs <= 4 ? '⏳ ¡Prepárate! ' : '⏳ Espera ') + secs + 's…';
-    btn.classList.toggle('jd-dl-urgent', secs <= 4);
+  var secs = _JD_DL_SECS;
+
+  function paint(){
+    // Etapa de color: rojo → naranja → amarillo (y azul al terminar)
+    btn.classList.remove('jd-dl-hot','jd-dl-warm','jd-dl-near');
+    btn.classList.add(secs >= 5 ? 'jd-dl-hot' : (secs >= 3 ? 'jd-dl-warm' : 'jd-dl-near'));
+    btn.classList.toggle('jd-dl-urgent', secs <= 2);
+    if(p.count) p.count.textContent = secs;
+    if(p.fill)  p.fill.style.width = Math.round(((_JD_DL_SECS - secs) / _JD_DL_SECS) * 100) + '%';
+    if(p.eyebrow){
+      p.eyebrow.textContent = secs >= 5
+        ? ('\u23F3 ESPERA ' + secs + ' S \u00B7 PREPARANDO ENLACE SEGURO')
+        : (secs >= 3
+            ? ('\u26A1 CASI LISTO \u00B7 FALTAN ' + secs + ' S')
+            : ('\uD83D\uDD25 ' + secs + ' S \u00B7 NO CIERRES ESTA P\u00C1GINA'));
+    }
   }
-  render();
+
+  function finish(){
+    btn.dataset.dlState = 'ready';
+    btn.classList.remove('jd-dl-counting','jd-dl-urgent','jd-dl-hot','jd-dl-warm','jd-dl-near');
+    btn.classList.add('jd-dl-ready');
+    if(p.fill)  p.fill.style.width = '100%';
+    if(p.count) p.count.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M4 19h16"/></svg>';
+    if(p.eyebrow) p.eyebrow.textContent = '\u2705 \u00A1LISTO! TOCA AQU\u00CD PARA DESCARGAR';
+    try{ if(navigator.vibrate) navigator.vibrate(35); }catch(_e){}
+    try{ if(typeof showToast==='function') showToast('\u2705 Descarga desbloqueada \u00B7 toca el bot\u00F3n azul'); }catch(_e){}
+  }
+
+  paint();
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(_e){}
 
   _jdDlTimers[btn.id] = setInterval(function(){
     secs--;
     if(secs <= 0){
       clearInterval(_jdDlTimers[btn.id]);
       delete _jdDlTimers[btn.id];
-      btn.dataset.dlState = 'ready';
-      btn.classList.remove('jd-dl-counting');
-      btn.classList.add('jd-dl-ready');
-      if(eyebrowEl) eyebrowEl.textContent = '👉 ¡Listo! Toca DE NUEVO para descargar';
+      finish();
       return;
     }
-    render();
+    paint();
   }, 1000);
 }
 

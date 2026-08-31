@@ -1173,7 +1173,7 @@ html,body{position:static!important;overflow-x:hidden!important;overscroll-behav
 /* ===== Block 4 ===== */
 /* ============================================================
    JD FIXES 2026-06 — modo claro + badges + version pill
-   (No toca Monetag. Solo cosmética + accesibilidad visual)
+   (Solo cosmética + accesibilidad visual)
    ============================================================ */
 
 /* --- Search container: en modo CLARO un cuerpo cálido y limpio, sin halo blanco --- */
@@ -1559,7 +1559,7 @@ html,body{position:static!important;overflow-x:hidden!important;overscroll-behav
 
 /* ===== Block 8 ===== */
 /* Banner cookies MINI — centrado abajo, mínimo, no estorba juegos.
-     z-index bajo para no tapar overlays de Monetag. */
+     z-index bajo para no tapar overlays. */
   #jd-cookie-banner{
     display:none;
     position:fixed;
@@ -1612,7 +1612,6 @@ svg.lucide{display:inline-block;vertical-align:middle}
 /* ===== Block FINAL — Parche CPM/CTR Modo Claro v20260624 =====
    • Botón "DESCARGAR MOD APK" en UNA SOLA línea siempre.
    • Sin sombras neón / cyberpunk en modo claro: estilo plano y limpio.
-   • NO se tocan los slots de Monetag ni los pointer-events de anuncios.
 */
 .btn-download-main,
 .btn-download-main--oneline{
@@ -1915,3 +1914,116 @@ html.light-mode,html.light-mode body,body.light-mode{background:#f0f4f8!importan
 .jd-tab{ flex:1 1 0 !important; min-width:0 !important; }
 #jd-tab-theme{ color:var(--text-secondary); }
 .light-mode #jd-tab-theme{ color:rgba(15,23,42,.6); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   CRONÓMETRO DE DESCARGA 6 s — REDISEÑO LLAMATIVO (Opción 1 / Opción 2)
+   Rojo → Naranja → Amarillo mientras baja · AZUL cuando está listo
+   ═══════════════════════════════════════════════════════════════════ */
+.btn-dl-card.jd-dl-counting{
+  --jd-c:#ef4444;
+  cursor:progress; opacity:1 !important; filter:none !important;
+  background:linear-gradient(135deg,#0b1220 0%,#101a2b 55%,#0b1220 100%) !important;
+  border:1.5px solid var(--jd-c) !important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--jd-c) 45%,transparent),
+             0 14px 32px -12px var(--jd-c) !important;
+  animation:jdDlTick 1s ease-in-out infinite !important;
+}
+.btn-dl-card.jd-dl-counting.jd-dl-hot { --jd-c:#ef4444; }
+.btn-dl-card.jd-dl-counting.jd-dl-warm{ --jd-c:#f97316; }
+.btn-dl-card.jd-dl-counting.jd-dl-near{ --jd-c:#facc15; }
+.btn-dl-card.jd-dl-counting::before{ animation:none; opacity:0; }
+@keyframes jdDlTick{0%,100%{transform:scale(1)}50%{transform:scale(1.014)}}
+
+/* Texto guía */
+.btn-dl-card.jd-dl-counting .btn-dl-eyebrow{
+  color:var(--jd-c) !important; font-weight:1000 !important;
+  font-size:9.5px !important; letter-spacing:.10em !important;
+  text-shadow:0 0 10px color-mix(in srgb,var(--jd-c) 55%,transparent);
+}
+.btn-dl-card.jd-dl-counting .btn-dl-title{ color:#e5edff !important; }
+.btn-dl-card.jd-dl-counting .btn-dl-icon{ background:color-mix(in srgb,var(--jd-c) 22%,transparent); }
+.btn-dl-card.jd-dl-counting .btn-dl-icon svg{ animation:none; color:var(--jd-c); }
+
+/* Contador circular grande (sustituye al peso mientras cuenta) */
+.jd-dl-count{
+  display:none; flex-shrink:0; align-self:center; position:relative; z-index:2;
+  width:48px; height:48px; border-radius:50%;
+  align-items:center; justify-content:center;
+  font-family:'Sora','Inter',system-ui,sans-serif;
+  font-size:21px; font-weight:1000; line-height:1; letter-spacing:0;
+}
+.jd-dl-count svg{ width:22px; height:22px; }
+.btn-dl-card.jd-dl-counting .jd-dl-count{
+  display:flex; color:var(--jd-c);
+  background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.10),rgba(0,0,0,.25));
+  box-shadow:inset 0 0 0 2.5px var(--jd-c),0 0 22px color-mix(in srgb,var(--jd-c) 60%,transparent);
+  text-shadow:0 0 14px var(--jd-c);
+  animation:jdCountPop 1s ease-out infinite;
+}
+.btn-dl-card.jd-dl-counting .btn-dl-size{ display:none !important; }
+@keyframes jdCountPop{0%{transform:scale(1)}16%{transform:scale(1.20)}100%{transform:scale(1)}}
+
+/* Barra de progreso inferior */
+.jd-dl-bar{
+  display:none; position:absolute; left:0; bottom:0; width:100%; height:6px;
+  background:rgba(255,255,255,.14); z-index:3; overflow:hidden;
+  border-radius:0 0 17px 17px;
+}
+.btn-dl-card.jd-dl-counting .jd-dl-bar,
+.btn-dl-card.jd-dl-ready .jd-dl-bar{ display:block; }
+.jd-dl-bar > i{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg,var(--jd-c,#ef4444),rgba(255,255,255,.85));
+  box-shadow:0 0 14px var(--jd-c,#ef4444);
+  transition:width 1s linear;
+}
+
+/* Urgencia final (2 s y 1 s) */
+.btn-dl-card.jd-dl-counting.jd-dl-urgent{
+  animation:jdDlUrgentPulse .55s ease-in-out infinite !important;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--jd-c) 55%,transparent),
+             0 14px 34px -10px var(--jd-c) !important;
+}
+
+/* ── LISTO = AZUL (color final solicitado) ── */
+.btn-dl-card.jd-dl-ready{
+  --jd-c:#3b82f6; cursor:pointer;
+  background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 45%,#22d3ee 100%) !important;
+  border:1.5px solid #60a5fa !important;
+  animation:jdDlReadyBlue 1.15s ease-in-out infinite !important;
+}
+.btn-dl-card.jd-dl-ready .btn-dl-eyebrow{
+  color:#ffffff !important; font-weight:1000 !important; font-size:10px !important;
+  letter-spacing:.09em !important; text-shadow:0 0 12px rgba(147,197,253,.9);
+}
+.btn-dl-card.jd-dl-ready .btn-dl-title{ color:#ffffff !important; }
+.btn-dl-card.jd-dl-ready .jd-dl-count{
+  display:flex; color:#ffffff;
+  background:rgba(255,255,255,.16);
+  box-shadow:inset 0 0 0 2.5px #93c5fd,0 0 22px rgba(59,130,246,.85);
+  animation:jdCountPop 1.4s ease-out infinite;
+}
+.btn-dl-card.jd-dl-ready .btn-dl-size{ display:none !important; }
+.btn-dl-card.jd-dl-ready .jd-dl-bar > i{
+  width:100% !important;
+  background:linear-gradient(90deg,#60a5fa,#22d3ee);
+}
+@keyframes jdDlReadyBlue{
+  0%,100%{ box-shadow:0 10px 24px -10px rgba(37,99,235,.95),0 0 0 0 rgba(96,165,250,.6) }
+  50%    { box-shadow:0 14px 32px -8px rgba(37,99,235,1),0 0 0 9px rgba(96,165,250,0) }
+}
+
+/* Modo claro — legibilidad */
+.light-mode .btn-dl-card.jd-dl-counting{
+  background:linear-gradient(135deg,#111827 0%,#1f2937 55%,#111827 100%) !important;
+}
+.light-mode .btn-dl-card.jd-dl-counting .btn-dl-eyebrow{ color:var(--jd-c) !important; }
+.light-mode .btn-dl-card.jd-dl-ready .btn-dl-eyebrow,
+.light-mode .btn-dl-card.jd-dl-ready .btn-dl-title{ color:#ffffff !important; }
+
+@media (prefers-reduced-motion:reduce){
+  .btn-dl-card.jd-dl-counting,
+  .btn-dl-card.jd-dl-ready,
+  .btn-dl-card.jd-dl-counting .jd-dl-count{ animation:none !important; }
+}
