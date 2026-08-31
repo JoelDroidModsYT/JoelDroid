@@ -132,26 +132,9 @@
     .dl-reco-meta{font-size:7px;font-weight:800;color:rgba(148,197,253,.48);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dl-reco-badge{font-size:7px;font-weight:900;color:#4ade80;white-space:nowrap}
 
-    /* ── Zona de anuncios Monetag ── */
-    /*
-     * Esta zona está completamente libre: sin display:none, sin z-index que tape,
-     * sin overflow:hidden que recorte, sin pointer-events bloqueados.
-     * Monetag puede renderizar banners, popunders y formatos nativos sin restricciones.
-     */
-    .monetag-slot{
-      width:100%;
-      display:block;
-      text-align:center;
-      margin-top:16px;
-      min-height:90px;
-      contain:layout;
-      /* min-height reserva espacio y evita CLS mientras Monetag carga; el script ajusta su tamaño real */
-    }
-
     /* ════════════════════════════════════════════════════════════════
        ► MODO CLARO (predeterminado del sitio)
        Botones planos, sin sombras ni resplandores cyberpunk heredados.
-       Las zonas de Monetag NO se tocan: sin display:none ni pointer-events:none.
     ════════════════════════════════════════════════════════════════ */
     html.light-mode, body.light-mode{
       background:#f0f4f8 !important;
