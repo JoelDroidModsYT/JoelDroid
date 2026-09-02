@@ -12,8 +12,19 @@
 
 
 
+<!-- ══ HELPERS TEMPRANOS — deben existir ANTES de la carga instantánea (Capa 1/2) ══ -->
+<script>(function(){
+  if(typeof window._jdFastImg!=='function'){
+    window._jdFastImg=function(url){try{if(!url)return '';var u=String(url).trim();if(!u)return '';if(u.indexOf('data:')===0)return u;if(/^https?:\/\//i.test(u)===false)return u;if(/(^|\.)firebasestorage\.googleapis\.com$|(^|\.)googleusercontent\.com$|(^|\.)gstatic\.com$|(^|\.)wsrv\.nl$|(^|\.)flagcdn\.com$/i.test(new URL(u).hostname))return u;return 'https://wsrv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+'&output=webp&q=85&n=-1&maxage=30d';}catch(e){return url;}};
+  }
+  /* Si el usuario toca una tarjeta antes de que cargue el JS principal, guardamos el id y lo abrimos después */
+  if(typeof window.showDetail!=='function'){
+    window.showDetail=function(id){window.__jdPendingDetail=String(id);};
+  }
+})();</script>
+
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='1.2.9-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.3.0-fastload-fix';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -406,11 +417,12 @@ window._jdCardSig = function(g){
     list.dataset.instantLoaded = '1';
   }
 
+  function _safeRender(){ try{ _doRender(); }catch(e){ try{console.warn('[JD] capa1:',e);}catch(_){} } }
   // Ejecutar ahora si el DOM llegó al game-list, sino en DOMContentLoaded
-  if(document.readyState !== 'loading'){
-    _doRender();
+  if(document.getElementById('game-list')){
+    _safeRender();
   } else {
-    document.addEventListener('DOMContentLoaded', _doRender);
+    document.addEventListener('DOMContentLoaded', _safeRender);
   }
 })();
 
@@ -430,7 +442,7 @@ window.__JD_REST_DONE = false;
   var GIST_USER     = 'JoelDroidModsYT';
   // URL limpia (sin hash de revisión) — siempre devuelve la última versión
   // cache-buster por minuto: respeta CDN pero refresca rápido tras un push
-  var _bust         = Math.floor(Date.now()/10000);
+  var _bust         = Math.floor(Date.now()/300000); // 5 min: aprovecha CDN + caché navegador
   var CDN_URL       = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?v='+_bust;
   var FS_URL        = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
                       '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
@@ -468,7 +480,10 @@ window.__JD_REST_DONE = false;
   /* ── Render — fuerza repintado si hay cambios reales ── */
   function _renderNow(games, force){
     if(window.__JD_REST_DONE && !force) return;
-    window.__JD_REST_DONE = true;
+    try{ _renderNowInner(games, force); }
+    catch(e){ window.__JD_REST_DONE = false; try{console.warn('[JD] render diferido:',e);}catch(_){} }
+  }
+  function _renderNowInner(games, force){
     var sorted = _sort(games);
 
     // Si ya hay datos en caché y son IDÉNTICOS, no repintamos (evita parpadeo)
@@ -478,14 +493,19 @@ window.__JD_REST_DONE = false;
     var changed = newJson !== oldJson;
 
     window.__JD_STATIC_GAMES = sorted;
-    try{
-      sessionStorage.setItem('jd_ss_games', newJson);
-      localStorage.setItem('jd_games_cache_v2', newJson);
-    }catch(e){}
+    window.__JD_REST_DONE = true;
+    if(changed){ // escribir 700KB+ en storage solo si realmente cambió (es síncrono y bloquea el hilo)
+      try{
+        sessionStorage.setItem('jd_ss_games', newJson);
+        localStorage.setItem('jd_games_cache_v2', newJson);
+      }catch(e){}
+    } else {
+      try{ if(!sessionStorage.getItem('jd_ss_games')) sessionStorage.setItem('jd_ss_games', newJson); }catch(e){}
+    }
 
     var list = document.getElementById('game-list');
     if(!list) return;
-    if(list.querySelector('.jd-card') && !changed && !force) return;
+    if(list.querySelector('.jd-card') && !changed) return; // sin cambios → cero parpadeo
 
     if(typeof siteState!=='undefined' && typeof renderGames==='function'){
       siteState.gamesList = sorted;
@@ -534,7 +554,7 @@ window.__JD_REST_DONE = false;
     var _timer;
     var _p = new Promise(function(resolve,reject){
       _timer = setTimeout(function(){ reject(new Error('timeout')); }, 6000);
-      fetch(CDN_URL, {cache:'no-cache'})
+      fetch(CDN_URL)
         .then(function(r){ clearTimeout(_timer); if(!r.ok) throw new Error(r.status); return r.json(); })
         .then(resolve).catch(function(e){ clearTimeout(_timer); reject(e); });
     });
@@ -548,6 +568,7 @@ window.__JD_REST_DONE = false;
 
   /* Firestore REST como fallback — solo si Gist no responde y no hay caché */
   if(!hasCache){
+    setTimeout(function(){ if(window.__JD_REST_DONE) return;
     fetch(FS_URL)
       .then(function(r){return r.json();})
       .then(function(d){
@@ -557,6 +578,7 @@ window.__JD_REST_DONE = false;
         _renderNow(docs.map(_parseDoc));
       })
       .catch(function(){});
+    }, 1200); // da 1.2 s de ventaja al Gist (CDN) antes de gastar una lectura en Firestore
   }
 
   /* ── Auto-guardar en Gist cuando admin tiene token ── */
@@ -3116,10 +3138,13 @@ function _initLazyImages(){
   }
   imgs.forEach(function(img){ _lazyIO.observe(img); });
 }
-/* dead code removed: initLazyLoading */
-/* dead code removed: observeLazyImages */
+/* compat: initLazyLoading ya no existe (lazy nativo con loading=lazy) */
+function initLazyLoading(){}
+/* compat: función eliminada pero aún invocada */
+function observeLazyImages(){}
 
-/* dead code removed: updateBannerBasedOnFilter */
+/* compat: función eliminada pero aún invocada en 4 sitios */
+function updateBannerBasedOnFilter(){}
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
@@ -3128,6 +3153,7 @@ function scrollToDownloads(){
 
 // FIX 1: showDetail — todos los textos de UI usan t(), nombres de juegos NO se traducen
 function showDetail(id){
+  window.__jdPendingDetail = null;
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
   if(!game){
@@ -6552,6 +6578,7 @@ window.addEventListener('load', function(){
   setTimeout(jdSyncTabThemeIcon, 800);
 });
 </script>
+<script>(function(){try{var p=window.__jdPendingDetail;if(p&&typeof showDetail==='function'){window.__jdPendingDetail=null;showDetail(p);}}catch(e){}})();</script>
 </body>
 
 
