@@ -1173,7 +1173,7 @@ html,body{position:static!important;overflow-x:hidden!important;overscroll-behav
 /* ===== Block 4 ===== */
 /* ============================================================
    JD FIXES 2026-06 — modo claro + badges + version pill
-   (Solo cosmética + accesibilidad visual)
+   (No toca Monetag. Solo cosmética + accesibilidad visual)
    ============================================================ */
 
 /* --- Search container: en modo CLARO un cuerpo cálido y limpio, sin halo blanco --- */
@@ -1559,7 +1559,7 @@ html,body{position:static!important;overflow-x:hidden!important;overscroll-behav
 
 /* ===== Block 8 ===== */
 /* Banner cookies MINI — centrado abajo, mínimo, no estorba juegos.
-     z-index bajo para no tapar overlays. */
+     z-index bajo para no tapar overlays de Monetag. */
   #jd-cookie-banner{
     display:none;
     position:fixed;
@@ -1612,6 +1612,7 @@ svg.lucide{display:inline-block;vertical-align:middle}
 /* ===== Block FINAL — Parche CPM/CTR Modo Claro v20260624 =====
    • Botón "DESCARGAR MOD APK" en UNA SOLA línea siempre.
    • Sin sombras neón / cyberpunk en modo claro: estilo plano y limpio.
+   • NO se tocan los slots de Monetag ni los pointer-events de anuncios.
 */
 .btn-download-main,
 .btn-download-main--oneline{
