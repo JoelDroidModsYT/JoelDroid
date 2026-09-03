@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
+ <script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
+
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>  
+  
 <!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="274484" async data-cfasync="false" fetchpriority="high"></script>
-
 
 
 <!-- ══ HELPERS TEMPRANOS — deben existir ANTES de la carga instantánea (Capa 1/2) ══ -->
@@ -24,7 +22,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='1.3.0-fastload-fix';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.4.0';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -2100,7 +2098,7 @@ function applyTranslations(lang){
   // Modo claro (inmediato para evitar flash de color)
   applyLightColors();
 
-  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea los anuncios ──
+  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea el primer paint ──
   _jdIdle(function(){
     // 1) Todos los [data-i18n] del DOM
     document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -3027,8 +3025,8 @@ function _setupLoadMoreSentinel(list){
 
 // ════════════════════════════════════════════════════════════════
 // INFINITE SCROLL — sin barra de páginas, carga en lotes al llegar al final
-// (Reemplaza al pager numerado. Elimina barrera visual, mejora tiempo de
-//  permanencia y por tanto impresiones publicitarias.)
+// (Reemplaza al pager numerado. Elimina barrera visual y mejora el tiempo de
+//  permanencia en la página.)
 // ════════════════════════════════════════════════════════════════
 var _gamesIOSentinel = null;
 var _gamesIO = null;
@@ -5837,7 +5835,7 @@ function _syncSave(msg){
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
 // Flujo: irADescarga() → sessionStorage + localStorage (doble respaldo)
-//        → modal anuncio 5s → descarga.html?id=X&modo=Y
+//        → descarga.html?id=X&modo=Y
 // descarga.html lee jd_dl_payload desde sessionStorage (instantáneo)
 // o localStorage (fallback cross-tab) o re-carga desde Firebase.
 // ════════════════════════════════════════════════════════════════

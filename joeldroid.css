@@ -384,7 +384,7 @@ body{top:0!important}
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ANDROID ADS/SCROLL SAFETY — no sandbox, no body lock, no ghost layers
+   ANDROID SCROLL SAFETY — no sandbox, no body lock, no ghost layers
    ═══════════════════════════════════════════════════════════════ */
 html,body{overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;}
 #detail-view.hidden{display:none!important;}
@@ -445,7 +445,7 @@ html,body{overscroll-behavior-y:auto;touch-action:pan-y pinch-zoom;}
   nav{padding-left:2rem;padding-right:2rem}
   nav .max-w-md{max-width:700px}
   #detail-view>div{max-width:700px}
-  /* Centrar el contenido con margen elegante — isolation:auto para no atrapar ads fixed */
+  /* Centrar el contenido con margen elegante */
   #home-view{
     box-shadow:0 0 80px rgba(37,99,235,.04);
     border-left:1px solid rgba(37,99,235,.06);
@@ -1171,7 +1171,7 @@ html,body{position:static!important;overflow-x:hidden!important;overscroll-behav
 /* ===== Block 4 ===== */
 /* ============================================================
    JD FIXES 2026-06 — modo claro + badges + version pill
-   (No toca Monetag. Solo cosmética + accesibilidad visual)
+   (Solo cosmética + accesibilidad visual)
    ============================================================ */
 
 /* --- Search container: en modo CLARO un cuerpo cálido y limpio, sin halo blanco --- */
@@ -1556,8 +1556,7 @@ html,body{position:static!important;overflow-x:hidden!important;overscroll-behav
 }
 
 /* ===== Block 8 ===== */
-/* Banner cookies MINI — centrado abajo, mínimo, no estorba juegos.
-     z-index bajo para no tapar overlays de Monetag. */
+/* Banner cookies MINI — centrado abajo, mínimo, no estorba la navegación. */
   #jd-cookie-banner{
     display:none;
     position:fixed;
@@ -1607,10 +1606,9 @@ svg.lucide{display:inline-block;vertical-align:middle}
 #detail-view .jd-screens-wrap{position:relative;z-index:20!important;isolation:isolate}
 #detail-view .jd-screens-scroller{position:relative;z-index:21!important;touch-action:pan-x pan-y pinch-zoom!important}
 
-/* ===== Block FINAL — Parche CPM/CTR Modo Claro v20260624 =====
+/* ===== Block FINAL — Modo Claro v20260624 =====
    • Botón "DESCARGAR MOD APK" en UNA SOLA línea siempre.
    • Sin sombras neón / cyberpunk en modo claro: estilo plano y limpio.
-   • NO se tocan los slots de Monetag ni los pointer-events de anuncios.
 */
 .btn-download-main,
 .btn-download-main--oneline{
