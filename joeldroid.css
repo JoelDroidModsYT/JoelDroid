@@ -763,9 +763,7 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
   display: flex;
   flex-direction: column;
   transition: transform .18s, box-shadow .18s;
-  contain: none;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  contain: layout paint style;
 }
 .jd-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(37,99,235,.3); }
 .jd-card:active { transform: scale(.97); }
@@ -788,7 +786,6 @@ nav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relat
       rgba(37,99,235,.08) 80%) ,
     rgba(255,255,255,.03);
   background-size: 200% 100%, auto;
-  animation: jdImgSkeleton 1.4s ease-in-out infinite;
   overflow: hidden;
 }
 @keyframes jdImgSkeleton{
@@ -2028,3 +2025,57 @@ html.light-mode,html.light-mode body,body.light-mode{background:#f0f4f8!importan
   .btn-dl-card.jd-dl-ready,
   .btn-dl-card.jd-dl-counting .jd-dl-count{ animation:none !important; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ► PARCHE FLUIDEZ + BADGES (v2.1)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Scroll fluido: el navegador salta el layout/paint de las tarjetas fuera de pantalla */
+.jd-card{
+  content-visibility:auto;
+  contain-intrinsic-size:auto 118px auto 190px;
+}
+.jd-card:hover .jd-img{ transform:none; }            /* sin zoom en hover: evita repaints en táctil */
+@media (hover:hover){ .jd-card:hover .jd-img{ transform:scale(1.04); } }
+.jd-img{ transition:none; }
+@media (hover:hover){ .jd-img{ transition:transform .28s; } }
+.jd-img-box{ animation:none !important; }
+/* Fondo animado: menos costo en móviles */
+@media (max-width:640px){
+  .bg-shape:nth-child(n+13),.bg-particle:nth-child(n+19){ display:none !important; }
+  .bg-shape{ box-shadow:none !important; }
+}
+@media (prefers-reduced-motion:reduce){
+  .animated-background,.scene-el{ display:none !important; }
+}
+
+/* ── HOME (cuadrícula de 3 columnas, sin .jd-cols4): badges MOD / UPDATE un poco más grandes ── */
+.jd-grid:not(.jd-cols4) .jd-mod-badge,
+.jd-grid:not(.jd-cols4) .jd-upd-badge{
+  font-size:7.2px !important;
+  padding:2.5px 6px !important;
+  line-height:1.25 !important;
+  letter-spacing:.05em !important;
+  border-radius:5px !important;
+  max-width:46% !important;
+}
+.jd-grid:not(.jd-cols4) .jd-mod-badge{ top:6px !important; left:6px !important; }
+.jd-grid:not(.jd-cols4) .jd-upd-badge{ top:6px !important; right:6px !important; }
+
+/* ── POPULAR: MOD (izq, igual que Home) + TOP! naranja con llama (der) ── */
+.jd-upd-badge.jd-pop-top{
+  background:linear-gradient(135deg,#fb923c,#f97316 55%,#ea580c) !important;
+  color:#fff !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:2px !important;
+  white-space:nowrap !important;
+  text-transform:uppercase !important;
+  font-weight:900 !important;
+}
+.jd-upd-badge.jd-pop-top .jd-flame{
+  width:7px !important; height:7px !important; margin-right:1px !important; flex-shrink:0;
+  filter:drop-shadow(0 0 2px rgba(255,255,255,.55));
+}
+.light-mode .jd-upd-badge.jd-pop-top{ color:#fff !important; }
