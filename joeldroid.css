@@ -1,6 +1,7 @@
 /* ===== Block 1 ===== */
 /* ► FOUC fallback en modo OSCURO (predeterminado del sitio) */
-html{background:#020408}
+html{background:#f0f4f8}
+html:not(.light-mode){background:#020408}
 html:not(.light-mode) body{background:#020408;color:#fff}
 body{opacity:1}
 

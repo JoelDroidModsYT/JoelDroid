@@ -277,11 +277,11 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 (function(){
   try{
     var pref = localStorage.getItem('darkMode');
-    var isLight = (pref === 'light');
+    var isLight = (pref !== 'dark');   /* CLARO por defecto */
     document.documentElement.classList.toggle('light-mode', isLight);
     if(document.body) document.body.classList.toggle('light-mode', isLight);
     window.__JD_INITIAL_DARK = !isLight;
-  }catch(e){ /* dark por defecto */ }
+  }catch(e){ /* claro por defecto */ document.documentElement.classList.add('light-mode'); }
 })();
 </script>
 
@@ -2387,7 +2387,7 @@ var lazyObserver=null; // kept for legacy compat
 // STATE
 // ============================================================
 var currentDetailId=null;
-var isDarkMode=true;
+var isDarkMode=(typeof window!=='undefined'&&window.__JD_INITIAL_DARK!==undefined)?!!window.__JD_INITIAL_DARK:false;
 var currentFilter='all';
 /* ═══ CARGA INSTANTÁNEA DE ICONOS POR URL EXTERNA ═══
    Las imágenes de Firebase Storage ya viven en CDN de Google y cargan rápido.
@@ -3647,7 +3647,7 @@ function toggleTheme(){ jdApplyTheme(!isDarkMode); }
 function loadThemePreference(){
   var pref=null;
   try{ pref=localStorage.getItem('darkMode'); }catch(e){}
-  jdApplyTheme(pref!=='light');
+  jdApplyTheme(pref==='dark');
   return isDarkMode;
 }
 function autoThemeDetection(){ loadThemePreference(); }

@@ -38,13 +38,13 @@
 (function(){
   try{
     var pref = localStorage.getItem('darkMode');
-    var isLight = (pref === 'light');
+    var isLight = (pref !== 'dark');   /* CLARO por defecto */
     document.documentElement.classList.toggle('light-mode', isLight);
     if(document.body) document.body.classList.toggle('light-mode', isLight);
     var mt = document.querySelector('meta[name="theme-color"]');
     if(mt) mt.setAttribute('content', isLight ? '#f0f4f8' : '#020408');
     window.__JD_INITIAL_DARK = !isLight;
-  }catch(e){ /* dark por defecto */ }
+  }catch(e){ /* claro por defecto */ document.documentElement.classList.add('light-mode'); }
 })();</script>
 
 <div class="dl-page">
