@@ -1,6 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- ══ JD ANTI-PERSISTENCIA (v2.0) — sesión limpia en CADA visita ══
+     Elimina cualquier caché propio del sitio (localStorage / sessionStorage /
+     Cache API / IndexedDB de Firestore) ANTES de que carguen los scripts
+     publicitarios, para que el popunder trate cada visita como nueva.
+     NO toca ni modifica los scripts de publicidad. ═════════════════════ -->
+<script data-cfasync="false">
+(function(){
+  // Claves que SÍ se conservan (solo preferencias de UI y cuentas de usuario)
+  var KEEP = ['darkMode','jd_manual_theme','selectedLang','jd_users','jd_session','jd_gh_cfg','jd_emailjs','jd_rcodes'];
+  function keep(k){
+    if(!k) return true;
+    if(KEEP.indexOf(k)>=0) return true;
+    if(k.indexOf('firebase:authUser')===0) return true; // sesión admin
+    if(k.indexOf('jd_')!==0 && k.indexOf('_t_')!==0 && k!=='siteState' && k!=='jd_cookie_consent') return true; // no es nuestro
+    return false;
+  }
+  try{
+    var del=[];
+    for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(!keep(k)) del.push(k); }
+    for(var d=0;d<del.length;d++){ try{ localStorage.removeItem(del[d]); }catch(e){} }
+  }catch(e){}
+  try{
+    var sdel=[];
+    for(var j=0;j<sessionStorage.length;j++){ var s=sessionStorage.key(j);
+      if(s && s!=='jd_dl_payload' && (s.indexOf('jd_')===0 || s.indexOf('_t_')===0)) sdel.push(s); }
+    for(var e2=0;e2<sdel.length;e2++){ try{ sessionStorage.removeItem(sdel[e2]); }catch(e){} }
+  }catch(e){}
+  // Cache API (imágenes / assets guardados por versiones anteriores)
+  try{ if(window.caches && caches.keys) caches.keys().then(function(ks){
+    ks.forEach(function(n){ if(String(n).indexOf('jd-')===0) caches.delete(n); }); }).catch(function(){}); }catch(e){}
+  // IndexedDB de persistencia offline de Firestore (ya no se usa)
+  try{ if(window.indexedDB && indexedDB.databases){ indexedDB.databases().then(function(dbs){
+    (dbs||[]).forEach(function(db){ var n=db&&db.name||''; if(n.indexOf('firestore')===0) try{ indexedDB.deleteDatabase(n); }catch(e){} }); }).catch(function(){}); } }catch(e){}
+  // Service Workers antiguos (podrían servir HTML cacheado)
+  try{ if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+    navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); }).catch(function(){}); } }catch(e){}
+})();
+</script>
  <script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
 
 <script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>  
@@ -220,33 +258,14 @@
 
 <!-- PRECARGA INSTANTÁNEA: aplica datos de sessionStorage antes del primer paint -->
 <script>
-/* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
+/* ── SIN CACHÉ DE IMÁGENES: carga directa (Cache API eliminada) ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-v1';
-  window._jdCacheImg = function(url) {
-    if (!url || typeof caches === 'undefined') return;
-    caches.open(CACHE_NAME).then(function(c) {
-      c.match(url).then(function(r) { if (!r) c.add(url).catch(function(){}); });
-    }).catch(function(){});
-  };
-  window._jdGetCachedImg = function(url, imgEl, phEl) {
-    if (!url) return;
-    if (typeof caches !== 'undefined') {
-      caches.open(CACHE_NAME).then(function(c) {
-        c.match(url).then(function(r) {
-          if (r) {
-            r.blob().then(function(b) {
-              var objUrl = URL.createObjectURL(b);
-              if (imgEl) { imgEl.src = objUrl; imgEl.onload = function(){ imgEl.style.display=''; if(phEl) phEl.style.display='none'; URL.revokeObjectURL(objUrl); }; imgEl.onerror = function(){ imgEl.src=url; }; }
-            });
-          } else {
-            if (imgEl) { imgEl.src = url; imgEl.onload=function(){ imgEl.style.display=''; if(phEl) phEl.style.display='none'; window._jdCacheImg(url); }; imgEl.onerror=function(){ imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; }; }
-          }
-        });
-      }).catch(function(){ if (imgEl) { imgEl.src=url; imgEl.onload=function(){imgEl.style.display=''; if(phEl) phEl.style.display='none';}; } });
-    } else {
-      if (imgEl) { imgEl.src=url; imgEl.onload=function(){imgEl.style.display=''; if(phEl) phEl.style.display='none';}; imgEl.onerror=function(){imgEl.style.display='none'; if(phEl) phEl.style.display='flex';}; }
-    }
+  window._jdCacheImg = function(){ /* no-op: sin Cache API */ };
+  window._jdGetCachedImg = function(url, imgEl, phEl){
+    if (!url || !imgEl) return;
+    imgEl.onload  = function(){ imgEl.style.display=''; if(phEl) phEl.style.display='none'; };
+    imgEl.onerror = function(){ imgEl.style.display='none'; if(phEl) phEl.style.display='flex'; };
+    imgEl.src = url;
   };
 })();
 (function(){
@@ -254,9 +273,7 @@
     var params = new URLSearchParams(window.location.search);
     var gid    = (params.get('id') || '').trim();
     if (!gid) return;
-    var raw = sessionStorage.getItem('jd_dl_payload')
-           || localStorage.getItem('jd_dl_payload')
-           || localStorage.getItem('jd_dl_payload_bk');
+    var raw = sessionStorage.getItem('jd_dl_payload');
     if (!raw) return;
     var p = JSON.parse(raw);
     if (String(p.id) !== String(gid)) return;
@@ -546,9 +563,7 @@
 
     function _trySessionStorage() {
       try {
-        var raw = sessionStorage.getItem('jd_dl_payload')
-               || localStorage.getItem('jd_dl_payload')
-               || localStorage.getItem('jd_dl_payload_bk');
+        var raw = sessionStorage.getItem('jd_dl_payload');
         if (!raw) return false;
         var p = JSON.parse(raw);
         if (String(p.id) !== String(gameId)) return false;
@@ -921,7 +936,7 @@
         return '';
       }
       try {
-        var raw = localStorage.getItem('jd_games_cache') || sessionStorage.getItem('jd_games_cache');
+        var raw = sessionStorage.getItem('jd_ss_games');
         if (raw){ var arr = JSON.parse(raw); if (Array.isArray(arr)){ var cid = _match(arr); if (cid) return _fin(cid); } }
       } catch(e){}
       var gistUrl = 'https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json?v=' + Math.floor(Date.now()/60000);
