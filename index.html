@@ -1,44 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-<!-- ══ JD ANTI-PERSISTENCIA (v2.0) — sesión limpia en CADA visita ══
-     Elimina cualquier caché propio del sitio (localStorage / sessionStorage /
-     Cache API / IndexedDB de Firestore) ANTES de que carguen los scripts
-     publicitarios, para que el popunder trate cada visita como nueva.
-     NO toca ni modifica los scripts de publicidad. ═════════════════════ -->
-<script data-cfasync="false">
-(function(){
-  // Claves que SÍ se conservan (solo preferencias de UI y cuentas de usuario)
-  var KEEP = ['darkMode','jd_manual_theme','selectedLang','jd_users','jd_session','jd_gh_cfg','jd_emailjs','jd_rcodes'];
-  function keep(k){
-    if(!k) return true;
-    if(KEEP.indexOf(k)>=0) return true;
-    if(k.indexOf('firebase:authUser')===0) return true; // sesión admin
-    if(k.indexOf('jd_')!==0 && k.indexOf('_t_')!==0 && k!=='siteState' && k!=='jd_cookie_consent') return true; // no es nuestro
-    return false;
-  }
-  try{
-    var del=[];
-    for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(!keep(k)) del.push(k); }
-    for(var d=0;d<del.length;d++){ try{ localStorage.removeItem(del[d]); }catch(e){} }
-  }catch(e){}
-  try{
-    var sdel=[];
-    for(var j=0;j<sessionStorage.length;j++){ var s=sessionStorage.key(j);
-      if(s && s!=='jd_dl_payload' && (s.indexOf('jd_')===0 || s.indexOf('_t_')===0)) sdel.push(s); }
-    for(var e2=0;e2<sdel.length;e2++){ try{ sessionStorage.removeItem(sdel[e2]); }catch(e){} }
-  }catch(e){}
-  // Cache API (imágenes / assets guardados por versiones anteriores)
-  try{ if(window.caches && caches.keys) caches.keys().then(function(ks){
-    ks.forEach(function(n){ if(String(n).indexOf('jd-')===0) caches.delete(n); }); }).catch(function(){}); }catch(e){}
-  // IndexedDB de persistencia offline de Firestore (ya no se usa)
-  try{ if(window.indexedDB && indexedDB.databases){ indexedDB.databases().then(function(dbs){
-    (dbs||[]).forEach(function(db){ var n=db&&db.name||''; if(n.indexOf('firestore')===0) try{ indexedDB.deleteDatabase(n); }catch(e){} }); }).catch(function(){}); } }catch(e){}
-  // Service Workers antiguos (podrían servir HTML cacheado)
-  try{ if(navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
-    navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); }).catch(function(){}); } }catch(e){}
-})();
-</script>
  <script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
 
 <script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>  
@@ -60,7 +22,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='1.4.0';window.__JD_APP_VERSION=APP_VERSION;/* sin persistencia */})();</script>
+<script>(function(){var APP_VERSION='1.4.0';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -205,7 +167,11 @@
 </script>
 <!-- Site version marker -->
 <script>
-(function _jdSafeVersionMarker(){ window.__JD_SITE_VERSION='20260621_v130'; })();
+(function _jdSafeVersionMarker(){
+  try{
+    localStorage.setItem('jd_site_version','20260621_v129');
+  }catch(e){}
+})();
 </script>
 <script>
 if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
@@ -372,6 +338,8 @@ window.__JD_STATIC_GAMES = (function(){
   try{
     var ss = sessionStorage.getItem('jd_ss_games');
     if(ss){ var p=JSON.parse(ss); if(p&&p.length) return p; }
+    var ls = localStorage.getItem('jd_games_cache_v2');
+    if(ls){ var p2=JSON.parse(ls); if(p2&&p2.length) return p2; }
   }catch(e){}
   return [];
 })();
@@ -519,7 +487,7 @@ window.__JD_REST_DONE = false;
     // Si ya hay datos en caché y son IDÉNTICOS, no repintamos (evita parpadeo)
     var newJson = JSON.stringify(sorted);
     var oldJson = '';
-    try{ oldJson = sessionStorage.getItem('jd_ss_games') || ''; }catch(e){}
+    try{ oldJson = localStorage.getItem('jd_games_cache_v2') || ''; }catch(e){}
     var changed = newJson !== oldJson;
 
     window.__JD_STATIC_GAMES = sorted;
@@ -527,6 +495,7 @@ window.__JD_REST_DONE = false;
     if(changed){ // escribir 700KB+ en storage solo si realmente cambió (es síncrono y bloquea el hilo)
       try{
         sessionStorage.setItem('jd_ss_games', newJson);
+        localStorage.setItem('jd_games_cache_v2', newJson);
       }catch(e){}
     } else {
       try{ if(!sessionStorage.getItem('jd_ss_games')) sessionStorage.setItem('jd_ss_games', newJson); }catch(e){}
@@ -2020,7 +1989,7 @@ function trAPI(text,cb){
   // 1) Cache en memoria
   if(_trMem[ck]){cb(_trMem[ck]);return;}
   // 2) Cache en localStorage
-  /* caché de traducción solo en memoria (sin localStorage) */
+  try{var s=localStorage.getItem('_t_'+ck);if(s&&s!=='NULL'&&s.indexOf('MYMEMORY')<0){_trMem[ck]=s;cb(s);return;}}catch(e){}
   // 3) Deduplicar peticiones en vuelo
   if(_trQ[ck]){_trQ[ck].push(cb);return;}
   _trQ[ck]=[cb];
@@ -2043,7 +2012,7 @@ function trAPI(text,cb){
         if(!isErr) tr=t2;
       }
       _trMem[ck]=tr;
-      /* sin persistencia de traducción */
+      try{localStorage.setItem('_t_'+ck,tr);}catch(e){}
       (_trQ[ck]||[]).forEach(function(f){f(tr);});delete _trQ[ck];
     })
     .catch(function(){
@@ -2618,7 +2587,8 @@ function _saveGamesCache(games){
       };
     });
     var json = JSON.stringify(compact);
-    // Solo sessionStorage: se borra al cerrar la pestaña (sesión limpia para el popunder)
+    localStorage.setItem(_JD_CACHE_KEY, json);
+    // sessionStorage: más rápido, persiste en navegación back/forward de la sesión
     try{ sessionStorage.setItem('jd_ss_games', json); }catch(e2){}
     // Actualizar también el snapshot en memoria para esta sesión
     window.__JD_STATIC_GAMES = compact;
@@ -2630,8 +2600,8 @@ function _loadGamesFromCache(){
     // 1) Intentar sessionStorage primero (misma sesión, más rápido)
     var games = window.__JD_STATIC_GAMES;
     if(!games || !games.length){
-      // 2) sessionStorage como fallback (sin localStorage)
-      var raw = sessionStorage.getItem('jd_ss_games');
+      // 2) localStorage como fallback
+      var raw = localStorage.getItem(_JD_CACHE_KEY);
       if(raw) games = JSON.parse(raw);
     }
     if(!games || !games.length) return false;
@@ -3748,7 +3718,7 @@ function testServers(){
 
 function saveSettings(){
   // Guardar localmente siempre
-  /* siteState no se persiste */
+  localStorage.setItem('siteState',JSON.stringify(siteState));
   // Si el admin está logueado, también persistir en Firebase para todos
   if(_fbReady && _isAdmin()) _fbSaveSiteConfig();
 }
@@ -3789,7 +3759,7 @@ function _loadFromGitHub(cb){
             ? siteState.gamesList
             : (remote.gamesList||[])
         };
-        /* siteState no se persiste */
+        localStorage.setItem('siteState',JSON.stringify(siteState));
         if(cb)cb(true);
       }catch(e){if(cb)cb(false);}
     }else{if(cb)cb(false);}
@@ -3805,7 +3775,7 @@ function _showGHStatus(msg,color){
 
 function loadSettings(){
   // Primero cargar local (instantáneo)
-  var saved=null;
+  var saved=localStorage.getItem('siteState');
   if(saved){
     try{
       var p=JSON.parse(saved);
@@ -5361,7 +5331,7 @@ function _initFirebase(){
     _db     = firebase.firestore();
     _fbAuth = firebase.auth();
     // ── Persistencia offline — UNA sola llamada ──
-    /* persistencia offline de Firestore desactivada (sin IndexedDB) */
+    _db.enablePersistence({ synchronizeTabs: false }).catch(function(){});
     // Sesión persistente — el admin no se desloguea al cerrar
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady = true;
@@ -5430,7 +5400,7 @@ function _fbListenMods(){
     // Sin caché local — intentar Firestore IndexedDB como fallback rápido
   }
   _db.collection('mods').orderBy('order','asc')
-    .get({ source: 'server' })
+    .get({ source: 'cache' })
     .then(function(cacheSnap){
       if(!cacheSnap.empty){
         var games = cacheSnap.docs.map(function(doc){
@@ -5757,12 +5727,12 @@ var _pendingChanges = false;
 function _markPendingChange(label){
   _pendingChanges = true;
   // Guardar inmediatamente local + Firebase
-  /* siteState no se persiste */
+  localStorage.setItem('siteState', JSON.stringify(siteState));
   if(_fbReady && _isAdmin()) _fbSaveSiteConfig();
 }
 function _flushPendingChanges(){
   _pendingChanges = false;
-  /* siteState no se persiste */
+  localStorage.setItem('siteState', JSON.stringify(siteState));
   if(_fbReady && _isAdmin()){
     _fbSaveSiteConfig();
     showToast('✅ Cambios guardados — visible para todos 🌍');
@@ -5846,7 +5816,7 @@ function _showSyncStatus(m,c){ _updateSyncUI(c==='#10b981'?true:c==='#ef4444'?fa
 function _startPolling(){ /* Firebase usa onSnapshot — no necesita polling */ }
 function _applyRemoteData(){ /* Firebase maneja esto con onSnapshot */ }
 function _syncSave(msg){
-  /* siteState no se persiste */
+  localStorage.setItem('siteState', JSON.stringify(siteState));
   if(_fbReady && _isAdmin()){
     _fbSaveSiteConfig();
     _updateSyncUI(true, msg || '✅ Guardado en Firebase — Conexión Segura ✓');
@@ -6030,8 +6000,9 @@ function irADescarga(gameId, modo) {
         ts: Date.now()
       };
       var payloadStr = JSON.stringify(payload);
-      // Traspaso index → descarga SOLO por sessionStorage (muere al cerrar la pestaña)
       try { sessionStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
+      try { localStorage.setItem('jd_dl_payload', payloadStr); } catch(e){}
+      try { localStorage.setItem('jd_dl_payload_bk', payloadStr); } catch(e){}
     } catch(e) {}
   }
 
@@ -6336,10 +6307,10 @@ window.onload=function(){
   try{
     var KEY='jd_cookie_consent';
     /* Banner desactivado: auto-aceptación silenciosa. */
-    /* sin cookie de consentimiento persistente */
+    try{ if(!localStorage.getItem(KEY)) localStorage.setItem(KEY,'accept|'+Date.now()); }catch(e){}
     var _b=document.getElementById('jd-cookie-banner'); if(_b){ _b.style.display='none'; _b.setAttribute('hidden',''); }
     window.jdCookieConsent=function(choice,returnHome){
-      /* sin persistencia de consentimiento */
+      try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
       var b=document.getElementById('jd-cookie-banner');
       if(b) b.style.display='none';
       try{ if(typeof showToast==='function'){ showToast(choice==='accept'?'Cookies aceptadas':'Solo cookies necesarias'); } }catch(_t){}
