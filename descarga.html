@@ -16,31 +16,9 @@
      clics forzados, ocultamiento ni recarga artificial de impresiones). -->
 <script src="https://5gvci.com/act/files/tag.min.js?z=10922349" data-cfasync="false" async></script>
 
-<!-- ══ MONETAG · Vignette Banner (zona 10922125) ══ -->
-<script data-cfasync="false">
-(function(){
-  var ZONE = '10922125';
-  var SRC  = 'https://n6wxm.com/vignette.min.js';
-  function inject(){
-    try{
-      if (document.querySelector('script[data-jd-vignette]')) return true;
-      var host = document.head || document.documentElement;
-      if (!host) return false;
-      var s = document.createElement('script');
-      s.dataset.zone = ZONE;
-      s.setAttribute('data-jd-vignette','1');
-      s.setAttribute('data-cfasync','false');
-      s.async = true;
-      s.src = SRC;
-      host.appendChild(s);
-      return true;
-    }catch(e){ return false; }
-  }
-  if (!inject()){
-    document.addEventListener('DOMContentLoaded', inject, { once:true });
-  }
-})();
-</script>
+<!-- ══ MONETAG · Vignette Banner (zona 10922125) ══
+     Etiqueta oficial directa: la solicitud comienza durante el parseo del head. -->
+<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" data-cfasync="false" async></script>
 
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con informacion de version, peso, seguridad y caracteristicas del MOD.">
@@ -81,8 +59,8 @@
   <div id="dl-navload" class="dl-navload" aria-hidden="true">
     <div class="dl-navload-box">
       <div class="dl-navload-spin"></div>
-      <div class="dl-navload-txt">Abriendo servidor de descarga…</div>
-      <div class="dl-navload-sub">No cierres esta pestaña</div>
+      <div class="dl-navload-txt">Enviándote al enlace solicitado…</div>
+      <div class="dl-navload-sub">Espera un momento · no cierres esta pestaña</div>
     </div>
   </div>
 
@@ -156,7 +134,7 @@
           </div>
         </div>
         <div class="dl-counter-info">
-          <div class="dl-counter-info-txt">Analizando archivo para una descarga segura...</div>
+          <div class="dl-counter-info-txt">Preparando el enlace de descarga...</div>
           <div class="dl-progress-wrap"><div id="dl-progress-bar" class="dl-progress-bar"></div></div>
           <div class="dl-progress-pct" id="dl-progress-pct">0%</div>
         </div>
@@ -184,12 +162,12 @@
     <section id="dl-gameinfo-section" class="dl-gameinfo-section" aria-label="Información del juego" hidden>
       <span class="dl-gameinfo-kicker">Información del juego</span>
       <h2 id="dl-gameinfo-title" class="dl-gameinfo-title">Información del juego</h2>
-      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo verificado y preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
+      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
       <div class="dl-gameinfo-grid">
         <div class="dl-gameinfo-item"><b>Versión</b><span id="dl-gameinfo-ver">—</span></div>
         <div class="dl-gameinfo-item"><b>Peso</b><span id="dl-gameinfo-size">—</span></div>
         <div class="dl-gameinfo-item"><b>Compatibilidad</b><span>Android 5.0+</span></div>
-        <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">✓ Verificado</span></div>
+        <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">Información disponible</span></div>
       </div>
       <div id="dl-gameinfo-feats" class="dl-gameinfo-feats"></div>
     </section>
@@ -211,7 +189,7 @@
             <span>seg</span>
           </div>
           <div class="dl-stage-progress"><div id="dl-stage-progress-fill" class="dl-stage-progress-fill"></div></div>
-          <div id="dl-stage-status" class="dl-stage-status">Comprobando integridad del archivo y disponibilidad del servidor...</div>
+          <div id="dl-stage-status" class="dl-stage-status">Preparando el siguiente paso y comprobando la disponibilidad del enlace...</div>
         </div>
 
         <a href="https://omg10.com/4/11164434" id="dl-download-final" class="dl-download-final dl-btn-final" target="_blank" rel="noopener noreferrer">
@@ -223,7 +201,7 @@
             </svg>
           </div>
           <div class="dl-btn-text-col">
-            <span class="dl-btn-label-top">✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR</span>
+            <span class="dl-btn-label-top">✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR</span>
             <span id="dl-download-final-texto" class="dl-btn-game-title">Cargando archivo...</span>
           </div>
           <span id="dl-download-size-badge" class="dl-btn-size-badge">—</span>
@@ -232,7 +210,7 @@
 
       <div class="dl-stage-info-grid" aria-label="Detalles de seguridad">
         <div class="dl-stage-info"><strong>APK del juego</strong><span id="dl-stage-game-label">Datos cargados desde el panel</span></div>
-        <div class="dl-stage-info"><strong>MOD verificado</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
+        <div class="dl-stage-info"><strong>Datos del MOD</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
         <div class="dl-stage-info"><strong>Servidor listo</strong><span>Enlace preparado para Android</span></div>
       </div>
     </section>
@@ -333,7 +311,7 @@
       }
       var bdg = document.getElementById('dl-btn-size-badge');
       if (bdg && s) bdg.textContent = s;
-      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(d.description||d.descripcion||'') }; } catch(_e){}
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(p.description||p.descripcion||'') }; } catch(_e){}
       var sv = document.getElementById('dl-stat-ver');
       if (sv) sv.textContent = vc || v || '—';
       var ss = document.getElementById('dl-stat-size');
@@ -389,8 +367,8 @@
   var CIRCUM = 238.8;
 
   /* Handles globales para limpiar SIEMPRE al cambiar de estado */
-  var serverReadyIv   = null;   // contador inicial 10s
-  var fileScannerIv = null;   // contador verificación 7s
+  var serverReadyIv   = null;   // contador inicial 15s
+  var fileScannerIv = null;   // contador de preparación 12s
   var fileScannerRaf= null;   // rAF barra
   var securityCheckTs = 0;
 
@@ -464,7 +442,7 @@
       var vc = _cleanVer(v);
       var mod = _modTxt(feats);
       var cleanName = _cleanApk(n || 'MOD APK');
-      var desc = 'Descarga ' + cleanName + (vc ? ' versión ' + vc : '') + (s ? ' (' + s + ')' : '') + ' para Android. MOD: ' + mod + '. Archivo APK verificado por JOELDROID MODS YT.';
+      var desc = 'Descarga ' + cleanName + (vc ? ' versión ' + vc : '') + (s ? ' (' + s + ')' : '') + ' para Android. MOD: ' + mod + '. Información del archivo publicada por JOELDROID MODS YT.';
       var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
       if (md) md.setAttribute('content', desc.slice(0, 160));
       var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
@@ -487,7 +465,7 @@
              '<span class="dl-btn-mod-line">Mod ' + _esc(_modTxt(feats)) + '</span>';
     }
 
-    /* ─────────────── TIMER INICIAL 10s (con Date.now para no congelarse) ─────────────── */
+    /* ─────────────── TIMER INICIAL 15s (con Date.now para no congelarse) ─────────────── */
     var serverReadyTs = 0;
 
     function _renderTimer(left) {
@@ -683,7 +661,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
+    var SECURITY_SCAN_SECS  = 12;  // temporizador del segundo paso: 12s
 
     function _buttonLabelTop(btn){ return btn ? btn.querySelector('.dl-btn-label-top') : null; }
     function _labelTop(){ return _buttonLabelTop(btnFinal); }
@@ -780,7 +758,7 @@
         if (giSize) giSize.textContent = meta.size || '—';
         if (giTitle) giTitle.textContent = _cleanApk(_n) + (_v ? ' v' + _v : '') + '.Apk';
         if (giDesc) {
-          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Archivo verificado desde servidor seguro y compatible con Android 5.0+.');
+          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Archivo publicado como compatible con Android 5.0+.');
           giDesc.textContent = _mdesc;
         }
         if (giFeats) {
@@ -798,7 +776,7 @@
       if (stageTitle) stageTitle.textContent = 'Verificación final de ' + _cleanApk(meta.name || 'MOD APK');
       if (stageCopy) stageCopy.textContent = 'El enlace final se habilitará aquí abajo cuando termine la comprobación de seguridad.';
       if (stageScan) stageScan.style.display = '';
-      if (stageStatus) stageStatus.textContent = 'Comprobando integridad del archivo y disponibilidad del servidor...';
+      if (stageStatus) stageStatus.textContent = 'Preparando el siguiente paso y comprobando la disponibilidad del enlace...';
       if (stageNum) stageNum.textContent = String(SECURITY_SCAN_SECS);
       if (stageFill) stageFill.style.width = '0%';
       if (lowerFinal) { lowerFinal.classList.remove('visible','estado-final'); lowerFinal.style.pointerEvents = 'none'; }
@@ -821,7 +799,7 @@
           return;
         }
         if (stageNum) stageNum.textContent = String(Math.max(remainS, 1));
-        if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + Math.max(remainS,1) + 's ]';
+        if (stageStatus) stageStatus.textContent = 'Preparando el enlace de descarga... [ ' + Math.max(remainS,1) + 's ]';
       }
       _tickFileScanner();
       fileScannerIv = setInterval(_tickFileScanner, 250);
@@ -849,10 +827,10 @@
       var titleLine = baseName + (vc ? ' ' + vc : '') + '.Apk';
       var modLine   = 'Mod ' + modLbl;
 
-      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
       if (stageCopy) stageCopy.textContent = 'Tu archivo está listo. Pulsa el botón azul para abrir el enlace final de descarga.';
       var lt = _lowerLabelTop();
-      if (lt) { lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
+      if (lt) { lt.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
 
       if (lowerFinalTexto) {
         lowerFinalTexto.innerHTML =
@@ -873,19 +851,19 @@
       if (lowerFinal) {
         lowerFinal.style.pointerEvents = 'none';
         var lt2 = _lowerLabelTop();
-        if (lt2) lt2.textContent = '⏳ Abriendo servidor de descarga…';
+        if (lt2) lt2.textContent = '⏳ Enviándote al enlace solicitado…';
       }
     }
-    /* Estado de la navegacion final: el usuario hizo el ultimo clic, el anuncio
-       (Direct Link de Monetag) se abrio en otra pestaña y esta pestaña espera
-       SU REGRESO para recien iniciar la carga y llevarlo al archivo real. */
-    var _pendingRealNav = false;
+    /* El avance ocurre únicamente después de un clic voluntario. Cuando el
+       Direct Link abre otra pestaña, esta página espera a que el usuario vuelva:
+       paso 1 -> inicia la segunda verificación; paso 2 -> abre el archivo real. */
+    var _pendingAction  = ''; // '' | verification | download
     var _pendingRealUrl = '';
     var _leftTabAt      = 0;
     var _navDone        = false;
 
     function _hideNavLoading(){
-      if (_pendingRealNav || _navDone) return;
+      if (_pendingAction || _navDone) return;
       var tb = document.getElementById('dl-topbar');
       var ov = document.getElementById('dl-navload');
       if (tb) tb.classList.remove('active');
@@ -893,12 +871,33 @@
       if (lowerFinal && btnState === 'final') {
         lowerFinal.style.pointerEvents = '';
         var lt3 = _lowerLabelTop();
-        if (lt3) lt3.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+        if (lt3) lt3.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
       }
     }
+
+    function _resumePendingFlow(){
+      if (!_pendingAction) return;
+      var action = _pendingAction;
+      var url = _pendingRealUrl;
+      _pendingAction = '';
+      _leftTabAt = 0;
+      if (action === 'verification') {
+        _renderSecurityScan();
+        return;
+      }
+      if (!url || url === '#') return;
+      if (stageTitle) stageTitle.textContent = '⏳ Enviándote al enlace solicitado…';
+      if (stageCopy) stageCopy.textContent = 'El proceso terminó. Espera un momento mientras abrimos tu descarga.';
+      _showNavLoading();
+      setTimeout(function(){ _goRealFile(url); }, 900);
+    }
+
     function _onFocusResync(){
-      if (_pendingRealNav && _leftTabAt){ _resumeRealNav(); return; }
-      if (_pendingRealNav || _navDone) return;
+      if (_pendingAction && _leftTabAt && document.visibilityState === 'visible') {
+        _resumePendingFlow();
+        return;
+      }
+      if (_pendingAction || _navDone) return;
       _hideNavLoading();
       if (btnState === 'verificando'){
         var remainMs = securityCheckTs - Date.now();
@@ -908,7 +907,7 @@
           var sec = Math.max(Math.ceil(remainMs/1000), 1);
           if (stageNum) stageNum.textContent = String(sec);
           if (stageFill) stageFill.style.width = (Math.min(1 - remainMs/(SECURITY_SCAN_SECS*1000), 1) * 100) + '%';
-          if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + sec + 's ]';
+          if (stageStatus) stageStatus.textContent = 'Preparando el enlace de descarga... [ ' + sec + 's ]';
         }
       } else if (!timerDone && timerRunning){
         _tickServerReady();
@@ -918,20 +917,14 @@
     window.addEventListener('pageshow', _onFocusResync);
     document.addEventListener('visibilitychange', function(){
       if (document.visibilityState === 'hidden'){
-        if (_pendingRealNav) _leftTabAt = Date.now();
+        if (_pendingAction) _leftTabAt = Date.now();
         return;
       }
       _onFocusResync();
     });
-    window.addEventListener('blur', function(){
-      if (_pendingRealNav && !_leftTabAt) _leftTabAt = Date.now();
-    });
 
-    /* ── Monetización Monetag (Direct Link / SmartLink) ──
-       Los botones son enlaces nativos con target _blank hacia Monetag: el anuncio
-       se abre SOLO con el clic físico del usuario (cero clics forzados por JS,
-       cero clickjacking). Tras ese clic real, la pestaña de origen redirige
-       al archivo real (variable centralizada `realUrl` / data-real-url) a los 1000ms. */
+    /* Los Direct Links son enlaces nativos y solo se abren mediante un clic
+       voluntario. No hay clics simulados, superposiciones ni recargas forzadas. */
     function _goRealFile(url){
       if (_navDone) return;
       _navDone = true;
@@ -939,55 +932,53 @@
       catch(_e){ try { window.location.assign(url); } catch(__e){} }
     }
 
-    /* Mensaje mientras el usuario esta en la pestaña del anuncio. */
-    function _showWaitReturn(){
-      if (lowerFinal){
-        lowerFinal.style.pointerEvents = 'none';
-        var lt = _lowerLabelTop();
-        if (lt) lt.textContent = '↩️ Vuelve a ESTA pestaña para iniciar tu descarga';
-      }
-      if (stageTitle) stageTitle.textContent = '↩️ Regresa a esta pestaña';
-      if (stageCopy)  stageCopy.textContent  = 'Cuando vuelvas aqui, la descarga de tu archivo comenzara automaticamente. No cierres esta pestaña.';
-    }
-
-    /* El usuario regreso: recien ahora arranca la carga y la redireccion real. */
-    function _resumeRealNav(){
-      if (!_pendingRealNav) return;
-      var url = _pendingRealUrl;
-      _pendingRealNav = false;
-      if (!url || url === '#') return;
-      if (stageTitle) stageTitle.textContent = '⏳ Iniciando tu descarga...';
-      if (stageCopy)  stageCopy.textContent  = 'Abriendo el servidor de descarga del archivo. Espera unos segundos.';
-      _showNavLoading();
-      setTimeout(function(){ _goRealFile(url); }, 900);
-    }
-
-    /* Tras el clic real del usuario: NO se redirige mientras esta fuera.
-       Se arma la espera y se resuelve cuando la pestaña vuelve a ser visible. */
-    function _armReturnRedirect(btn){
-      var url = (btn && btn.getAttribute('data-real-url')) || realUrl || '';
-      if (!url || url === '#') return;
-      _pendingRealUrl = url;
-      _pendingRealNav = true;
-      _leftTabAt = 0;
-      _showWaitReturn();
-      /* Respaldo: si el navegador nunca cambio de pestaña (pop-up bloqueado o
-         apertura en la misma pestaña), no dejamos al usuario atascado. */
-      setTimeout(function(){
-        if (_pendingRealNav && !_leftTabAt && document.visibilityState === 'visible'){
-          _resumeRealNav();
+    function _showWaitReturn(action){
+      if (finalStage) { finalStage.hidden = false; finalStage.classList.add('visible'); }
+      if (stageScan) stageScan.style.display = 'none';
+      if (lowerFinal) lowerFinal.classList.remove('visible');
+      if (action === 'verification') {
+        if (btnFinal) {
+          btnFinal.style.pointerEvents = 'none';
+          var firstLabel = _labelTop();
+          if (firstLabel) firstLabel.textContent = '↩️ REGRESA A ESTA PESTAÑA PARA CONTINUAR';
         }
-      }, 4000);
+        if (stageTitle) stageTitle.textContent = 'Publicidad abierta en otra pestaña';
+        if (stageCopy) stageCopy.textContent = 'Cuando regreses, la segunda verificación comenzará automáticamente. Mantén esta pestaña abierta.';
+      } else {
+        if (lowerFinal){
+          lowerFinal.style.pointerEvents = 'none';
+          var finalLabel = _lowerLabelTop();
+          if (finalLabel) finalLabel.textContent = '↩️ REGRESA PARA ABRIR TU DESCARGA';
+        }
+        if (stageTitle) stageTitle.textContent = 'Publicidad abierta en otra pestaña';
+        if (stageCopy) stageCopy.textContent = 'Cuando regreses, te enviaremos al enlace solicitado. Mantén esta pestaña abierta.';
+      }
+      _scrollToFinalStage();
+    }
+
+    function _armReturnAction(action, btn){
+      var url = action === 'download' ? ((btn && btn.getAttribute('data-real-url')) || realUrl || '') : '';
+      if (action === 'download' && (!url || url === '#')) return false;
+      _pendingAction = action;
+      _pendingRealUrl = url;
+      _leftTabAt = 0;
+      _showWaitReturn(action);
+      /* Si el navegador bloquea la nueva pestaña, continúa sin generar otro
+         clic ni una impresión artificial. */
+      setTimeout(function(){
+        if (_pendingAction === action && !_leftTabAt && document.visibilityState === 'visible'){
+          _resumePendingFlow();
+        }
+      }, 3000);
+      return true;
     }
 
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         if (!timerDone) { e.preventDefault(); return; }
         if (btnState === 'activador') {
-          /* SIN preventDefault: el clic real abre el primer SmartLink en una
-             pestaña nueva. Al volver, continúa únicamente la verificación final;
-             el archivo real todavía NO se abre en este primer paso. */
-          _renderSecurityScan();
+          /* El anuncio se abre con este clic. El segundo paso empieza al volver. */
+          _armReturnAction('verification', btnFinal);
         } else {
           e.preventDefault();
         }
@@ -996,9 +987,8 @@
     if (lowerFinal) {
       lowerFinal.addEventListener('click', function(e) {
         if (btnState !== 'final') { e.preventDefault(); return; }
-        /* SIN preventDefault: Monetag (2º Direct Link) se abre en pestaña
-           nueva por interacción voluntaria; la pestaña actual va al archivo real. */
-        _armReturnRedirect(lowerFinal);
+        /* El segundo anuncio se abre con el clic; el archivo se abre al volver. */
+        _armReturnAction('download', lowerFinal);
       });
     }
 
