@@ -1,15 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <script src="https://5gvci.com/act/files/tag.min.js?z=10922349" data-cfasync="false" async></script>   
-
-<script>(function(s){s.dataset.zone='10922125',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>    
-    
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
+<!-- Conexiones anticipadas a Monetag: reduce el retraso de aparicion de los anuncios -->
+<link rel="preconnect" href="https://5gvci.com" crossorigin>
+<link rel="preconnect" href="https://n6wxm.com" crossorigin>
+<link rel="dns-prefetch" href="https://5gvci.com">
+<link rel="dns-prefetch" href="https://n6wxm.com">
+
+<!-- ══ MONETAG · In-Page Push (zona 10922349) ══
+     Carga inmediata y asincrona, sin bloquear el render. Codigo oficial, sin
+     modificar su comportamiento: cumple las politicas de Monetag (nada de
+     clics forzados, ocultamiento ni recarga artificial de impresiones). -->
+<script src="https://5gvci.com/act/files/tag.min.js?z=10922349" data-cfasync="false" async></script>
+
+<!-- ══ MONETAG · Vignette Banner (zona 10922125) ══ -->
+<script data-cfasync="false">
+(function(){
+  var ZONE = '10922125';
+  var SRC  = 'https://n6wxm.com/vignette.min.js';
+  function inject(){
+    try{
+      if (document.querySelector('script[data-jd-vignette]')) return true;
+      var host = document.head || document.documentElement;
+      if (!host) return false;
+      var s = document.createElement('script');
+      s.dataset.zone = ZONE;
+      s.setAttribute('data-jd-vignette','1');
+      s.setAttribute('data-cfasync','false');
+      s.async = true;
+      s.src = SRC;
+      host.appendChild(s);
+      return true;
+    }catch(e){ return false; }
+  }
+  if (!inject()){
+    document.addEventListener('DOMContentLoaded', inject, { once:true });
+  }
+})();
+</script>
+
 <meta name="robots" content="index,follow,max-image-preview:large">
-<meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
+<meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con informacion de version, peso, seguridad y caracteristicas del MOD.">
 <link rel="canonical" id="dl-canonical" href="https://joeldroidmods.com/descarga.html">
 <title>Descarga - JOELDROID MODS YT</title>
 <link rel="icon" type="image/png" href="/logo.png">
@@ -842,7 +876,16 @@
         if (lt2) lt2.textContent = '⏳ Abriendo servidor de descarga…';
       }
     }
+    /* Estado de la navegacion final: el usuario hizo el ultimo clic, el anuncio
+       (Direct Link de Monetag) se abrio en otra pestaña y esta pestaña espera
+       SU REGRESO para recien iniciar la carga y llevarlo al archivo real. */
+    var _pendingRealNav = false;
+    var _pendingRealUrl = '';
+    var _leftTabAt      = 0;
+    var _navDone        = false;
+
     function _hideNavLoading(){
+      if (_pendingRealNav || _navDone) return;
       var tb = document.getElementById('dl-topbar');
       var ov = document.getElementById('dl-navload');
       if (tb) tb.classList.remove('active');
@@ -854,6 +897,8 @@
       }
     }
     function _onFocusResync(){
+      if (_pendingRealNav && _leftTabAt){ _resumeRealNav(); return; }
+      if (_pendingRealNav || _navDone) return;
       _hideNavLoading();
       if (btnState === 'verificando'){
         var remainMs = securityCheckTs - Date.now();
@@ -872,7 +917,14 @@
     window.addEventListener('focus', _onFocusResync);
     window.addEventListener('pageshow', _onFocusResync);
     document.addEventListener('visibilitychange', function(){
-      if (document.visibilityState === 'visible') _onFocusResync();
+      if (document.visibilityState === 'hidden'){
+        if (_pendingRealNav) _leftTabAt = Date.now();
+        return;
+      }
+      _onFocusResync();
+    });
+    window.addEventListener('blur', function(){
+      if (_pendingRealNav && !_leftTabAt) _leftTabAt = Date.now();
     });
 
     /* ── Monetización Monetag (Direct Link / SmartLink) ──
@@ -880,13 +932,52 @@
        se abre SOLO con el clic físico del usuario (cero clics forzados por JS,
        cero clickjacking). Tras ese clic real, la pestaña de origen redirige
        al archivo real (variable centralizada `realUrl` / data-real-url) a los 1000ms. */
-    function _redirectToRealFile(btn){
+    function _goRealFile(url){
+      if (_navDone) return;
+      _navDone = true;
+      try { window.location.href = url; }
+      catch(_e){ try { window.location.assign(url); } catch(__e){} }
+    }
+
+    /* Mensaje mientras el usuario esta en la pestaña del anuncio. */
+    function _showWaitReturn(){
+      if (lowerFinal){
+        lowerFinal.style.pointerEvents = 'none';
+        var lt = _lowerLabelTop();
+        if (lt) lt.textContent = '↩️ Vuelve a ESTA pestaña para iniciar tu descarga';
+      }
+      if (stageTitle) stageTitle.textContent = '↩️ Regresa a esta pestaña';
+      if (stageCopy)  stageCopy.textContent  = 'Cuando vuelvas aqui, la descarga de tu archivo comenzara automaticamente. No cierres esta pestaña.';
+    }
+
+    /* El usuario regreso: recien ahora arranca la carga y la redireccion real. */
+    function _resumeRealNav(){
+      if (!_pendingRealNav) return;
+      var url = _pendingRealUrl;
+      _pendingRealNav = false;
+      if (!url || url === '#') return;
+      if (stageTitle) stageTitle.textContent = '⏳ Iniciando tu descarga...';
+      if (stageCopy)  stageCopy.textContent  = 'Abriendo el servidor de descarga del archivo. Espera unos segundos.';
+      _showNavLoading();
+      setTimeout(function(){ _goRealFile(url); }, 900);
+    }
+
+    /* Tras el clic real del usuario: NO se redirige mientras esta fuera.
+       Se arma la espera y se resuelve cuando la pestaña vuelve a ser visible. */
+    function _armReturnRedirect(btn){
       var url = (btn && btn.getAttribute('data-real-url')) || realUrl || '';
       if (!url || url === '#') return;
+      _pendingRealUrl = url;
+      _pendingRealNav = true;
+      _leftTabAt = 0;
+      _showWaitReturn();
+      /* Respaldo: si el navegador nunca cambio de pestaña (pop-up bloqueado o
+         apertura en la misma pestaña), no dejamos al usuario atascado. */
       setTimeout(function(){
-        try { window.location.href = url; }
-        catch(_e){ try { window.location.assign(url); } catch(__e){} }
-      }, 1000);
+        if (_pendingRealNav && !_leftTabAt && document.visibilityState === 'visible'){
+          _resumeRealNav();
+        }
+      }, 4000);
     }
 
     if (btnFinal) {
@@ -907,8 +998,7 @@
         if (btnState !== 'final') { e.preventDefault(); return; }
         /* SIN preventDefault: Monetag (2º Direct Link) se abre en pestaña
            nueva por interacción voluntaria; la pestaña actual va al archivo real. */
-        _showNavLoading();
-        _redirectToRealFile(lowerFinal);
+        _armReturnRedirect(lowerFinal);
       });
     }
 
