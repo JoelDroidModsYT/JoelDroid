@@ -59,9 +59,21 @@
   <div id="dl-navload" class="dl-navload" aria-hidden="true">
     <div class="dl-navload-box">
       <div class="dl-navload-spin"></div>
-      <div class="dl-navload-txt">Enviándote al enlace solicitado…</div>
+      <div class="dl-navload-txt">Abriendo tu enlace de descarga…</div>
       <div class="dl-navload-sub">Espera un momento · no cierres esta pestaña</div>
+      <div class="dl-navload-bar"><i></i></div>
+      <div class="dl-navload-steps">
+        <span class="jd-step done">1 · Verificado</span>
+        <span class="jd-step done">2 · Verificado</span>
+        <span class="jd-step live">3 · Abriendo descarga</span>
+      </div>
     </div>
+  </div>
+
+  <!-- Aviso persistente: el usuario sabe que debe volver a esta pestaña -->
+  <div id="dl-returnbar" class="dl-returnbar" aria-hidden="true" role="status">
+    <span class="jd-rb-dot"></span>
+    <span class="jd-rb-txt">Vuelve a esta pestaña para continuar</span>
   </div>
 
   <!-- ══ NAV ══ -->
@@ -141,7 +153,7 @@
       </div>
 
       <!-- Botón final — URL en data-real-url post-timer -->
-      <a href="https://omg10.com/4/11763595" id="dl-btn-final" class="dl-btn-final" target="_blank" rel="noopener noreferrer">
+      <a href="https://omg10.com/4/11763595" id="dl-btn-final" class="dl-btn-final" target="_blank" rel="noopener" referrerpolicy="origin">
         <div class="dl-btn-icon-wrap">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -192,7 +204,7 @@
           <div id="dl-stage-status" class="dl-stage-status">Preparando el siguiente paso y comprobando la disponibilidad del enlace...</div>
         </div>
 
-        <a href="https://omg10.com/4/11164434" id="dl-download-final" class="dl-download-final dl-btn-final" target="_blank" rel="noopener noreferrer">
+        <a href="https://omg10.com/4/11164434" id="dl-download-final" class="dl-download-final dl-btn-final" target="_blank" rel="noopener" referrerpolicy="origin">
           <div class="dl-btn-icon-wrap">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -475,6 +487,18 @@
       var pct = Math.round(ratio * 100);
       if (barEl) barEl.style.width = pct + '%';
       if (pctEl) pctEl.textContent = pct + '%';
+      /* Señal de proximidad: los últimos 5s cambian de color varias veces
+         para que el usuario mire el botón y no se pierda. */
+      var near = (left > 0 && left <= 5);
+      if (ringWrap) ringWrap.classList.toggle('jd-soon', near);
+      if (waitTxt) {
+        if (near) {
+          waitTxt.classList.add('jd-soon');
+          waitTxt.textContent = '⚡ Tu enlace estará listo en ' + left + 's · prepárate para tocar el botón azul';
+        } else if (waitTxt.classList.contains('jd-soon')) {
+          waitTxt.classList.remove('jd-soon');
+        }
+      }
     }
 
     function _tickServerReady(){
@@ -701,6 +725,72 @@
       }, 180);
     }
 
+    /* ═══════════════════════════════════════════════════════════════
+       SEÑALIZACIÓN VISUAL (100% CSS/DOM, sin clics simulados ni
+       recargas: no altera el comportamiento del Direct Link)
+    ═══════════════════════════════════════════════════════════════ */
+    var _attnTimers = { top:0, low:0 };
+    function _attnKey(btn){ return (btn === lowerFinal) ? 'low' : 'top'; }
+    function _reducedMotion(){
+      try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+      catch(e){ return false; }
+    }
+    function _setHint(btn, txt){
+      if (!btn) return;
+      var h = btn.querySelector('.jd-tap-hint');
+      if (!txt){ if (h) h.remove(); return; }
+      if (!h){ h = document.createElement('span'); h.className = 'jd-tap-hint'; h.setAttribute('aria-hidden','true'); btn.appendChild(h); }
+      h.textContent = txt;
+    }
+    function _clearAttention(btn){
+      if (!btn) return;
+      var k = _attnKey(btn);
+      if (_attnTimers[k]){ clearInterval(_attnTimers[k]); _attnTimers[k] = 0; }
+      btn.classList.remove('jd-attention','jd-going');
+      _setHint(btn, '');
+    }
+    function _startAttention(btn, labels, hint){
+      if (!btn) return;
+      var k = _attnKey(btn);
+      if (_attnTimers[k]){ clearInterval(_attnTimers[k]); _attnTimers[k] = 0; }
+      btn.classList.add('jd-attention');
+      btn.classList.remove('jd-going');
+      _setHint(btn, hint || 'TOCA AQUÍ');
+      var lt = _buttonLabelTop(btn);
+      if (lt) lt.textContent = labels[0];
+      if (_reducedMotion() || labels.length < 2) return;
+      var i = 0;
+      _attnTimers[k] = setInterval(function(){
+        if (!btn.classList.contains('jd-attention')){ clearInterval(_attnTimers[k]); _attnTimers[k] = 0; return; }
+        i = (i + 1) % labels.length;
+        if (lt) lt.textContent = labels[i];
+      }, 1700);
+    }
+    function _returnBar(show, txt){
+      var rb = document.getElementById('dl-returnbar');
+      if (!rb) return;
+      if (show){
+        var t = rb.querySelector('.jd-rb-txt');
+        if (t && txt) t.textContent = txt;
+        rb.classList.add('active');
+        rb.setAttribute('aria-hidden','false');
+      } else {
+        rb.classList.remove('active');
+        rb.setAttribute('aria-hidden','true');
+      }
+    }
+
+    var ATTN_STEP1 = [
+      '👉 ¡HAZ CLIC AQUÍ PARA OBTENER EL ENLACE!',
+      '✅ PASO 1 DE 2 · TOCA ESTE BOTÓN AZUL',
+      '⬇️ PULSA AQUÍ AHORA PARA CONTINUAR'
+    ];
+    var ATTN_STEP2 = [
+      '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR',
+      '👉 ÚLTIMO PASO · TOCA PARA ABRIR TU DESCARGA',
+      '⬇️ PULSA AQUÍ PARA EMPEZAR LA DESCARGA'
+    ];
+
     function _renderActivador(){
       if (!btnFinal) return;
       _clearFileScanner();
@@ -708,7 +798,10 @@
       btnFinal.classList.remove('estado-verificando','estado-final','estado-completado');
       btnFinal.classList.add('estado-activador');
       btnFinal.style.pointerEvents = '';
-      var lt = _labelTop(); if (lt) lt.textContent = '👉 ¡HAZ CLIC AQUÍ PARA OBTENER EL ENLACE!';
+      var lt = _labelTop(); if (lt) lt.textContent = ATTN_STEP1[0];
+      _returnBar(false);
+      _clearAttention(lowerFinal);
+      _startAttention(btnFinal, ATTN_STEP1, 'TOCA AQUÍ');
       var meta = window._jdMeta || {};
       if (btnTexto) btnTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
       var bdg = _sizeBadge();
@@ -730,6 +823,7 @@
         btnFinal.classList.remove('estado-activador','estado-final','estado-verificando');
         btnFinal.classList.add('estado-completado');
         btnFinal.style.pointerEvents = 'none';
+        _clearAttention(btnFinal);
         var topLt = _labelTop(); if (topLt) topLt.textContent = '✓ Paso inicial completado · continúa abajo';
         // Nombre en UNA SOLA LÍNEA para el estado completado (no confundir con enlace real)
         if (btnTexto) {
@@ -783,6 +877,7 @@
       if (lowerFinalTexto) lowerFinalTexto.innerHTML = _buildBtnHTML(meta.name||'MOD APK', meta.ver||'', meta.feats||[]);
       var lowerBdg = _lowerSizeBadge(); if (lowerBdg) lowerBdg.textContent = meta.size || '—';
 
+      _returnBar(false);
       _resetBtnExtras();
       _scrollToFinalStage();
       securityCheckTs = Date.now() + SECURITY_SCAN_SECS * 1000;
@@ -830,7 +925,9 @@
       if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
       if (stageCopy) stageCopy.textContent = 'Tu archivo está listo. Pulsa el botón azul para abrir el enlace final de descarga.';
       var lt = _lowerLabelTop();
-      if (lt) { lt.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
+      if (lt) { lt.textContent = ATTN_STEP2[0]; lt.style.opacity = '1'; }
+      _returnBar(false);
+      _startAttention(lowerFinal, ATTN_STEP2, 'TOCA AQUÍ');
 
       if (lowerFinalTexto) {
         lowerFinalTexto.innerHTML =
@@ -848,11 +945,19 @@
       var ov = document.getElementById('dl-navload');
       if (tb) { tb.classList.add('active'); }
       if (ov) { ov.classList.add('active'); ov.setAttribute('aria-hidden','false'); }
+      if (ov) {
+        var t1 = ov.querySelector('.dl-navload-txt');
+        if (t1) t1.textContent = 'Abriendo tu enlace de descarga…';
+      }
+      _returnBar(false);
       if (lowerFinal) {
+        _clearAttention(lowerFinal);
+        lowerFinal.classList.add('jd-going');
         lowerFinal.style.pointerEvents = 'none';
         var lt2 = _lowerLabelTop();
-        if (lt2) lt2.textContent = '⏳ Enviándote al enlace solicitado…';
+        if (lt2) lt2.textContent = '⏳ Abriendo tu enlace de descarga…';
       }
+      if (stageTitle) stageTitle.textContent = '⏳ Abriendo tu enlace de descarga…';
     }
     /* El avance ocurre únicamente después de un clic voluntario. Cuando el
        Direct Link abre otra pestaña, esta página espera a que el usuario vuelva:
@@ -868,10 +973,10 @@
       var ov = document.getElementById('dl-navload');
       if (tb) tb.classList.remove('active');
       if (ov) { ov.classList.remove('active'); ov.setAttribute('aria-hidden','true'); }
+      _returnBar(false);
       if (lowerFinal && btnState === 'final') {
         lowerFinal.style.pointerEvents = '';
-        var lt3 = _lowerLabelTop();
-        if (lt3) lt3.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
+        _startAttention(lowerFinal, ATTN_STEP2, 'TOCA AQUÍ');
       }
     }
 
@@ -881,13 +986,14 @@
       var url = _pendingRealUrl;
       _pendingAction = '';
       _leftTabAt = 0;
+      _returnBar(false);
       if (action === 'verification') {
         _renderSecurityScan();
         return;
       }
       if (!url || url === '#') return;
-      if (stageTitle) stageTitle.textContent = '⏳ Enviándote al enlace solicitado…';
-      if (stageCopy) stageCopy.textContent = 'El proceso terminó. Espera un momento mientras abrimos tu descarga.';
+      if (stageTitle) stageTitle.textContent = '⏳ Abriendo tu enlace de descarga…';
+      if (stageCopy) stageCopy.textContent = 'Verificación completada. Estamos abriendo el enlace de descarga: no cierres esta pestaña.';
       _showNavLoading();
       setTimeout(function(){ _goRealFile(url); }, 900);
     }
@@ -937,7 +1043,9 @@
       if (stageScan) stageScan.style.display = 'none';
       if (lowerFinal) lowerFinal.classList.remove('visible');
       if (action === 'verification') {
+        _returnBar(true, '↩️ Vuelve a esta pestaña · la verificación 2 comenzará sola');
         if (btnFinal) {
+          _clearAttention(btnFinal);
           btnFinal.style.pointerEvents = 'none';
           var firstLabel = _labelTop();
           if (firstLabel) firstLabel.textContent = '↩️ REGRESA A ESTA PESTAÑA PARA CONTINUAR';
@@ -945,7 +1053,9 @@
         if (stageTitle) stageTitle.textContent = 'Publicidad abierta en otra pestaña';
         if (stageCopy) stageCopy.textContent = 'Cuando regreses, la segunda verificación comenzará automáticamente. Mantén esta pestaña abierta.';
       } else {
+        _returnBar(true, '↩️ Vuelve a esta pestaña · abriremos tu descarga al volver');
         if (lowerFinal){
+          _clearAttention(lowerFinal);
           lowerFinal.style.pointerEvents = 'none';
           var finalLabel = _lowerLabelTop();
           if (finalLabel) finalLabel.textContent = '↩️ REGRESA PARA ABRIR TU DESCARGA';
