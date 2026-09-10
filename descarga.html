@@ -894,10 +894,10 @@
       btnFinal.addEventListener('click', function(e) {
         if (!timerDone) { e.preventDefault(); return; }
         if (btnState === 'activador') {
-          /* SIN preventDefault: el clic real abre Monetag en pestaña nueva
-             de forma nativa, mientras el flujo de verificación continúa intacto. */
+          /* SIN preventDefault: el clic real abre el primer SmartLink en una
+             pestaña nueva. Al volver, continúa únicamente la verificación final;
+             el archivo real todavía NO se abre en este primer paso. */
           _renderSecurityScan();
-          _redirectToRealFile(btnFinal);
         } else {
           e.preventDefault();
         }
