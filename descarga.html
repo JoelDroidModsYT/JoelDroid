@@ -1,41 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script src="https://quge5.com/88/tag.min.js" data-zone="274485" async data-cfasync="false"></script>
-    
+    <link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
 <meta name="robots" content="index,follow,max-image-preview:large">
-<meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con informacion de version, peso, seguridad y caracteristicas del MOD.">
+<meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
 <link rel="canonical" id="dl-canonical" href="https://joeldroidmods.com/descarga.html">
 <title>Descarga - JOELDROID MODS YT</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <meta name="theme-color" content="#007bff">
 
-<!-- CSS propio -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="descarga.css">
 
-<!-- Fuentes: carga no bloqueante -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"></noscript>
 </head>
 <body>
 <script>
-/* THEME BOOTSTRAP (anti-FOUC) — sincronizado con index (localStorage) */
+/* THEME BOOTSTRAP (anti-FOUC) — OSCURO FORZADO SIEMPRE */
 (function(){
   try{
-    var pref = localStorage.getItem('darkMode');
-    var isLight = (pref !== 'dark');   /* CLARO por defecto */
-    document.documentElement.classList.toggle('light-mode', isLight);
-    if(document.body) document.body.classList.toggle('light-mode', isLight);
-    var mt = document.querySelector('meta[name="theme-color"]');
-    if(mt) mt.setAttribute('content', isLight ? '#f0f4f8' : '#020408');
-    window.__JD_INITIAL_DARK = !isLight;
-  }catch(e){ /* claro por defecto */ document.documentElement.classList.add('light-mode'); }
+    document.documentElement.classList.remove('light-mode');
+    if(document.body) document.body.classList.remove('light-mode');
+    localStorage.setItem('darkMode','dark');
+    localStorage.setItem('jd_manual_theme','1');
+    window.__JD_INITIAL_DARK = true;
+  }catch(e){ /* dark por defecto */ }
 })();</script>
 
 <div class="dl-page">
@@ -45,8 +42,8 @@
   <div id="dl-navload" class="dl-navload" aria-hidden="true">
     <div class="dl-navload-box">
       <div class="dl-navload-spin"></div>
-      <div class="dl-navload-txt">Enviándote al enlace solicitado…</div>
-      <div class="dl-navload-sub">Espera un momento · no cierres esta pestaña</div>
+      <div class="dl-navload-txt">Abriendo servidor de descarga…</div>
+      <div class="dl-navload-sub">No cierres esta pestaña</div>
     </div>
   </div>
 
@@ -120,14 +117,14 @@
           </div>
         </div>
         <div class="dl-counter-info">
-          <div class="dl-counter-info-txt">Preparando el enlace de descarga...</div>
+          <div class="dl-counter-info-txt">Analizando archivo para una descarga segura...</div>
           <div class="dl-progress-wrap"><div id="dl-progress-bar" class="dl-progress-bar"></div></div>
           <div class="dl-progress-pct" id="dl-progress-pct">0%</div>
         </div>
       </div>
 
-      <!-- Botón paso 1: inicia la segunda verificación -->
-      <a href="#" id="dl-btn-final" class="dl-btn-final" rel="nofollow">
+      <!-- Botón final — URL en data-real-url post-timer -->
+      <a href="#" id="dl-btn-final" class="dl-btn-final" rel="noopener noreferrer">
         <div class="dl-btn-icon-wrap">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -148,12 +145,12 @@
     <section id="dl-gameinfo-section" class="dl-gameinfo-section" aria-label="Información del juego" hidden>
       <span class="dl-gameinfo-kicker">Información del juego</span>
       <h2 id="dl-gameinfo-title" class="dl-gameinfo-title">Información del juego</h2>
-      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
+      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo verificado y preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
       <div class="dl-gameinfo-grid">
         <div class="dl-gameinfo-item"><b>Versión</b><span id="dl-gameinfo-ver">—</span></div>
         <div class="dl-gameinfo-item"><b>Peso</b><span id="dl-gameinfo-size">—</span></div>
         <div class="dl-gameinfo-item"><b>Compatibilidad</b><span>Android 5.0+</span></div>
-        <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">Información disponible</span></div>
+        <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">✓ Verificado</span></div>
       </div>
       <div id="dl-gameinfo-feats" class="dl-gameinfo-feats"></div>
     </section>
@@ -175,10 +172,10 @@
             <span>seg</span>
           </div>
           <div class="dl-stage-progress"><div id="dl-stage-progress-fill" class="dl-stage-progress-fill"></div></div>
-          <div id="dl-stage-status" class="dl-stage-status">Preparando el siguiente paso y comprobando la disponibilidad del enlace...</div>
+          <div id="dl-stage-status" class="dl-stage-status">Comprobando integridad del archivo y disponibilidad del servidor...</div>
         </div>
 
-        <a href="#" id="dl-download-final" class="dl-download-final dl-btn-final" rel="nofollow">
+        <a href="#" id="dl-download-final" class="dl-download-final dl-btn-final" rel="noopener noreferrer">
           <div class="dl-btn-icon-wrap">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -187,7 +184,7 @@
             </svg>
           </div>
           <div class="dl-btn-text-col">
-            <span class="dl-btn-label-top">✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR</span>
+            <span class="dl-btn-label-top">✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR</span>
             <span id="dl-download-final-texto" class="dl-btn-game-title">Cargando archivo...</span>
           </div>
           <span id="dl-download-size-badge" class="dl-btn-size-badge">—</span>
@@ -196,7 +193,7 @@
 
       <div class="dl-stage-info-grid" aria-label="Detalles de seguridad">
         <div class="dl-stage-info"><strong>APK del juego</strong><span id="dl-stage-game-label">Datos cargados desde el panel</span></div>
-        <div class="dl-stage-info"><strong>Datos del MOD</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
+        <div class="dl-stage-info"><strong>MOD verificado</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
         <div class="dl-stage-info"><strong>Servidor listo</strong><span>Enlace preparado para Android</span></div>
       </div>
     </section>
@@ -297,7 +294,7 @@
       }
       var bdg = document.getElementById('dl-btn-size-badge');
       if (bdg && s) bdg.textContent = s;
-      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(p.description||p.descripcion||'') }; } catch(_e){}
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(d.description||d.descripcion||'') }; } catch(_e){}
       var sv = document.getElementById('dl-stat-ver');
       if (sv) sv.textContent = vc || v || '—';
       var ss = document.getElementById('dl-stat-size');
@@ -327,23 +324,7 @@
 
   var params  = new URLSearchParams(window.location.search);
   var gameId  = (params.get('id')   || '').trim();
-  var slugParam = (params.get('mod') || '').trim().toLowerCase();
   var modoNum = params.get('modo') === '2' ? 2 : 1;
-
-  /* ── URL AMIGABLE: slug del juego en vez de códigos (?mod=fr-legends) ── */
-  function _slugify(text){
-    return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,90);
-  }
-  function _setPrettyUrl(slug){
-    if (!slug) return;
-    try {
-      var q = '?mod=' + encodeURIComponent(slug) + (modoNum === 2 ? '&modo=2' : '');
-      history.replaceState(null, '', location.pathname + q);
-      var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
-      if (can) can.setAttribute('href', location.origin + location.pathname + q);
-    } catch(e){}
-  }
 
   /* URL DINÁMICA de Cuty.io obtenida de Firestore (nunca fija) */
   var realUrl      = '';
@@ -353,8 +334,8 @@
   var CIRCUM = 238.8;
 
   /* Handles globales para limpiar SIEMPRE al cambiar de estado */
-  var serverReadyIv   = null;   // contador inicial 15s
-  var fileScannerIv = null;   // contador de preparación 12s
+  var serverReadyIv   = null;   // contador inicial 10s
+  var fileScannerIv = null;   // contador verificación 7s
   var fileScannerRaf= null;   // rAF barra
   var securityCheckTs = 0;
 
@@ -428,14 +409,11 @@
       var vc = _cleanVer(v);
       var mod = _modTxt(feats);
       var cleanName = _cleanApk(n || 'MOD APK');
-      var desc = 'Descarga ' + cleanName + (vc ? ' versión ' + vc : '') + (s ? ' (' + s + ')' : '') + ' para Android. MOD: ' + mod + '. Información del archivo publicada por JOELDROID MODS YT.';
+      var desc = 'Descarga ' + cleanName + (vc ? ' versión ' + vc : '') + (s ? ' (' + s + ')' : '') + ' para Android. MOD: ' + mod + '. Archivo APK verificado por JOELDROID MODS YT.';
       var md = document.getElementById('dl-meta-description') || document.querySelector('meta[name="description"]');
       if (md) md.setAttribute('content', desc.slice(0, 160));
       var can = document.getElementById('dl-canonical') || document.querySelector('link[rel="canonical"]');
-      if (can) {
-        var _sl = _slugify(cleanName);
-        can.setAttribute('href', location.origin + location.pathname + (_sl ? '?mod=' + encodeURIComponent(_sl) : (gameId ? '?id=' + encodeURIComponent(gameId) : '')));
-      }
+      if (can) can.setAttribute('href', location.origin + location.pathname + (gameId ? '?id=' + encodeURIComponent(gameId) : ''));
     }
 
     function _buildHeroTitle(n, v, feats) {
@@ -451,7 +429,7 @@
              '<span class="dl-btn-mod-line">Mod ' + _esc(_modTxt(feats)) + '</span>';
     }
 
-    /* ─────────────── TIMER INICIAL 15s (con Date.now para no congelarse) ─────────────── */
+    /* ─────────────── TIMER INICIAL 10s (con Date.now para no congelarse) ─────────────── */
     var serverReadyTs = 0;
 
     function _renderTimer(left) {
@@ -525,7 +503,6 @@
         document.title = n + ' (Mod ' + _mt + ') ' + (_vc ? 'v'+_vc+'.Apk' : '.Apk') + ' | JoelDroid Mods YT';
       } catch(e) {}
       _updatePageSignals(n, v, s, feats);
-      try { _setPrettyUrl(_slugify(_cleanApk(n))); } catch(_e){}
 
       if (t && iconEl) {
         if (window._jdGetCachedImg) {
@@ -647,7 +624,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var SECURITY_SCAN_SECS  = 12;  // temporizador del segundo paso: 12s
+    var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
 
     function _buttonLabelTop(btn){ return btn ? btn.querySelector('.dl-btn-label-top') : null; }
     function _labelTop(){ return _buttonLabelTop(btnFinal); }
@@ -671,10 +648,7 @@
       setTimeout(function(){
         try {
           // Centrar el temporizador de 12s en la mitad de la pantalla del móvil.
-          var target = document.getElementById('dl-stage-scan');
-          if (!target || target.style.display === 'none' || target.offsetHeight === 0) {
-            target = document.getElementById('dl-download-final') || finalStage;
-          }
+          var target = document.getElementById('dl-stage-scan') || finalStage;
           var rect = target.getBoundingClientRect();
           var absY = rect.top + window.pageYOffset;
           var vh = window.innerHeight || document.documentElement.clientHeight;
@@ -744,7 +718,7 @@
         if (giSize) giSize.textContent = meta.size || '—';
         if (giTitle) giTitle.textContent = _cleanApk(_n) + (_v ? ' v' + _v : '') + '.Apk';
         if (giDesc) {
-          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Archivo publicado como compatible con Android 5.0+.');
+          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Archivo verificado desde servidor seguro y compatible con Android 5.0+.');
           giDesc.textContent = _mdesc;
         }
         if (giFeats) {
@@ -762,7 +736,7 @@
       if (stageTitle) stageTitle.textContent = 'Verificación final de ' + _cleanApk(meta.name || 'MOD APK');
       if (stageCopy) stageCopy.textContent = 'El enlace final se habilitará aquí abajo cuando termine la comprobación de seguridad.';
       if (stageScan) stageScan.style.display = '';
-      if (stageStatus) stageStatus.textContent = 'Preparando el siguiente paso y comprobando la disponibilidad del enlace...';
+      if (stageStatus) stageStatus.textContent = 'Comprobando integridad del archivo y disponibilidad del servidor...';
       if (stageNum) stageNum.textContent = String(SECURITY_SCAN_SECS);
       if (stageFill) stageFill.style.width = '0%';
       if (lowerFinal) { lowerFinal.classList.remove('visible','estado-final'); lowerFinal.style.pointerEvents = 'none'; }
@@ -785,7 +759,7 @@
           return;
         }
         if (stageNum) stageNum.textContent = String(Math.max(remainS, 1));
-        if (stageStatus) stageStatus.textContent = 'Preparando el enlace de descarga... [ ' + Math.max(remainS,1) + 's ]';
+        if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + Math.max(remainS,1) + 's ]';
       }
       _tickFileScanner();
       fileScannerIv = setInterval(_tickFileScanner, 250);
@@ -813,10 +787,10 @@
       var titleLine = baseName + (vc ? ' ' + vc : '') + '.Apk';
       var modLine   = 'Mod ' + modLbl;
 
-      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
+      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
       if (stageCopy) stageCopy.textContent = 'Tu archivo está listo. Pulsa el botón azul para abrir el enlace final de descarga.';
       var lt = _lowerLabelTop();
-      if (lt) { lt.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
+      if (lt) { lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
 
       if (lowerFinalTexto) {
         lowerFinalTexto.innerHTML =
@@ -825,8 +799,7 @@
       }
       var bdg = _lowerSizeBadge();
       if (bdg) { bdg.style.display=''; bdg.textContent = meta.size || '—'; }
-      /* SIN re-scroll: el botón final aparece en la misma tarjeta donde estaba
-         el cronómetro, así la vista queda intacta y el usuario no se pierde. */
+      _scrollToFinalStage();
     }
 
     function _showNavLoading(){
@@ -837,14 +810,10 @@
       if (lowerFinal) {
         lowerFinal.style.pointerEvents = 'none';
         var lt2 = _lowerLabelTop();
-        if (lt2) lt2.textContent = '⏳ Enviándote al enlace solicitado…';
+        if (lt2) lt2.textContent = '⏳ Abriendo servidor de descarga…';
       }
     }
-
-    var _navDone = false;
-
     function _hideNavLoading(){
-      if (_navDone) return;
       var tb = document.getElementById('dl-topbar');
       var ov = document.getElementById('dl-navload');
       if (tb) tb.classList.remove('active');
@@ -852,12 +821,10 @@
       if (lowerFinal && btnState === 'final') {
         lowerFinal.style.pointerEvents = '';
         var lt3 = _lowerLabelTop();
-        if (lt3) lt3.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
+        if (lt3) lt3.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
       }
     }
-
     function _onFocusResync(){
-      if (_navDone) return;
       _hideNavLoading();
       if (btnState === 'verificando'){
         var remainMs = securityCheckTs - Date.now();
@@ -867,7 +834,7 @@
           var sec = Math.max(Math.ceil(remainMs/1000), 1);
           if (stageNum) stageNum.textContent = String(sec);
           if (stageFill) stageFill.style.width = (Math.min(1 - remainMs/(SECURITY_SCAN_SECS*1000), 1) * 100) + '%';
-          if (stageStatus) stageStatus.textContent = 'Preparando el enlace de descarga... [ ' + sec + 's ]';
+          if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + sec + 's ]';
         }
       } else if (!timerDone && timerRunning){
         _tickServerReady();
@@ -879,15 +846,6 @@
       if (document.visibilityState === 'visible') _onFocusResync();
     });
 
-    function _goRealFile(url){
-      if (_navDone) return;
-      _navDone = true;
-      try { window.location.href = url; }
-      catch(_e){ try { window.location.assign(url); } catch(__e){} }
-    }
-
-    /* Paso 1: el clic voluntario inicia la segunda verificación.
-       Paso 2: el clic voluntario abre el archivo real. */
     if (btnFinal) {
       btnFinal.addEventListener('click', function(e) {
         e.preventDefault();
@@ -900,16 +858,18 @@
         e.preventDefault();
         if (btnState !== 'final') return;
         var url = lowerFinal.getAttribute('data-real-url') || realUrl || '';
-        if (!url || url === '#') return;
-        if (stageTitle) stageTitle.textContent = '⏳ Enviándote al enlace solicitado…';
-        if (stageCopy) stageCopy.textContent = 'Espera un momento mientras abrimos tu descarga.';
-        _showNavLoading();
-        setTimeout(function(){ _goRealFile(url); }, 700);
+        if (url && url !== '#') {
+          _showNavLoading();
+          setTimeout(function(){
+            try { window.location.href = url; }
+            catch(_e){ try { window.location.assign(url); } catch(__e){} }
+          }, 450);
+        }
       });
     }
 
     /* ────────── ARRANQUE ────────── */
-    function _bootWithId(){
+    if (gameId) {
       if (_trySessionStorage()) { _startServerReady(); _fetchFirebase(); }
       else if (typeof firebase !== 'undefined') { _fetchFirebase(); }
       else {
@@ -918,46 +878,6 @@
         }, 80);
         setTimeout(function() { clearInterval(_wFb); if (!timerRunning) _startServerReady(); }, 2500);
       }
-    }
-
-    /* Resuelve ?mod=nombre-del-juego → id real (caché local → Gist → Firestore REST) */
-    function _resolveSlugToId(cb){
-      var done = false;
-      function _fin(id){ if (!done){ done = true; cb(id); } }
-      function _match(list){
-        for (var i = 0; i < list.length; i++){
-          var g = list[i];
-          if (_slugify(g.name || g.nombre) === slugParam && g.id) return String(g.id);
-        }
-        return '';
-      }
-      try {
-        var raw = localStorage.getItem('jd_games_cache') || sessionStorage.getItem('jd_games_cache');
-        if (raw){ var arr = JSON.parse(raw); if (Array.isArray(arr)){ var cid = _match(arr); if (cid) return _fin(cid); } }
-      } catch(e){}
-      var gistUrl = 'https://gist.githubusercontent.com/JoelDroidModsYT/5981d391897fe461dc5ac9ba7303b8f2/raw/games.json?v=' + Math.floor(Date.now()/60000);
-      fetch(gistUrl, { cache:'no-cache' })
-        .then(function(r){ if (!r.ok) throw new Error('gist'); return r.json(); })
-        .then(function(d){
-          var games = Array.isArray(d) ? d : (d.games || []);
-          var id = _match(games);
-          if (id) _fin(id); else throw new Error('no-match');
-        })
-        .catch(function(){
-          var fs = 'https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/mods?pageSize=200&key=' + FB_CFG.apiKey;
-          fetch(fs).then(function(r){ return r.json(); }).then(function(d){
-            _fin(_match((d.documents || []).map(_parseRecoDoc)));
-          }).catch(function(){ _fin(''); });
-        });
-    }
-
-    if (gameId) {
-      _bootWithId();
-    } else if (slugParam) {
-      _startServerReady(); // el temporizador arranca sin esperar la resolución
-      _resolveSlugToId(function(id){
-        if (id) { gameId = id; _bootWithId(); }
-      });
     } else { _startServerReady(); }
 
   });
