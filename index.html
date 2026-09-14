@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
+<script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
+  
 <!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="255286" async data-cfasync="false" fetchpriority="high"></script>
 
 
+<!-- ══ HELPERS TEMPRANOS — deben existir ANTES de la carga instantánea (Capa 1/2) ══ -->
+<script>(function(){
+  if(typeof window._jdFastImg!=='function'){
+    window._jdFastImg=function(url){try{if(!url)return '';var u=String(url).trim();if(!u)return '';if(u.indexOf('data:')===0)return u;if(/^https?:\/\//i.test(u)===false)return u;if(/(^|\.)firebasestorage\.googleapis\.com$|(^|\.)googleusercontent\.com$|(^|\.)gstatic\.com$|(^|\.)wsrv\.nl$|(^|\.)flagcdn\.com$/i.test(new URL(u).hostname))return u;return 'https://wsrv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+'&output=webp&q=85&n=-1&maxage=30d';}catch(e){return url;}};
+  }
+  /* Si el usuario toca una tarjeta antes de que cargue el JS principal, guardamos el id y lo abrimos después */
+  if(typeof window.showDetail!=='function'){
+    window.showDetail=function(id){window.__jdPendingDetail=String(id);};
+  }
+})();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='1.2.9-cpm-clean-head-cls';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.4.0';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -202,7 +210,7 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
   window.__jdReveal = function(){};
 </script>
 <!-- Librerías: Tailwind, Lucide, EmailJS -->
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="jd-tailwind.css"><!-- Tailwind precompilado: reemplaza al compilador CDN que bloqueaba el hilo principal y retrasaba los anuncios -->
 <script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -262,16 +270,15 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </head>
 <body class="no-scrollbar">
 <script>
-/* ══ THEME BOOTSTRAP (anti-FOUC) — OSCURO FORZADO SIEMPRE ══ */
+/* ══ THEME BOOTSTRAP (anti-FOUC) — respeta la preferencia del usuario ══ */
 (function(){
   try{
-    // Forzamos oscuro: ignoramos cualquier preferencia previa del usuario.
-    document.documentElement.classList.remove('light-mode');
-    if(document.body) document.body.classList.remove('light-mode');
-    localStorage.setItem('darkMode','dark');
-    localStorage.setItem('jd_manual_theme','1');
-    window.__JD_INITIAL_DARK = true;
-  }catch(e){ /* dark por defecto */ }
+    var pref = localStorage.getItem('darkMode');
+    var isLight = (pref !== 'dark');   /* CLARO por defecto */
+    document.documentElement.classList.toggle('light-mode', isLight);
+    if(document.body) document.body.classList.toggle('light-mode', isLight);
+    window.__JD_INITIAL_DARK = !isLight;
+  }catch(e){ /* claro por defecto */ document.documentElement.classList.add('light-mode'); }
 })();
 </script>
 
@@ -279,7 +286,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 <div class="animated-background" id="animated-bg"></div>
 
 <!-- NAV -->
-<nav class="sticky top-0 z-50 py-4 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]" style="will-change:transform;-webkit-transform:translateZ(0);transform:translateZ(0);backface-visibility:hidden;">
+<nav class="sticky top-0 z-50 py-2.5 px-6 bg-[var(--nav-bg)] border-b border-[var(--border-color)]" style="will-change:transform;-webkit-transform:translateZ(0);transform:translateZ(0);backface-visibility:hidden;">
   <div class="max-w-md mx-auto flex justify-between items-center">
     <div class="flex items-center gap-3">
       <div id="logo-container" class="flex items-center justify-center overflow-hidden shadow-lg" style="width:40px;height:40px;border-radius:20%;box-shadow:0 0 14px rgba(37,99,235,.6);flex-shrink:0;aspect-ratio:1/1;background:#020408;">
@@ -336,6 +343,17 @@ window.__JD_STATIC_GAMES = (function(){
   return [];
 })();
 
+// ── Firma de tarjeta: permite REUTILIZAR el DOM ya pintado (cero parpadeo) ──
+window._jdCardSig = function(g){
+  try{
+    var f = (g.features||[])[0]||'';
+    return [g.id,g.name,(g.thumb||''),(g.ver||g.version||''),
+            (g.modBadgeText||''),(g.modBadgeBgColor||''),(g.modBadgeVisible!==false?1:0),
+            (g.updateBadgeVisible&&g.updateBadgeText?g.updateBadgeText:''),
+            (g.homeButtonVisible!==false?1:0), f].join('~');
+  }catch(e){ return String(g && g.id || ''); }
+};
+
 // ── Renderizado directo desde caché (0ms) ─────────────────────────
 // Si hay datos en caché, renderizar las tarjetas AHORA mismo
 // sin esperar DOMContentLoaded ni Firebase ni ningún otro script
@@ -353,31 +371,41 @@ window.__JD_STATIC_GAMES = (function(){
     visible.sort(function(a,b){
       return b.timestamp !== a.timestamp ? b.timestamp-a.timestamp : a.order-b.order;
     });
-    visible.slice(0,24).forEach(function(g){
+    visible.slice(0,24).forEach(function(g, _i){
       var mc = g.modBadgeBgColor || '#ef4444';
+      var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
+      var _feats = g.features || [];
+      var modSuffix = _feats.length > 0 ? _feats[0]
+        : ((g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD APK');
       var card = document.createElement('div');
       card.className = 'jd-card';
+      card.dataset.gid = String(g.id);
+      card.dataset.sig = window._jdCardSig(g);
       card.setAttribute('onclick',"showDetail('"+g.id+"')");
       var _verTxt = (g.ver || g.version || '').toString().trim();
       var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
       card.innerHTML =
         '<div class="jd-img-box">'+
           '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
-               ' loading="eager" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
+               ' width="120" height="120" loading="eager" decoding="async" fetchpriority="'+(_i<9?'high':'auto')+'"'+
+               ' referrerpolicy="no-referrer" alt="'+g.name+'"'+
+               ' onload="this.classList.add(\'loaded\')"'+
+               ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">'+
           '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+
-            (g.modBadgeText||'MOD')+'</span>'+
-          (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
+            modLabel+'</span>'+
+          ((g.updateBadgeVisible && g.updateBadgeText)?'<span class="jd-upd-badge">'+g.updateBadgeText+'</span>':'')+
           _verHtml+
         '</div>'+
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+g.name+'</p>'+
-          '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-          '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
+          '<p class="jd-mod-label" data-jd-tr="mod">'+modSuffix+'</p>'+
+          '<button class="jd-btn"'+(g.homeButtonVisible!==false?'':' style="display:none;"')+
+            ' type="button">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
             '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
             '<polyline points="7 10 12 15 17 10"/>'+
             '<line x1="12" y1="15" x2="12" y2="3"/></svg>'+
-            '<span>Descargar APK</span>'+
+            '<span class="global-dl-btn-text">Descargar APK</span>'+
           '</button>'+
         '</div>';
       frag.appendChild(card);
@@ -386,11 +414,12 @@ window.__JD_STATIC_GAMES = (function(){
     list.dataset.instantLoaded = '1';
   }
 
+  function _safeRender(){ try{ _doRender(); }catch(e){ try{console.warn('[JD] capa1:',e);}catch(_){} } }
   // Ejecutar ahora si el DOM llegó al game-list, sino en DOMContentLoaded
-  if(document.readyState !== 'loading'){
-    _doRender();
+  if(document.getElementById('game-list')){
+    _safeRender();
   } else {
-    document.addEventListener('DOMContentLoaded', _doRender);
+    document.addEventListener('DOMContentLoaded', _safeRender);
   }
 })();
 
@@ -410,7 +439,7 @@ window.__JD_REST_DONE = false;
   var GIST_USER     = 'JoelDroidModsYT';
   // URL limpia (sin hash de revisión) — siempre devuelve la última versión
   // cache-buster por minuto: respeta CDN pero refresca rápido tras un push
-  var _bust         = Math.floor(Date.now()/10000);
+  var _bust         = Math.floor(Date.now()/300000); // 5 min: aprovecha CDN + caché navegador
   var CDN_URL       = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?v='+_bust;
   var FS_URL        = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
                       '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
@@ -448,7 +477,10 @@ window.__JD_REST_DONE = false;
   /* ── Render — fuerza repintado si hay cambios reales ── */
   function _renderNow(games, force){
     if(window.__JD_REST_DONE && !force) return;
-    window.__JD_REST_DONE = true;
+    try{ _renderNowInner(games, force); }
+    catch(e){ window.__JD_REST_DONE = false; try{console.warn('[JD] render diferido:',e);}catch(_){} }
+  }
+  function _renderNowInner(games, force){
     var sorted = _sort(games);
 
     // Si ya hay datos en caché y son IDÉNTICOS, no repintamos (evita parpadeo)
@@ -458,14 +490,19 @@ window.__JD_REST_DONE = false;
     var changed = newJson !== oldJson;
 
     window.__JD_STATIC_GAMES = sorted;
-    try{
-      sessionStorage.setItem('jd_ss_games', newJson);
-      localStorage.setItem('jd_games_cache_v2', newJson);
-    }catch(e){}
+    window.__JD_REST_DONE = true;
+    if(changed){ // escribir 700KB+ en storage solo si realmente cambió (es síncrono y bloquea el hilo)
+      try{
+        sessionStorage.setItem('jd_ss_games', newJson);
+        localStorage.setItem('jd_games_cache_v2', newJson);
+      }catch(e){}
+    } else {
+      try{ if(!sessionStorage.getItem('jd_ss_games')) sessionStorage.setItem('jd_ss_games', newJson); }catch(e){}
+    }
 
     var list = document.getElementById('game-list');
     if(!list) return;
-    if(list.querySelector('.jd-card') && !changed && !force) return;
+    if(list.querySelector('.jd-card') && !changed) return; // sin cambios → cero parpadeo
 
     if(typeof siteState!=='undefined' && typeof renderGames==='function'){
       siteState.gamesList = sorted;
@@ -490,7 +527,7 @@ window.__JD_REST_DONE = false;
         '</div><div class="jd-info">'+
         '<p class="jd-name notranslate">'+g.name+'</p>'+
         '<p class="jd-mod-label">'+(g.features&&g.features[0]||g.modBadgeText||'MOD APK')+'</p>'+
-        '<button class="jd-btn" onclick="event.stopPropagation();showDetail(\''+g.id+'\');">'+
+        '<button class="jd-btn" type="button">'+
         '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
         '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
         '<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
@@ -514,7 +551,7 @@ window.__JD_REST_DONE = false;
     var _timer;
     var _p = new Promise(function(resolve,reject){
       _timer = setTimeout(function(){ reject(new Error('timeout')); }, 6000);
-      fetch(CDN_URL, {cache:'no-cache'})
+      fetch(CDN_URL)
         .then(function(r){ clearTimeout(_timer); if(!r.ok) throw new Error(r.status); return r.json(); })
         .then(resolve).catch(function(e){ clearTimeout(_timer); reject(e); });
     });
@@ -528,6 +565,7 @@ window.__JD_REST_DONE = false;
 
   /* Firestore REST como fallback — solo si Gist no responde y no hay caché */
   if(!hasCache){
+    setTimeout(function(){ if(window.__JD_REST_DONE) return;
     fetch(FS_URL)
       .then(function(r){return r.json();})
       .then(function(d){
@@ -537,6 +575,7 @@ window.__JD_REST_DONE = false;
         _renderNow(docs.map(_parseDoc));
       })
       .catch(function(){});
+    }, 1200); // da 1.2 s de ventaja al Gist (CDN) antes de gastar una lectura en Firestore
   }
 
   /* ── Auto-guardar en Gist cuando admin tiene token ── */
@@ -559,7 +598,7 @@ window.__JD_REST_DONE = false;
 })();
 </script>
 <!-- HOME VIEW -->
-<main id="home-view" class="max-w-md mx-auto px-5 py-2 space-y-4">
+<main id="home-view" class="max-w-md mx-auto px-5 pt-1.5 pb-2 space-y-3">
   <div id="site-announcement" class="hidden">
     <div id="announcement-icon-wrapper" class="p-2 bg-red-600 rounded-lg shrink-0">
       <i data-lucide="alert-triangle" class="w-5 h-5 text-white"></i>
@@ -568,20 +607,9 @@ window.__JD_REST_DONE = false;
   </div>
 
   <div class="space-y-3">
-    <div class="search-container mx-1">
+    <div class="search-container mx-1 jd-search-tight">
       <i data-lucide="search" class="w-3.5 h-3.5 text-blue-500 opacity-70"></i>
       <input type="text" id="search-bar" class="search-input" placeholder="Buscar aplicaciones..." oninput="handleSearch()" data-i18n-placeholder="search_placeholder">
-    </div>
-    <div class="flex justify-center items-center gap-1.5 px-1 no-scrollbar overflow-x-hidden">
-      <div onclick="setFilter('all')" id="filter-all" class="filter-chip active flex-1 text-center">
-        <i data-lucide="list" class="w-3 h-3"></i><span data-i18n="filter_all">Todo</span>
-      </div>
-      <div onclick="setFilter('updated')" id="filter-updated" class="filter-chip flex-1 text-center">
-        <i data-lucide="refresh-cw" class="w-3 h-3"></i><span data-i18n="filter_updated">Actualizados</span>
-      </div>
-      <div onclick="setFilter('popular')" id="filter-popular" class="filter-chip flex-1 text-center">
-        <i data-lucide="flame" class="w-3 h-3"></i><span data-i18n="filter_popular">Popular</span>
-      </div>
     </div>
   </div>
 
@@ -841,7 +869,7 @@ window.__JD_REST_DONE = false;
       </div>
         <!-- ── BOTÓN 1: DESCARGAR MOD 1 ── (HTML estático — editar link aquí) -->
         <div class="space-y-1 text-center" id="btn-descarga-1-wrapper">
-          <button id="btn-descarga-1" onclick="irADescarga(currentDetailId,1)" data-link="#" class="btn-dl-card" style="background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#22d3ee 100%)">
+          <button id="btn-descarga-1" onclick="jdHandleDlClick(this,1)" data-link="#" class="btn-dl-card" style="background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 45%,#22d3ee 100%)">
             <span class="btn-dl-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17l4 4 4-4M12 12v9"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
             </span>
@@ -857,7 +885,7 @@ window.__JD_REST_DONE = false;
 
         <!-- ── BOTÓN 2: DESCARGAR MOD 2 ── (HTML estático — editar link aquí) -->
         <div class="space-y-1 text-center" id="btn-descarga-2-wrapper">
-          <button id="btn-descarga-2" onclick="irADescarga(currentDetailId,2)" data-link="#" class="btn-dl-card" style="background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 45%,#22d3ee 100%)">
+          <button id="btn-descarga-2" onclick="jdHandleDlClick(this,2)" data-link="#" class="btn-dl-card" style="background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 45%,#22d3ee 100%)">
             <span class="btn-dl-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </span>
@@ -2069,7 +2097,7 @@ function applyTranslations(lang){
   // Modo claro (inmediato para evitar flash de color)
   applyLightColors();
 
-  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea los anuncios ──
+  // ── DIFERIDO AL IDLE: trabajo pesado que no bloquea el primer paint ──
   _jdIdle(function(){
     // 1) Todos los [data-i18n] del DOM
     document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -2356,7 +2384,7 @@ var lazyObserver=null; // kept for legacy compat
 // STATE
 // ============================================================
 var currentDetailId=null;
-var isDarkMode=true;
+var isDarkMode=(typeof window!=='undefined'&&window.__JD_INITIAL_DARK!==undefined)?!!window.__JD_INITIAL_DARK:false;
 var currentFilter='all';
 /* ═══ CARGA INSTANTÁNEA DE ICONOS POR URL EXTERNA ═══
    Las imágenes de Firebase Storage ya viven en CDN de Google y cargan rápido.
@@ -2607,12 +2635,24 @@ function _renderSkeletons(n){
 // RENDER GAMES — Lazy Loading + Paginación (12 iniciales) + Timestamp sort
 // ════════════════════════════════════════════════════════════════
 var _gamesPage = 0;
+// ── Modo de grilla: se resetea SIEMPRE a "false" (3 filas habituales) en cada
+//    carga/recarga de página. Solo pasa a "true" (4 filas x 4 juegos) cuando
+//    el usuario, DENTRO de la sesión actual, le da clic manualmente a
+//    Todos / Actualizados / Popular en la barra inferior. Ver jdTab().
+var _jdExpandedGrid = false;
+function _jdApplyGridMode(){
+  var list = document.getElementById('game-list');
+  if(list) list.classList.toggle('jd-cols4', !!_jdExpandedGrid);
+}
 function _jdCalcPageSize(){
   var w = (typeof window!=='undefined' && window.innerWidth) || 360;
+  if(_jdExpandedGrid){
+    return 4 * 4; // 4 columnas x 4 filas = 16 juegos (Todos/Actualizados/Popular)
+  }
   var cols = w>=1024 ? 5 : (w>=768 ? 4 : 3);
-  return cols * 6; // exactamente 6 filas en cualquier breakpoint
+  return cols * 3; // 3 filas habituales (Home / primera visita / visita nueva)
 }
-var _gamesPageSize = _jdCalcPageSize(); // adaptativo: 18 (móvil) / 24 (tablet) / 30 (desktop)
+var _gamesPageSize = _jdCalcPageSize(); // adaptativo
 if(typeof window!=='undefined'){
   var _jdResizePsTO;
   window.addEventListener('resize', function(){
@@ -2794,10 +2834,19 @@ function renderGames(){
 
   _gamesFiltered = games;
   _gamesPage = 0;
+  _gamesPageSize = _jdCalcPageSize();
+  _jdApplyGridMode();
 
-  // ── Render página 1 (sin vaciar primero) ──
-  _renderGamesBatch(list, 0, _gamesPageSize, true /* replace */);
-  _gamesPage = 1;
+  // ── Render (sin vaciar primero) ──
+  // Si es el MISMO filtro/búsqueda que ya estaba en pantalla, conservamos la
+  // cantidad de tarjetas que el usuario ya había cargado con scroll: así una
+  // actualización en vivo (Firebase) NO borra las filas de abajo ni provoca saltos.
+  var _viewKey = currentFilter+'|'+q+'|'+cat+'|'+(_jdExpandedGrid?1:0);
+  var _prevShown = list.querySelectorAll('.jd-card').length;
+  var _firstCount = (list.dataset.viewKey === _viewKey && _prevShown > _gamesPageSize) ? _prevShown : _gamesPageSize;
+  list.dataset.viewKey = _viewKey;
+  _renderGamesBatch(list, 0, _firstCount, true /* replace */);
+  _gamesPage = Math.max(1, Math.ceil(_firstCount / _gamesPageSize));
 
   // Pager numerado (reemplaza infinite-scroll)
   _setupInfiniteScroll(list);
@@ -2839,7 +2888,32 @@ function _renderGamesBatch(list, start, count, replace){
   var dlBtnText = (_defaults.indexOf(_adminBtn) >= 0) ? tStr('Descargar APK') : _adminBtn;
 
   var frag = document.createDocumentFragment();
+  /* ── Mapa de tarjetas ya presentes en el DOM (render instantáneo o previo) ──
+     Si el juego no cambió, se REUTILIZA el nodo existente: la imagen no se
+     vuelve a pedir y no hay parpadeo ni retraso de 1-2 s. */
+  var _prevCards = {};
+  try{
+    Array.prototype.forEach.call(list.querySelectorAll('.jd-card[data-gid]'), function(c){
+      _prevCards[c.dataset.gid] = c;
+    });
+  }catch(_e){}
   games.forEach(function(g, _gIdx){
+    var _sig = (typeof window._jdCardSig==='function') ? window._jdCardSig(g) : null;
+    if(_sig && currentFilter==='popular') _sig += '~pop'; // la tarjeta de POPULAR lleva otros badges → no reutilizar la de Home
+    var _reuse = _sig ? _prevCards[String(g.id)] : null;
+    if(_reuse && _reuse.dataset.sig === _sig){
+      /* Actualizar solo el botón (texto/color de admin) y reusar el nodo */
+      try{
+        var _rb = _reuse.querySelector('.jd-btn');
+        if(_rb){
+          _rb.style.background = siteState.buttonSettings.globalHomeButtonColor || '';
+          var _rt = _rb.querySelector('.global-dl-btn-text');
+          if(_rt) _rt.textContent = dlBtnText;
+        }
+      }catch(_e2){}
+      frag.appendChild(_reuse);
+      return;
+    }
     /* ── Badge labels ──────────────────────────────────────────── */
     var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
     var modColor = g.modBadgeBgColor || '#ef4444';
@@ -2861,39 +2935,29 @@ function _renderGamesBatch(list, start, count, replace){
 
     var card = document.createElement('div');
     card.className = 'jd-card';
+    card.dataset.gid = String(g.id);
+    if(_sig) card.dataset.sig = _sig;
     card.setAttribute('onclick', "showDetail('"+String(g.id)+"')");
 
-    /* ── Badges exclusivos del filtro POPULAR (PREMIUM + TOP) ── */
+    /* ── Badges exclusivos del filtro POPULAR: MOD (izq) + TOP! 🔥 naranja (der) ── */
     var _popularBadgesHtml = '';
-    if(currentFilter === 'popular' && siteState.popularBanner && siteState.popularBanner.visible !== false){
-      var _pb = siteState.popularBanner;
-      var _pbTopTxt = (_pb.popularTopBadgeText || '').toString().trim();
-      var _pbTagTxt = (_pb.popularBadgeText || '').toString().trim();
-      var _pbTopColor = (colorPalette && colorPalette[_pb.popularTopBadgeColor] && colorPalette[_pb.popularTopBadgeColor].hex) || '#3b82f6';
-      var _pbTagColor = (colorPalette && colorPalette[_pb.popularBadgeColor] && colorPalette[_pb.popularBadgeColor].hex) || '#ef4444';
-      // Look más profesional: fuerza naranja si el legacy era amarillo y agrega 🔥 al texto TOP
-      if((_pb.popularBadgeColor||'').toLowerCase()==='yellow'){ _pbTagColor = '#f97316'; }
-      _pbTagTxt = _pbTagTxt.replace(/!+$/,'').trim();
-      if(/^top$/i.test(_pbTagTxt)){
-        // Llama IDÉNTICA a Lucide "flame" (la misma del chip Popular): trazo blanco, una sola línea.
-        var _flameSvg = '<svg viewBox="0 0 24 24" width="8" height="8" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px;flex-shrink:0" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
-        _pbTagTxt = _flameSvg + _pbTagTxt.toUpperCase() + ' !';
-      }
-      /* MOD (rojo) → arriba-IZQUIERDA — clon exacto de jd-mod-badge */
-      if(_pbTopTxt){
-        _popularBadgesHtml += '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+_pbTopColor+','+_pbTopColor+'cc);color:#fff;position:absolute;top:4px;left:4px;font-size:7px;font-weight:900;padding:2px 5px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 2px 6px '+_pbTopColor+'88;z-index:12;line-height:1.3;">'+_pbTopTxt+'</span>';
-      }
-      /* TOP! → arriba-DERECHA — mismo tamaño y forma que MOD */
-      if(_pbTagTxt){
-        _popularBadgesHtml += '<span class="jd-upd-badge" style="display:inline-flex;align-items:center;white-space:nowrap;background:linear-gradient(135deg,'+_pbTagColor+','+_pbTagColor+'cc);color:#fff;position:absolute;top:4px;right:4px;font-size:7px;font-weight:900;padding:2px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 2px 6px '+_pbTagColor+'88;z-index:12;line-height:1.3;">'+_pbTagTxt+'</span>';
-      }
+    if(currentFilter === 'popular' && !(siteState.popularBanner && siteState.popularBanner.visible === false)){
+      // Llama en SVG (texto/vector, NO emoji del sistema) — trazo blanco, misma forma que el icono Lucide "flame"
+      var _flameSvg = '<svg class="jd-flame" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+      _popularBadgesHtml += '<span class="jd-mod-badge jd-pop-mod" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>';
+      _popularBadgesHtml += '<span class="jd-upd-badge jd-pop-top">'+_flameSvg+'TOP!</span>';
     }
 
     /* Carga instantánea: eager + alta prioridad + onload marca .loaded para apagar skeleton */
     var _thumb = (g.thumb||'').toString();
-    var _imgHtml = '<img src="'+(_thumb||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
+    /* MISMA URL que el render instantáneo (proxy CDN) → la imagen ya está en caché
+       del navegador y aparece al instante, sin re-descarga ni parpadeo. */
+    var _thumbSrc = (typeof _jdFastImg==='function' && _thumb) ? _jdFastImg(_thumb) : _thumb;
+    var _absIdx = start + _gIdx;
+    var _imgHtml = '<img src="'+(_thumbSrc||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
       ' class="jd-img icon-img-loaded'+(_thumb?'':' loaded')+'" alt="'+g.name+'"'+
-      ' loading="'+(_gIdx < 12 ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_gIdx < 9 ? 'high' : 'auto')+'"'+
+      ' width="120" height="120"'+
+      ' loading="'+(_absIdx < Math.max(18,_gamesPageSize) ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_absIdx < 9 ? 'high' : 'auto')+'"'+
       ' referrerpolicy="no-referrer"'+
       ' onload="this.classList.add(\'loaded\')"'+
       ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">';
@@ -2917,7 +2981,7 @@ function _renderGamesBatch(list, start, count, replace){
         '<button class="jd-btn"'+
                 ' style="'+(g.homeButtonVisible!==false?'':'display:none;')+
                 'background:'+siteState.buttonSettings.globalHomeButtonColor+';"'+
-                ' onclick="event.stopPropagation();showDetail(\''+String(g.id)+'\');">'+
+                ' type="button">'+
           '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">'+
             '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'+
             '<polyline points="7 10 12 15 17 10"/>'+
@@ -2960,8 +3024,8 @@ function _setupLoadMoreSentinel(list){
 
 // ════════════════════════════════════════════════════════════════
 // INFINITE SCROLL — sin barra de páginas, carga en lotes al llegar al final
-// (Reemplaza al pager numerado. Elimina barrera visual, mejora tiempo de
-//  permanencia y por tanto impresiones publicitarias.)
+// (Reemplaza al pager numerado. Elimina barrera visual y mejora el tiempo de
+//  permanencia en la página.)
 // ════════════════════════════════════════════════════════════════
 var _gamesIOSentinel = null;
 var _gamesIO = null;
@@ -3062,10 +3126,13 @@ function _initLazyImages(){
   }
   imgs.forEach(function(img){ _lazyIO.observe(img); });
 }
-/* dead code removed: initLazyLoading */
-/* dead code removed: observeLazyImages */
+/* compat: initLazyLoading ya no existe (lazy nativo con loading=lazy) */
+function initLazyLoading(){}
+/* compat: función eliminada pero aún invocada */
+function observeLazyImages(){}
 
-/* dead code removed: updateBannerBasedOnFilter */
+/* compat: función eliminada pero aún invocada en 4 sitios */
+function updateBannerBasedOnFilter(){}
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
@@ -3074,12 +3141,15 @@ function scrollToDownloads(){
 
 // FIX 1: showDetail — todos los textos de UI usan t(), nombres de juegos NO se traducen
 function showDetail(id){
+  window.__jdPendingDetail = null;
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
   if(!game){
     console.warn('[showDetail] No encontrado id='+id, 'Lista:', siteState.gamesList.map(function(g){return g.id;}));
     return;
   }
+  // Reiniciar el estado del cronómetro de descarga (6s) cada vez que se abre una ficha nueva
+  try{ if(typeof _jdResetDlTimers==='function') _jdResetDlTimers(); }catch(e){}
   // Registrar click para estadísticas
   try{ _trackClick(id, game.name||game.nombre||''); }catch(e){}
 
@@ -3557,31 +3627,27 @@ function showToast(message){
 // ============================================================
 // THEME
 // ============================================================
-function toggleTheme(){
-  /* ► Bloqueado: el sitio es exclusivamente oscuro. */
-  isDarkMode = true;
-  document.documentElement.classList.remove('light-mode');
-  document.body.classList.remove('light-mode');
-  localStorage.setItem('darkMode','dark');
-  localStorage.setItem('jd_manual_theme','1');
+function jdApplyTheme(dark){
+  isDarkMode = !!dark;
+  document.documentElement.classList.toggle('light-mode', !isDarkMode);
+  document.body.classList.toggle('light-mode', !isDarkMode);
+  try{ localStorage.setItem('darkMode', isDarkMode?'dark':'light'); }catch(e){}
+  try{ localStorage.setItem('jd_manual_theme','1'); }catch(e){}
+  var mt=document.querySelector('meta[name="theme-color"]');
+  if(mt) mt.setAttribute('content', isDarkMode?'#020408':'#f0f4f8');
   try{ _jdSyncThemeIcon(); }catch(e){}
+  try{ jdSyncTabThemeIcon(); }catch(e){}
+  try{ applyLightColors(); }catch(e){}
   try{ applyUIChanges(); }catch(e){}
 }
+function toggleTheme(){ jdApplyTheme(!isDarkMode); }
 function loadThemePreference(){
-  /* ► Siempre oscuro: ignoramos LocalStorage. */
-  isDarkMode = true;
-  document.documentElement.classList.remove('light-mode');
-  document.body.classList.remove('light-mode');
-  try{ _jdSyncThemeIcon(); }catch(e){}
-  return true;
+  var pref=null;
+  try{ pref=localStorage.getItem('darkMode'); }catch(e){}
+  jdApplyTheme(pref==='dark');
+  return isDarkMode;
 }
-function autoThemeDetection(){
-  /* ► Oscuro obligatorio. */
-  isDarkMode = true;
-  document.documentElement.classList.remove('light-mode');
-  document.body.classList.remove('light-mode');
-  try{ _jdSyncThemeIcon(); }catch(e){}
-}
+function autoThemeDetection(){ loadThemePreference(); }
 // Sincroniza el icono del tema reemplazando el nodo (lucide a veces no
 // re-renderiza el mismo <svg>, lo que provocaba que el primer click no
 // reaccionara visualmente). Reemplazamos por un <i data-lucide> nuevo.
@@ -5072,7 +5138,7 @@ function _shareExecCopy(url){
   }
 }
 
-function _jdStatsSafeId(id){ return String(id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); }
+function list_hasCards(){ var l=document.getElementById('game-list'); return !!(l && l.querySelector('.jd-card')); }
 function _jdToday(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function _ensureStatsAuth(cb){
   try{
@@ -5088,25 +5154,42 @@ function _trackVisit(){
     if(!_db) return;
     _ensureStatsAuth(function(){
       var hoy=_jdToday(), mes=hoy.slice(0,7);
-      var update={visits: firebase.firestore.FieldValue.increment(1), lastVisit: firebase.firestore.FieldValue.serverTimestamp()};
-      update['daily.'+hoy]=firebase.firestore.FieldValue.increment(1);
-      update['monthly.'+mes]=firebase.firestore.FieldValue.increment(1);
-      _db.collection('siteConfig').doc('stats').set(update,{merge:true}).catch(function(){});
+      var inc=firebase.firestore.FieldValue.increment(1);
+      var update={visits: inc, lastVisit: firebase.firestore.FieldValue.serverTimestamp(), daily:{}, monthly:{}};
+      update.daily[hoy]=inc;
+      update.monthly[mes]=inc;
+      _db.collection('siteConfig').doc('stats').set(update,{merge:true}).catch(function(e){ _jdStatsWarn('visita',e); });
     });
   }catch(e){}
 }
+var _jdStatsWarned=false;
+function _jdStatsWarn(what,e){
+  try{
+    var code=(e&&e.code)||'';
+    if(!_jdStatsWarned){ _jdStatsWarned=true;
+      console.warn('[JD stats] No se pudo registrar '+what+' en Firestore ('+code+'). '+
+        (code==='permission-denied'?'Revisa las REGLAS de Firestore: siteConfig/stats debe permitir write (o habilita Auth anónima).':(e&&e.message||'')));
+    }
+  }catch(_){}
+}
+var _jdLastClickKey='', _jdLastClickAt=0;
 function _trackClick(gameId, gameName){
   try{
     if(!_db || !gameId) return;
+    // Anti doble-conteo: la misma ficha abierta dos veces en < 1.5 s cuenta como 1 click
+    var _k=String(gameId), _now=Date.now();
+    if(_k===_jdLastClickKey && (_now-_jdLastClickAt)<1500) return;
+    _jdLastClickKey=_k; _jdLastClickAt=_now;
     _ensureStatsAuth(function(){
       var safeId = _jdStatsSafeId(gameId);
       var hoy=_jdToday();
+      var inc = firebase.firestore.FieldValue.increment(1);
       var upd = { lastClick: firebase.firestore.FieldValue.serverTimestamp() };
-      upd['gameClicks_'+safeId] = firebase.firestore.FieldValue.increment(1);
+      upd['gameClicks_'+safeId] = inc;
       upd['gameName_'+safeId] = gameName||'';
-      upd['gameDaily_'+safeId+'.'+hoy] = firebase.firestore.FieldValue.increment(1);
-      _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(){});
-      _db.collection('mods').doc(String(gameId)).set({visits:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
+      upd['gameDaily_'+safeId] = {}; upd['gameDaily_'+safeId][hoy] = inc;
+      _db.collection('siteConfig').doc('stats').set(upd,{merge:true}).catch(function(e){ _jdStatsWarn('click',e); });
+      _db.collection('mods').doc(String(gameId)).set({visits:inc},{merge:true}).catch(function(e){ _jdStatsWarn('visits del mod',e); });
       try{
         var g=(siteState.gamesList||[]).find(function(x){return String(x.id)===String(gameId);});
         if(g) g.visits=(Number(g.visits)||0)+1;
@@ -5470,7 +5553,10 @@ function _fbListenStatsPublic(){
         var v = data['gameClicks_'+_jdStatsSafeId(g.id)];
         if(v !== undefined) g.visits = Number(v)||0;
       });
-      if(currentFilter === 'popular') renderGames();
+      // No re-renderizar en vivo: reordenar la cuadrícula con cada click de
+      // cualquier usuario producía parpadeos y tarjetas que "desaparecían".
+      // El nuevo orden se aplica la próxima vez que se abra POPULAR.
+      if(currentFilter === 'popular' && !list_hasCards()) renderGames();
     }catch(e){}
   }, function(){});
 }
@@ -5748,7 +5834,7 @@ function _syncSave(msg){
 // ════════════════════════════════════════════════════════════════
 // SISTEMA DE DESCARGA SEGURA — JoelDroid Mods YT
 // Flujo: irADescarga() → sessionStorage + localStorage (doble respaldo)
-//        → modal anuncio 5s → descarga.html?id=X&modo=Y
+//        → descarga.html?id=X&modo=Y
 // descarga.html lee jd_dl_payload desde sessionStorage (instantáneo)
 // o localStorage (fallback cross-tab) o re-carga desde Firebase.
 // ════════════════════════════════════════════════════════════════
@@ -5766,6 +5852,18 @@ function _syncSave(msg){
     });
   } catch(e) {}
 })();
+
+// ════════════════════════════════════════════════════════════════
+// DESCARGA DIRECTA — sin cuenta regresiva (eliminada para no perder CPM)
+// 1 clic en "Opción 1 / Opción 2" navega de inmediato a descarga.html
+// ════════════════════════════════════════════════════════════════
+function _jdResetDlTimers(){ /* sin temporizadores: descarga directa */ }
+
+function jdHandleDlClick(btn, modo){
+  if(!btn) return;
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(_e){}
+  irADescarga(currentDetailId, modo);
+}
 
 function irADescarga(gameId, modo) {
   if (!gameId) return;
@@ -6305,6 +6403,89 @@ document.addEventListener('keydown',function(e){var lb=document.getElementById('
   });
 })();
 </script>
+
+<!-- ══ BARRA INFERIOR (estilo PlayMods) ══ -->
+<nav id="jd-tabbar" class="jd-tabbar" aria-label="Navegación inferior">
+  <button class="jd-tab active" id="jd-tab-home" onclick="jdTab('home')">
+    <i data-lucide="home" class="jd-tab-ico"></i><span data-i18n="filter_home">Inicio</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-all" onclick="jdTab('all')">
+    <i data-lucide="list" class="jd-tab-ico"></i><span data-i18n="filter_all">Todo</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-updated" onclick="jdTab('updated')">
+    <i data-lucide="refresh-cw" class="jd-tab-ico"></i><span data-i18n="filter_updated">Actualizados</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-popular" onclick="jdTab('popular')">
+    <i data-lucide="flame" class="jd-tab-ico"></i><span data-i18n="filter_popular">Popular</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-theme" onclick="jdTabToggleTheme()">
+    <i data-lucide="moon" class="jd-tab-ico"></i><span id="jd-tab-theme-label">Tema</span>
+  </button>
+  <button class="jd-tab" id="jd-tab-settings" onclick="openSettings()">
+    <i data-lucide="settings" class="jd-tab-ico"></i><span>Ajustes</span>
+  </button>
+</nav>
+<script>
+function jdTab(key){
+  try{
+    if(typeof jdClosePolicies==='function' && document.body.classList.contains('policies-open')) jdClosePolicies();
+    if(typeof closeDetail==='function' && document.body.classList.contains('detail-open')) closeDetail();
+  }catch(e){}
+  // 4 filas x 4 juegos SOLO al manipular Todos/Actualizados/Popular.
+  // Home siempre vuelve a las 3 filas habituales (además recarga la página).
+  _jdExpandedGrid = (key==='all' || key==='updated' || key==='popular');
+  if(key==='home'){
+    _jdExpandedGrid = false;
+    try{ if(typeof resetPage==='function') resetPage(); else setFilter('all'); }catch(e){ try{setFilter('all');}catch(_){} }
+  }else{
+    try{ setFilter(key); }catch(e){}
+  }
+  ['home','all','updated','popular'].forEach(function(k){
+    var b=document.getElementById('jd-tab-'+k);
+    if(b) b.classList.toggle('active', k===key);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+/* Botón de tema en la barra inferior (mismo tamaño que el resto) */
+function jdTabToggleTheme(){
+  try{ toggleTheme(); }catch(e){}
+  jdSyncTabThemeIcon();
+}
+function jdSyncTabThemeIcon(){
+  try{
+    var isLight = document.body.classList.contains('light-mode');
+    var btn = document.getElementById('jd-tab-theme'); if(!btn) return;
+    var lbl = document.getElementById('jd-tab-theme-label');
+    if(lbl) lbl.textContent = isLight ? 'Oscuro' : 'Claro';
+    var ico = btn.querySelector('i[data-lucide],svg');
+    if(ico){
+      var fresh = document.createElement('i');
+      fresh.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+      fresh.className = 'jd-tab-ico';
+      ico.replaceWith(fresh);
+      if(window.lucide && lucide.createIcons) lucide.createIcons();
+    }
+  }catch(e){}
+}
+/* Al entrar (siempre) arrancar en HOME con las 3 filas por defecto */
+function jdForceHomeStart(){
+  try{
+    _jdExpandedGrid = false;
+    ['home','all','updated','popular'].forEach(function(k){
+      var b=document.getElementById('jd-tab-'+k);
+      if(b) b.classList.toggle('active', k==='home');
+    });
+    if(typeof setFilter==='function') setFilter('all');
+  }catch(e){}
+}
+window.addEventListener('load', function(){
+  jdSyncTabThemeIcon();
+  jdForceHomeStart();
+  setTimeout(jdForceHomeStart, 600);
+  setTimeout(jdSyncTabThemeIcon, 800);
+});
+</script>
+<script>(function(){try{var p=window.__jdPendingDetail;if(p&&typeof showDetail==='function'){window.__jdPendingDetail=null;showDetail(p);}}catch(e){}})();</script>
 </body>
 
 
