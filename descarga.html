@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
+
+<!-- ══ JD FORCE-UPDATE: limpia caché/localStorage antiguo (AdMaven) y entrega la versión nueva a TODOS ══ -->
+<script>
+(function(){
+  var JD_BUILD='2026.09.15-monetag-1';
+  try{
+    var prev=null; try{prev=localStorage.getItem('__jd_build');}catch(e){}
+    if(prev===JD_BUILD) return;
+    var KEEP=['darkMode'], keep={};
+    try{KEEP.forEach(function(k){var v=localStorage.getItem(k); if(v!==null) keep[k]=v;});}catch(e){}
+    try{localStorage.clear();}catch(e){}
+    try{sessionStorage.clear();}catch(e){}
+    try{Object.keys(keep).forEach(function(k){localStorage.setItem(k,keep[k]);});}catch(e){}
+    try{localStorage.setItem('__jd_build',JD_BUILD);}catch(e){}
+    try{if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){try{caches.delete(k);}catch(e){}});}).catch(function(){});}}catch(e){}
+    try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){try{r.unregister();}catch(e){}});}).catch(function(){});}}catch(e){}
+    try{(document.cookie||'').split(';').forEach(function(c){var n=(c.split('=')[0]||'').trim(); if(n&&/(admaven|admv|_am_|amv|propeller|ad_?maven)/i.test(n)){document.cookie=n+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';document.cookie=n+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.'+location.hostname;}});}catch(e){}
+    try{if(window.indexedDB&&indexedDB.databases){indexedDB.databases().then(function(ds){ds.forEach(function(d){if(d&&d.name&&/admaven|adm|ads/i.test(d.name)){try{indexedDB.deleteDatabase(d.name);}catch(e){}}});}).catch(function(){});}}catch(e){}
+    try{
+      var u=location.href.split('#')[0];
+      if(!/[?&]jdv=/.test(u)){ u += (u.indexOf('?')>-1?'&':'?')+'jdv='+encodeURIComponent(JD_BUILD); location.replace(u); }
+    }catch(e){}
+  }catch(e){}
+})();
+</script>
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
@@ -10,10 +42,6 @@
      que el navegador descarga: NO hay CSS ni fuentes por delante.
      No se envuelve, no se retrasa, no se fuerza nada.
 ══════════════════════════════════════════════════════════════ -->
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="274485" async data-cfasync="false" fetchpriority="high"></script>
 
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
@@ -23,7 +51,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css">
+<link rel="stylesheet" href="descarga.css?v=2026.09.15-monetag-1">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -229,7 +257,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-v1';
+  var CACHE_NAME = 'jd-img-cache-2026.09.15-monetag-1';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
@@ -306,7 +334,7 @@
       }
       var bdg = document.getElementById('dl-btn-size-badge');
       if (bdg && s) bdg.textContent = s;
-      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(d.description||d.descripcion||'') }; } catch(_e){}
+      try { window._jdMeta = { name:n, ver:v, size:s, feats:feats, desc:(p.description||p.descripcion||'') }; } catch(_e){}
       var sv = document.getElementById('dl-stat-ver');
       if (sv) sv.textContent = vc || v || '—';
       var ss = document.getElementById('dl-stat-size');
@@ -516,7 +544,10 @@
         : (d.cutyUrl  || d.cuty  || d.downloadButtonLink1 || d.link1 || '');
       realUrl = url || '';
       if (btnFinal && realUrl) btnFinal.setAttribute('data-real-url', realUrl);
-      if (lowerFinal && realUrl) lowerFinal.setAttribute('data-real-url', realUrl);
+      if (lowerFinal && realUrl) {
+        lowerFinal.setAttribute('data-real-url', realUrl);
+        lowerFinal.setAttribute('href', realUrl);
+      }
 
       var feats = _getFeats(d);
       if (nameEl)  nameEl.innerHTML    = _buildHeroTitle(n, v, feats);
@@ -811,7 +842,7 @@
       lowerFinal.style.opacity = '';
       lowerFinal.style.filter = '';
       lowerFinal.style.cursor = 'pointer';
-      if (realUrl) lowerFinal.setAttribute('data-real-url', realUrl);
+      if (realUrl) { lowerFinal.setAttribute('data-real-url', realUrl); lowerFinal.setAttribute('href', realUrl); }
       if (stageScan) stageScan.style.display = 'none';
       _resetBtnExtras();
 
@@ -891,16 +922,12 @@
     }
     if (lowerFinal) {
       lowerFinal.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (btnState !== 'final') return;
+        if (btnState !== 'final') { e.preventDefault(); return; }
         var url = lowerFinal.getAttribute('data-real-url') || realUrl || '';
-        if (url && url !== '#') {
-          _showNavLoading();
-          setTimeout(function(){
-            try { window.location.href = url; }
-            catch(_e){ try { window.location.assign(url); } catch(__e){} }
-          }, 450);
-        }
+        if (!url || url === '#') { e.preventDefault(); return; }
+        lowerFinal.setAttribute('href', url);
+        _showNavLoading();
+        /* Mantiene la navegación nativa dentro del clic real del usuario. */
       });
     }
 

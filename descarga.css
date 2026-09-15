@@ -146,8 +146,8 @@
       text-align:center;
       margin-top:16px;
       min-height:90px;
-      contain:layout;
-      /* min-height reserva espacio y evita CLS mientras Monetag carga; el script ajusta su tamaño real */
+      overflow:visible;
+      /* Sin contención CSS: cualquier formato insertado conserva su área y posicionamiento. */
     }
 
     /* ════════════════════════════════════════════════════════════════
