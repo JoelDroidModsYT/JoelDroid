@@ -24,7 +24,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='1.3.0-fastload-fix';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='1.4.0-noloop-instant';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -357,6 +357,119 @@ window._jdCardSig = function(g){
   }catch(e){ return String(g && g.id || ''); }
 };
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   COORDINADOR ÚNICO DE DATOS — v1.4.0 (anti-bucle / anti-parpadeo)
+   Todas las fuentes (caché, games.json, Firestore REST, SDK onSnapshot)
+   pasan por window._jdApplyGames(). Reglas:
+     · Se ignora cualquier payload cuyo contenido visual sea idéntico
+       (fingerprint sin campos volátiles como "visits") → CERO repintados.
+     · Firestore (autoritativo) gana sobre games.json una vez que responde.
+     · Un games.json desactualizado (menos juegos que la caché) no se pinta.
+     · Si hay una ficha abierta o una cuenta regresiva de descarga en curso,
+       el repintado queda EN ESPERA (no se rompe el conteo ni se sube el scroll).
+   ══════════════════════════════════════════════════════════════════════ */
+window.__JD_LAST_FP   = window.__JD_LAST_FP || '';
+window.__JD_PENDING   = false;
+window.__JD_SRC_RANK  = 0;   /* 1 = games.json/caché · 2 = Firestore */
+window.__JD_DL_BUSY   = false;
+
+window._jdGamesFp = function(list){
+  try{
+    return (list||[]).map(function(g){
+      return [g.id,(g.name||g.nombre||''),(g.thumb||g.imagen||g.icon||''),
+        (g.ver||g.version||''),(g.size||g.peso||''),(g.visible===false?0:1),
+        (g.order||0),(g.timestamp||0),(g.modBadgeText||''),(g.modBadgeBgColor||''),
+        (g.modBadgeVisible===false?0:1),(g.updateBadgeVisible?1:0),(g.updateBadgeText||''),
+        (g.homeButtonVisible===false?0:1),
+        (g.downloadButtonLink1||g.enlace||g.link||''),(g.downloadButtonLink2||g.enlace2||''),
+        ((g.features||[]).join('|'))].join('~');
+    }).join('\n');
+  }catch(e){ return String((list||[]).length); }
+};
+
+/* ¿Hay algo delicado en pantalla que no se debe interrumpir? */
+window._jdBusy = function(){
+  try{
+    if(window.__JD_DL_BUSY) return true;                    /* cuenta regresiva activa */
+    var dv = document.getElementById('detail-view');
+    if(dv && !dv.classList.contains('hidden')) return true;  /* ficha abierta */
+  }catch(e){}
+  return false;
+};
+
+window._jdSortGames = function(list){
+  return (list||[]).slice().sort(function(a,b){
+    var ta=(b.timestamp||0), tb=(a.timestamp||0);
+    if(ta!==tb) return ta-tb;
+    return (a.order||0)-(b.order||0);
+  });
+};
+
+/* Deep-link: se resuelve UNA sola vez. Nunca vuelve a abrir la ficha
+   (eso reiniciaba el contador de 6 s y subía el scroll). */
+window._jdDeepLinkOnce = function(){
+  try{
+    if(window.__JD_DEEPLINK_RESOLVED) return;
+    if(typeof currentDetailId!=='undefined' && currentDetailId){ window.__JD_DEEPLINK_RESOLVED=true; return; }
+    if(typeof checkDeepLink==='function') checkDeepLink();
+  }catch(e){}
+};
+
+window._jdApplyGames = function(games, src){
+  try{
+    if(!games || !games.length) return;
+    var rank = (src==='firestore') ? 2 : 1;
+    /* Firestore es la fuente autoritativa: cuando ya respondió, games.json
+       (que puede venir del CDN con minutos de retraso) ya no repinta. */
+    if(rank < window.__JD_SRC_RANK) return;
+    /* games.json desactualizado (trae menos juegos que lo ya conocido) → se ignora */
+    if(rank === 1){
+      var known = (typeof siteState!=='undefined' && siteState.gamesList ? siteState.gamesList.length : 0)
+                || (window.__JD_STATIC_GAMES ? window.__JD_STATIC_GAMES.length : 0);
+      if(known && games.length < known) return;
+    }
+    window.__JD_SRC_RANK = rank;
+
+    var sorted = window._jdSortGames(games);
+    /* Conservar el contador de visitas en memoria (no debe provocar repintados) */
+    try{
+      var prev = (typeof siteState!=='undefined' && siteState.gamesList) ? siteState.gamesList : [];
+      var pmap = {}; prev.forEach(function(g){ pmap[String(g.id)] = Number(g.visits)||0; });
+      sorted.forEach(function(g){
+        var pv = pmap[String(g.id)]||0; var nv = Number(g.visits)||0;
+        if(pv > nv) g.visits = pv;
+      });
+    }catch(e){}
+
+    if(typeof siteState!=='undefined') siteState.gamesList = sorted;
+    window.__JD_STATIC_GAMES = sorted;
+    try{ if(typeof _saveGamesCache==='function') _saveGamesCache(sorted); }catch(e){}
+
+    var fp = window._jdGamesFp(sorted);
+    var list = document.getElementById('game-list');
+    var hasCards = !!(list && list.querySelector('.jd-card'));
+    if(fp === window.__JD_LAST_FP && hasCards){ window._jdDeepLinkOnce(); return; }
+
+    if(window._jdBusy()){ window.__JD_PENDING = true; window.__JD_LAST_FP = fp; return; }
+
+    window.__JD_LAST_FP = fp;
+    if(typeof renderGames==='function'){
+      try{ renderGames(); }catch(e){}
+    }
+    window._jdDeepLinkOnce();
+    try{ if(typeof updateBannerBasedOnFilter==='function') updateBannerBasedOnFilter(); }catch(e){}
+    try{ if(document.getElementById('game-list-editor') && typeof renderGameEditorList==='function') renderGameEditorList(); }catch(e){}
+  }catch(e){ try{console.warn('[JD] applyGames:',e);}catch(_){} }
+};
+
+/* Al cerrar la ficha se aplica el repintado que quedó en espera */
+window._jdFlushPending = function(){
+  if(!window.__JD_PENDING) return;
+  window.__JD_PENDING = false;
+  try{ if(typeof renderGames==='function') renderGames(); }catch(e){}
+};
+
 // ── Renderizado directo desde caché (0ms) ─────────────────────────
 // Si hay datos en caché, renderizar las tarjetas AHORA mismo
 // sin esperar DOMContentLoaded ni Firebase ni ningún otro script
@@ -442,7 +555,7 @@ window.__JD_REST_DONE = false;
   var GIST_USER     = 'JoelDroidModsYT';
   // URL limpia (sin hash de revisión) — siempre devuelve la última versión
   // cache-buster por minuto: respeta CDN pero refresca rápido tras un push
-  var _bust         = Math.floor(Date.now()/300000); // 5 min: aprovecha CDN + caché navegador
+  var _bust         = Date.now(); // sin caché: cualquier cambio del panel llega al instante
   var CDN_URL       = 'https://gist.githubusercontent.com/'+GIST_USER+'/'+GAMES_GIST_ID+'/raw/games.json?v='+_bust;
   var FS_URL        = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+
                       '/databases/(default)/documents/mods?orderBy=order&pageSize=100&key='+API_KEY;
@@ -554,32 +667,31 @@ window.__JD_REST_DONE = false;
     var _timer;
     var _p = new Promise(function(resolve,reject){
       _timer = setTimeout(function(){ reject(new Error('timeout')); }, 6000);
-      fetch(CDN_URL)
+      fetch(CDN_URL, { cache:'no-store' })
         .then(function(r){ clearTimeout(_timer); if(!r.ok) throw new Error(r.status); return r.json(); })
         .then(resolve).catch(function(e){ clearTimeout(_timer); reject(e); });
     });
     _p.then(function(d){
       var g = Array.isArray(d) ? d : (d.games || []);
       if(!g.length) throw new Error('vacio');
-      // force=true si ya hay caché → asegura repintar si Gist trae cambios
-      _renderNow(g, hasCache);
+      /* Pasa por el coordinador: si Firestore ya respondió, no repinta */
+      window._jdApplyGames(g, 'gist');
     }).catch(function(){});
   })();
 
-  /* Firestore REST como fallback — solo si Gist no responde y no hay caché */
-  if(!hasCache){
-    setTimeout(function(){ if(window.__JD_REST_DONE) return;
-    fetch(FS_URL)
-      .then(function(r){return r.json();})
+  /* Firestore REST EN PARALELO desde el primer milisegundo — es la fuente
+     autoritativa, así los juegos completos salen al instante (sin esperar
+     al SDK ni al CDN, y sin el retraso de 3-4 s de antes). */
+  (function(){
+    fetch(FS_URL, { cache:'no-store' })
+      .then(function(r){ return r.json(); })
       .then(function(d){
-        if(window.__JD_REST_DONE) return;
         var docs = d.documents || [];
         if(!docs.length) return;
-        _renderNow(docs.map(_parseDoc));
+        window._jdApplyGames(docs.map(_parseDoc), 'firestore');
       })
       .catch(function(){});
-    }, 1200); // da 1.2 s de ventaja al Gist (CDN) antes de gastar una lectura en Firestore
-  }
+  })();
 
   /* ── Auto-guardar en Gist cuando admin tiene token ── */
   window.__jdSaveGamesToGist=function(games){
@@ -3145,6 +3257,16 @@ function scrollToDownloads(){
 // FIX 1: showDetail — todos los textos de UI usan t(), nombres de juegos NO se traducen
 function showDetail(id){
   window.__jdPendingDetail = null;
+  /* La URL pasa a ?mod=slug → marcamos el deep-link como resuelto para que
+     ninguna actualización posterior vuelva a abrir/reconstruir esta ficha. */
+  window.__JD_DEEPLINK_RESOLVED = true;
+  try{
+    var _dvOpen = document.getElementById('detail-view');
+    if(_dvOpen && !_dvOpen.classList.contains('hidden') &&
+       String(currentDetailId)===String(id)){
+      return; /* ya está en pantalla: no tocar el DOM ni el scroll ni el contador */
+    }
+  }catch(_e){}
   var game=siteState.gamesList.find(function(x){return String(x.id)===String(id);});
   currentDetailId=id;
   if(!game){
@@ -3439,6 +3561,9 @@ function closeDetail(){
   var dv=document.getElementById('detail-view');
   if(dv)dv.classList.add('hidden');
   document.body.classList.remove('detail-open');
+  window.__JD_DL_BUSY = false;
+  try{ if(typeof _jdResetDlTimers==='function') _jdResetDlTimers(); }catch(e){}
+  setTimeout(function(){ try{ window._jdFlushPending(); }catch(e){} }, 60);
   try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){}
   currentDetailId=null;
   try{ document.title = 'JoelDroid Mods - MOD APK & Games for Android | 2026'; }catch(e){}
@@ -3971,6 +4096,10 @@ function _handle404Redirect(){
 }
 function checkDeepLink(){
   try{
+    /* Nunca reabrir/reconstruir una ficha ya abierta: eso reiniciaba la
+       cuenta regresiva de descarga y devolvía al usuario al inicio. */
+    if(window.__JD_DEEPLINK_RESOLVED) return;
+    if(typeof currentDetailId!=='undefined' && currentDetailId){ window.__JD_DEEPLINK_RESOLVED = true; return; }
     if(!window.__JD_DEEPLINK){
       var p0  = new URLSearchParams(window.location.search || '');
       var h0  = String(window.location.hash || '').replace(/^#/, '');
@@ -4040,6 +4169,7 @@ function checkDeepLink(){
     if(found){
       if(siteState && (!siteState.gamesList || !siteState.gamesList.length)) siteState.gamesList = games;
       window.__JD_DEEPLINK.opened = true;
+      window.__JD_DEEPLINK_RESOLVED = true;
       showDetail(found.id);
       return;
     }
@@ -5196,7 +5326,9 @@ function _trackClick(gameId, gameName){
       try{
         var g=(siteState.gamesList||[]).find(function(x){return String(x.id)===String(gameId);});
         if(g) g.visits=(Number(g.visits)||0)+1;
-        _saveGamesCache(siteState.gamesList||[]);
+        /* Sin _saveGamesCache aquí: escribir ~700KB en cada click congelaba el
+           hilo y disparaba repintados en cadena. La caché se guarda al llegar
+           datos reales del panel. */
       }catch(_e){}
     });
   }catch(e){}
@@ -5423,11 +5555,7 @@ function _fbListenMods(){
           if(ta!==tb) return ta-tb;
           return (a.order||0)-(b.order||0);
         });
-        siteState.gamesList = games;
-        _saveGamesCache(games); // ← actualizar localStorage cache
-        renderGames(); // ← juegos en pantalla desde IndexedDB, sin red
-        // Si hay un deep link pendiente, intentar resolverlo ya con los datos de caché
-        checkDeepLink();
+        window._jdApplyGames(games, 'gist'); // caché local: no autoritativa
       }
     })
     .catch(function(){ /* caché vacía en primera visita — ignorar */ });
@@ -5462,10 +5590,7 @@ function _fbListenMods(){
           if(ta!==tb) return ta-tb;
           return (a.order||0)-(b.order||0);
         });
-        siteState.gamesList = games;
-        _saveGamesCache(games);
-        renderGames();
-        checkDeepLink();
+        window._jdApplyGames(games, 'firestore');
       })
       .catch(function(){});
   }, 500); // fallback: 500ms
@@ -5507,18 +5632,18 @@ function _fbListenMods(){
         if(ta !== tb) return ta - tb;
         return (a.order||0) - (b.order||0);
       });
-      siteState.gamesList = games;
-      _saveGamesCache(games); // ← guardar en localStorage+sessionStorage+memoria
-      // Auto-actualizar games.json en Gist para que próximas visitas sean <300ms
-      if(typeof window.__jdSaveGamesToGist === 'function'){
-        window.__jdSaveGamesToGist(games);
+      /* Un solo camino de aplicación: si el contenido visual no cambió
+         (p. ej. solo subió el contador de visitas de otro usuario) NO se
+         repinta nada → se elimina el bucle aparece/desaparece. */
+      var _fpBefore = window.__JD_LAST_FP;
+      window._jdApplyGames(games, 'firestore');
+      var _reallyChanged = (_fpBefore !== window.__JD_LAST_FP);
+      // Auto-actualizar games.json en Gist (solo admin con token) para que
+      // la próxima visita de cualquier usuario cargue en <300ms
+      if(_reallyChanged && typeof window.__jdSaveGamesToGist === 'function'){
+        window.__jdSaveGamesToGist(siteState.gamesList||games);
       }
-      renderGames();
-      // Re-intentar resolver deep-link tras cada actualización de Firebase
-      try{ if(typeof checkDeepLink==='function') checkDeepLink(); }catch(_e){}
-      updateBannerBasedOnFilter();
-      if(document.getElementById('game-list-editor')) renderGameEditorList();
-      if(typeof currentLang !== 'undefined' && currentLang !== 'es'){
+      if(_reallyChanged && typeof currentLang !== 'undefined' && currentLang !== 'es'){
         _trMem = {};
         try{ localStorage.removeItem('_t_'+currentLang); }catch(e){}
         setTimeout(function(){
@@ -5612,7 +5737,11 @@ function _fbSaveGame(game){
   if(!data.order && data.order !== 0) data.order = siteState.gamesList.length;
   if(!data.timestamp) data.timestamp = Date.now();
   return _db.collection('mods').doc(id).set(data, { merge: true })
-    .then(function(){ _updateSyncUI(true, '✅ Juego guardado en Firebase'); })
+    .then(function(){
+      _updateSyncUI(true, '✅ Juego guardado en Firebase');
+      /* Publicar games.json YA: los usuarios ven el cambio en su próxima carga */
+      try{ if(typeof window.__jdSaveGamesToGist==='function') window.__jdSaveGamesToGist(siteState.gamesList||[]); }catch(e){}
+    })
     .catch(function(e){ _updateSyncUI(false, '❌ Error guardando juego: '+e.message); return Promise.reject(e); });
 }
 
@@ -5620,7 +5749,10 @@ function _fbSaveGame(game){
 function _fbDeleteGame(id){
   if(!_db || !_isAdmin()) return Promise.resolve();
   return _db.collection('mods').doc(String(id)).delete()
-    .then(function(){ _updateSyncUI(true, '✅ Juego eliminado de Firebase'); })
+    .then(function(){
+      _updateSyncUI(true, '✅ Juego eliminado de Firebase');
+      try{ if(typeof window.__jdSaveGamesToGist==='function') window.__jdSaveGamesToGist((siteState.gamesList||[]).filter(function(g){ return String(g.id)!==String(id); })); }catch(e){}
+    })
     .catch(function(e){ _updateSyncUI(false, '❌ Error eliminando juego: '+e.message); return Promise.reject(e); });
 }
 
@@ -5751,7 +5883,9 @@ function _applyAllUI(){
   if(_applyAllUIBusy) return;
   _applyAllUIBusy = true;
   try{
-    applyUIChanges(); renderGames(); applyTranslations(currentLang);
+    applyUIChanges();
+  if(!window._jdBusy()) renderGames(); else window.__JD_PENDING = true;
+  applyTranslations(currentLang);
     applyYoutubeVideo(); applyInstallVideo(); updateBannerBasedOnFilter();
     setTimeout(function(){
       try{ applyBgTheme(siteState.bgTheme||'neon'); _clearScene(); _restoreScene(); }catch(e){}
@@ -5912,6 +6046,7 @@ function jdHandleDlClick(btn, modo){
   if(p.eyebrow && !p.eyebrow.dataset.dlOrig) p.eyebrow.dataset.dlOrig = p.eyebrow.textContent;
 
   if(state === 'ready'){
+    window.__JD_DL_BUSY = false;
     btn.dataset.dlState = 'idle';
     btn.classList.remove('jd-dl-ready','jd-dl-urgent','jd-dl-hot','jd-dl-warm','jd-dl-near');
     if(_jdDlTimers[btn.id]){ clearInterval(_jdDlTimers[btn.id]); delete _jdDlTimers[btn.id]; }
@@ -5920,6 +6055,7 @@ function jdHandleDlClick(btn, modo){
   }
 
   // idle → arranca la cuenta regresiva de 6 s
+  window.__JD_DL_BUSY = true; // nada puede repintar ni mover el scroll ahora
   btn.dataset.dlState = 'counting';
   btn.classList.add('jd-dl-counting');
   btn.classList.remove('jd-dl-ready','jd-dl-urgent');
@@ -5950,6 +6086,7 @@ function jdHandleDlClick(btn, modo){
     if(p.count) p.count.innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M4 19h16"/></svg>';
     if(p.eyebrow) p.eyebrow.textContent = '\u2705 \u00A1LISTO! TOCA AQU\u00CD PARA DESCARGAR';
+    window.__JD_DL_BUSY = false;
     try{ if(navigator.vibrate) navigator.vibrate(35); }catch(_e){}
     try{ if(typeof showToast==='function') showToast('\u2705 Descarga desbloqueada \u00B7 toca el bot\u00F3n azul'); }catch(_e){}
   }
