@@ -1,33 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
-        <script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
-<!-- ══ ESQUELETO BÁSICO — primero charset/viewport para que el parser fije encoding ══ -->
+<!-- ══ ESQUELETO BÁSICO — charset/viewport primero para que el parser fije encoding ══ -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ══ JD FORCE-UPDATE: limpia caché/localStorage antiguo (AdMaven) y entrega la versión nueva a TODOS ══ -->
+<!-- ══ MONETAG — preconnect ANTES del tag (faltaba aquí; sí estaba en descarga.html).
+     Ahorra la resolución DNS+TLS (~100–300ms) para que el anuncio arranque antes. ══ -->
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
+
+<!-- ══ JD FORCE-UPDATE (LIMPIO) ══
+     Solo guarda el número de versión activo para que el resto del sitio
+     (CSS con ?v=, caché de imágenes) lo use como referencia — sin borrar
+     sessionStorage ni recargar la página, que era lo que interrumpía al
+     tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.09.15-monetag-1';
-  try{
-    var prev=null; try{prev=localStorage.getItem('__jd_build');}catch(e){}
-    if(prev===JD_BUILD) return;
-    var KEEP=['darkMode'], keep={};
-    try{KEEP.forEach(function(k){var v=localStorage.getItem(k); if(v!==null) keep[k]=v;});}catch(e){}
-    try{localStorage.clear();}catch(e){}
-    try{sessionStorage.clear();}catch(e){}
-    try{Object.keys(keep).forEach(function(k){localStorage.setItem(k,keep[k]);});}catch(e){}
-    try{localStorage.setItem('__jd_build',JD_BUILD);}catch(e){}
-    try{if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){try{caches.delete(k);}catch(e){}});}).catch(function(){});}}catch(e){}
-    try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){try{r.unregister();}catch(e){}});}).catch(function(){});}}catch(e){}
-    try{(document.cookie||'').split(';').forEach(function(c){var n=(c.split('=')[0]||'').trim(); if(n&&/(admaven|admv|_am_|amv|propeller|ad_?maven)/i.test(n)){document.cookie=n+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';document.cookie=n+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.'+location.hostname;}});}catch(e){}
-    try{if(window.indexedDB&&indexedDB.databases){indexedDB.databases().then(function(ds){ds.forEach(function(d){if(d&&d.name&&/admaven|adm|ads/i.test(d.name)){try{indexedDB.deleteDatabase(d.name);}catch(e){}}});}).catch(function(){});}}catch(e){}
-    try{
-      var u=location.href.split('#')[0];
-      if(!/[?&]jdv=/.test(u)){ u += (u.indexOf('?')>-1?'&':'?')+'jdv='+encodeURIComponent(JD_BUILD); location.replace(u); }
-    }catch(e){}
-  }catch(e){}
+  var JD_BUILD='2026.09.16-monetag-3'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
@@ -48,7 +40,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.09.15-monetag-1';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.09.16-monetag-3';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -293,7 +285,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.09.15-monetag-1">
+<link rel="stylesheet" href="joeldroid.css?v=2026.09.16-monetag-3">
 </head>
 <body class="no-scrollbar">
 <script>
