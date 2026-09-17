@@ -1,7 +1,7 @@
 /* ===== Block 1 ===== */
 /* ── Reset ── */
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    html,body{width:100%;overflow-x:hidden}
+    html,body{width:100%;margin:0!important;padding:0!important;overflow-x:hidden}
     html{background:#f0f4f8}
     html:not(.light-mode){background:#0c1425}
     html{height:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
@@ -16,7 +16,7 @@
     @keyframes jdFadeIn{from{opacity:0}to{opacity:1}}
 
     /* ── Layout ── */
-    .dl-page{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:stretch}
+    .dl-page{width:100%;min-height:100vh;margin:0!important;padding:0!important;display:flex;flex-direction:column;align-items:stretch}
 
     /* ── Nav ── */
     .dl-nav{
@@ -134,21 +134,8 @@
     .dl-reco-meta{font-size:7px;font-weight:800;color:rgba(148,197,253,.48);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .dl-reco-badge{font-size:7px;font-weight:900;color:#4ade80;white-space:nowrap}
 
-    /* ── Zona de anuncios Monetag ── */
-    /*
-     * Esta zona está completamente libre: sin display:none, sin z-index que tape,
-     * sin overflow:hidden que recorte, sin pointer-events bloqueados.
-     * Monetag puede renderizar banners, popunders y formatos nativos sin restricciones.
-     */
-    .monetag-slot{
-      width:100%;
-      display:block;
-      text-align:center;
-      margin-top:16px;
-      min-height:90px;
-      overflow:visible;
-      /* Sin contención CSS: cualquier formato insertado conserva su área y posicionamiento. */
-    }
+    /* Sin espacios reservados para formatos publicitarios antiguos. */
+    .monetag-slot:empty{display:none!important;min-height:0!important;margin:0!important;padding:0!important}
 
     /* ════════════════════════════════════════════════════════════════
        ► MODO CLARO (predeterminado del sitio)
