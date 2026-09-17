@@ -24,7 +24,7 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.09.16-monetag-3'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.09.17-detail-top-1'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
@@ -46,7 +46,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.09.16-monetag-3';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.09.17-detail-top-1';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -291,7 +291,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.09.16-monetag-3">
+<link rel="stylesheet" href="joeldroid.css?v=2026.09.17-detail-top-1">
 </head>
 <body class="no-scrollbar">
 <script>
@@ -3392,7 +3392,14 @@ function showDetail(id){
   // ══════════════════════════════════════════════════════════════════
 
   var dv=document.getElementById('detail-view');
+  /* La ficha siempre abre desde el inicio real de la página, aunque la tarjeta
+     se haya tocado después de desplazarse por el catálogo. */
   if(dv)dv.scrollTop=0;
+  try{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+  }catch(e){}
 
   // Normalizar campos — acepta esquema en español (Firebase manual) O inglés (panel)
   // nombre|name, descripcion|description, imagen|thumb, enlace|downloadButtonLink1
@@ -3567,7 +3574,18 @@ function showDetail(id){
     dv.style.willChange              = '';
     dv.style.transform               = '';
   }
-  try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){ window.scrollTo(0,0); }
+  try{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    if(dv)dv.scrollTop=0;
+    requestAnimationFrame(function(){
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      window.scrollTo(0,0);
+      if(dv)dv.scrollTop=0;
+    });
+  }catch(e){ window.scrollTo(0,0); }
 
   renderRecommendedGames(id);
   applyTranslations(currentLang);
