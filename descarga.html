@@ -1,34 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
+<meta charset="UTF-8"/>
+<!-- ══════════════════════════════════════════════════════════════
+     AD-MAVEN — PRIMERA PETICIÓN DE LA PÁGINA (milisegundo 0)
+     Preconnect + DNS-prefetch delante de los tags para eliminar el
+     retraso de negociación DNS/TLS (era la causa de los ~3 s).
+     Los tags van sincrónicos, intactos, antes de CSS y fuentes.
+════════════════════════════════════════════════════════════════ -->
+<link rel="preconnect" href="https://d3dq75ilej3qlf.cloudfront.net" crossorigin>
+<link rel="dns-prefetch" href="//d3dq75ilej3qlf.cloudfront.net">
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906" onload="window.__AM1=1"></script>
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933" onload="window.__AM2=1"></script>
 
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>
-
-<!-- ══ JD FORCE-UPDATE (LIMPIO) — ver nota completa en index.html.
-     Mismo JD_BUILD que index.html, sin limpiar sessionStorage y sin
-     location.replace(). ══ -->
-<script>
+<!-- ══ AD-MAVEN WATCHDOG — si un tag no cargó (red lenta, corte, caché
+     sucia), lo reinyecta hasta 2 veces. Recupera impresiones perdidas. ══ -->
+<script data-cfasync="false">
 (function(){
-  var JD_BUILD='2026.09.16-monetag-3'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
-  try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
+  var ZONES=[{id:'1620906',flag:'__AM1'},{id:'1620933',flag:'__AM2'}];
+  var tries={};
+  function inject(z){
+    tries[z.id]=(tries[z.id]||0)+1;
+    var s=document.createElement('script');
+    s.setAttribute('data-cfasync','false');
+    s.src='//d3dq75ilej3qlf.cloudfront.net/?liqdd='+z.id+'&r='+Date.now();
+    s.onload=function(){ window[z.flag]=1; };
+    (document.head||document.documentElement).appendChild(s);
+  }
+  function check(){
+    ZONES.forEach(function(z){
+      if(!window[z.flag] && (tries[z.id]||0)<2){ inject(z); }
+    });
+  }
+  setTimeout(check,1200);
+  setTimeout(check,3500);
 })();
 </script>
-<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
+<!-- ══ LIMPIEZA MONETAG + FORZAR NUEVA VERSIÓN A USUARIOS RECURRENTES ══
+     1) Desregistra CUALQUIER service worker (Monetag instalaba uno que
+        seguía generando impresiones y push aunque su código ya no esté).
+     2) Borra cachés antiguas y claves de almacenamiento de Monetag.
+     3) Si el visitante traía un build viejo, recarga UNA sola vez para
+        que reciba esta versión con AdMaven. ══ -->
+<script data-cfasync="false">
+(function(){
+  var BUILD='2026.09.23-admaven-1';
+  window.__JD_APP_VERSION=BUILD;
+  var prev=null;
+  try{ prev=localStorage.getItem('__jd_build'); }catch(e){}
+  /* 1) matar service workers heredados (Monetag) */
+  try{
+    if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){
+      navigator.serviceWorker.getRegistrations().then(function(rs){
+        rs.forEach(function(r){ try{ r.unregister(); }catch(e){} });
+      }).catch(function(){});
+    }
+    if(navigator.serviceWorker&&navigator.serviceWorker.ready&&window.PushManager){
+      navigator.serviceWorker.ready.then(function(reg){
+        return reg.pushManager.getSubscription();
+      }).then(function(sub){ if(sub){ try{ sub.unsubscribe(); }catch(e){} } }).catch(function(){});
+    }
+  }catch(e){}
+  /* 2) borrar cachés viejas y claves residuales */
+  try{
+    if(window.caches&&caches.keys){
+      caches.keys().then(function(ks){
+        ks.forEach(function(k){ if(k.indexOf('jd-img-cache-'+BUILD)!==0){ try{ caches.delete(k); }catch(e){} } });
+      }).catch(function(){});
+    }
+  }catch(e){}
+  try{
+    var junk=/monetag|propeller|quge5|push|sw-check|_ppp|zdtx|onclick(a|per)|thubanoa/i;
+    [localStorage,sessionStorage].forEach(function(st){
+      var kill=[];
+      for(var i=0;i<st.length;i++){ var k=st.key(i); if(k&&junk.test(k)) kill.push(k); }
+      kill.forEach(function(k){ try{ st.removeItem(k); }catch(e){} });
+    });
+  }catch(e){}
+  /* 3) actualización forzada, una sola vez por versión */
+  try{
+    localStorage.setItem('__jd_build',BUILD);
+    localStorage.setItem('__jd_app_version',BUILD);
+    if(prev&&prev!==BUILD&&!sessionStorage.getItem('__jd_up_'+BUILD)){
+      sessionStorage.setItem('__jd_up_'+BUILD,'1');
+      location.reload();
+    }
+  }catch(e){}
+})();
+</script>
 
-<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
-
-<!-- ══════════════════════════════════════════════════════════════
-     MONETAG — PRIMERA PETICIÓN DE LA PÁGINA (milisegundo 0)
-     El tag va intacto, tal cual lo entrega Monetag, y es lo primero
-     que el navegador descarga: NO hay CSS ni fuentes por delante.
-     No se envuelve, no se retrasa, no se fuerza nada.
-══════════════════════════════════════════════════════════════ -->
 
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
@@ -38,7 +100,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.09.16-monetag-3">
+<link rel="stylesheet" href="descarga.css?v=2026.09.23-admaven-1">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -244,7 +306,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.09.16-monetag-3';
+  var CACHE_NAME = 'jd-img-cache-2026.09.23-admaven-1';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
