@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
 <!-- ══════════════════════════════════════════════════════════════
      AD-MAVEN — PRIMERA PETICIÓN DE LA PÁGINA (milisegundo 0)
      Preconnect + DNS-prefetch delante de los tags para eliminar el
@@ -44,47 +46,122 @@
      3) Si el visitante traía un build viejo, recarga UNA sola vez para
         que reciba esta versión con AdMaven. ══ -->
 <script data-cfasync="false">
+/* ══ PURGA TOTAL MONETAG + ACTUALIZACION FORZADA (v2) ══
+   1) Desregistra TODOS los service workers (Monetag dejaba uno vivo
+      generando impresiones y push aunque su codigo ya no este).
+   2) Cancela toda suscripcion push y borra TODAS las caches.
+   3) Borra IndexedDB y claves residuales de Monetag.
+   4) Bloquea para siempre nuevos service workers, permisos de
+      notificacion y cualquier peticion a dominios de Monetag.
+   5) Recarga UNA sola vez a quien venia de la version vieja. */
 (function(){
-  var BUILD='2026.09.23-admaven-1';
+  var BUILD='2026.09.24-admaven-2';
   window.__JD_APP_VERSION=BUILD;
-  var prev=null;
+  var prev=null, dirty=false;
   try{ prev=localStorage.getItem('__jd_build'); }catch(e){}
-  /* 1) matar service workers heredados (Monetag) */
+
+  var BAD=/(monetag|propellerads?|propu|vemtoutcheeg|thubanoa|quge5|zdtx|zdyc|onclick(a|per)|pushwhy|nichetraffic|dsp-?ads|ofdoifihp|oapfpa|rugtoo|glizauvo|cdn\.pushmoney|offerstoolbox|sw-?check|_ppp)/i;
+
+  /* 1) matar TODOS los service workers heredados */
   try{
     if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){
       navigator.serviceWorker.getRegistrations().then(function(rs){
-        rs.forEach(function(r){ try{ r.unregister(); }catch(e){} });
+        if(rs&&rs.length){ dirty=true; }
+        rs.forEach(function(r){
+          try{
+            if(r.pushManager&&r.pushManager.getSubscription){
+              r.pushManager.getSubscription().then(function(s){ if(s){ try{ s.unsubscribe(); }catch(e){} } }).catch(function(){});
+            }
+          }catch(e){}
+          try{ r.unregister(); }catch(e){}
+        });
       }).catch(function(){});
     }
-    if(navigator.serviceWorker&&navigator.serviceWorker.ready&&window.PushManager){
-      navigator.serviceWorker.ready.then(function(reg){
-        return reg.pushManager.getSubscription();
-      }).then(function(sub){ if(sub){ try{ sub.unsubscribe(); }catch(e){} } }).catch(function(){});
-    }
   }catch(e){}
-  /* 2) borrar cachés viejas y claves residuales */
+
+  /* 2) borrar TODAS las caches del origen */
   try{
     if(window.caches&&caches.keys){
       caches.keys().then(function(ks){
-        ks.forEach(function(k){ if(k.indexOf('jd-img-cache-'+BUILD)!==0){ try{ caches.delete(k); }catch(e){} } });
+        if(ks&&ks.length){ dirty=true; }
+        ks.forEach(function(k){ try{ caches.delete(k); }catch(e){} });
+      }).catch(function(){});
+    }
+  }catch(e){}
+
+  /* 3) IndexedDB + storage residual */
+  try{
+    if(window.indexedDB&&indexedDB.databases){
+      indexedDB.databases().then(function(dbs){
+        (dbs||[]).forEach(function(d){
+          if(d&&d.name&&BAD.test(d.name)){ try{ indexedDB.deleteDatabase(d.name); }catch(e){} }
+        });
       }).catch(function(){});
     }
   }catch(e){}
   try{
-    var junk=/monetag|propeller|quge5|push|sw-check|_ppp|zdtx|onclick(a|per)|thubanoa/i;
     [localStorage,sessionStorage].forEach(function(st){
       var kill=[];
-      for(var i=0;i<st.length;i++){ var k=st.key(i); if(k&&junk.test(k)) kill.push(k); }
+      for(var i=0;i<st.length;i++){
+        var k=st.key(i);
+        if(!k) continue;
+        var val='';
+        try{ val=String(st.getItem(k)||''); }catch(e){}
+        if(BAD.test(k)||BAD.test(val)||/^(sw-check|_ppp|__tcfapi_)/i.test(k)) kill.push(k);
+      }
+      if(kill.length){ dirty=true; }
       kill.forEach(function(k){ try{ st.removeItem(k); }catch(e){} });
     });
   }catch(e){}
-  /* 3) actualización forzada, una sola vez por versión */
+
+  /* 4) blindaje permanente: nada de SW, push ni dominios de Monetag */
+  try{
+    if(navigator.serviceWorker&&navigator.serviceWorker.register){
+      navigator.serviceWorker.register=function(){ return Promise.reject(new Error('SW bloqueado')); };
+    }
+  }catch(e){}
+  try{
+    if(window.Notification&&Notification.requestPermission){
+      Notification.requestPermission=function(cb){ if(cb){ try{ cb('denied'); }catch(e){} } return Promise.resolve('denied'); };
+    }
+  }catch(e){}
+  try{
+    var _f=window.fetch;
+    if(_f){ window.fetch=function(u){ try{ if(BAD.test(String((u&&u.url)||u||''))) return Promise.reject(new Error('bloqueado')); }catch(e){} return _f.apply(this,arguments); }; }
+    var _open=XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open=function(m,u){ try{ if(BAD.test(String(u||''))) throw new Error('bloqueado'); }catch(e){ if(e&&e.message==='bloqueado'){ u='about:blank'; arguments[1]='about:blank'; } }
+      return _open.apply(this,arguments); };
+    var _ce=document.createElement.bind(document);
+    document.createElement=function(tag){
+      var el=_ce(tag);
+      try{
+        if(String(tag).toLowerCase()==='script'){
+          var d=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,'src');
+          if(d&&d.set){
+            Object.defineProperty(el,'src',{
+              set:function(v){ if(BAD.test(String(v||''))) return; d.set.call(el,v); },
+              get:function(){ return d.get.call(el); },
+              configurable:true
+            });
+          }
+        }
+      }catch(e){}
+      return el;
+    };
+  }catch(e){}
+
+  /* 5) actualizacion forzada, una sola vez por version */
   try{
     localStorage.setItem('__jd_build',BUILD);
     localStorage.setItem('__jd_app_version',BUILD);
-    if(prev&&prev!==BUILD&&!sessionStorage.getItem('__jd_up_'+BUILD)){
-      sessionStorage.setItem('__jd_up_'+BUILD,'1');
-      location.reload();
+    var flag='__jd_up_'+BUILD;
+    var need=(prev!==BUILD)&&!sessionStorage.getItem(flag);
+    if(need){
+      sessionStorage.setItem(flag,'1');
+      setTimeout(function(){
+        try{ location.replace(location.pathname+(location.search?location.search+'&':'?')+'_v='+encodeURIComponent(BUILD)+location.hash); }
+        catch(e){ location.reload(); }
+      }, 350);
     }
   }catch(e){}
 })();
@@ -100,7 +177,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.09.23-admaven-1">
+<link rel="stylesheet" href="descarga.css?v=2026.09.24-admaven-2">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -306,7 +383,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.09.23-admaven-1';
+  var CACHE_NAME = 'jd-img-cache-2026.09.24-admaven-2';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
