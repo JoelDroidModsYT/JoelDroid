@@ -4,168 +4,65 @@
 <meta charset="UTF-8"/>
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
-<!-- ══════════════════════════════════════════════════════════════
-     AD-MAVEN — PRIMERA PETICIÓN DE LA PÁGINA (milisegundo 0)
-     Preconnect + DNS-prefetch delante de los tags para eliminar el
-     retraso de negociación DNS/TLS (era la causa de los ~3 s).
-     Los tags van sincrónicos, intactos, antes de CSS y fuentes.
-════════════════════════════════════════════════════════════════ -->
+<!-- Migración definitiva de Monetag a AdMaven (25-09-2026).
+     Se ejecuta una sola vez por navegador: elimina suscripciones push,
+     service workers y cachés heredados antes de cargar los anuncios nuevos. -->
+<script data-cfasync="false">
+(function () {
+  var migrationKey = "jd-monetag-removed-20260925";
+  try {
+    if (localStorage.getItem(migrationKey) === "1") return;
+  } catch (error) {}
+
+  var tasks = [];
+
+  try {
+    if ("serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
+      tasks.push(
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          return Promise.all(registrations.map(function (registration) {
+            var unsubscribe = Promise.resolve();
+            try {
+              if (registration.pushManager) {
+                unsubscribe = registration.pushManager.getSubscription().then(function (subscription) {
+                  return subscription ? subscription.unsubscribe() : false;
+                }).catch(function () { return false; });
+              }
+            } catch (error) {}
+            return unsubscribe.then(function () {
+              return registration.unregister();
+            }).catch(function () { return false; });
+          }));
+        }).catch(function () {})
+      );
+    }
+  } catch (error) {}
+
+  try {
+    if (window.caches && caches.keys) {
+      tasks.push(
+        caches.keys().then(function (names) {
+          return Promise.all(names.map(function (name) {
+            return caches.delete(name);
+          }));
+        }).catch(function () {})
+      );
+    }
+  } catch (error) {}
+
+  Promise.all(tasks).then(function () {
+    try { localStorage.setItem(migrationKey, "1"); } catch (error) {}
+  });
+})();
+</script>
+
+<!-- AdMaven PopAds: cargar exactamente una vez. -->
 <link rel="preconnect" href="https://d3dq75ilej3qlf.cloudfront.net" crossorigin>
 <link rel="dns-prefetch" href="//d3dq75ilej3qlf.cloudfront.net">
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906" onload="window.__AM1=1"></script>
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933" onload="window.__AM2=1"></script>
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
 
-<!-- ══ AD-MAVEN WATCHDOG — si un tag no cargó (red lenta, corte, caché
-     sucia), lo reinyecta hasta 2 veces. Recupera impresiones perdidas. ══ -->
-<script data-cfasync="false">
-(function(){
-  var ZONES=[{id:'1620906',flag:'__AM1'},{id:'1620933',flag:'__AM2'}];
-  var tries={};
-  function inject(z){
-    tries[z.id]=(tries[z.id]||0)+1;
-    var s=document.createElement('script');
-    s.setAttribute('data-cfasync','false');
-    s.src='//d3dq75ilej3qlf.cloudfront.net/?liqdd='+z.id+'&r='+Date.now();
-    s.onload=function(){ window[z.flag]=1; };
-    (document.head||document.documentElement).appendChild(s);
-  }
-  function check(){
-    ZONES.forEach(function(z){
-      if(!window[z.flag] && (tries[z.id]||0)<2){ inject(z); }
-    });
-  }
-  setTimeout(check,1200);
-  setTimeout(check,3500);
-})();
-</script>
-
-<!-- ══ LIMPIEZA MONETAG + FORZAR NUEVA VERSIÓN A USUARIOS RECURRENTES ══
-     1) Desregistra CUALQUIER service worker (Monetag instalaba uno que
-        seguía generando impresiones y push aunque su código ya no esté).
-     2) Borra cachés antiguas y claves de almacenamiento de Monetag.
-     3) Si el visitante traía un build viejo, recarga UNA sola vez para
-        que reciba esta versión con AdMaven. ══ -->
-<script data-cfasync="false">
-/* ══ PURGA TOTAL MONETAG + ACTUALIZACION FORZADA (v2) ══
-   1) Desregistra TODOS los service workers (Monetag dejaba uno vivo
-      generando impresiones y push aunque su codigo ya no este).
-   2) Cancela toda suscripcion push y borra TODAS las caches.
-   3) Borra IndexedDB y claves residuales de Monetag.
-   4) Bloquea para siempre nuevos service workers, permisos de
-      notificacion y cualquier peticion a dominios de Monetag.
-   5) Recarga UNA sola vez a quien venia de la version vieja. */
-(function(){
-  var BUILD='2026.09.24-admaven-2';
-  window.__JD_APP_VERSION=BUILD;
-  var prev=null, dirty=false;
-  try{ prev=localStorage.getItem('__jd_build'); }catch(e){}
-
-  var BAD=/(monetag|propellerads?|propu|vemtoutcheeg|thubanoa|quge5|zdtx|zdyc|onclick(a|per)|pushwhy|nichetraffic|dsp-?ads|ofdoifihp|oapfpa|rugtoo|glizauvo|cdn\.pushmoney|offerstoolbox|sw-?check|_ppp)/i;
-
-  /* 1) matar TODOS los service workers heredados */
-  try{
-    if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){
-      navigator.serviceWorker.getRegistrations().then(function(rs){
-        if(rs&&rs.length){ dirty=true; }
-        rs.forEach(function(r){
-          try{
-            if(r.pushManager&&r.pushManager.getSubscription){
-              r.pushManager.getSubscription().then(function(s){ if(s){ try{ s.unsubscribe(); }catch(e){} } }).catch(function(){});
-            }
-          }catch(e){}
-          try{ r.unregister(); }catch(e){}
-        });
-      }).catch(function(){});
-    }
-  }catch(e){}
-
-  /* 2) borrar TODAS las caches del origen */
-  try{
-    if(window.caches&&caches.keys){
-      caches.keys().then(function(ks){
-        if(ks&&ks.length){ dirty=true; }
-        ks.forEach(function(k){ try{ caches.delete(k); }catch(e){} });
-      }).catch(function(){});
-    }
-  }catch(e){}
-
-  /* 3) IndexedDB + storage residual */
-  try{
-    if(window.indexedDB&&indexedDB.databases){
-      indexedDB.databases().then(function(dbs){
-        (dbs||[]).forEach(function(d){
-          if(d&&d.name&&BAD.test(d.name)){ try{ indexedDB.deleteDatabase(d.name); }catch(e){} }
-        });
-      }).catch(function(){});
-    }
-  }catch(e){}
-  try{
-    [localStorage,sessionStorage].forEach(function(st){
-      var kill=[];
-      for(var i=0;i<st.length;i++){
-        var k=st.key(i);
-        if(!k) continue;
-        var val='';
-        try{ val=String(st.getItem(k)||''); }catch(e){}
-        if(BAD.test(k)||BAD.test(val)||/^(sw-check|_ppp|__tcfapi_)/i.test(k)) kill.push(k);
-      }
-      if(kill.length){ dirty=true; }
-      kill.forEach(function(k){ try{ st.removeItem(k); }catch(e){} });
-    });
-  }catch(e){}
-
-  /* 4) blindaje permanente: nada de SW, push ni dominios de Monetag */
-  try{
-    if(navigator.serviceWorker&&navigator.serviceWorker.register){
-      navigator.serviceWorker.register=function(){ return Promise.reject(new Error('SW bloqueado')); };
-    }
-  }catch(e){}
-  try{
-    if(window.Notification&&Notification.requestPermission){
-      Notification.requestPermission=function(cb){ if(cb){ try{ cb('denied'); }catch(e){} } return Promise.resolve('denied'); };
-    }
-  }catch(e){}
-  try{
-    var _f=window.fetch;
-    if(_f){ window.fetch=function(u){ try{ if(BAD.test(String((u&&u.url)||u||''))) return Promise.reject(new Error('bloqueado')); }catch(e){} return _f.apply(this,arguments); }; }
-    var _open=XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open=function(m,u){ try{ if(BAD.test(String(u||''))) throw new Error('bloqueado'); }catch(e){ if(e&&e.message==='bloqueado'){ u='about:blank'; arguments[1]='about:blank'; } }
-      return _open.apply(this,arguments); };
-    var _ce=document.createElement.bind(document);
-    document.createElement=function(tag){
-      var el=_ce(tag);
-      try{
-        if(String(tag).toLowerCase()==='script'){
-          var d=Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype,'src');
-          if(d&&d.set){
-            Object.defineProperty(el,'src',{
-              set:function(v){ if(BAD.test(String(v||''))) return; d.set.call(el,v); },
-              get:function(){ return d.get.call(el); },
-              configurable:true
-            });
-          }
-        }
-      }catch(e){}
-      return el;
-    };
-  }catch(e){}
-
-  /* 5) actualizacion forzada, una sola vez por version */
-  try{
-    localStorage.setItem('__jd_build',BUILD);
-    localStorage.setItem('__jd_app_version',BUILD);
-    var flag='__jd_up_'+BUILD;
-    var need=(prev!==BUILD)&&!sessionStorage.getItem(flag);
-    if(need){
-      sessionStorage.setItem(flag,'1');
-      setTimeout(function(){
-        try{ location.replace(location.pathname+(location.search?location.search+'&':'?')+'_v='+encodeURIComponent(BUILD)+location.hash); }
-        catch(e){ location.reload(); }
-      }, 350);
-    }
-  }catch(e){}
-})();
-</script>
+<!-- AdMaven In-Page Push / Floater: cargar exactamente una vez. -->
+<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
@@ -177,7 +74,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.09.24-admaven-2">
+<link rel="stylesheet" href="descarga.css?v=2026.09.25-admaven-3">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -383,7 +280,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.09.24-admaven-2';
+  var CACHE_NAME = 'jd-img-cache-2026.09.25-admaven-3';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
