@@ -1,70 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
-<!-- Migración definitiva de Monetag a AdMaven (25-09-2026).
-     Se ejecuta una sola vez por navegador: elimina suscripciones push,
-     service workers y cachés heredados antes de cargar los anuncios nuevos. -->
-<script data-cfasync="false">
-(function () {
-  var migrationKey = "jd-monetag-removed-20260925";
-  try {
-    if (localStorage.getItem(migrationKey) === "1") return;
-  } catch (error) {}
+<script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
 
-  var tasks = [];
-
-  try {
-    if ("serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
-      tasks.push(
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-          return Promise.all(registrations.map(function (registration) {
-            var unsubscribe = Promise.resolve();
-            try {
-              if (registration.pushManager) {
-                unsubscribe = registration.pushManager.getSubscription().then(function (subscription) {
-                  return subscription ? subscription.unsubscribe() : false;
-                }).catch(function () { return false; });
-              }
-            } catch (error) {}
-            return unsubscribe.then(function () {
-              return registration.unregister();
-            }).catch(function () { return false; });
-          }));
-        }).catch(function () {})
-      );
-    }
-  } catch (error) {}
-
-  try {
-    if (window.caches && caches.keys) {
-      tasks.push(
-        caches.keys().then(function (names) {
-          return Promise.all(names.map(function (name) {
-            return caches.delete(name);
-          }));
-        }).catch(function () {})
-      );
-    }
-  } catch (error) {}
-
-  Promise.all(tasks).then(function () {
-    try { localStorage.setItem(migrationKey, "1"); } catch (error) {}
-  });
+<!-- ══ JD FORCE-UPDATE (LIMPIO) — ver nota completa en index.html.
+     Mismo JD_BUILD que index.html, sin limpiar sessionStorage y sin
+     location.replace(). ══ -->
+<script>
+(function(){
+  var JD_BUILD='2026.09.16-monetag-3'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
 
-<!-- AdMaven PopAds: cargar exactamente una vez. -->
-<link rel="preconnect" href="https://d3dq75ilej3qlf.cloudfront.net" crossorigin>
-<link rel="dns-prefetch" href="//d3dq75ilej3qlf.cloudfront.net">
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
 
-<!-- AdMaven In-Page Push / Floater: cargar exactamente una vez. -->
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>
-
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MONETAG — PRIMERA PETICIÓN DE LA PÁGINA (milisegundo 0)
+     El tag va intacto, tal cual lo entrega Monetag, y es lo primero
+     que el navegador descarga: NO hay CSS ni fuentes por delante.
+     No se envuelve, no se retrasa, no se fuerza nada.
+══════════════════════════════════════════════════════════════ -->
 
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="description" id="dl-meta-description" content="Descarga APK MOD para Android desde JOELDROID MODS YT con información de versión, peso, seguridad y características del MOD.">
@@ -74,7 +36,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.09.25-admaven-3">
+<link rel="stylesheet" href="descarga.css?v=2026.09.16-monetag-3">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -280,7 +242,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.09.25-admaven-3';
+  var CACHE_NAME = 'jd-img-cache-2026.09.16-monetag-3';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {

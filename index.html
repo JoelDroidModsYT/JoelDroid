@@ -1,70 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">    
 <head>
+<!-- ══ ESQUELETO BÁSICO — charset/viewport primero para que el parser fije encoding ══ -->
 <meta charset="UTF-8">
-<!-- Migración definitiva de Monetag a AdMaven (25-09-2026).
-     Se ejecuta una sola vez por navegador: elimina suscripciones push,
-     service workers y cachés heredados antes de cargar los anuncios nuevos. -->
-<script data-cfasync="false">
-(function () {
-  var migrationKey = "jd-monetag-removed-20260925";
-  try {
-    if (localStorage.getItem(migrationKey) === "1") return;
-  } catch (error) {}
-
-  var tasks = [];
-
-  try {
-    if ("serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
-      tasks.push(
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-          return Promise.all(registrations.map(function (registration) {
-            var unsubscribe = Promise.resolve();
-            try {
-              if (registration.pushManager) {
-                unsubscribe = registration.pushManager.getSubscription().then(function (subscription) {
-                  return subscription ? subscription.unsubscribe() : false;
-                }).catch(function () { return false; });
-              }
-            } catch (error) {}
-            return unsubscribe.then(function () {
-              return registration.unregister();
-            }).catch(function () { return false; });
-          }));
-        }).catch(function () {})
-      );
-    }
-  } catch (error) {}
-
-  try {
-    if (window.caches && caches.keys) {
-      tasks.push(
-        caches.keys().then(function (names) {
-          return Promise.all(names.map(function (name) {
-            return caches.delete(name);
-          }));
-        }).catch(function () {})
-      );
-    }
-  } catch (error) {}
-
-  Promise.all(tasks).then(function () {
-    try { localStorage.setItem(migrationKey, "1"); } catch (error) {}
-  });
-})();
-</script>
-
-<!-- AdMaven PopAds: cargar exactamente una vez. -->
-<link rel="preconnect" href="https://d3dq75ilej3qlf.cloudfront.net" crossorigin>
-<link rel="dns-prefetch" href="//d3dq75ilej3qlf.cloudfront.net">
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620906"></script>
-
-<!-- AdMaven In-Page Push / Floater: cargar exactamente una vez. -->
-<script data-cfasync="false" src="//d3dq75ilej3qlf.cloudfront.net/?liqdd=1620933"></script>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<!-- ══ MONETAG — preconnect ANTES del tag (faltaba aquí; sí estaba en descarga.html).
+     Ahorra la resolución DNS+TLS (~100–300ms) para que el anuncio arranque antes. ══ -->
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<link rel="preconnect" href="https://al5sm.com" crossorigin>
+<link rel="dns-prefetch" href="https://al5sm.com">
+<link rel="preconnect" href="https://n6wxm.com" crossorigin>
+<link rel="dns-prefetch" href="https://n6wxm.com">
+<script>(function(s){s.dataset.zone='11164634',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
+<script>(function(s){s.dataset.zone='10922125',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
+<!-- ══ JD FORCE-UPDATE (LIMPIO) ══
+     Solo guarda el número de versión activo para que el resto del sitio
+     (CSS con ?v=, caché de imágenes) lo use como referencia — sin borrar
+     sessionStorage ni recargar la página, que era lo que interrumpía al
+     tag de Monetag en cada navegación hacia descarga.html. ══ -->
+<script>
+(function(){
+  var JD_BUILD='2026.09.17-detail-top-1'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
+})();
+</script>
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 
 
@@ -81,6 +45,8 @@
   }
 })();</script>
 
+<!-- App version marker -->
+<script>(function(){var APP_VERSION='2026.09.17-detail-top-1';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -325,7 +291,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.09.25-admaven-3">
+<link rel="stylesheet" href="joeldroid.css?v=2026.09.17-detail-top-1">
 </head>
 <body class="no-scrollbar">
 <script>
@@ -933,7 +899,7 @@ window.__JD_REST_DONE = false;
 
 <!-- DETAIL VIEW -->
 <div id="detail-view" class="bg-[var(--overlay-bg)] hidden" style="position:relative;width:100%;min-height:100dvh;overflow:visible;pointer-events:auto;isolation:auto;contain:none;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:140px;min-height:100dvh;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:env(safe-area-inset-top, 0px);min-height:100dvh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -3426,7 +3392,14 @@ function showDetail(id){
   // ══════════════════════════════════════════════════════════════════
 
   var dv=document.getElementById('detail-view');
+  /* La ficha siempre abre desde el inicio real de la página, aunque la tarjeta
+     se haya tocado después de desplazarse por el catálogo. */
   if(dv)dv.scrollTop=0;
+  try{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+  }catch(e){}
 
   // Normalizar campos — acepta esquema en español (Firebase manual) O inglés (panel)
   // nombre|name, descripcion|description, imagen|thumb, enlace|downloadButtonLink1
@@ -3601,7 +3574,18 @@ function showDetail(id){
     dv.style.willChange              = '';
     dv.style.transform               = '';
   }
-  try{ window.scrollTo({top:0,left:0,behavior:'auto'}); }catch(e){ window.scrollTo(0,0); }
+  try{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    if(dv)dv.scrollTop=0;
+    requestAnimationFrame(function(){
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+      window.scrollTo(0,0);
+      if(dv)dv.scrollTop=0;
+    });
+  }catch(e){ window.scrollTo(0,0); }
 
   renderRecommendedGames(id);
   applyTranslations(currentLang);
