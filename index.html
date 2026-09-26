@@ -5,17 +5,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ══ MONETAG — preconnect ANTES del tag (faltaba aquí; sí estaba en descarga.html).
-     Ahorra la resolución DNS+TLS (~100–300ms) para que el anuncio arranque antes. ══ -->
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preconnect" href="https://al5sm.com" crossorigin>
 <link rel="dns-prefetch" href="https://al5sm.com">
 <link rel="preconnect" href="https://n6wxm.com" crossorigin>
 <link rel="dns-prefetch" href="https://n6wxm.com">
-<script>(function(s){s.dataset.zone='11164634',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<!-- ══ MONETAG — TAGS OFICIALES, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
+     Formato estático tal cual lo entrega Monetag (src + data-zone + async
+     + data-cfasync="false"): el navegador los descubre en el pre-parser y
+     los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
+<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false"></script>
+<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
 
-<script>(function(s){s.dataset.zone='10922125',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
 
 <!-- ══ JD FORCE-UPDATE (LIMPIO) ══
      Solo guarda el número de versión activo para que el resto del sitio
@@ -24,7 +27,7 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.09.17-detail-top-1'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.09.26-monetag-5'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
@@ -46,7 +49,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.09.17-detail-top-1';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.09.26-monetag-5';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -291,7 +294,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.09.17-detail-top-1">
+<link rel="stylesheet" href="joeldroid.css?v=2026.09.26-monetag-5">
 </head>
 <body class="no-scrollbar">
 <script>
@@ -6767,6 +6770,35 @@ window.addEventListener('load', function(){
 });
 </script>
 <script>(function(){try{var p=window.__jdPendingDetail;if(p&&typeof showDetail==='function'){window.__jdPendingDetail=null;showDetail(p);}}catch(e){}})();</script>
+
+<!-- ══ JD ROLLOUT 100% — limpieza de versiones antiguas (Ad Maven) ══
+     Se ejecuta DESPUÉS de load, así nunca interrumpe a los tags de Monetag.
+     No recarga la página; solo elimina Service Workers y cachés viejas que
+     podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
+<script>
+(function(){
+  var B='2026.09.26-monetag-5';
+  function clean(){
+    try{
+      if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
+        navigator.serviceWorker.getRegistrations().then(function(rs){
+          rs.forEach(function(r){ try{ r.unregister(); }catch(e){} });
+        }).catch(function(){});
+      }
+    }catch(e){}
+    try{
+      if(typeof caches!=='undefined' && caches.keys){
+        caches.keys().then(function(ks){
+          ks.forEach(function(k){ if(k.indexOf(B)===-1) { try{ caches.delete(k); }catch(e){} } });
+        }).catch(function(){});
+      }
+    }catch(e){}
+    try{ localStorage.setItem('__jd_build', B); }catch(e){}
+  }
+  if(document.readyState==='complete') setTimeout(clean,1200);
+  else window.addEventListener('load', function(){ setTimeout(clean,1200); });
+})();
+</script>
 </body>
 
 

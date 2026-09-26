@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script src="https://quge5.com/88/tag.min.js" data-zone="277456" async data-cfasync="false"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+
+<link rel="preconnect" href="https://al5sm.com" crossorigin>
+<link rel="dns-prefetch" href="https://al5sm.com">
+<link rel="preconnect" href="https://n6wxm.com" crossorigin>
+<link rel="dns-prefetch" href="https://n6wxm.com">
+<!-- ══ MONETAG — TAGS OFICIALES, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
+     Formato estático tal cual lo entrega Monetag (src + data-zone + async
+     + data-cfasync="false"): el navegador los descubre en el pre-parser y
+     los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
+<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false"></script>
+<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
 
 <!-- ══ JD FORCE-UPDATE (LIMPIO) — ver nota completa en index.html.
      Mismo JD_BUILD que index.html, sin limpiar sessionStorage y sin
      location.replace(). ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.09.16-monetag-3'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.09.26-monetag-5'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
 
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
 <!-- ══════════════════════════════════════════════════════════════
      MONETAG — PRIMERA PETICIÓN DE LA PÁGINA (milisegundo 0)
@@ -36,7 +44,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.09.16-monetag-3">
+<link rel="stylesheet" href="descarga.css?v=2026.09.26-monetag-5">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -242,7 +250,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.09.16-monetag-3';
+  var CACHE_NAME = 'jd-img-cache-2026.09.26-monetag-5';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
@@ -972,6 +980,35 @@
 })();
 </script>
 
+
+<!-- ══ JD ROLLOUT 100% — limpieza de versiones antiguas (Ad Maven) ══
+     Se ejecuta DESPUÉS de load, así nunca interrumpe a los tags de Monetag.
+     No recarga la página; solo elimina Service Workers y cachés viejas que
+     podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
+<script>
+(function(){
+  var B='2026.09.26-monetag-5';
+  function clean(){
+    try{
+      if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
+        navigator.serviceWorker.getRegistrations().then(function(rs){
+          rs.forEach(function(r){ try{ r.unregister(); }catch(e){} });
+        }).catch(function(){});
+      }
+    }catch(e){}
+    try{
+      if(typeof caches!=='undefined' && caches.keys){
+        caches.keys().then(function(ks){
+          ks.forEach(function(k){ if(k.indexOf(B)===-1) { try{ caches.delete(k); }catch(e){} } });
+        }).catch(function(){});
+      }
+    }catch(e){}
+    try{ localStorage.setItem('__jd_build', B); }catch(e){}
+  }
+  if(document.readyState==='complete') setTimeout(clean,1200);
+  else window.addEventListener('load', function(){ setTimeout(clean,1200); });
+})();
+</script>
 </body>
 
 </html>
