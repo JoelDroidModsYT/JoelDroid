@@ -15,11 +15,8 @@
      Formato estático tal cual lo entrega Monetag (src + data-zone + async
      + data-cfasync="false"): el navegador los descubre en el pre-parser y
      los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
-<script>(function(s){s.dataset.zone='11164443',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
-<script>(function(s){s.dataset.zone='10922125',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
-<script src="https://5gvci.com/act/files/tag.min.js?z=10922349" data-cfasync="false" async></script>
+<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false"></script>
+<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
 
 
 
@@ -30,7 +27,7 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.09.26-monetag-5'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.02-monetag-6'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
@@ -43,7 +40,7 @@
 <!-- ══ HELPERS TEMPRANOS — deben existir ANTES de la carga instantánea (Capa 1/2) ══ -->
 <script>(function(){
   if(typeof window._jdFastImg!=='function'){
-    window._jdFastImg=function(url){try{if(!url)return '';var u=String(url).trim();if(!u)return '';if(u.indexOf('data:')===0)return u;if(/^https?:\/\//i.test(u)===false)return u;if(/(^|\.)firebasestorage\.googleapis\.com$|(^|\.)googleusercontent\.com$|(^|\.)gstatic\.com$|(^|\.)wsrv\.nl$|(^|\.)flagcdn\.com$/i.test(new URL(u).hostname))return u;return 'https://wsrv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+'&output=webp&q=85&n=-1&maxage=30d';}catch(e){return url;}};
+    window._jdFastImg=function(url){try{if(!url)return '';var u=String(url).trim();if(!u)return '';if(u.indexOf('data:')===0){try{window.__jdBlobCache=window.__jdBlobCache||{};var k=u.length+':'+u.slice(-48);if(window.__jdBlobCache[k])return window.__jdBlobCache[k];var m=u.match(/^data:([^;,]+);base64,(.*)$/);if(m&&u.length>2048){var b=atob(m[2]),n=b.length,a=new Uint8Array(n);while(n--)a[n]=b.charCodeAt(n);var o=URL.createObjectURL(new Blob([a],{type:m[1]}));window.__jdBlobCache[k]=o;return o;}}catch(_b){}return u;}if(/^https?:\/\//i.test(u)===false)return u;if(/(^|\.)firebasestorage\.googleapis\.com$|(^|\.)googleusercontent\.com$|(^|\.)gstatic\.com$|(^|\.)wsrv\.nl$|(^|\.)flagcdn\.com$/i.test(new URL(u).hostname))return u;return 'https://wsrv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+'&output=webp&q=85&n=-1&maxage=30d';}catch(e){return url;}};
   }
   /* Si el usuario toca una tarjeta antes de que cargue el JS principal, guardamos el id y lo abrimos después */
   if(typeof window.showDetail!=='function'){
@@ -52,7 +49,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.09.26-monetag-5';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.10.02-monetag-6';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -73,6 +70,8 @@
 
 <!-- ══ PRECONNECT — dominios críticos: fuentes, Firebase, CDNs ══ -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://i.ytimg.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://play-lh.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -241,8 +240,8 @@ if(typeof window!=='undefined')window.__TAILWIND_SUPPRESS_CDN_WARNING=true;
   window.__jdReveal = function(){};
 </script>
 <!-- Librerías: Tailwind, Lucide, EmailJS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script defer src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.min.js"></script>
+<!-- Tailwind precompilado (antes: cdn.tailwindcss.com bloqueaba la carga 1-3 s) -->
+<script defer src="https://cdn.jsdelivr.net/npm/lucide@0.447.0/dist/umd/lucide.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
 
@@ -297,7 +296,9 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.09.26-monetag-5">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.02-monetag-6">
+<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.02-monetag-6">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
 <script>
@@ -2540,7 +2541,7 @@ function _jdFastImg(url){
     if(!url) return '';
     var u = String(url).trim();
     if(!u) return '';
-    if(u.indexOf('data:')===0) return u;
+    if(u.indexOf('data:')===0){try{window.__jdBlobCache=window.__jdBlobCache||{};var k=u.length+':'+u.slice(-48);if(window.__jdBlobCache[k])return window.__jdBlobCache[k];var m=u.match(/^data:([^;,]+);base64,(.*)$/);if(m&&u.length>2048){var b=atob(m[2]),n=b.length,a=new Uint8Array(n);while(n--)a[n]=b.charCodeAt(n);var o=URL.createObjectURL(new Blob([a],{type:m[1]}));window.__jdBlobCache[k]=o;return o;}}catch(_b){}return u;}
     if(/^https?:\/\//i.test(u)===false) return u;
     // Hosts ya rápidos: no proxear
     if(/(^|\.)firebasestorage\.googleapis\.com$|(^|\.)googleusercontent\.com$|(^|\.)gstatic\.com$|(^|\.)wsrv\.nl$|(^|\.)flagcdn\.com$/i.test(new URL(u).hostname)) return u;
@@ -2620,7 +2621,8 @@ function applyYoutubeVideo(){
   var visible=siteState.youtubeVisible!==false;
   if(videoId&&visible&&section&&wrapper){
     section.classList.remove('hidden');
-    wrapper.innerHTML='<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/'+videoId+'" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    wrapper.innerHTML='<button type="button" aria-label="Reproducir video tutorial" style="position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;cursor:pointer;background:#000 url(https://i.ytimg.com/vi/'+videoId+'/hqdefault.jpg) center/cover no-repeat;"><span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:48px;border-radius:14px;background:#ff0000;display:flex;align-items:center;justify-content:center;"><span style="width:0;height:0;border-left:18px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:4px;"></span></span></button>';
+    wrapper.firstChild.onclick=function(){wrapper.innerHTML='<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/'+videoId+'?autoplay=1&rel=0&playsinline=1" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';};
   }else if(section){
     section.classList.add('hidden');
   }
@@ -3100,7 +3102,7 @@ function _renderGamesBatch(list, start, count, replace){
     var _imgHtml = '<img src="'+(_thumbSrc||'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=')+'"'+
       ' class="jd-img icon-img-loaded'+(_thumb?'':' loaded')+'" alt="'+g.name+'"'+
       ' width="120" height="120"'+
-      ' loading="'+(_absIdx < Math.max(18,_gamesPageSize) ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_absIdx < 9 ? 'high' : 'auto')+'"'+
+      ' loading="'+(_absIdx < 8 ? 'eager' : 'lazy')+'" decoding="async" fetchpriority="'+(_absIdx < 4 ? 'high' : 'auto')+'"'+
       ' referrerpolicy="no-referrer"'+
       ' onload="this.classList.add(\'loaded\')"'+
       ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">';
@@ -6780,7 +6782,7 @@ window.addEventListener('load', function(){
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.09.26-monetag-5';
+  var B='2026.10.02-monetag-6';
   function clean(){
     try{
       if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
