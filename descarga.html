@@ -20,7 +20,7 @@
      location.replace(). ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.09.26-monetag-5'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.02-monetag-6'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
@@ -44,7 +44,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.09.26-monetag-5">
+<link rel="stylesheet" href="descarga.css?v=2026.10.02-monetag-6">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -145,7 +145,7 @@
             <circle class="dl-ring-fg" id="dl-ring-fg" cx="45" cy="45" r="38" stroke-dasharray="238.8" stroke-dashoffset="0"/>
           </svg>
           <div class="dl-counter-inner">
-            <div id="dl-counter-num" class="dl-counter-num">15</div>
+            <div id="dl-counter-num" class="dl-counter-num">7</div>
             <div class="dl-counter-label">seg</div>
           </div>
         </div>
@@ -201,7 +201,7 @@
 
         <div id="dl-stage-scan" class="dl-stage-scan">
           <div class="dl-stage-meter">
-            <strong id="dl-stage-num" class="dl-stage-num">12</strong>
+            <strong id="dl-stage-num" class="dl-stage-num">6</strong>
             <span>seg</span>
           </div>
           <div class="dl-stage-progress"><div id="dl-stage-progress-fill" class="dl-stage-progress-fill"></div></div>
@@ -250,7 +250,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.09.26-monetag-5';
+  var CACHE_NAME = 'jd-img-cache-2026.10.02-monetag-6';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
@@ -379,7 +379,7 @@
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
-  var SERVER_READY_SECS = 15;   // 1er temporizador (asimétrico: 15s)
+  var SERVER_READY_SECS = 7;    // 1er temporizador (7s)
   var CIRCUM = 238.8;
 
   /* Handles globales para limpiar SIEMPRE al cambiar de estado */
@@ -680,7 +680,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var SECURITY_SCAN_SECS  = 12;  // 2do temporizador (asimétrico: 12s)
+    var SECURITY_SCAN_SECS  = 6;   // 2do temporizador (6s)
 
     function _buttonLabelTop(btn){ return btn ? btn.querySelector('.dl-btn-label-top') : null; }
     function _labelTop(){ return _buttonLabelTop(btnFinal); }
@@ -703,7 +703,7 @@
       if (!finalStage) return;
       setTimeout(function(){
         try {
-          // Centrar el temporizador de 12s en la mitad de la pantalla del móvil.
+          // Centrar el temporizador de 6s en la mitad de la pantalla del móvil.
           var target = document.getElementById('dl-stage-scan');
           if (!target || target.style.display === 'none' || target.offsetHeight === 0) {
             target = document.getElementById('dl-download-final') || finalStage;
@@ -987,7 +987,7 @@
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.09.26-monetag-5';
+  var B='2026.10.02-monetag-6';
   function clean(){
     try{
       if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
