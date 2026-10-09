@@ -9,13 +9,12 @@
 <link rel="dns-prefetch" href="https://al5sm.com">
 <link rel="preconnect" href="https://n6wxm.com" crossorigin>
 <link rel="dns-prefetch" href="https://n6wxm.com">
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
 <!-- ══ MONETAG — TAGS OFICIALES, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
      Formato estático tal cual lo entrega Monetag (src + data-zone + async
      + data-cfasync="false"): el navegador los descubre en el pre-parser y
      los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
-<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false"></script>
+<link rel="preload" href="https://al5sm.com/tag.min.js" as="script" fetchpriority="high">
+<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false" fetchpriority="high"></script>
 <script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
 
 
@@ -6784,20 +6783,8 @@ window.addEventListener('load', function(){
 (function(){
   var B='2026.10.02-monetag-6';
   function clean(){
-    try{
-      if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
-        navigator.serviceWorker.getRegistrations().then(function(rs){
-          rs.forEach(function(r){ try{ r.unregister(); }catch(e){} });
-        }).catch(function(){});
-      }
-    }catch(e){}
-    try{
-      if(typeof caches!=='undefined' && caches.keys){
-        caches.keys().then(function(ks){
-          ks.forEach(function(k){ if(k.indexOf(B)===-1) { try{ caches.delete(k); }catch(e){} } });
-        }).catch(function(){});
-      }
-    }catch(e){}
+    /* Ya NO se borran Service Workers ni cachés: el Service Worker de Monetag
+       (notificaciones push) debe seguir vivo para que sus impresiones cuenten. */
     try{ localStorage.setItem('__jd_build', B); }catch(e){}
   }
   if(document.readyState==='complete') setTimeout(clean,1200);
