@@ -2,18 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
-
+<!-- ══ MONETAG — PRIORIDAD MÁXIMA DESDE EL MILISEGUNDO 0 (igual que index.el mekor) ══ -->
 <link rel="preconnect" href="https://al5sm.com" crossorigin>
-<link rel="dns-prefetch" href="https://al5sm.com">
 <link rel="preconnect" href="https://n6wxm.com" crossorigin>
-<link rel="dns-prefetch" href="https://n6wxm.com">
-<!-- ══ MONETAG — TAGS OFICIALES, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
-     Formato estático tal cual lo entrega Monetag (src + data-zone + async
-     + data-cfasync="false"): el navegador los descubre en el pre-parser y
-     los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
-<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false"></script>
-<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
+<link rel="preload" href="https://al5sm.com/tag.min.js" as="script" fetchpriority="high">
+<link rel="preload" href="https://n6wxm.com/vignette.min.js" as="script" fetchpriority="high">
+<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false" fetchpriority="high"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
 <!-- ══ JD FORCE-UPDATE (LIMPIO) — ver nota completa en index.html.
      Mismo JD_BUILD que index.html, sin limpiar sessionStorage y sin
@@ -981,32 +977,24 @@
 </script>
 
 
-<!-- ══ JD ROLLOUT 100% — limpieza de versiones antiguas (Ad Maven) ══
-     Se ejecuta DESPUÉS de load, así nunca interrumpe a los tags de Monetag.
-     No recarga la página; solo elimina Service Workers y cachés viejas que
-     podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
+<!-- ══ Limpieza SOLO de cachés propias antiguas (jd-img-cache-*).
+     Ya NO se borran los Service Workers: Monetag usa uno para sus
+     anuncios y borrarlo hacía perder impresiones. ══ -->
 <script>
 (function(){
   var B='2026.10.02-monetag-6';
   function clean(){
     try{
-      if('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations){
-        navigator.serviceWorker.getRegistrations().then(function(rs){
-          rs.forEach(function(r){ try{ r.unregister(); }catch(e){} });
-        }).catch(function(){});
-      }
-    }catch(e){}
-    try{
       if(typeof caches!=='undefined' && caches.keys){
         caches.keys().then(function(ks){
-          ks.forEach(function(k){ if(k.indexOf(B)===-1) { try{ caches.delete(k); }catch(e){} } });
+          ks.forEach(function(k){ if(k.indexOf('jd-img-cache-')===0 && k.indexOf(B)===-1){ try{ caches.delete(k); }catch(e){} } });
         }).catch(function(){});
       }
     }catch(e){}
     try{ localStorage.setItem('__jd_build', B); }catch(e){}
   }
-  if(document.readyState==='complete') setTimeout(clean,1200);
-  else window.addEventListener('load', function(){ setTimeout(clean,1200); });
+  if(document.readyState==='complete') setTimeout(clean,3000);
+  else window.addEventListener('load', function(){ setTimeout(clean,3000); });
 })();
 </script>
 </body>
