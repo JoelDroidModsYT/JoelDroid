@@ -5,17 +5,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://al5sm.com" crossorigin>
-<link rel="dns-prefetch" href="https://al5sm.com">
-<link rel="preconnect" href="https://n6wxm.com" crossorigin>
-<link rel="dns-prefetch" href="https://n6wxm.com">
-<!-- ══ MONETAG — TAGS OFICIALES, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
-     Formato estático tal cual lo entrega Monetag (src + data-zone + async
-     + data-cfasync="false"): el navegador los descubre en el pre-parser y
-     los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
-<link rel="preload" href="https://al5sm.com/tag.min.js" as="script" fetchpriority="high">
-<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false" fetchpriority="high"></script>
-<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<!-- ══ MONETAG — MULTITAG ÚNICO, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
+     Un solo código Multitag (como en index.elmecor): gestiona todos los
+     formatos de la cuenta (popunder, in-page push, native banner) sin
+     duplicar zonas ni competir entre scripts. Tal cual lo entrega Monetag
+     (src + data-zone + async + data-cfasync="false"), el navegador lo
+     descubre en el pre-parser y lo descarga al instante. ══ -->
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 
 
 
@@ -26,7 +25,7 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.02-monetag-6'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.12-monetag-7'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
@@ -48,7 +47,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.10.02-monetag-6';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.10.12-monetag-7';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -295,8 +294,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.10.02-monetag-6">
-<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.02-monetag-6">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.12-monetag-7">
+<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.12-monetag-7">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
@@ -905,7 +904,7 @@ window.__JD_REST_DONE = false;
 
 <!-- DETAIL VIEW -->
 <div id="detail-view" class="bg-[var(--overlay-bg)] hidden" style="position:relative;width:100%;min-height:100dvh;overflow:visible;pointer-events:auto;isolation:auto;contain:none;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:env(safe-area-inset-top, 0px);min-height:100dvh;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:140px;min-height:100dvh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -6781,7 +6780,7 @@ window.addEventListener('load', function(){
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.10.02-monetag-6';
+  var B='2026.10.12-monetag-7';
   function clean(){
     /* Ya NO se borran Service Workers ni cachés: el Service Worker de Monetag
        (notificaciones push) debe seguir vivo para que sus impresiones cuenten. */
