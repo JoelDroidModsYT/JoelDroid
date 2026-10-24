@@ -14,7 +14,7 @@
      (src + data-zone + async + data-cfasync="false"), el navegador lo
      descubre en el pre-parser y lo descarga al instante. ══ -->
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="274484" async data-cfasync="false" fetchpriority="high"></script>
 
 
 
@@ -25,10 +25,14 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.12-monetag-7'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.24-monetag-8'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
+<!-- VOLVER CON “ATRÁS” DESDE EL ANUNCIO: el navegador restaura la página desde
+     bfcache sin recargar y el tag de Monetag no se vuelve a cargar (impresión
+     perdida). Al detectar restauración, recargamos una vez para que cuente. -->
+<script>window.addEventListener('pageshow',function(e){if(e.persisted){try{location.reload();}catch(_){}}});</script>
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 
@@ -47,7 +51,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.10.12-monetag-7';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.10.24-monetag-8';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -294,8 +298,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.10.22-cssfix-8">
-<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.22-cssfix-8">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.24-monetag-8">
+<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.24-monetag-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
@@ -6780,7 +6784,7 @@ window.addEventListener('load', function(){
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.10.12-monetag-7';
+  var B='2026.10.24-monetag-8';
   function clean(){
     /* Ya NO se borran Service Workers ni cachés: el Service Worker de Monetag
        (notificaciones push) debe seguir vivo para que sus impresiones cuenten. */
