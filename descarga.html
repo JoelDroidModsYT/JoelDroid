@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <!-- ══ MONETAG — PRIORIDAD MÁXIMA DESDE EL MILISEGUNDO 0 (igual que index.el mekor) ══ -->
-<link rel="preconnect" href="https://al5sm.com" crossorigin>
-<link rel="preconnect" href="https://n6wxm.com" crossorigin>
-<link rel="preload" href="https://al5sm.com/tag.min.js" as="script" fetchpriority="high">
-<link rel="preload" href="https://n6wxm.com/vignette.min.js" as="script" fetchpriority="high">
-<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false" fetchpriority="high"></script>
-<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false" fetchpriority="high"></script>
+<link rel="preconnect" href="https://quge5.com" crossorigin>
+<link rel="dns-prefetch" href="https://quge5.com">
+<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
+<script src="https://quge5.com/88/tag.min.js" data-zone="274484" async data-cfasync="false" fetchpriority="high"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
 
 <!-- ══ JD FORCE-UPDATE (LIMPIO) — ver nota completa en index.html.
@@ -16,9 +14,11 @@
      location.replace(). ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.02-monetag-6'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.24-monetag-8'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
+/* VOLVER CON “ATRÁS”: recargar al restaurar desde bfcache para contar la impresión. */
+window.addEventListener('pageshow',function(e){if(e.persisted){try{location.reload();}catch(_){}}});
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
@@ -40,7 +40,7 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.10.02-monetag-6">
+<link rel="stylesheet" href="descarga.css?v=2026.10.24-monetag-8">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -246,7 +246,7 @@
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.10.02-monetag-6';
+  var CACHE_NAME = 'jd-img-cache-2026.10.24-monetag-8';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
@@ -375,7 +375,7 @@
   var realUrl      = '';
   var timerRunning = false;
   var timerDone    = false;
-  var SERVER_READY_SECS = 7;    // 1er temporizador (7s)
+  var SERVER_READY_SECS = 8;    // 1er temporizador (8s)
   var CIRCUM = 238.8;
 
   /* Handles globales para limpiar SIEMPRE al cambiar de estado */
@@ -477,7 +477,7 @@
              '<span class="dl-btn-mod-line">Mod ' + _esc(_modTxt(feats)) + '</span>';
     }
 
-    /* ─────────────── TIMER INICIAL 10s (con Date.now para no congelarse) ─────────────── */
+    /* ─────────────── TIMER INICIAL 8s (con Date.now para no congelarse) ─────────────── */
     var serverReadyTs = 0;
 
     function _renderTimer(left) {
@@ -676,7 +676,7 @@
                             leída de Firestore (nunca fija).
     ═══════════════════════════════════════════════════════════════ */
     var btnState = 'idle';          // idle | activador | verificando | final
-    var SECURITY_SCAN_SECS  = 6;   // 2do temporizador (6s)
+    var SECURITY_SCAN_SECS  = 8;   // 2do temporizador (8s)
 
     function _buttonLabelTop(btn){ return btn ? btn.querySelector('.dl-btn-label-top') : null; }
     function _labelTop(){ return _buttonLabelTop(btnFinal); }
@@ -982,7 +982,7 @@
      anuncios y borrarlo hacía perder impresiones. ══ -->
 <script>
 (function(){
-  var B='2026.10.02-monetag-6';
+  var B='2026.10.24-monetag-8';
   function clean(){
     try{
       if(typeof caches!=='undefined' && caches.keys){
