@@ -14,7 +14,7 @@
      (src + data-zone + async + data-cfasync="false"), el navegador lo
      descubre en el pre-parser y lo descarga al instante. ══ -->
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="274484" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
 
 
 
@@ -25,16 +25,11 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.24-monetag-8'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.25-monetag-9'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
-<!-- VOLVER CON “ATRÁS” DESDE EL ANUNCIO: el navegador restaura la página desde
-     bfcache sin recargar y el tag de Monetag no se vuelve a cargar (impresión
-     perdida). Al detectar restauración, recargamos una vez para que cuente. -->
-<script>window.addEventListener('pageshow',function(e){if(e.persisted){try{location.reload();}catch(_){}}});</script>
-<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
+<!-- Sin recarga forzada al volver con "Atrás": el index bueno no la tenía y duplicaba cargas del tag. -->
 
 
 
@@ -51,7 +46,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.10.24-monetag-8';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.10.25-monetag-9';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -298,8 +293,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.10.24-monetag-8">
-<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.24-monetag-8">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.25-monetag-9">
+<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.25-monetag-9">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
@@ -821,6 +816,8 @@ window.__JD_REST_DONE = false;
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Cookies</a>
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('terms')">Términos</a>
+        <span class="jd-cr-divider"></span>
+        Publicidad servida por <strong>Monetag</strong>
       </div>
     </div>
   </footer>
@@ -836,7 +833,7 @@ window.__JD_REST_DONE = false;
       </button>
       <div class="jd-policy-title">
         <h1 id="jd-policy-main-title">Centro Legal y de Información</h1>
-        <p>Privacidad · Cookies · Términos · Sobre Nosotros</p>
+        <p>Privacidad · Cookies · Publicidad · Términos · Sobre Nosotros</p>
       </div>
     </header>
 
@@ -848,7 +845,7 @@ window.__JD_REST_DONE = false;
       <ul>
         <li><strong>Verificación previa:</strong> cada archivo publicado es revisado para confirmar que se ajusta a la descripción.</li>
         <li><strong>Actualización constante:</strong> mantenemos un registro de versiones para que el usuario sepa siempre qué edición está descargando.</li>
-        <li><strong>Transparencia publicitaria:</strong> no utilizamos pop-ups engañosos ni descargas forzadas.</li>
+        <li><strong>Transparencia publicitaria:</strong> la publicidad del sitio es servida por una red publicitaria autorizada (Monetag); los enlaces finales de descarga pueden abrirse mediante un acortador de enlaces externo con su propia publicidad. No utilizamos pop-ups engañosos ni descargas forzadas.</li>
         <li><strong>Respeto al desarrollador original:</strong> todo el contenido modificado se ofrece con fines informativos y de evaluación; recomendamos siempre apoyar a los estudios originales adquiriendo sus versiones oficiales.</li>
       </ul>
       <p>El proyecto es operado por <strong>JoelDroid Labs</strong>, un equipo pequeño enfocado en pruebas, edición y difusión de contenido Android desde el canal de YouTube del mismo nombre.</p>
@@ -870,13 +867,32 @@ window.__JD_REST_DONE = false;
       <p>El tratamiento de datos se realiza siguiendo las directrices aplicables del <strong>RGPD (UE)</strong>, la <strong>ePrivacy</strong>, la <strong>CCPA (California)</strong> y la <strong>LGPD (Brasil)</strong>. El usuario puede limpiar las cookies y datos del sitio en cualquier momento desde la configuración de su navegador.</p>
     </article>
 
+    <article class="jd-policy-card" data-policy-section="ads">
+      <h2>Red Publicitaria — Monetag</h2>
+      <p>El sitio se sostiene económicamente mediante publicidad servida por <strong>Monetag</strong>, una red publicitaria internacional con políticas estrictas de calidad y seguridad de tráfico.</p>
+      <h3>¿Qué hace Monetag?</h3>
+      <ul>
+        <li>Sirve anuncios contextuales y de retargeting compatibles con el contenido del sitio.</li>
+        <li>Utiliza cookies, identificadores publicitarios y almacenamiento local para limitar la frecuencia de visualización y medir conversiones.</li>
+        <li>Aplica filtros anti-fraude y verificaciones automáticas de calidad de tráfico.</li>
+      </ul>
+      <h3>Documentación oficial</h3>
+      <ul>
+        <li>Política de privacidad: <a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">monetag.com/privacy-policy</a></li>
+        <li>Términos del servicio: <a href="https://monetag.com/terms/" target="_blank" rel="noopener">monetag.com/terms</a></li>
+      </ul>
+      <p>Los enlaces finales de descarga pueden abrirse mediante un servicio acortador de enlaces externo, que puede mostrar su propia publicidad y es independiente de Monetag.</p>
+      <p>El script original de Monetag se carga con máxima prioridad desde el <code>&lt;head&gt;</code> del documento, sin modificaciones ni envoltorios, garantizando su correcto funcionamiento.</p>
+    </article>
+
     <article class="jd-policy-card" data-policy-section="cookies">
       <h2>Política de Cookies</h2>
       <p>Una cookie es un pequeño archivo de texto que un sitio web guarda en el navegador del usuario para recordar preferencias o medir el uso del sitio.</p>
       <h3>Tipos de cookies utilizadas</h3>
       <ul>
         <li><strong>Estrictamente necesarias:</strong> idioma, tema (claro/oscuro), versión del sitio. Sin estas el sitio no funciona correctamente.</li>
-                <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
+        <li><strong>Publicitarias (Monetag):</strong> identificadores anónimos para limitar la frecuencia de anuncios y medir su rendimiento.</li>
+        <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
       </ul>
       <h3>Gestión del consentimiento</h3>
       <p>Mediante el panel inferior puedes aceptar todas las cookies o mantener únicamente las estrictamente necesarias. Tu decisión queda guardada localmente en este navegador.</p>
@@ -6121,7 +6137,7 @@ function jdHandleDlClick(btn, modo){
     if(p.fill)  p.fill.style.width = Math.round(((_JD_DL_SECS - secs) / _JD_DL_SECS) * 100) + '%';
     if(p.eyebrow){
       p.eyebrow.textContent = secs >= 5
-        ? ('\u23F3 ESPERA ' + secs + ' S \u00B7 PREPARANDO ENLACE SEGURO')
+        ? ('\u23F3 ESPERA ' + secs + ' S \u00B7 PREPARANDO ENLACE')
         : (secs >= 3
             ? ('\u26A1 CASI LISTO \u00B7 FALTAN ' + secs + ' S')
             : ('\uD83D\uDD25 ' + secs + ' S \u00B7 NO CIERRES ESTA P\u00C1GINA'));
@@ -6784,7 +6800,7 @@ window.addEventListener('load', function(){
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.10.24-monetag-8';
+  var B='2026.10.25-monetag-9';
   function clean(){
     /* Ya NO se borran Service Workers ni cachés: el Service Worker de Monetag
        (notificaciones push) debe seguir vivo para que sus impresiones cuenten. */

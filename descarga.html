@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<!-- ══ MONETAG — PRIORIDAD MÁXIMA DESDE EL MILISEGUNDO 0 (igual que index.el mekor) ══ -->
+<!-- ══ MONETAG — PRIORIDAD MÁXIMA DESDE EL MILISEGUNDO 0 (zona propia de descarga, distinta a la del index) ══ -->
 <link rel="preconnect" href="https://quge5.com" crossorigin>
 <link rel="dns-prefetch" href="https://quge5.com">
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
@@ -14,14 +14,10 @@
      location.replace(). ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.24-monetag-8'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.25-monetag-9'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
-/* VOLVER CON “ATRÁS”: recargar al restaurar desde bfcache para contar la impresión. */
-window.addEventListener('pageshow',function(e){if(e.persisted){try{location.reload();}catch(_){}}});
 </script>
-<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
 
 
 
@@ -40,7 +36,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<link rel="stylesheet" href="descarga.css?v=2026.10.24-monetag-8">
+<link rel="stylesheet" href="descarga.css?v=2026.10.25-monetag-9">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,12 +116,12 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
     <div class="dl-stats-row">
       <div class="dl-stat-chip"><span class="dl-stat-label">Versión</span><span class="dl-stat-value blue" id="dl-stat-ver">—</span></div>
       <div class="dl-stat-chip"><span class="dl-stat-label">Peso</span><span class="dl-stat-value" id="dl-stat-size">—</span></div>
-      <div class="dl-stat-chip"><span class="dl-stat-label">Seguridad</span><span class="dl-stat-value green" id="dl-stat-sec">✓ Seguro</span></div>
+      <div class="dl-stat-chip"><span class="dl-stat-label">Formato</span><span class="dl-stat-value green" id="dl-stat-sec">APK</span></div>
     </div>
 
     <div class="dl-counter-section" id="dl-counter-area">
 
-      <div class="dl-waiting-text" id="dl-waiting-text">🛡️ Preparando servidor de descarga seguro...</div>
+      <div class="dl-waiting-text" id="dl-waiting-text">⏳ Preparando tu enlace de descarga...</div>
 
       <div class="dl-counter-row" id="dl-ring-wrap">
         <div class="dl-counter-ring">
@@ -146,7 +142,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
           </div>
         </div>
         <div class="dl-counter-info">
-          <div class="dl-counter-info-txt">Analizando archivo para una descarga segura...</div>
+          <div class="dl-counter-info-txt">Preparando tu enlace de descarga...</div>
           <div class="dl-progress-wrap"><div id="dl-progress-bar" class="dl-progress-bar"></div></div>
           <div class="dl-progress-pct" id="dl-progress-pct">0%</div>
         </div>
@@ -174,24 +170,24 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
     <section id="dl-gameinfo-section" class="dl-gameinfo-section" aria-label="Información del juego" hidden>
       <span class="dl-gameinfo-kicker">Información del juego</span>
       <h2 id="dl-gameinfo-title" class="dl-gameinfo-title">Información del juego</h2>
-      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Archivo verificado y preparado para Android. Revisa los detalles antes de continuar al paso final.</p>
+      <p id="dl-gameinfo-desc" class="dl-gameinfo-desc">Revisa los detalles del archivo antes de continuar al paso final.</p>
       <div class="dl-gameinfo-grid">
         <div class="dl-gameinfo-item"><b>Versión</b><span id="dl-gameinfo-ver">—</span></div>
         <div class="dl-gameinfo-item"><b>Peso</b><span id="dl-gameinfo-size">—</span></div>
         <div class="dl-gameinfo-item"><b>Compatibilidad</b><span>Android 5.0+</span></div>
-        <div class="dl-gameinfo-item"><b>Seguridad</b><span style="color:#4ade80">✓ Verificado</span></div>
+        <div class="dl-gameinfo-item"><b>Formato</b><span style="color:#4ade80">APK</span></div>
       </div>
       <div id="dl-gameinfo-feats" class="dl-gameinfo-feats"></div>
     </section>
 
-    <section id="dl-final-stage" class="dl-final-stage" aria-label="Verificación final del APK" hidden>
-      <div class="dl-stage-kicker">Paso final de descarga</div>
+    <section id="dl-final-stage" class="dl-final-stage" aria-label="Último paso de la descarga" hidden>
+      <div class="dl-stage-kicker">Último paso</div>
       <div class="dl-stage-card">
         <div class="dl-stage-head">
           <div class="dl-stage-icon" aria-hidden="true">🛡️</div>
           <div class="dl-stage-copybox">
-            <h2 id="dl-stage-title" class="dl-stage-title">Verificación final del archivo APK</h2>
-            <p id="dl-stage-copy" class="dl-stage-copy">Estamos preparando el enlace real del juego en una zona segura separada.</p>
+            <h2 id="dl-stage-title" class="dl-stage-title">Último paso: tu enlace de descarga</h2>
+            <p id="dl-stage-copy" class="dl-stage-copy">Estamos preparando el enlace de descarga del juego.</p>
           </div>
         </div>
 
@@ -201,7 +197,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
             <span>seg</span>
           </div>
           <div class="dl-stage-progress"><div id="dl-stage-progress-fill" class="dl-stage-progress-fill"></div></div>
-          <div id="dl-stage-status" class="dl-stage-status">Comprobando integridad del archivo y disponibilidad del servidor...</div>
+          <div id="dl-stage-status" class="dl-stage-status">Preparando el enlace de descarga...</div>
         </div>
 
         <a href="#" id="dl-download-final" class="dl-download-final dl-btn-final" rel="noopener noreferrer">
@@ -213,17 +209,17 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
             </svg>
           </div>
           <div class="dl-btn-text-col">
-            <span class="dl-btn-label-top">✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR</span>
+            <span class="dl-btn-label-top">✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR</span>
             <span id="dl-download-final-texto" class="dl-btn-game-title">Cargando archivo...</span>
           </div>
           <span id="dl-download-size-badge" class="dl-btn-size-badge">—</span>
         </a>
       </div>
 
-      <div class="dl-stage-info-grid" aria-label="Detalles de seguridad">
+      <div class="dl-stage-info-grid" aria-label="Detalles de la descarga">
         <div class="dl-stage-info"><strong>APK del juego</strong><span id="dl-stage-game-label">Datos cargados desde el panel</span></div>
-        <div class="dl-stage-info"><strong>MOD verificado</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
-        <div class="dl-stage-info"><strong>Servidor listo</strong><span>Enlace preparado para Android</span></div>
+        <div class="dl-stage-info"><strong>Características del MOD</strong><span id="dl-stage-mod-label">Características dinámicas</span></div>
+        <div class="dl-stage-info"><strong>Enlace listo</strong><span>Enlace preparado para Android</span></div>
       </div>
     </section>
 
@@ -238,6 +234,32 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
   </div><!-- /dl-body -->
 </div><!-- /dl-page -->
 
+
+<!-- ══ PIE DE PÁGINA: divulgación publicitaria + enlaces legales (requerido para redes publicitarias) ══ -->
+<div id="dl-legal-foot" style="text-align:center;font-size:11px;line-height:1.6;opacity:.75;padding:14px 16px 30px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  Publicidad servida por <strong>Monetag</strong> ·
+  <a href="index.html#policies" style="color:inherit;text-decoration:underline">Privacidad, Cookies y Términos</a>
+</div>
+<div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" style="display:none;position:fixed;top:10px;right:10px;z-index:9999;background:rgba(15,23,42,.96);color:#fff;border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:11px;line-height:1.3;max-width:230px">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:13px">🍪</span>
+    <span style="opacity:.92">Usamos cookies para anuncios. <a href="index.html#policies" style="color:#60a5fa;text-decoration:underline">Más</a></span></div>
+  <div style="display:flex;gap:5px">
+    <button onclick="jdCookieConsent('accept')" aria-label="Aceptar cookies" style="flex:1;background:#22c55e;color:#0a0a0a;border:0;border-radius:6px;padding:5px 8px;font-weight:800;font-size:11px;cursor:pointer">Aceptar</button>
+    <button onclick="jdCookieConsent('reject')" aria-label="Rechazar cookies" style="flex:1;background:#334155;color:#fff;border:0;border-radius:6px;padding:5px 8px;font-weight:700;font-size:11px;cursor:pointer">Rechazar</button>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY='jd_cookie_consent', saved=null;
+  try{ saved=localStorage.getItem(KEY); }catch(e){}
+  if(!saved){ setTimeout(function(){ var b=document.getElementById('jd-cookie-banner'); if(b) b.style.display='block'; },600); }
+  window.jdCookieConsent=function(choice){
+    try{ localStorage.setItem(KEY, choice+'|'+Date.now()); }catch(e){}
+    var b=document.getElementById('jd-cookie-banner'); if(b) b.style.display='none';
+  };
+})();
+</script>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
@@ -246,7 +268,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
 <script>
 /* ── CACHÉ DE IMÁGENES: guarda iconos en Cache API para carga instantánea ── */
 (function(){
-  var CACHE_NAME = 'jd-img-cache-2026.10.24-monetag-8';
+  var CACHE_NAME = 'jd-img-cache-2026.10.25-monetag-9';
   window._jdCacheImg = function(url) {
     if (!url || typeof caches === 'undefined') return;
     caches.open(CACHE_NAME).then(function(c) {
@@ -773,7 +795,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
         if (giSize) giSize.textContent = meta.size || '—';
         if (giTitle) giTitle.textContent = _cleanApk(_n) + (_v ? ' v' + _v : '') + '.Apk';
         if (giDesc) {
-          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Archivo verificado desde servidor seguro y compatible con Android 5.0+.');
+          var _mdesc = (meta.desc && meta.desc.trim()) ? meta.desc.trim() : ('MOD: ' + _modTxt(_feats) + '. Compatible con Android 5.0+.');
           giDesc.textContent = _mdesc;
         }
         if (giFeats) {
@@ -788,10 +810,10 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
           }).join('');
         }
       }
-      if (stageTitle) stageTitle.textContent = 'Verificación final de ' + _cleanApk(meta.name || 'MOD APK');
-      if (stageCopy) stageCopy.textContent = 'El enlace final se habilitará aquí abajo cuando termine la comprobación de seguridad.';
+      if (stageTitle) stageTitle.textContent = 'Último paso: ' + _cleanApk(meta.name || 'MOD APK');
+      if (stageCopy) stageCopy.textContent = 'El enlace final se habilitará aquí abajo en unos segundos.';
       if (stageScan) stageScan.style.display = '';
-      if (stageStatus) stageStatus.textContent = 'Comprobando integridad del archivo y disponibilidad del servidor...';
+      if (stageStatus) stageStatus.textContent = 'Preparando el enlace de descarga...';
       if (stageNum) stageNum.textContent = String(SECURITY_SCAN_SECS);
       if (stageFill) stageFill.style.width = '0%';
       if (lowerFinal) { lowerFinal.classList.remove('visible','estado-final'); lowerFinal.style.pointerEvents = 'none'; }
@@ -814,7 +836,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
           return;
         }
         if (stageNum) stageNum.textContent = String(Math.max(remainS, 1));
-        if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + Math.max(remainS,1) + 's ]';
+        if (stageStatus) stageStatus.textContent = 'Preparando tu enlace de descarga... [ ' + Math.max(remainS,1) + 's ]';
       }
       _tickFileScanner();
       fileScannerIv = setInterval(_tickFileScanner, 250);
@@ -842,10 +864,10 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
       var titleLine = baseName + (vc ? ' ' + vc : '') + '.Apk';
       var modLine   = 'Mod ' + modLbl;
 
-      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+      if (stageTitle) stageTitle.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
       if (stageCopy) stageCopy.textContent = 'Tu archivo está listo. Pulsa el botón azul para abrir el enlace final de descarga.';
       var lt = _lowerLabelTop();
-      if (lt) { lt.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
+      if (lt) { lt.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR'; lt.style.opacity = '1'; }
 
       if (lowerFinalTexto) {
         lowerFinalTexto.innerHTML =
@@ -877,7 +899,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
       if (lowerFinal && btnState === 'final') {
         lowerFinal.style.pointerEvents = '';
         var lt3 = _lowerLabelTop();
-        if (lt3) lt3.textContent = '✓ ¡ENLACE VERIFICADO! HAZ CLIC PARA DESCARGAR';
+        if (lt3) lt3.textContent = '✓ ¡ENLACE LISTO! HAZ CLIC PARA DESCARGAR';
       }
     }
     function _onFocusResync(){
@@ -890,7 +912,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
           var sec = Math.max(Math.ceil(remainMs/1000), 1);
           if (stageNum) stageNum.textContent = String(sec);
           if (stageFill) stageFill.style.width = (Math.min(1 - remainMs/(SECURITY_SCAN_SECS*1000), 1) * 100) + '%';
-          if (stageStatus) stageStatus.textContent = 'Analizando archivo para una descarga segura... [ ' + sec + 's ]';
+          if (stageStatus) stageStatus.textContent = 'Preparando tu enlace de descarga... [ ' + sec + 's ]';
         }
       } else if (!timerDone && timerRunning){
         _tickServerReady();
@@ -982,7 +1004,7 @@ window.addEventListener('pageshow',function(e){if(e.persisted){try{location.relo
      anuncios y borrarlo hacía perder impresiones. ══ -->
 <script>
 (function(){
-  var B='2026.10.24-monetag-8';
+  var B='2026.10.25-monetag-9';
   function clean(){
     try{
       if(typeof caches!=='undefined' && caches.keys){
