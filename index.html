@@ -25,7 +25,7 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.25-monetag-9'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.25-monetag-10'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
@@ -46,7 +46,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.10.25-monetag-9';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.10.25-monetag-10';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -293,8 +293,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<link rel="stylesheet" href="joeldroid.css?v=2026.10.25-monetag-9">
-<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.25-monetag-9">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.25-monetag-10">
+<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.25-monetag-10">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
@@ -924,7 +924,7 @@ window.__JD_REST_DONE = false;
 
 <!-- DETAIL VIEW -->
 <div id="detail-view" class="bg-[var(--overlay-bg)] hidden" style="position:relative;width:100%;min-height:100dvh;overflow:visible;pointer-events:auto;isolation:auto;contain:none;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:140px;min-height:100dvh;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:170px;min-height:100dvh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -6800,7 +6800,7 @@ window.addEventListener('load', function(){
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.10.25-monetag-9';
+  var B='2026.10.25-monetag-10';
   function clean(){
     /* Ya NO se borran Service Workers ni cachés: el Service Worker de Monetag
        (notificaciones push) debe seguir vivo para que sus impresiones cuenten. */

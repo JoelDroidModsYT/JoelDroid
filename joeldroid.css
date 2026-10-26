@@ -1083,8 +1083,9 @@ body.detail-open #share-fab{
 #detail-view:not(.hidden){display:block!important;opacity:1!important;visibility:visible!important;}
 #detail-view > div{
   min-height:100dvh!important;
-  /* La cabecera y el título del juego comienzan arriba, sin reserva publicitaria. */
-  padding-top:env(safe-area-inset-top, 0px)!important;
+  /* RESERVA PARA LOS 2 In-Page Push de Monetag (≈160px): la barra Atrás, el icono y el
+     nombre del juego empiezan DEBAJO de los anuncios para que el usuario pueda tocarlos. */
+  padding-top:170px!important;
 }
 #detail-view .sticky{
   top:0!important;
