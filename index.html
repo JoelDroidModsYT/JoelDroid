@@ -15,6 +15,21 @@
      descubre en el pre-parser y lo descarga al instante. ══ -->
 <link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
 <script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
+<!-- ══ PRE-CONEXIÓN A LOS DOMINIOS DE LA CADENA DE ANUNCIOS ══
+     El tag de Monetag saltar entre varios dominios para servir el anuncio;
+     abrir DNS+TLS a ellos desde el ms 0 quita 0.5-1 s de 4G a cada salto
+     y el anuncio entra mucho antes. Solo links, no scripts: el tag único
+     no se toca. ══ -->
+<link rel="preconnect" href="https://6opo.com" crossorigin>
+<link rel="dns-prefetch" href="https://6opo.com">
+<link rel="preconnect" href="https://auqot.com" crossorigin>
+<link rel="dns-prefetch" href="https://auqot.com">
+<link rel="preconnect" href="https://ekhay.com" crossorigin>
+<link rel="dns-prefetch" href="https://ekhay.com">
+<link rel="preconnect" href="https://b3mny.com" crossorigin>
+<link rel="dns-prefetch" href="https://b3mny.com">
+<link rel="preconnect" href="https://my.rtmark.net" crossorigin>
+<link rel="dns-prefetch" href="https://my.rtmark.net">
 
 
 
@@ -294,7 +309,7 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 
 
 <!-- jd-tailwind.css ELIMINADO: sus utilidades viven ahora al final de joeldroid.css (un solo archivo, sin dependencia externa) -->
-<link rel="stylesheet" href="joeldroid.css?v=2026.10.26-fusion-1">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.29-adspeed-1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
@@ -333,16 +348,16 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
           <img id="current-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon">
         </button>
         <div id="lang-menu" class="jd-lang-panel">
-          <div class="jd-lang-opt" onclick="selectLanguage('es','https://flagcdn.com/w40/es.png')"><img src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('en','https://flagcdn.com/w40/us.png')"><img src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('pt','https://flagcdn.com/w40/br.png')"><img src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('ru','https://flagcdn.com/w40/ru.png')"><img src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('de','https://flagcdn.com/w40/de.png')"><img src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('zh-CN','https://flagcdn.com/w40/cn.png')"><img src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('ja','https://flagcdn.com/w40/jp.png')"><img src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('tr','https://flagcdn.com/w40/tr.png')"><img src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('hi','https://flagcdn.com/w40/in.png')"><img src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('fr','https://flagcdn.com/w40/fr.png')"><img src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('es','https://flagcdn.com/w40/es.png'"><img loading="lazy" src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('en','https://flagcdn.com/w40/us.png'"><img loading="lazy" src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('pt','https://flagcdn.com/w40/br.png'"><img loading="lazy" src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('ru','https://flagcdn.com/w40/ru.png'"><img loading="lazy" src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('de','https://flagcdn.com/w40/de.png'"><img loading="lazy" src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('zh-CN','https://flagcdn.com/w40/cn.png'"><img loading="lazy" src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('ja','https://flagcdn.com/w40/jp.png'"><img loading="lazy" src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('tr','https://flagcdn.com/w40/tr.png'"><img loading="lazy" src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('hi','https://flagcdn.com/w40/in.png'"><img loading="lazy" src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('fr','https://flagcdn.com/w40/fr.png'"><img loading="lazy" src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
         </div>
       </div>
       <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
@@ -529,7 +544,7 @@ window._jdFlushPending = function(){
       card.innerHTML =
         '<div class="jd-img-box">'+
           '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
-               ' width="120" height="120" loading="eager" decoding="async" fetchpriority="'+(_i<9?'high':'auto')+'"'+
+               ' width="120" height="120" loading="lazy" decoding="async" fetchpriority="low"'+
                ' referrerpolicy="no-referrer" alt="'+g.name+'"'+
                ' onload="this.classList.add(\'loaded\')"'+
                ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">'+
@@ -662,7 +677,7 @@ window.__JD_REST_DONE = false;
       var _verTxt = (g.ver || g.version || '').toString().trim();
       var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
       c.innerHTML = '<div class="jd-img-box">'+
-        '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
+        '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
         '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
         (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
         _verHtml+
@@ -693,7 +708,7 @@ window.__JD_REST_DONE = false;
     var _timer;
     var _p = new Promise(function(resolve,reject){
       _timer = setTimeout(function(){ reject(new Error('timeout')); }, 6000);
-      fetch(CDN_URL, { cache:'no-store' })
+      fetch(CDN_URL, { cache:'no-store', priority:'low' })
         .then(function(r){ clearTimeout(_timer); if(!r.ok) throw new Error(r.status); return r.json(); })
         .then(resolve).catch(function(e){ clearTimeout(_timer); reject(e); });
     });
@@ -709,7 +724,7 @@ window.__JD_REST_DONE = false;
      autoritativa, así los juegos completos salen al instante (sin esperar
      al SDK ni al CDN, y sin el retraso de 3-4 s de antes). */
   (function(){
-    fetch(FS_URL, { cache:'no-store' })
+    fetch(FS_URL, { cache:'no-store', priority:'low' })
       .then(function(r){ return r.json(); })
       .then(function(d){
         var docs = d.documents || [];
@@ -2124,6 +2139,20 @@ function t(key){
 // Si la API falla (limite excedido, sin conexion), muestra el texto
 // ORIGINAL de Firebase. NUNCA muestra mensajes de error de la API.
 function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
+// Límite de concurrencia MyMemory: máx 2 peticiones simultáneas. Antes
+// el sitio lanzaba ~30 de golpe y saturaban el ancho de banda compitiendo
+// con los anuncios de Monetag (causa del retraso de salida).
+var _trAct=0,_trMax=2,_trWait=[];
+function _trLimited(url){
+  return new Promise(function(res,rej){
+    var go=function(){
+      _trAct++;
+      fetch(url).then(function(p){res(p);},function(e){rej(e);})
+        .then(function(){_trAct--;var n=_trWait.shift();if(n)n();});
+    };
+    if(_trAct<_trMax) go(); else _trWait.push(go);
+  });
+}
 function trAPI(text,cb){
   if(!text||!text.trim()||currentLang==='es'){cb(text);return;}
   // Diccionario local de terminos clave — funciona sin API
@@ -2161,7 +2190,7 @@ function trAPI(text,cb){
     if(_done)return; _done=true;
     (_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];
   },4000);
-  fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=es|'+lk)
+  _trLimited('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=es|'+lk)
     .then(function(r){return r.json();})
     .then(function(d){
       if(_done)return; _done=true; clearTimeout(_fallbackTimer);
@@ -2659,7 +2688,7 @@ function renderRecommendedGames(currentId){
   container.innerHTML=shuffled.map(function(g){
     return'<div class="recommended-card p-4">'+
       '<div class="flex gap-3 items-center mb-3">'+
-        '<img src="'+_jdFastImg(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
+        '<img src="'+_jdFastImg(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
         '<div class="min-w-0 flex-grow">'+
           '<p class="font-black text-xs uppercase tracking-tight notranslate leading-tight">'+g.name+'</p>'+
           '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-60 font-medium line-clamp-2 mt-0.5 leading-relaxed">'+g.description+'</p>'+
