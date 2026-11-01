@@ -5,31 +5,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://quge5.com" crossorigin>
-<link rel="dns-prefetch" href="https://quge5.com">
-<!-- ══ MONETAG — MULTITAG ÚNICO, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
-     Un solo código Multitag (como en index.elmecor): gestiona todos los
-     formatos de la cuenta (popunder, in-page push, native banner) sin
-     duplicar zonas ni competir entre scripts. Tal cual lo entrega Monetag
-     (src + data-zone + async + data-cfasync="false"), el navegador lo
-     descubre en el pre-parser y lo descarga al instante. ══ -->
-<link rel="preload" href="https://quge5.com/88/tag.min.js" as="script" fetchpriority="high">
-<script src="https://quge5.com/88/tag.min.js" data-zone="233464" async data-cfasync="false" fetchpriority="high"></script>
-<!-- ══ PRE-CONEXIÓN A LOS DOMINIOS DE LA CADENA DE ANUNCIOS ══
-     El tag de Monetag saltar entre varios dominios para servir el anuncio;
-     abrir DNS+TLS a ellos desde el ms 0 quita 0.5-1 s de 4G a cada salto
-     y el anuncio entra mucho antes. Solo links, no scripts: el tag único
-     no se toca. ══ -->
-<link rel="preconnect" href="https://6opo.com" crossorigin>
-<link rel="dns-prefetch" href="https://6opo.com">
-<link rel="preconnect" href="https://auqot.com" crossorigin>
-<link rel="dns-prefetch" href="https://auqot.com">
-<link rel="preconnect" href="https://ekhay.com" crossorigin>
-<link rel="dns-prefetch" href="https://ekhay.com">
-<link rel="preconnect" href="https://b3mny.com" crossorigin>
-<link rel="dns-prefetch" href="https://b3mny.com">
-<link rel="preconnect" href="https://my.rtmark.net" crossorigin>
-<link rel="dns-prefetch" href="https://my.rtmark.net">
+<link rel="preconnect" href="https://al5sm.com" crossorigin>
+<link rel="dns-prefetch" href="https://al5sm.com">
+<link rel="preconnect" href="https://n6wxm.com" crossorigin>
+<link rel="dns-prefetch" href="https://n6wxm.com">
+<!-- ══ MONETAG — TAGS OFICIALES, PRIMERA PETICIÓN DE LA PÁGINA (ms 0) ══
+     Formato estático tal cual lo entrega Monetag (src + data-zone + async
+     + data-cfasync="false"): el navegador los descubre en el pre-parser y
+     los descarga de inmediato, sin esperar a que se ejecute ningún JS. ══ -->
+<link rel="preload" href="https://al5sm.com/tag.min.js" as="script" fetchpriority="high">
+<script src="https://al5sm.com/tag.min.js" data-zone="11164634" async data-cfasync="false" fetchpriority="high"></script>
+<script src="https://n6wxm.com/vignette.min.js" data-zone="10922125" async data-cfasync="false"></script>
 
 
 
@@ -40,11 +26,12 @@
      tag de Monetag en cada navegación hacia descarga.html. ══ -->
 <script>
 (function(){
-  var JD_BUILD='2026.10.25-monetag-10'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
+  var JD_BUILD='2026.10.02-monetag-6'; // ⚠️ debe ser IDÉNTICO en index.html y descarga.html
   try{ localStorage.setItem('__jd_build', JD_BUILD); }catch(e){}
 })();
 </script>
-<!-- Sin recarga forzada al volver con "Atrás": el index bueno no la tenía y duplicaba cargas del tag. -->
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
 
 
 
@@ -61,7 +48,7 @@
 })();</script>
 
 <!-- App version marker -->
-<script>(function(){var APP_VERSION='2026.10.25-monetag-10';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
+<script>(function(){var APP_VERSION='2026.10.02-monetag-6';window.__JD_APP_VERSION=APP_VERSION;try{localStorage.setItem('__jd_app_version',APP_VERSION);}catch(e){}})();</script>
 
 <!-- ══ SLUG MAP ESTABLE — NO cambia la URL visible a IDs aleatorios ══ -->
 <script>(function(){
@@ -308,8 +295,8 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
 </script>
 
 
-<!-- jd-tailwind.css ELIMINADO: sus utilidades viven ahora al final de joeldroid.css (un solo archivo, sin dependencia externa) -->
-<link rel="stylesheet" href="joeldroid.css?v=2026.10.29-adspeed-1">
+<link rel="stylesheet" href="joeldroid.css?v=2026.10.02-monetag-6">
+<link rel="stylesheet" href="jd-tailwind.css?v=2026.10.02-monetag-6">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
 </head>
 <body class="no-scrollbar">
@@ -348,16 +335,16 @@ var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
           <img id="current-flag" src="https://flagcdn.com/w40/es.png" class="flag-icon">
         </button>
         <div id="lang-menu" class="jd-lang-panel">
-          <div class="jd-lang-opt" onclick="selectLanguage('es','https://flagcdn.com/w40/es.png'"><img loading="lazy" src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('en','https://flagcdn.com/w40/us.png'"><img loading="lazy" src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('pt','https://flagcdn.com/w40/br.png'"><img loading="lazy" src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('ru','https://flagcdn.com/w40/ru.png'"><img loading="lazy" src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('de','https://flagcdn.com/w40/de.png'"><img loading="lazy" src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('zh-CN','https://flagcdn.com/w40/cn.png'"><img loading="lazy" src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('ja','https://flagcdn.com/w40/jp.png'"><img loading="lazy" src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('tr','https://flagcdn.com/w40/tr.png'"><img loading="lazy" src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('hi','https://flagcdn.com/w40/in.png'"><img loading="lazy" src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
-          <div class="jd-lang-opt" onclick="selectLanguage('fr','https://flagcdn.com/w40/fr.png'"><img loading="lazy" src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('es','https://flagcdn.com/w40/es.png')"><img src="https://flagcdn.com/w40/es.png" class="flag-icon"><span>Español</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('en','https://flagcdn.com/w40/us.png')"><img src="https://flagcdn.com/w40/us.png" class="flag-icon"><span>English</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('pt','https://flagcdn.com/w40/br.png')"><img src="https://flagcdn.com/w40/br.png" class="flag-icon"><span>Português</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('ru','https://flagcdn.com/w40/ru.png')"><img src="https://flagcdn.com/w40/ru.png" class="flag-icon"><span>Pусский</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('de','https://flagcdn.com/w40/de.png')"><img src="https://flagcdn.com/w40/de.png" class="flag-icon"><span>Deutsch</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('zh-CN','https://flagcdn.com/w40/cn.png')"><img src="https://flagcdn.com/w40/cn.png" class="flag-icon"><span>中文</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('ja','https://flagcdn.com/w40/jp.png')"><img src="https://flagcdn.com/w40/jp.png" class="flag-icon"><span>日本語</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('tr','https://flagcdn.com/w40/tr.png')"><img src="https://flagcdn.com/w40/tr.png" class="flag-icon"><span>Türkçe</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('hi','https://flagcdn.com/w40/in.png')"><img src="https://flagcdn.com/w40/in.png" class="flag-icon"><span>हिन्दी</span></div>
+          <div class="jd-lang-opt" onclick="selectLanguage('fr','https://flagcdn.com/w40/fr.png')"><img src="https://flagcdn.com/w40/fr.png" class="flag-icon"><span>Français</span></div>
         </div>
       </div>
       <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center text-blue-500 border border-blue-500/30">
@@ -544,7 +531,7 @@ window._jdFlushPending = function(){
       card.innerHTML =
         '<div class="jd-img-box">'+
           '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded"'+
-               ' width="120" height="120" loading="lazy" decoding="async" fetchpriority="low"'+
+               ' width="120" height="120" loading="eager" decoding="async" fetchpriority="'+(_i<9?'high':'auto')+'"'+
                ' referrerpolicy="no-referrer" alt="'+g.name+'"'+
                ' onload="this.classList.add(\'loaded\')"'+
                ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">'+
@@ -677,7 +664,7 @@ window.__JD_REST_DONE = false;
       var _verTxt = (g.ver || g.version || '').toString().trim();
       var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
       c.innerHTML = '<div class="jd-img-box">'+
-        '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
+        '<img src="'+_jdFastImg(g.thumb||'')+'" class="jd-img icon-img-loaded loaded" loading="eager" decoding="async" referrerpolicy="no-referrer" alt="'+g.name+'">'+
         '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+mc+','+mc+'cc);">'+(g.modBadgeText||'MOD')+'</span>'+
         (g.updateBadgeVisible?'<span class="jd-upd-badge">'+(g.updateBadgeText||'UPDATE')+'</span>':'')+
         _verHtml+
@@ -708,7 +695,7 @@ window.__JD_REST_DONE = false;
     var _timer;
     var _p = new Promise(function(resolve,reject){
       _timer = setTimeout(function(){ reject(new Error('timeout')); }, 6000);
-      fetch(CDN_URL, { cache:'no-store', priority:'low' })
+      fetch(CDN_URL, { cache:'no-store' })
         .then(function(r){ clearTimeout(_timer); if(!r.ok) throw new Error(r.status); return r.json(); })
         .then(resolve).catch(function(e){ clearTimeout(_timer); reject(e); });
     });
@@ -724,7 +711,7 @@ window.__JD_REST_DONE = false;
      autoritativa, así los juegos completos salen al instante (sin esperar
      al SDK ni al CDN, y sin el retraso de 3-4 s de antes). */
   (function(){
-    fetch(FS_URL, { cache:'no-store', priority:'low' })
+    fetch(FS_URL, { cache:'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){
         var docs = d.documents || [];
@@ -831,8 +818,6 @@ window.__JD_REST_DONE = false;
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('cookies')">Cookies</a>
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('terms')">Términos</a>
-        <span class="jd-cr-divider"></span>
-        Publicidad servida por <strong>Monetag</strong>
       </div>
     </div>
   </footer>
@@ -848,7 +833,7 @@ window.__JD_REST_DONE = false;
       </button>
       <div class="jd-policy-title">
         <h1 id="jd-policy-main-title">Centro Legal y de Información</h1>
-        <p>Privacidad · Cookies · Publicidad · Términos · Sobre Nosotros</p>
+        <p>Privacidad · Cookies · Términos · Sobre Nosotros</p>
       </div>
     </header>
 
@@ -860,7 +845,7 @@ window.__JD_REST_DONE = false;
       <ul>
         <li><strong>Verificación previa:</strong> cada archivo publicado es revisado para confirmar que se ajusta a la descripción.</li>
         <li><strong>Actualización constante:</strong> mantenemos un registro de versiones para que el usuario sepa siempre qué edición está descargando.</li>
-        <li><strong>Transparencia publicitaria:</strong> la publicidad del sitio es servida por una red publicitaria autorizada (Monetag); los enlaces finales de descarga pueden abrirse mediante un acortador de enlaces externo con su propia publicidad. No utilizamos pop-ups engañosos ni descargas forzadas.</li>
+        <li><strong>Transparencia publicitaria:</strong> no utilizamos pop-ups engañosos ni descargas forzadas.</li>
         <li><strong>Respeto al desarrollador original:</strong> todo el contenido modificado se ofrece con fines informativos y de evaluación; recomendamos siempre apoyar a los estudios originales adquiriendo sus versiones oficiales.</li>
       </ul>
       <p>El proyecto es operado por <strong>JoelDroid Labs</strong>, un equipo pequeño enfocado en pruebas, edición y difusión de contenido Android desde el canal de YouTube del mismo nombre.</p>
@@ -882,32 +867,13 @@ window.__JD_REST_DONE = false;
       <p>El tratamiento de datos se realiza siguiendo las directrices aplicables del <strong>RGPD (UE)</strong>, la <strong>ePrivacy</strong>, la <strong>CCPA (California)</strong> y la <strong>LGPD (Brasil)</strong>. El usuario puede limpiar las cookies y datos del sitio en cualquier momento desde la configuración de su navegador.</p>
     </article>
 
-    <article class="jd-policy-card" data-policy-section="ads">
-      <h2>Red Publicitaria — Monetag</h2>
-      <p>El sitio se sostiene económicamente mediante publicidad servida por <strong>Monetag</strong>, una red publicitaria internacional con políticas estrictas de calidad y seguridad de tráfico.</p>
-      <h3>¿Qué hace Monetag?</h3>
-      <ul>
-        <li>Sirve anuncios contextuales y de retargeting compatibles con el contenido del sitio.</li>
-        <li>Utiliza cookies, identificadores publicitarios y almacenamiento local para limitar la frecuencia de visualización y medir conversiones.</li>
-        <li>Aplica filtros anti-fraude y verificaciones automáticas de calidad de tráfico.</li>
-      </ul>
-      <h3>Documentación oficial</h3>
-      <ul>
-        <li>Política de privacidad: <a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">monetag.com/privacy-policy</a></li>
-        <li>Términos del servicio: <a href="https://monetag.com/terms/" target="_blank" rel="noopener">monetag.com/terms</a></li>
-      </ul>
-      <p>Los enlaces finales de descarga pueden abrirse mediante un servicio acortador de enlaces externo, que puede mostrar su propia publicidad y es independiente de Monetag.</p>
-      <p>El script original de Monetag se carga con máxima prioridad desde el <code>&lt;head&gt;</code> del documento, sin modificaciones ni envoltorios, garantizando su correcto funcionamiento.</p>
-    </article>
-
     <article class="jd-policy-card" data-policy-section="cookies">
       <h2>Política de Cookies</h2>
       <p>Una cookie es un pequeño archivo de texto que un sitio web guarda en el navegador del usuario para recordar preferencias o medir el uso del sitio.</p>
       <h3>Tipos de cookies utilizadas</h3>
       <ul>
         <li><strong>Estrictamente necesarias:</strong> idioma, tema (claro/oscuro), versión del sitio. Sin estas el sitio no funciona correctamente.</li>
-        <li><strong>Publicitarias (Monetag):</strong> identificadores anónimos para limitar la frecuencia de anuncios y medir su rendimiento.</li>
-        <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
+                <li><strong>De preferencias:</strong> última pestaña abierta, vista de catálogo, configuración personalizada.</li>
       </ul>
       <h3>Gestión del consentimiento</h3>
       <p>Mediante el panel inferior puedes aceptar todas las cookies o mantener únicamente las estrictamente necesarias. Tu decisión queda guardada localmente en este navegador.</p>
@@ -939,7 +905,7 @@ window.__JD_REST_DONE = false;
 
 <!-- DETAIL VIEW -->
 <div id="detail-view" class="bg-[var(--overlay-bg)] hidden" style="position:relative;width:100%;min-height:100dvh;overflow:visible;pointer-events:auto;isolation:auto;contain:none;">
-  <div class="max-w-md mx-auto pb-24" style="padding-top:170px;min-height:100dvh;">
+  <div class="max-w-md mx-auto pb-24" style="padding-top:env(safe-area-inset-top, 0px);min-height:100dvh;">
     <div class="px-6 py-4 flex items-center justify-between sticky top-0 bg-[var(--overlay-bg)] z-30 relative">
       <button onclick="closeDetail()" class="text-blue-500 flex items-center gap-1 font-bold z-20">
         <i data-lucide="chevron-left"></i><span data-i18n="back_btn">Atrás</span>
@@ -2139,20 +2105,6 @@ function t(key){
 // Si la API falla (limite excedido, sin conexion), muestra el texto
 // ORIGINAL de Firebase. NUNCA muestra mensajes de error de la API.
 function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
-// Límite de concurrencia MyMemory: máx 2 peticiones simultáneas. Antes
-// el sitio lanzaba ~30 de golpe y saturaban el ancho de banda compitiendo
-// con los anuncios de Monetag (causa del retraso de salida).
-var _trAct=0,_trMax=2,_trWait=[];
-function _trLimited(url){
-  return new Promise(function(res,rej){
-    var go=function(){
-      _trAct++;
-      fetch(url).then(function(p){res(p);},function(e){rej(e);})
-        .then(function(){_trAct--;var n=_trWait.shift();if(n)n();});
-    };
-    if(_trAct<_trMax) go(); else _trWait.push(go);
-  });
-}
 function trAPI(text,cb){
   if(!text||!text.trim()||currentLang==='es'){cb(text);return;}
   // Diccionario local de terminos clave — funciona sin API
@@ -2190,7 +2142,7 @@ function trAPI(text,cb){
     if(_done)return; _done=true;
     (_trQ[ck]||[]).forEach(function(f){f(text);});delete _trQ[ck];
   },4000);
-  _trLimited('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=es|'+lk)
+  fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=es|'+lk)
     .then(function(r){return r.json();})
     .then(function(d){
       if(_done)return; _done=true; clearTimeout(_fallbackTimer);
@@ -2688,7 +2640,7 @@ function renderRecommendedGames(currentId){
   container.innerHTML=shuffled.map(function(g){
     return'<div class="recommended-card p-4">'+
       '<div class="flex gap-3 items-center mb-3">'+
-        '<img src="'+_jdFastImg(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
+        '<img src="'+_jdFastImg(g.thumb&&g.thumb!==''?g.thumb:(g.imagen||g.icon||'https://via.placeholder.com/72'))+'" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" class="icon-img loaded w-16 h-16 rounded-2xl object-cover border border-blue-500/20 flex-shrink-0" alt="'+g.name+'">'+
         '<div class="min-w-0 flex-grow">'+
           '<p class="font-black text-xs uppercase tracking-tight notranslate leading-tight">'+g.name+'</p>'+
           '<p data-cdesc="'+g.id+'" class="text-[9px] opacity-60 font-medium line-clamp-2 mt-0.5 leading-relaxed">'+g.description+'</p>'+
@@ -6166,7 +6118,7 @@ function jdHandleDlClick(btn, modo){
     if(p.fill)  p.fill.style.width = Math.round(((_JD_DL_SECS - secs) / _JD_DL_SECS) * 100) + '%';
     if(p.eyebrow){
       p.eyebrow.textContent = secs >= 5
-        ? ('\u23F3 ESPERA ' + secs + ' S \u00B7 PREPARANDO ENLACE')
+        ? ('\u23F3 ESPERA ' + secs + ' S \u00B7 PREPARANDO ENLACE SEGURO')
         : (secs >= 3
             ? ('\u26A1 CASI LISTO \u00B7 FALTAN ' + secs + ' S')
             : ('\uD83D\uDD25 ' + secs + ' S \u00B7 NO CIERRES ESTA P\u00C1GINA'));
@@ -6829,7 +6781,7 @@ window.addEventListener('load', function(){
      podían seguir sirviendo el HTML antiguo a usuarios recurrentes. ══ -->
 <script>
 (function(){
-  var B='2026.10.25-monetag-10';
+  var B='2026.10.02-monetag-6';
   function clean(){
     /* Ya NO se borran Service Workers ni cachés: el Service Worker de Monetag
        (notificaciones push) debe seguir vivo para que sus impresiones cuenten. */
