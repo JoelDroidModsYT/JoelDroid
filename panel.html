@@ -28,7 +28,7 @@ var FIREBASE_CONFIG = {
 var ADMIN_UID   = "eneOiCvY5UZSrn9k4DWkVJtVbrX2";
 var ADMIN_EMAIL = "gamerssimulacionjl@gmail.com";
 
-var SYNC_CONFIG = { adminPass:'joeldroid2024', pollMs:3000,
+var SYNC_CONFIG = { pollMs:3000,
   gistId:'6af1ef1dafd40c26283b9d717db4e1d0'
 };
 
@@ -274,6 +274,7 @@ body{
         </div>
         <!-- Top juegos clickeados -->
         <div id="stats-panel-content" style="margin-top:8px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0"><button onclick="jdRateAllMissing()" style="padding:9px;border:none;border-radius:10px;background:rgba(250,204,21,.15);color:#facc15;font-size:9px;font-weight:900;cursor:pointer">⭐ Calificar juegos sin nota</button><button onclick="jdCleanCommentEmails()" style="padding:9px;border:none;border-radius:10px;background:rgba(239,68,68,.15);color:#f87171;font-size:9px;font-weight:900;cursor:pointer">🧹 Limpiar correos en comentarios</button></div>
         <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Analytics</button>
       </div>
 
@@ -615,6 +616,17 @@ body{
         <textarea id="editor-features" class="ged-input ged-textarea" placeholder="Monedas Infinitas, Sin Anuncios, Todo Desbloqueado, Sin Virus"></textarea>
       </div>
       <div class="ged-section">
+        <div class="ged-section-title">⭐ Calificación inicial (Google Play)</div>
+        <label class="ged-label">Enlace de Google Play o nombre del paquete (opcional)</label>
+        <input type="text" id="editor-play-hint" class="ged-input" placeholder="https://play.google.com/store/apps/details?id=..." style="margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div><label class="ged-label">Nota (0-5)</label><input type="number" step="0.1" min="0" max="5" id="editor-play-rating" class="ged-input" placeholder="4.5"></div>
+          <div><label class="ged-label">Votos</label><input type="number" min="0" id="editor-play-count" class="ged-input" placeholder="120000"></div>
+        </div>
+        <button type="button" onclick="jdEditorFindRating()" style="width:100%;padding:9px;font-size:10px;font-weight:900;border:none;border-radius:10px;background:rgba(250,204,21,.15);color:#facc15;cursor:pointer">🔎 Buscar nota en Google Play</button>
+        <p style="font-size:9px;opacity:.5;margin-top:6px">Si lo dejas vacío, al guardar el bot intenta buscarla solo con el nombre.</p>
+      </div>
+      <div class="ged-section">
         <div class="ged-section-title">Icono del Juego</div>
         <img id="ged-icon-preview" class="ged-icon-preview" src="" alt="preview">
         <label class="ged-label">URL de la imagen</label>
@@ -932,7 +944,7 @@ function _uploadIconBlob(blob, gameId, fileName){
   return _blobToDataURL(blob);
 }
 function _uploadIconFile(file, gameId){
-  return _fileToOptimizedDataURL(file, 320, 0.76);
+  return _fileToOptimizedDataURL(file, 256, 0.72);
 }
 function _uploadDataIcon(dataURL, gameId){
   return _optimizeDataURL(dataURL, 320, 0.76);
@@ -1004,7 +1016,7 @@ function _initFirebase(){
 function _fbListenMods(){
   if(!_db)return;
   if(_fbModsUnsub){_fbModsUnsub();_fbModsUnsub=null;}
-  _fbModsUnsub=_db.collection('mods').orderBy('order','asc').onSnapshot(function(snap){
+  _fbModsUnsub=_db.collection('mods').onSnapshot(function(snap){
     if(snap.empty){renderGameEditorList();return;}
     var games=snap.docs.map(function(doc){
       var d=doc.data();d.id=doc.id;
@@ -1098,7 +1110,7 @@ function fbMigrateLocalGames(){
   games.forEach(function(g,i){
     batch.set(_db.collection('mods').doc(String(g.id)),Object.assign({},g,{order:i,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),createdAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});
   });
-  batch.commit().then(function(){showToast('✅ '+games.length+' juegos publicados 🌍');_fbSaveSiteConfig();}).catch(function(e){showToast('❌ '+e.message);});
+  batch.commit().then(function(){showToast('✅ '+games.length+' juegos publicados 🌍');_fbSaveSiteConfig();_jdPublishAll();}).catch(function(e){showToast('❌ '+e.message);});
 }
 
 function doFirebaseLogin(){
@@ -1554,6 +1566,7 @@ function openGameEditor(gameId){
     _es('editor-dlpage-name2').value=g.dlPageName2||'';_es('editor-dlpage-ver2').value=g.dlPageVer2||'';
     _es('editor-dlpage-size2').value=g.dlPageSize2||'';_es('editor-dlpage-btn2').value=g.dlPageBtn2||'';
     _es('editor-icon-url').value=g.thumb||'';
+    _es('editor-play-hint').value=g.playUrl||'';_es('editor-play-rating').value=g.playRating||'';_es('editor-play-count').value=g.playRatingCount||'';
     var _gss=Array.isArray(g.screenshots)?g.screenshots.slice(0,4):[];
     _GED_SCREENS=['','','',''];for(var _si=0;_si<_gss.length;_si++)_GED_SCREENS[_si]=_gss[_si]||'';
     _GED_SCREENS_FILES=[null,null,null,null];_gedRenderScreens();
@@ -1798,6 +1811,19 @@ function processSaveGameData(editId,data){
 }
 
 function _processSaveGameDataReady(editId,data){
+  var _pr=parseFloat((document.getElementById('editor-play-rating')||{}).value)||0;
+  data.playRating=_pr; data.playRatingCount=parseInt((document.getElementById('editor-play-count')||{}).value,10)||0;
+  data.playUrl=((document.getElementById('editor-play-hint')||{}).value||'').trim();
+  if(!(_pr>0)&&data.name){
+    showToast('🔎 Buscando calificación en Google Play…');
+    return jdFindPlayRating(data.name,data.playUrl).then(function(r){
+      data.playRating=r.rating;data.playRatingCount=r.count;data.playUrl=r.url;data.playPackage=r.pkg;
+      _processSaveGameDataReady2(editId,data);
+    }).catch(function(){ showToast('ℹ️ Sin nota de Google Play (puedes ponerla a mano)'); _processSaveGameDataReady2(editId,data); });
+  }
+  _processSaveGameDataReady2(editId,data);
+}
+function _processSaveGameDataReady2(editId,data){
   var ukKey=data.updateBadgeBgColorKey,mkKey=data.modBadgeBgColorKey;
   var gameId=editId?String(editId):String(Date.now());
   data=JSON.parse(JSON.stringify(data));
@@ -1817,7 +1843,7 @@ function _processSaveGameDataReady(editId,data){
       .then(function(){
         renderGameEditorList();closeGameEditor();
         try{_syncToGitHub();}catch(e){}
-        try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json para carga instantánea
+        _jdPublishAll(newGame);
       })
       .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
   }else{
@@ -1828,7 +1854,7 @@ function _processSaveGameDataReady(editId,data){
           .then(function(){
             renderGameEditorList();closeGameEditor();
             try{_syncToGitHub();}catch(e){}
-            try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json
+            _jdPublishAll(newGame);
           })
           .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
       }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
@@ -1861,7 +1887,7 @@ function deleteGameGlobal(gameId){
   if(!confirm('¿Eliminar este juego? Se eliminará para TODOS los usuarios.'))return;
   if(_isAdmin()){_fbDeleteGame(String(gameId)).then(function(){
     renderGameEditorList();
-    try{_syncGamesToGist();}catch(e){} // ← Actualiza games.json al eliminar
+    _jdPublishAll(null,gameId);
   });}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
@@ -1899,8 +1925,8 @@ function _saveGHConfig(cfg){try{localStorage.setItem('jd_gh_cfg',JSON.stringify(
    Se llama automáticamente al guardar/eliminar un juego.
    Usa el mismo token del admin pero escribe al GIST de games.
    ════════════════════════════════════════════════════════════════════ */
-function _buildGamesPayload(){
-  var games = (siteState.gamesList || []).filter(function(g){
+function _buildGamesPayload(list){
+  var games = (list || siteState.gamesList || []).filter(function(g){
     return g.visible !== false;
   }).map(function(g){
     return {
@@ -1940,15 +1966,17 @@ function _buildGamesPayload(){
       dlPageVer2:           g.dlPageVer2 || '',
       dlPageSize2:          g.dlPageSize2 || '',
       dlPageBtn2:           g.dlPageBtn2 || '',
-      screenshots:          Array.isArray(g.screenshots) ? g.screenshots : (Array.isArray(g.capturas) ? g.capturas : [])
+      playRating:           g.playRating || 0,
+      playRatingCount:      g.playRatingCount || 0
     };
   });
   return JSON.stringify({
     _info:    'JoelDroid Mods YT — Auto-generado. No editar manualmente.',
     _updated: new Date().toISOString(),
     _count:   games.length,
+    _rev:     games.reduce(function(m,g){return Math.max(m,g.timestamp||0);},0),
     games:    games
-  }, null, 2);
+  });
 }
 
 /* Versión silenciosa (auto-sync al guardar/eliminar) */
@@ -1965,7 +1993,7 @@ function _syncGamesToGist(){
 }
 
 /* Versión con callback — devuelve el resultado REAL del fetch */
-function _syncGamesToGistWithCallback(cb){
+function _syncGamesToGistWithCallback(cb,list){
   var cfg = _ghCfg || _loadGHConfig();
   if(!cfg || !cfg.token){ if(cb) cb(false, 'Sin token GitHub'); return; }
 
@@ -1976,7 +2004,7 @@ function _syncGamesToGistWithCallback(cb){
       'Content-Type':  'application/json'
     },
     body: JSON.stringify({
-      files: { 'games.json': { content: _buildGamesPayload() } }
+      files: { 'games.json': { content: _buildGamesPayload(list) } }
     })
   })
   .then(function(r){
@@ -2175,92 +2203,164 @@ function _diasAnteriores(n){
   return dias;
 }
 
-function _listenStats(){
-  if(!_db)return;
-  if(_statsUnsub){_statsUnsub();_statsUnsub=null;}
-  _statsUnsub=_db.collection('siteConfig').doc('stats')
-    .onSnapshot(function(doc){
-      if(doc.exists) _renderDashboard(doc.data());
-      else _renderDashboard({});
-    },function(){});
+
+/* ════════════════════════════════════════════════════════════════
+   PUBLICACIÓN INSTANTÁNEA + GIST CORRECTO + ESTADÍSTICAS + BOT PLAY STORE
+   ════════════════════════════════════════════════════════════════ */
+
+/* 1) "Revisión del catálogo": documento diminuto que TODOS los visitantes vigilan.
+      Cada guardado/eliminación lo cambia → el sitio sincroniza al instante. */
+function _jdBumpCatalog(count){
+  if(!_db||!_isAdmin()) return Promise.resolve();
+  return _db.collection('siteConfig').doc('catalog').set({rev:Date.now(),count:count||0})
+    .catch(function(e){ showToast('⚠️ No se pudo avisar al sitio del cambio: '+(e&&e.code||e)); });
 }
 
-function _renderDashboard(data){
-  var hoy=_hoy();
-  var mes=hoy.slice(0,7);
-  var daily=data.daily||{};
-  var monthly=data.monthly||{};
-  var total=data.visits||0;
-
-  // ── Métricas rápidas ──────────────────────────────────────────
-  var elHoy=document.getElementById('stat-today');
-  var elMes=document.getElementById('stat-month');
-  var elTot=document.getElementById('stat-total');
-  if(elHoy)elHoy.textContent=(daily[hoy]||0).toLocaleString();
-  if(elMes)elMes.textContent=(monthly[mes]||0).toLocaleString();
-  if(elTot)elTot.textContent=total.toLocaleString();
-
-  // ── Gráfico de barras 7 días ──────────────────────────────────
-  var chart=document.getElementById('stats-chart');
-  var labels=document.getElementById('stats-chart-labels');
-  var dias=_diasAnteriores(7);
-  var maxVal=1;
-  var vals=dias.map(function(d){ var v=daily[d]||0; if(v>maxVal)maxVal=v; return v; });
-  var diasLabels=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
-  var colors=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ec4899','#60a5fa'];
-
-  if(chart){
-    chart.innerHTML=vals.map(function(v,i){
-      var pct=Math.max(4,Math.round((v/maxVal)*100));
-      var isHoy=(dias[i]===hoy);
-      var col=isHoy?'#38bdf8':colors[i%colors.length];
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">'
-        +'<span style="font-size:7px;font-weight:900;color:'+col+';opacity:'+(v>0?'1':'.3')+'">'+v+'</span>'
-        +'<div style="width:100%;height:'+pct+'%;min-height:3px;background:'+col+';border-radius:4px 4px 0 0;'+(isHoy?'box-shadow:0 0 8px '+col+';':'')+'transition:height .4s ease"></div>'
-        +'</div>';
-    }).join('');
+/* 2) Gist: se construye con la lista REAL (incluye el juego recién guardado).
+      Antes se usaba siteState.gamesList, que todavía no tenía el cambio → el Gist quedaba viejo. */
+function _jdListWith(changed, deletedId){
+  var list=(siteState.gamesList||[]).filter(function(g){ return !deletedId||String(g.id)!==String(deletedId); });
+  if(changed){
+    var i=list.findIndex(function(g){ return String(g.id)===String(changed.id); });
+    if(i>=0) list[i]=Object.assign({},list[i],changed); else list.push(changed);
   }
-
-  if(labels){
-    labels.innerHTML=dias.map(function(d,i){
-      var dt=new Date(d+'T12:00:00');
-      var lbl=diasLabels[dt.getDay()];
-      var isHoy=(d===hoy);
-      return '<span style="flex:1;font-size:7px;font-weight:900;text-align:center;color:'+(isHoy?'#38bdf8':'rgba(255,255,255,.35)')+'">'+lbl+(isHoy?' ●':'')+'</span>';
-    }).join('');
-  }
-
-  // ── Top juegos clickeados ─────────────────────────────────────
-  var panel=document.getElementById('stats-panel-content');
-  if(!panel)return;
-  var clicks=[];
-  Object.keys(data).forEach(function(k){
-    if(k.indexOf('gameClicks_')===0){
-      var id=k.replace('gameClicks_','');
-      clicks.push({name:data['gameName_'+id]||('Juego #'+id),count:data[k]||0});
-    }
+  return list;
+}
+function _jdPublishAll(changed, deletedId){
+  var list=_jdListWith(changed,deletedId);
+  return _jdBumpCatalog(list.length).then(function(){
+    var cfg=_ghCfg||_loadGHConfig();
+    if(!cfg||!cfg.token){ _showGHStatus('ℹ️ Publicado. (Sin token de GitHub: el Gist de arranque rápido no se actualizó)','#60a5fa'); return; }
+    var attempt=function(n){
+      _syncGamesToGistWithCallback(function(ok,msg){
+        if(ok) _showGHStatus('✅ Publicado en Firebase y en el Gist (carga instantánea)','#10b981');
+        else if(n<2) setTimeout(function(){ attempt(n+1); },1500);
+        else _showGHStatus('⚠️ Publicado en Firebase, pero el Gist falló: '+msg,'#f59e0b');
+      },list);
+    };
+    attempt(0);
   });
-  clicks.sort(function(a,b){return b.count-a.count;});
-  var top=clicks.slice(0,6);
-  var maxC=top.length?top[0].count:1;
-  var barColors=['#60a5fa','#a78bfa','#34d399','#f59e0b','#f472b6','#06b6d4'];
+}
 
-  if(!top.length){
-    panel.innerHTML='<p style="font-size:9px;opacity:.3;text-align:center;padding:10px">Sin clicks registrados aún.</p>';
-    return;
-  }
+/* 3) Estadísticas: lee siteStats (por día) + gameStats (por juego) + histórico siteConfig/stats */
+var _jdStatsUnsubs=[];
+function _listenStats(){
+  if(!_db) return;
+  _jdStatsUnsubs.forEach(function(u){ try{u();}catch(e){} }); _jdStatsUnsubs=[];
+  var S={legacy:{},days:{},games:{}};
+  var draw=function(){ _renderDashboard(S); };
+  _db.collection('siteConfig').doc('stats').get().then(function(d){ S.legacy=d.exists?d.data():{}; draw(); }).catch(function(){});
+  _jdStatsUnsubs.push(_db.collection('siteStats').onSnapshot(function(snap){
+    S.days={}; snap.forEach(function(d){ S.days[d.id]=d.data(); }); draw();
+  },function(e){ showToast('⚠️ Estadísticas: '+(e&&e.code)+' — publica firestore.rules'); }));
+  _jdStatsUnsubs.push(_db.collection('gameStats').onSnapshot(function(snap){
+    S.games={}; snap.forEach(function(d){ S.games[d.id]=d.data(); }); draw();
+  },function(){}));
+}
+function _renderDashboard(S){
+  var hoy=_hoy(), mes=hoy.slice(0,7), days=S.days||{}, legacy=S.legacy||{};
+  var legDaily=legacy.daily||{}, legMonthly=legacy.monthly||{};
+  function dayVisits(d){ return ((days[d]||{}).visits||0)+(legDaily[d]||0); }
+  var mesTotal=legMonthly[mes]||0, total=legacy.visits||0, newMes=0;
+  Object.keys(days).forEach(function(d){ total+=days[d].visits||0; if(d.indexOf(mes)===0) newMes+=days[d].visits||0; });
+  mesTotal=mesTotal+newMes;
+  var set=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=Number(v).toLocaleString(); };
+  set('stat-today',dayVisits(hoy)); set('stat-month',mesTotal); set('stat-total',total);
+  var chart=document.getElementById('stats-chart'), labels=document.getElementById('stats-chart-labels');
+  var dias=_diasAnteriores(7), vals=dias.map(dayVisits), maxVal=Math.max.apply(null,vals.concat([1]));
+  var lab=['Do','Lu','Ma','Mi','Ju','Vi','Sa'], cols=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ec4899','#60a5fa'];
+  if(chart) chart.innerHTML=vals.map(function(v,i){
+    var pct=Math.max(4,Math.round(v/maxVal*100)), isHoy=dias[i]===hoy, col=isHoy?'#38bdf8':cols[i%cols.length];
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><span style="font-size:7px;font-weight:900;color:'+col+';opacity:'+(v>0?1:.3)+'">'+v+'</span><div style="width:100%;height:'+pct+'%;min-height:3px;background:'+col+';border-radius:4px 4px 0 0"></div></div>';
+  }).join('');
+  if(labels) labels.innerHTML=dias.map(function(d){
+    var l=lab[new Date(d+'T12:00:00').getDay()], h=d===hoy;
+    return '<span style="flex:1;font-size:7px;font-weight:900;text-align:center;color:'+(h?'#38bdf8':'rgba(255,255,255,.35)')+'">'+l+(h?' ●':'')+'</span>';
+  }).join('');
+  var panel=document.getElementById('stats-panel-content'); if(!panel) return;
+  var map={};
+  Object.keys(legacy).forEach(function(k){ if(k.indexOf('gameClicks_')===0){ var id=k.slice(11); map[id]={name:legacy['gameName_'+id]||id,count:legacy[k]||0}; } });
+  Object.keys(S.games||{}).forEach(function(id){ var g=S.games[id]; map[id]=map[id]||{name:g.name||id,count:0}; map[id].count+=g.clicks||0; if(g.name) map[id].name=g.name; });
+  var top=Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return b.count-a.count;}).slice(0,8);
+  if(!top.length){ panel.innerHTML='<p style="font-size:9px;opacity:.3;text-align:center;padding:10px">Sin clicks registrados aún.</p>'; return; }
+  var mx=top[0].count||1, bc=['#60a5fa','#a78bfa','#34d399','#f59e0b','#f472b6','#06b6d4','#fb923c','#818cf8'];
+  var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');};
+  panel.innerHTML='<p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(167,139,250,.7);margin-bottom:8px">🔥 Juegos más clickeados</p>'+top.map(function(c,i){
+    var pct=Math.round(c.count/mx*100), col=bc[i%bc.length];
+    return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px;color:rgba(255,255,255,.8)">'+esc(c.name)+'</span><span style="font-size:9px;font-weight:900;color:'+col+'">'+c.count+'</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px"></div></div></div>';
+  }).join('');
+}
 
-  panel.innerHTML='<p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(167,139,250,.7);margin-bottom:8px">🔥 Juegos más clickeados</p>'
-    +top.map(function(c,i){
-      var pct=Math.round(c.count/maxC*100);
-      var col=barColors[i%barColors.length];
-      return '<div style="margin-bottom:9px">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-        +'<span style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px;color:rgba(255,255,255,.8)">'+c.name+'</span>'
-        +'<span style="font-size:9px;font-weight:900;color:'+col+';min-width:24px;text-align:right">'+c.count+'</span></div>'
-        +'<div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">'
-        +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,'+col+','+col+'99);border-radius:3px;box-shadow:0 0 8px '+col+'66;transition:width .5s ease"></div></div></div>';
-    }).join('');
+/* 4) BOT DE CALIFICACIÓN — busca la nota REAL en Google Play (por nombre o por enlace) */
+var _JD_PROXIES=[
+  function(u){return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u);},
+  function(u){return 'https://corsproxy.io/?'+encodeURIComponent(u);}
+];
+function _jdProxyFetch(url){
+  var i=0;
+  return new Promise(function(res,rej){
+    (function next(){
+      if(i>=_JD_PROXIES.length) return rej(new Error('proxy'));
+      var ctl=new AbortController(), t=setTimeout(function(){ctl.abort();},9000);
+      fetch(_JD_PROXIES[i++](url),{signal:ctl.signal}).then(function(r){ clearTimeout(t); if(!r.ok) throw 0; return r.text(); })
+        .then(function(h){ if(!h||h.length<500) throw 0; res(h); }).catch(function(){ clearTimeout(t); next(); });
+    })();
+  });
+}
+function jdFindPlayRating(name, hint){
+  var pkg=(String(hint||'').match(/[?&]id=([\w.]+)/)||String(hint||'').match(/^([a-z][\w]*(?:\.[\w]+)+)$/i)||[])[1];
+  var getPkg=pkg?Promise.resolve(pkg):_jdProxyFetch('https://play.google.com/store/search?q='+encodeURIComponent(name)+'&c=apps&hl=en&gl=US').then(function(h){
+    var m=h.match(/\/store\/apps\/details\?id=([\w.]+)/); if(!m) throw new Error('sin resultados'); return m[1];
+  });
+  return getPkg.then(function(p){
+    return _jdProxyFetch('https://play.google.com/store/apps/details?id='+p+'&hl=en&gl=US').then(function(h){
+      var r=h.match(/"ratingValue"\s*:\s*"?([\d.]+)"?/), c=h.match(/"ratingCount"\s*:\s*"?(\d+)"?/);
+      if(!r) throw new Error('sin calificación');
+      return {rating:Math.round(parseFloat(r[1])*10)/10, count:c?parseInt(c[1],10):0, pkg:p, url:'https://play.google.com/store/apps/details?id='+p};
+    });
+  });
+}
+/* Botón del editor */
+function jdEditorFindRating(){
+  var name=(document.getElementById('editor-name')||{}).value||'', hint=(document.getElementById('editor-play-hint')||{}).value||'';
+  if(!name.trim()&&!hint.trim()){ showToast('Escribe primero el nombre del juego'); return; }
+  showToast('🔎 Buscando en Google Play…');
+  jdFindPlayRating(name.trim(),hint.trim()).then(function(r){
+    document.getElementById('editor-play-rating').value=r.rating;
+    document.getElementById('editor-play-count').value=r.count;
+    document.getElementById('editor-play-hint').value=r.url;
+    showToast('⭐ Google Play: '+r.rating+' ('+r.count.toLocaleString()+' votos)');
+  }).catch(function(e){ showToast('⚠️ No se pudo leer Google Play ('+(e&&e.message||'error')+'). Escribe la nota a mano.'); });
+}
+/* Calificar juegos que aún no tienen nota (todos de una vez) */
+function jdRateAllMissing(){
+  if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
+  var todo=(siteState.gamesList||[]).filter(function(g){ return !(g.playRating>0); });
+  if(!todo.length){ showToast('✅ Todos los juegos ya tienen calificación'); return; }
+  var done=0;
+  (function next(i){
+    if(i>=todo.length){ _jdBumpCatalog(siteState.gamesList.length); showToast('⭐ Listo: '+done+' de '+todo.length+' calificados'); return; }
+    var g=todo[i]; showToast('🔎 '+g.name+' ('+(i+1)+'/'+todo.length+')');
+    jdFindPlayRating(g.name,g.playUrl||'').then(function(r){
+      done++; return _db.collection('mods').doc(String(g.id)).set({playRating:r.rating,playRatingCount:r.count,playUrl:r.url,playPackage:r.pkg},{merge:true});
+    }).catch(function(){}).then(function(){ next(i+1); });
+  })(0);
+}
+/* 5) Limpieza de correos ya publicados en comentarios (deja solo la parte anterior a @) */
+function jdCleanCommentEmails(){
+  if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
+  showToast('🧹 Revisando comentarios…');
+  _db.collection('comments').get().then(function(snap){
+    var b=_db.batch(), n=0;
+    snap.forEach(function(d){
+      var o=d.data(), nm=String(o.name||''), up={};
+      if(nm.indexOf('@')>=0) up.name=nm.split('@')[0].replace(/[^\w.\-]/g,'').slice(0,24)||'Usuario';
+      if(o.email!==undefined) up.email=firebase.firestore.FieldValue.delete();
+      if(Object.keys(up).length&&n<450){ b.update(d.ref,up); n++; }
+    });
+    if(!n){ showToast('✅ No hay correos expuestos en comentarios'); return; }
+    return b.commit().then(function(){ showToast('✅ '+n+' comentarios limpiados'); });
+  }).catch(function(e){ showToast('❌ '+(e&&e.message||e)); });
 }
 
 function refreshStats(){
