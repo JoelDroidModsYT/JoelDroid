@@ -2103,3 +2103,37 @@ html.light-mode,html.light-mode body,body.light-mode{background:#f0f4f8!importan
 .jd-av-opt.on{border-color:var(--brand-color,#2563eb);background:rgba(37,99,235,.15)}
 .jd-auth-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin:4px 0 0}
 .auth-btn:disabled{opacity:.6;pointer-events:none}
+
+/* ══ v2026.11.10-b — banners, fechas, pedir versión, contacto ══ */
+.jd-banner{margin:10px 16px 4px;padding:10px 14px;border-radius:16px;display:flex;flex-direction:column;gap:2px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.jd-banner-t{font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.jd-banner-s{font-size:10px;font-weight:600;opacity:.9}
+.jd-date{font-size:8px;font-weight:700;margin:1px 0 0;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.light-mode .jd-date{color:#475569}
+.jd-upd-summary{display:flex;align-items:center;gap:7px;margin:8px auto 2px;padding:6px 12px;border-radius:999px;border:1px solid rgba(56,189,248,.35);background:rgba(56,189,248,.08);color:#7dd3fc;font-size:10px;font-weight:800;cursor:pointer}
+.light-mode .jd-upd-summary{color:#0369a1;background:rgba(2,132,199,.08);border-color:rgba(2,132,199,.35)}
+.jd-upd-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;flex-shrink:0}
+.jd-newver{margin-top:14px}
+.jd-newver-row{display:flex;align-items:stretch;justify-content:space-between;gap:10px}
+.jd-newver-btn{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 12px;border-radius:14px;border:1px solid rgba(59,130,246,.45);background:linear-gradient(135deg,rgba(37,99,235,.22),rgba(6,182,212,.18));color:#60a5fa;font-size:11px;font-weight:900;cursor:pointer;line-height:1.2;text-align:center}
+.jd-newver-btn:disabled{opacity:.6}
+.jd-newver-btn:active{transform:scale(.97)}
+.jd-newver-date{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;font-size:10px}
+.jd-newver-date small,.jd-nv-grid small{display:block;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.55}
+.jd-newver-date b{font-size:11px;font-weight:900}
+.jd-newver-res{margin-top:10px;padding:12px;border-radius:14px;border:1px solid rgba(148,163,184,.3);background:rgba(148,163,184,.08)}
+.jd-newver-res.is-new{border-color:rgba(34,197,94,.55);background:rgba(34,197,94,.1)}
+.jd-newver-res.is-ok{border-color:rgba(59,130,246,.45);background:rgba(59,130,246,.08)}
+.jd-nv-grid{display:flex;justify-content:space-between;gap:12px}
+.jd-nv-left{display:flex;flex-direction:column;gap:8px;min-width:0}
+.jd-nv-left b,.jd-nv-right b{font-size:13px;font-weight:900;word-break:break-word}
+.jd-nv-new{color:#22c55e}
+.jd-nv-right{text-align:right;flex-shrink:0;max-width:48%}
+.jd-nv-msg{margin-top:9px;font-size:10px;font-weight:700;opacity:.85;line-height:1.4}
+.light-mode .jd-newver-btn{color:#1d4ed8;background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(6,182,212,.10))}
+.light-mode .jd-nv-new{color:#15803d}
+.jd-biz{margin:12px auto 0;max-width:340px;text-align:center;display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:14px;border:1px solid rgba(148,163,184,.25);background:rgba(148,163,184,.06)}
+.jd-biz b{font-size:10px;font-weight:900}
+.jd-biz span{font-size:9px;opacity:.6;line-height:1.4}
+.jd-biz a{font-size:10px;font-weight:800;color:#38bdf8;word-break:break-all;text-decoration:none}
+.light-mode .jd-biz a{color:#0369a1}
