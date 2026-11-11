@@ -316,7 +316,6 @@ var SYNC_CONFIG = { pollMs:3000,
 </script>
 
 
-<script defer src="jd-i18n.js?v=2026.11.10-adfirst-1"></script>
 <link rel="stylesheet" href="joeldroid.css?v=2026.11.10-adfirst-1">
 <link rel="stylesheet" href="jd-tailwind.css?v=2026.11.10-adfirst-1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
@@ -424,7 +423,7 @@ var SYNC_CONFIG = { pollMs:3000,
     'updateBadgeBgColor','updateBadgeBgColorKey','updateBadgeVisible','update','lastUpdate','homeButtonVisible',
     'features','timestamp','order','visits','warningVisible','warningText','youtubeUrl','installYoutubeUrl',
     'category','categoria','type','tipo','slug','nombre_url','playRating','playRatingCount','playUrl',
-    'playPackage','playVersion','dlPageName1','dlPageVer1','dlPageSize1','dlPageBtn1','dlPageName2','dlPageVer2',
+    'playPackage','dlPageName1','dlPageVer1','dlPageSize1','dlPageBtn1','dlPageName2','dlPageVer2',
     'dlPageSize2','dlPageBtn2'];
   var MASK_QS = MASK.map(function(f){ return '&mask.fieldPaths='+encodeURIComponent(f); }).join('');
 
@@ -432,15 +431,6 @@ var SYNC_CONFIG = { pollMs:3000,
   window.__JD_STATIC_GAMES = [];
   window.__JD_STATS = window.__JD_STATS || {};
 
-  /* fecha corta "09 nov 26" */
-  window._jdDateTxt=function(ts){
-    try{
-      if(!ts) return '';
-      if(window.jdFmtDate) return window.jdFmtDate(ts,false);
-      var l=window.__JD_PRELANG||'es', m={'zh-CN':'zh-CN',pt:'pt-BR'};
-      return new Intl.DateTimeFormat(m[l]||l,{day:'2-digit',month:'short',year:'2-digit'}).format(new Date(ts)).replace(/\./g,'');
-    }catch(e){ return ''; }
-  };
   /* ── utilidades ─────────────────────────────────────────────────── */
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function _val(v){
@@ -495,7 +485,7 @@ var SYNC_CONFIG = { pollMs:3000,
       youtubeUrl:d.youtubeUrl||'', installYoutubeUrl:d.installYoutubeUrl||'',
       category:d.category||d.categoria||'', type:d.type||d.tipo||'', slug:d.slug||d.nombre_url||'',
       playRating:_num(d.playRating), playRatingCount:_num(d.playRatingCount),
-      playUrl:d.playUrl||'', playPackage:d.playPackage||'', playVersion:d.playVersion||'',
+      playUrl:d.playUrl||'', playPackage:d.playPackage||'',
       dlPageName1:d.dlPageName1||'', dlPageVer1:d.dlPageVer1||'', dlPageSize1:d.dlPageSize1||'', dlPageBtn1:d.dlPageBtn1||'',
       dlPageName2:d.dlPageName2||'', dlPageVer2:d.dlPageVer2||'', dlPageSize2:d.dlPageSize2||'', dlPageBtn2:d.dlPageBtn2||''
     };
@@ -516,7 +506,7 @@ var SYNC_CONFIG = { pollMs:3000,
         return [g.id,g.name,g.thumb.length+':'+g.thumb.slice(-24),g.ver,g.size,g.visible===false?0:1,g.order,g.timestamp,
           g.modBadgeText,g.modBadgeBgColor,g.modBadgeVisible===false?0:1,g.updateBadgeVisible?1:0,g.updateBadgeText,
           g.homeButtonVisible===false?0:1,g.downloadButtonLink1,g.downloadButtonLink2,(g.features||[]).join('|'),
-          g.playRating,g.playVersion,g.playUrl,g.description.length,g.dlPageName1,g.dlPageVer1,g.dlPageSize1,g.dlPageName2].join('~');
+          g.playRating,g.description.length,g.dlPageName1,g.dlPageVer1,g.dlPageSize1,g.dlPageName2].join('~');
       }).join('\n');
     }catch(e){ return String((list||[]).length)+':'+Date.now(); }
   }
@@ -581,7 +571,6 @@ var SYNC_CONFIG = { pollMs:3000,
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+esc(g.name)+'</p>'+
           '<p class="jd-mod-label" data-jd-tr="mod">'+esc(suffix)+'</p>'+
-          (g.timestamp>0?'<p class="jd-date" data-ts="'+g.timestamp+'">'+esc(window._jdDateTxt(g.timestamp))+'</p>':'')+
           '<button class="jd-btn"'+(g.homeButtonVisible!==false?'':' style="display:none;"')+' type="button">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
             '<span class="global-dl-btn-text">Descargar APK</span>'+
@@ -600,7 +589,7 @@ var SYNC_CONFIG = { pollMs:3000,
       return [g.id,g.name,(g.thumb||'').length+':'+(g.thumb||'').slice(-24),(g.ver||g.version||''),
         (g.modBadgeText||''),(g.modBadgeBgColor||''),(g.modBadgeVisible!==false?1:0),
         (g.updateBadgeVisible&&g.updateBadgeText?g.updateBadgeText:''),
-        (g.homeButtonVisible!==false?1:0),f,(g.playRating||0),(g.timestamp||0)].join('~');
+        (g.homeButtonVisible!==false?1:0),f,(g.playRating||0)].join('~');
     }catch(e){ return String(g&&g.id||''); }
   };
 
@@ -723,9 +712,7 @@ var SYNC_CONFIG = { pollMs:3000,
   }
 
   /* Visitas por juego (para POPULAR) — ligero, en reposo */
-  function loadStats(force){
-    if(state.statsAt&&!force&&Date.now()-state.statsAt<30000) return;
-    state.statsAt=Date.now();
+  function loadStats(){
     var base={};
     function put(k,v){ base[k]=(base[k]||0)+v; }
     var p1=fetch(FS_BASE+'/siteConfig/stats?key='+API_KEY,{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
@@ -752,7 +739,6 @@ var SYNC_CONFIG = { pollMs:3000,
     });
   }
 
-  window.__jdLoadStats=loadStats;
   /* Calificaciones por juego (resumen diminuto) para estrellas de las tarjetas */
   window.__JD_RATINGS = {};
   function loadRatingSummaries(){
@@ -871,9 +857,6 @@ var SYNC_CONFIG = { pollMs:3000,
     </div>
   </div>
 
-  <div id="jd-banner-slot"></div>
-  <button id="jd-upd-summary" class="jd-upd-summary" type="button" style="display:none" onclick="jdTab('updated')"></button>
-
   <div id="game-list" class="jd-grid"><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div><div class="jd-skeleton-card"><div class="jd-sk-img"></div><div class="jd-sk-line"></div><div class="jd-sk-line jd-sk-line-sm"></div><div class="jd-sk-btn"></div></div></div>
 
   <footer class="pt-10 pb-10">
@@ -891,7 +874,6 @@ var SYNC_CONFIG = { pollMs:3000,
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('terms')">Términos</a>
       </div>
-      <div class="jd-biz"><b data-jd2="contact_title">Contacto para negocios y publicidad</b><span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span><a href="mailto:business.joeldroidmods@gmail.com">business.joeldroidmods@gmail.com</a></div>
     </div>
   </footer>
 </main>
@@ -935,7 +917,6 @@ var SYNC_CONFIG = { pollMs:3000,
         <li>Idioma del navegador y zona horaria.</li>
         <li>Páginas visitadas, tiempo de permanencia y referidos.</li>
         <li>Identificadores anónimos almacenados en cookies publicitarias.</li>
-        <li>Si creas una cuenta para comentar o puntuar: tu correo (privado, nunca se muestra), nombre de usuario y avatar.</li>
       </ul>
       <h3>Marco normativo</h3>
       <p>El tratamiento de datos se realiza siguiendo las directrices aplicables del <strong>RGPD (UE)</strong>, la <strong>ePrivacy</strong>, la <strong>CCPA (California)</strong> y la <strong>LGPD (Brasil)</strong>. El usuario puede limpiar las cookies y datos del sitio en cualquier momento desde la configuración de su navegador.</p>
@@ -968,11 +949,6 @@ var SYNC_CONFIG = { pollMs:3000,
       <p>El sitio se ofrece "tal cual". No garantizamos disponibilidad ininterrumpida, ausencia total de errores ni compatibilidad con todos los dispositivos. El usuario asume el riesgo de la instalación.</p>
       <h3>4. Modificaciones</h3>
       <p>Estos términos pueden actualizarse en cualquier momento. La fecha de última modificación se refleja implícitamente en la versión del sitio publicada en la barra de configuración.</p>
-    </article>
-
-    <article class="jd-policy-card" data-policy-section="contact">
-      <h2 data-jd2="contact_title">Contacto para negocios y publicidad</h2>
-      <p><span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span> <a href="mailto:business.joeldroidmods@gmail.com" style="color:#38bdf8;font-weight:800">business.joeldroidmods@gmail.com</a></p>
     </article>
 
     <article class="jd-policy-card" data-policy-section="dmca">
@@ -1014,14 +990,6 @@ var SYNC_CONFIG = { pollMs:3000,
           <span data-i18n="download_mod_btn" style="white-space:nowrap;display:inline-block;line-height:1">Descargar Mod Apk</span>
         </button>
       </div>
-    </div>
-
-    <div id="det-newver" class="jd-newver px-6">
-      <div class="jd-newver-row">
-        <button id="det-newver-btn" type="button" class="jd-newver-btn" onclick="jdRequestVersion()"><i data-lucide="refresh-cw" class="w-4 h-4"></i><span data-jd2="req_btn">Pedir nueva versión</span></button>
-        <div class="jd-newver-date"><small data-jd2="last_update">Última actualización</small><b id="det-lastupd">—</b></div>
-      </div>
-      <div id="det-newver-res" class="jd-newver-res" style="display:none"></div>
     </div>
 
     <div class="grid grid-cols-3 gap-0 mt-8 border-y border-[var(--border-color)] py-4 text-center">
@@ -1319,7 +1287,6 @@ var SYNC_CONFIG = { pollMs:3000,
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies()">Privacidad &amp; Cookies</a>
       </div>
-      <div class="jd-biz"><b data-jd2="contact_title">Contacto para negocios y publicidad</b><span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span><a href="mailto:business.joeldroidmods@gmail.com">business.joeldroidmods@gmail.com</a></div>
     </div>
   </div>
 </div>
@@ -2187,7 +2154,6 @@ function t(key){
 function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
 function trAPI(text,cb){
   if(!text||!text.trim()||currentLang==='es'){cb(text);return;}
-  if(window.JDI18N){ JDI18N.tr(text,cb); return; }
   // Diccionario local de terminos clave — funciona sin API
   var _localDict={
     en:{'Descargar':'Download','Descarga':'Download','Versión':'Version',
@@ -3042,7 +3008,6 @@ function renderGames(){
     });
   }
   _jdUpdateItemListJsonLd(siteState.gamesList);
-  try{ if(typeof jdUpdateSummary==='function') jdUpdateSummary(); }catch(_e){}
 }
 
 function _renderGamesBatch(list, start, count, replace){
@@ -3154,7 +3119,6 @@ function _renderGamesBatch(list, start, count, replace){
         '<p class="jd-name notranslate">'+g.name+'</p>'+
         /* Mod label: translatable */
         '<p class="jd-mod-label" data-jd-tr="mod">'+modSuffix+'</p>'+
-        (g.timestamp>0?'<p class="jd-date" data-ts="'+g.timestamp+'">'+_jdDateTxt(g.timestamp)+'</p>':'')+
         /* Button */
         '<button class="jd-btn"'+
                 ' style="'+(g.homeButtonVisible!==false?'':'display:none;')+
@@ -3310,6 +3274,7 @@ function initLazyLoading(){}
 function observeLazyImages(){}
 
 /* compat: función eliminada pero aún invocada en 4 sitios */
+function updateBannerBasedOnFilter(){}
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
@@ -3546,7 +3511,6 @@ function showDetail(id){
   if(featCont)featCont.innerHTML=(game.features||[]).map(function(f){return'<span class="mod-tag">'+f+'</span>';}).join('');
 
   try{ _jdRenderScreens(game); }catch(_sc){}
-  try{ jdDetailExtras(game); }catch(_dx){}
 
   // Botones de descarga — MIGRADO A HTML ESTÁTICO (ver div#det-download-buttons en el HTML)
   // Los botones #btn-descarga-1 y #btn-descarga-2 son ahora elementos estáticos.
@@ -4132,16 +4096,13 @@ function applyUIChanges(){
     annTxt.innerText=siteState.announcement.text;
     if(currentLang!=='es'){trAPI(siteState.announcement.text,function(tr){var e=document.getElementById('ann-text-ui');if(e)e.innerText=tr;});}
     annTxt.dataset.adminCustom='1';
-    var _au=(siteState.announcement.url||'').trim();
-    ann.style.cursor=/^https?:\/\//i.test(_au)?'pointer':'';
-    ann.onclick=/^https?:\/\//i.test(_au)?function(){ window.open(_au,'_blank','noopener'); }:null;
   }
   var main=document.getElementById('home-view');
   if(main){if(!siteState.announcement.visible)main.classList.add('announcement-hidden');else main.classList.remove('announcement-hidden');}
   updateBannerBasedOnFilter();
   // COPYRIGHT
   var yr=new Date().getFullYear();
-  var yearTxt=siteState.copyright.text.replace('{year}','2018\u2013'+yr);
+  var yearTxt=siteState.copyright.text.replace('{year}',yr);
   setTxt('copyright-text-ui',yearTxt);setTxt('copyright-text-det',yearTxt);
   applyYoutubeVideo();
   applyInstallVideo();
@@ -4397,12 +4358,7 @@ function _jdHookAuth(){
 
 /* Lee (o crea) el perfil público: usuarios/{uid} = {username, avatar}. SIN correo. */
 function _jdLoadProfile(user,done){
-  var finish=function(p){
-    _jdProfile=p; _jdSaveHint(p);
-    /* Registro PERMANENTE de usuarios (solo lo lee el admin; nunca se borra) */
-    try{ if(_db&&user.email) _db.collection('usuariosPrivados').doc(user.uid).set({email:String(user.email).toLowerCase(),username:p.username,lastLogin:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){}); }catch(e){}
-    done&&done(p);
-  };
+  var finish=function(p){ _jdProfile=p; _jdSaveHint(p); done&&done(p); };
   if(!_db){ finish({uid:user.uid,username:_jdCleanName(user.displayName),avatar:jdAvatarFor(user.uid)}); return; }
   _db.collection('usuarios').doc(user.uid).get().then(function(doc){
     if(doc.exists&&doc.data().username){
@@ -4535,7 +4491,6 @@ function doRegister(){
     var batch=_db.batch();
     batch.set(_db.collection('usernames').doc(key),{uid:user.uid});
     batch.set(_db.collection('usuarios').doc(user.uid),{username:username,avatar:avatar,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    batch.set(_db.collection('usuariosPrivados').doc(user.uid),{email:email,username:username,createdAt:firebase.firestore.FieldValue.serverTimestamp(),lastLogin:firebase.firestore.FieldValue.serverTimestamp()});
     return batch.commit().then(function(){
       try{ user.updateProfile({displayName:username}).catch(function(){}); }catch(e){}
       _jdProfile={uid:user.uid,username:username,avatar:avatar}; _jdSaveHint(_jdProfile);
@@ -6175,9 +6130,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── Elementos seguros: ya existen porque DOMContentLoaded garantiza DOM listo
   var cy = document.getElementById('current-year');
-  if(cy) cy.textContent='2018\u2013'+new Date().getFullYear();
+  if(cy) cy.textContent = new Date().getFullYear();
   var cyd = document.getElementById('current-year-det');
-  if(cyd) cyd.textContent='2018\u2013'+new Date().getFullYear();
+  if(cyd) cyd.textContent = new Date().getFullYear();
 
   // ── Fondo animado, escena, FABs
   setTimeout(function(){ applyBgTheme(siteState.bgTheme||'neon'); }, 0);
@@ -6275,8 +6230,8 @@ window.onload=function(){
   if(!_wlCacheHit) renderGames();
   applyUIChanges();applyTranslations(sl);checkDeepLink();
   if(location.hash==='#policies') setTimeout(function(){ try{jdOpenPolicies();}catch(e){} },0);
-  var cy=document.getElementById("current-year");if(cy)cy.textContent='2018\u2013'+new Date().getFullYear();
-  var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent='2018\u2013'+new Date().getFullYear();
+  var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
+  var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
   setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
   _updateFAB();_restoreScene();setTimeout(_fillGHInputs,500);_initShareBtn();
   setTimeout(_initFirebase,0);
@@ -6643,7 +6598,6 @@ function jdTab(key){
     try{ if(typeof resetPage==='function') resetPage(); else setFilter('all'); }catch(e){ try{setFilter('all');}catch(_){} }
   }else{
     try{ setFilter(key); }catch(e){}
-    if(key==='popular'&&window.__jdLoadStats) window.__jdLoadStats(true);
   }
   ['home','all','updated','popular'].forEach(function(k){
     var b=document.getElementById('jd-tab-'+k);
@@ -6707,118 +6661,6 @@ window.addEventListener('load', function(){
   if(document.readyState==='complete') setTimeout(clean,1200);
   else window.addEventListener('load', function(){ setTimeout(clean,1200); });
 })();
-</script>
-<script>
-/* ═══════════ v2026.11.10-b — banners del panel, fechas, pedir versión, popular ═══════════ */
-var JD_BIZ_MAIL='business.joeldroidmods@gmail.com';
-function _jdEsc2(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-/* Banners configurados en el panel (Banner general / Actualizados / Popular) */
-var _jdBannerKey='';
-function updateBannerBasedOnFilter(force){
-  var slot=document.getElementById('jd-banner-slot'); if(!slot||typeof siteState==='undefined') return;
-  var f=(typeof currentFilter!=='undefined')?currentFilter:'all';
-  var b=f==='updated'?siteState.updatedBanner:(f==='popular'?siteState.popularBanner:siteState.banner);
-  if(!b||b.visible===false||(!b.title&&!b.subtitle)){ slot.innerHTML=''; _jdBannerKey=''; return; }
-  var key=[f,b.title,b.subtitle,b.bgColor,(window.JDI18N?JDI18N.lang():'es')].join('|');
-  if(key===_jdBannerKey&&!force) return;
-  _jdBannerKey=key;
-  var c=/^#[0-9a-f]{3,8}$/i.test(b.bgColor||'')?b.bgColor:'#2563eb';
-  slot.innerHTML='<div class="jd-banner" style="background:linear-gradient(135deg,'+c+','+c+'cc)"><b class="jd-banner-t">'+_jdEsc2(b.title)+'</b><span class="jd-banner-s">'+_jdEsc2(b.subtitle)+'</span></div>';
-  if(window.JDI18N&&JDI18N.lang()!=='es'){
-    var t=slot.querySelector('.jd-banner-t'), s=slot.querySelector('.jd-banner-s');
-    if(b.title) JDI18N.tr(b.title,function(o){ if(t) t.textContent=o; });
-    if(b.subtitle) JDI18N.tr(b.subtitle,function(o){ if(s) s.textContent=o; });
-  }
-}
-/* Fecha corta en tarjetas ("09 nov 26") */
-function jdRefreshDates(){
-  Array.prototype.forEach.call(document.querySelectorAll('.jd-date[data-ts]'),function(e){ e.textContent=window._jdDateTxt(Number(e.getAttribute('data-ts'))); });
-  var d=document.getElementById('det-lastupd'); if(d&&d.dataset.ts) d.textContent=jdFmtDate(Number(d.dataset.ts),true);
-}
-/* Resumen "Actualizado 09 nov 26 · 3 juegos" */
-function jdUpdateSummary(){
-  var el=document.getElementById('jd-upd-summary'); if(!el||typeof siteState==='undefined') return;
-  var g=(siteState.gamesList||[]).filter(function(x){return x.visible!==false&&x.timestamp>0;});
-  if(!g.length){ el.style.display='none'; return; }
-  var last=g.reduce(function(m,x){return Math.max(m,x.timestamp);},0);
-  var n=g.filter(function(x){return JDI18N.sameDay(x.timestamp,last);}).length;
-  el.style.display='';
-  el.innerHTML='<i class="jd-upd-dot"></i><span>'+_jdEsc2(jdT('upd_summary',{date:jdFmtDate(last,false),n:n,games:jdT(n===1?'game_one':'game_many')}))+'</span>';
-}
-
-/* Play Store: versión actual (por proxy) */
-var _JD_PX=[function(u){return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u);},function(u){return 'https://corsproxy.io/?'+encodeURIComponent(u);}];
-function _jdProxyFetch(url){
-  var i=0;
-  return new Promise(function(res,rej){(function next(){
-    if(i>=_JD_PX.length) return rej(new Error('proxy'));
-    var ctl=new AbortController(), t=setTimeout(function(){ctl.abort();},8000);
-    fetch(_JD_PX[i++](url),{signal:ctl.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;return r.text();})
-      .then(function(h){if(!h||h.length<500)throw 0;res(h);}).catch(function(){clearTimeout(t);next();});
-  })();});
-}
-function jdParsePlayVersion(h){
-  var m=h.match(/"softwareVersion"\s*:\s*"([^"]+)"/)||h.match(/\[\[\["(\d+(?:\.\d+){1,4}[^"\]\\]{0,12})"\]\]/)||h.match(/Current Version[\s\S]{0,240}?>(\d+(?:\.\d+)+)</);
-  return m?m[1]:'';
-}
-function jdFetchPlayVersion(url){
-  var pkg=(String(url).match(/[?&]id=([\w.]+)/)||[])[1]; if(!pkg) return Promise.reject(new Error('url'));
-  return _jdProxyFetch('https://play.google.com/store/apps/details?id='+pkg+'&hl=en&gl=US').then(function(h){
-    var v=jdParsePlayVersion(h); if(!v) throw new Error('version'); return v;
-  });
-}
-function _jdVerNums(v){ var m=String(v||'').match(/\d+(?:\.\d+)+|\d+/); return m?m[0].split('.').map(Number):[]; }
-function _jdVerCmp(a,b){ a=_jdVerNums(a); b=_jdVerNums(b); for(var i=0;i<Math.max(a.length,b.length);i++){ var x=a[i]||0,y=b[i]||0; if(x!==y) return x>y?1:-1; } return 0; }
-
-/* Ficha: fecha de actualización + reinicio del bloque "pedir versión" */
-function jdDetailExtras(game){
-  try{
-    var d=document.getElementById('det-lastupd');
-    if(d){ if(game.timestamp>0){ d.dataset.ts=game.timestamp; d.textContent=jdFmtDate(game.timestamp,true);} else { d.dataset.ts=''; d.textContent='—'; } }
-    var r=document.getElementById('det-newver-res'); if(r){ r.style.display='none'; r.innerHTML=''; }
-    var b=document.getElementById('det-newver-btn'); if(b) b.disabled=false;
-    JDI18N.apply(document.getElementById('det-newver'));
-  }catch(e){}
-}
-function jdRequestVersion(){
-  var g=(siteState.gamesList||[]).filter(function(x){return String(x.id)===String(currentDetailId);})[0]; if(!g) return;
-  var res=document.getElementById('det-newver-res'), btn=document.getElementById('det-newver-btn'); if(!res) return;
-  res.style.display='block'; res.className='jd-newver-res'; res.innerHTML='<div class="jd-nv-msg">'+_jdEsc2(jdT('req_checking'))+'</div>'; if(btn) btn.disabled=true;
-  /* registra el pedido (1 por juego cada 10 min por dispositivo) → "Juegos pedidos" del panel */
-  try{
-    var k='jd_req_'+g.id, last=Number(localStorage.getItem(k)||0);
-    if(Date.now()-last>600000){ localStorage.setItem(k,String(Date.now()));
-      _jdCommit([_jdIncWrite('gameRequests/'+_jdStatsSafeId(g.id),{name:String(g.name||'').slice(0,80)},['requests'])],'pedido'); }
-  }catch(e){}
-  var render=function(newVer,status){
-    var site=String(g.ver||'').trim()||'—', msg='', cls='';
-    if(newVer){ var c=_jdVerCmp(newVer,site); if(c>0){ msg=jdT('req_new'); cls=' is-new'; } else { msg=jdT('req_latest'); cls=' is-ok'; } }
-    else msg=jdT(status==='nolink'?'req_nolink':'req_fail');
-    var dt=g.timestamp>0?jdFmtDate(g.timestamp,true):'—';
-    res.className='jd-newver-res'+cls;
-    res.innerHTML='<div class="jd-nv-grid"><div class="jd-nv-left"><div><small>'+_jdEsc2(jdT('ver_site'))+'</small><b>'+_jdEsc2(site)+'</b></div>'+
-      '<div><small>'+_jdEsc2(jdT('ver_new'))+'</small><b class="jd-nv-new">'+_jdEsc2(newVer||'—')+'</b></div></div>'+
-      '<div class="jd-nv-right"><small>'+_jdEsc2(jdT('last_update'))+'</small><b>'+_jdEsc2(dt)+'</b></div></div>'+
-      '<div class="jd-nv-msg">'+_jdEsc2(msg)+'</div>';
-    if(btn) btn.disabled=false;
-  };
-  if(!g.playUrl){ render(g.playVersion||'','nolink'); return; }
-  jdFetchPlayVersion(g.playUrl).then(function(v){ render(v); })
-    .catch(function(){ if(g.playVersion) render(g.playVersion); else render('','fail'); });
-}
-
-/* Idioma: textos nuevos + banners + fechas se actualizan al cambiar de idioma */
-(function(){
-  var o=applyTranslations;
-  applyTranslations=function(){
-    var r=o.apply(this,arguments);
-    try{ JDI18N.apply(); jdRefreshDates(); updateBannerBasedOnFilter(true); jdUpdateSummary(); }catch(e){}
-    return r;
-  };
-})();
-document.addEventListener('DOMContentLoaded',function(){ try{ JDI18N.apply(); jdUpdateSummary(); }catch(e){} });
-
 </script>
 </body>
 

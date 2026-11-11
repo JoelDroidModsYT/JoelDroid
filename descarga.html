@@ -38,7 +38,6 @@
 <meta name="theme-color" content="#007bff">
 
 <!-- CSS propio: se mantiene igual, pero ya no compite con el tag de anuncios -->
-<script defer src="jd-i18n.js?v=2026.11.10-adfirst-1"></script>
 <link rel="stylesheet" href="descarga.css?v=2026.11.10-adfirst-1">
 
 <!-- Fuentes: carga no bloqueante para no robarle ancho de banda a los anuncios -->
@@ -238,41 +237,10 @@
 </div><!-- /dl-page -->
 
 
-<!-- ══ PIE DE PÁGINA: copyright, políticas, contacto y divulgación publicitaria ══ -->
-<footer id="dl-legal-foot" class="dl-foot">
-  <div class="dl-foot-links">
-    <a href="#" onclick="dlOpenPolicy('privacy');return false" data-jd2="privacy">Privacidad</a>
-    <a href="#" onclick="dlOpenPolicy('cookies');return false" data-jd2="cookies">Cookies</a>
-    <a href="#" onclick="dlOpenPolicy('terms');return false" data-jd2="terms">Términos</a>
-    <a href="#" onclick="dlOpenPolicy('contact');return false" data-jd2="contact">Contacto</a>
-  </div>
-  <div class="dl-biz">
-    <b data-jd2="contact_title">Contacto para negocios y publicidad</b>
-    <span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span>
-    <a href="mailto:business.joeldroidmods@gmail.com">business.joeldroidmods@gmail.com</a>
-  </div>
-  <p class="dl-foot-copy"><span id="dl-copyright" class="notranslate">© 2018–<span id="dl-year">2026</span> JoelDroid Mods YT.</span> <span data-jd2="rights">Todos los derechos reservados.</span></p>
-  <p class="dl-foot-ads"><span data-jd2="ads_note">Publicidad servida por Monetag.</span> · <a href="index.html#policies" data-jd2="policies">Políticas y condiciones</a></p>
-</footer>
-
-<div id="dl-policy-modal" class="dl-pol-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="dl-pol-title">
-  <div class="dl-pol-card">
-    <div class="dl-pol-head"><h2 id="dl-pol-title" data-jd2="policies">Políticas y condiciones</h2><button type="button" class="dl-pol-x" onclick="dlClosePolicy()" data-jd2-title="close">✕</button></div>
-    <div class="dl-pol-body" id="dl-pol-body">
-      <section data-pol="privacy"><h3 data-jd2="privacy">Privacidad</h3>
-        <p>JoelDroid Mods YT respeta tu privacidad. Recopilamos únicamente datos técnicos anónimos (tipo de dispositivo, idioma, páginas vistas) para mejorar el sitio y mostrar anuncios.</p>
-        <p>Si creas una cuenta para comentar o puntuar guardamos tu correo (privado, nunca se muestra), tu nombre de usuario y tu avatar. No vendemos tus datos personales.</p>
-        <p>Los anuncios los sirve Monetag, que puede usar cookies o identificadores anónimos para mostrar publicidad relevante.</p></section>
-      <section data-pol="cookies"><h3 data-jd2="cookies">Cookies</h3>
-        <p>Usamos almacenamiento local y cookies para recordar tu idioma, tema (claro/oscuro) y sesión, y para que las redes publicitarias funcionen. Puedes borrarlas desde tu navegador en cualquier momento.</p></section>
-      <section data-pol="terms"><h3 data-jd2="terms">Términos</h3>
-        <p>El contenido se ofrece solo con fines de entretenimiento y bajo tu propia responsabilidad. Los nombres, marcas y logotipos de los juegos pertenecen a sus respectivos dueños. Recomendamos apoyar a los desarrolladores comprando los juegos originales.</p>
-        <p>Si eres titular de derechos y quieres que retiremos un contenido, escríbenos y lo revisaremos con prioridad.</p></section>
-      <section data-pol="contact"><h3 data-jd2="contact_title">Contacto para negocios y publicidad</h3>
-        <p data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</p>
-        <p><a href="mailto:business.joeldroidmods@gmail.com" class="notranslate">business.joeldroidmods@gmail.com</a></p></section>
-    </div>
-  </div>
+<!-- ══ PIE DE PÁGINA: divulgación publicitaria + enlaces legales (requerido para redes publicitarias) ══ -->
+<div id="dl-legal-foot" style="text-align:center;font-size:11px;line-height:1.6;opacity:.75;padding:14px 16px 30px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  Publicidad servida por <strong>Monetag</strong> ·
+  <a href="index.html#policies" style="color:inherit;text-decoration:underline">Privacidad, Cookies y Términos</a>
 </div>
 <div id="jd-cookie-banner" role="dialog" aria-label="Aviso de cookies" style="display:none;position:fixed;top:10px;right:10px;z-index:9999;background:rgba(15,23,42,.96);color:#fff;border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:11px;line-height:1.3;max-width:230px">
   <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:13px">🍪</span>
@@ -1051,51 +1019,6 @@
   }
   if(document.readyState==='complete') setTimeout(clean,3000);
   else window.addEventListener('load', function(){ setTimeout(clean,3000); });
-})();
-</script>
-
-<script>
-/* ═══ Idioma + políticas + conexión con el panel (descarga) ═══ */
-function dlOpenPolicy(key){
-  var m=document.getElementById('dl-policy-modal'); if(!m) return;
-  m.style.display='flex'; document.body.style.overflow='hidden';
-  Array.prototype.forEach.call(m.querySelectorAll('[data-pol]'),function(e){ e.classList.toggle('on',e.getAttribute('data-pol')===key||!key); });
-  var tgt=m.querySelector('[data-pol="'+key+'"]'); if(tgt&&tgt.scrollIntoView) tgt.scrollIntoView({block:'start'});
-  try{ JDI18N.autoDom(m); }catch(e){}
-}
-function dlClosePolicy(){ var m=document.getElementById('dl-policy-modal'); if(m) m.style.display='none'; document.body.style.overflow=''; }
-document.addEventListener('click',function(e){ var m=document.getElementById('dl-policy-modal'); if(m&&e.target===m) dlClosePolicy(); });
-document.addEventListener('keydown',function(e){ if(e.key==='Escape') dlClosePolicy(); });
-(function(){
-  var SKIP='#dl-page-name,#dl-download-final-texto,.dl-reco-name,#dl-copyright';
-  function boot(){
-    try{
-      var y=document.getElementById('dl-year'); if(y) y.textContent=new Date().getFullYear();
-      document.documentElement.lang=JDI18N.lang();
-      JDI18N.apply();
-      JDI18N.autoDom(document.body,SKIP);
-      JDI18N.watch(document.body,SKIP);
-    }catch(e){}
-    /* Ajustes del panel: comunicado + texto de copyright */
-    var K='AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
-    fetch('https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/siteConfig/main?key='+K,{cache:'no-store'})
-      .then(function(r){return r.ok?r.json():null;}).then(function(d){
-        if(!d||!d.fields) return;
-        function val(v){ if(!v) return null; if(v.stringValue!==undefined) return v.stringValue; if(v.booleanValue!==undefined) return v.booleanValue; if(v.integerValue!==undefined) return Number(v.integerValue); if(v.mapValue){var o={},f=v.mapValue.fields||{};Object.keys(f).forEach(function(k){o[k]=val(f[k]);});return o;} return null; }
-        var cfg={}; Object.keys(d.fields).forEach(function(k){ cfg[k]=val(d.fields[k]); });
-        var a=cfg.announcement;
-        if(a&&a.visible&&a.text){
-          var bar=document.createElement('div'); bar.className='dl-ann'; var c=/^#[0-9a-f]{3,8}$/i.test(a.bgColor||'')?a.bgColor:'#ef4444';
-          bar.style.background='linear-gradient(135deg,'+c+','+c+'cc)'; bar.textContent=a.text;
-          if(/^https?:\/\//i.test(a.url||'')){ bar.style.cursor='pointer'; bar.onclick=function(){ window.open(a.url,'_blank','noopener'); }; }
-          var pg=document.querySelector('.dl-page'); if(pg) pg.insertBefore(bar,pg.firstChild);
-          try{ JDI18N.autoDom(bar); }catch(e){}
-        }
-        var cp=cfg.copyright&&cfg.copyright.text;
-        if(cp){ var el=document.getElementById('dl-copyright'); if(el) el.textContent=cp.replace('{year}','2018\u2013'+new Date().getFullYear()); }
-      }).catch(function(){});
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 </script>
 </body>
