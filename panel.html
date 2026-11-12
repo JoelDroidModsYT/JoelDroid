@@ -640,6 +640,14 @@ body{
         <textarea id="editor-features" class="ged-input ged-textarea" placeholder="Monedas Infinitas, Sin Anuncios, Todo Desbloqueado, Sin Virus"></textarea>
       </div>
       <div class="ged-section">
+        <div class="ged-section-title">Icono del juego</div>
+        <img id="ged-icon-preview" class="ged-icon-preview" alt="Vista previa del icono del juego">
+        <label class="ged-label" for="editor-icon-file">Seleccionar imagen desde el dispositivo</label>
+        <input type="file" id="editor-icon-file" accept="image/*" class="ged-input" onchange="_gedIconFileChanged(this.files && this.files[0])" style="margin-bottom:10px">
+        <label class="ged-label" for="editor-icon-url">O usar la dirección de una imagen</label>
+        <input type="url" id="editor-icon-url" class="ged-input" placeholder="https://ejemplo.com/icono.jpg" oninput="_gedPreviewIconUrl(this.value)">
+      </div>
+      <div class="ged-section">
         <div class="ged-section-title">⭐ Puntuación en la Play Store</div>
         <p style="font-size:9px;opacity:.6;margin:0 0 8px;line-height:1.5">Entra a la Play Store del juego, mira su nota y escríbela aquí. Se muestra de inicio; cuando los usuarios puntúen, la nota se va ajustando sola. Si nadie puntúa, se queda esta.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -725,6 +733,11 @@ body{
           <label class="ged-label">Peso del archivo (chip)</label><input type="text" id="editor-dlpage-size2" class="ged-input" placeholder="420 MB" style="margin-bottom:8px">
           <label class="ged-label">Texto del botón final</label><input type="text" id="editor-dlpage-btn2" class="ged-input" placeholder="¡Descargar en MediaFire!">
         </div>
+      </div>
+      <div class="ged-section">
+        <div class="ged-section-title">Capturas del juego</div>
+        <div style="font-size:9px;opacity:.6;margin-bottom:10px;line-height:1.5">Puedes añadir hasta cuatro imágenes o cambiar las capturas actuales.</div>
+        <div id="ged-screens-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px"></div>
       </div>
       <div class="ged-section">
         <div class="ged-section-title">Visibilidad en el Sitio</div>
@@ -1609,11 +1622,29 @@ function _setColorActive(containerId,key){
   var cont=document.getElementById(containerId);if(cont)cont.dataset.selectedColor=key;
 }
 
+var _GED_ICON_PREVIEW_URL='';
+function _gedPreviewIconUrl(src){
+  var preview=document.getElementById('ged-icon-preview');if(!preview)return;
+  if(_GED_ICON_PREVIEW_URL){URL.revokeObjectURL(_GED_ICON_PREVIEW_URL);_GED_ICON_PREVIEW_URL='';}
+  src=String(src||'').trim();
+  if(!src){preview.removeAttribute('src');preview.classList.remove('show');return;}
+  preview.src=src;preview.classList.add('show');
+}
+function _gedIconFileChanged(file){
+  if(!file)return;
+  var preview=document.getElementById('ged-icon-preview');if(!preview)return;
+  if(_GED_ICON_PREVIEW_URL)URL.revokeObjectURL(_GED_ICON_PREVIEW_URL);
+  _GED_ICON_PREVIEW_URL=URL.createObjectURL(file);
+  preview.src=_GED_ICON_PREVIEW_URL;preview.classList.add('show');
+}
+
 function openGameEditor(gameId){
   gameId=gameId||null;
   var modal=document.getElementById('game-editor-modal');if(!modal)return;
   var fields=['editor-game-id','editor-name','editor-description','editor-version','editor-size','editor-warning-text','editor-features','editor-download-name-secondary','editor-download-text1','editor-download-link1','editor-download-text2','editor-download-link2','editor-icon-url','editor-update-badge-text','editor-mod-badge-text','editor-dlpage-name1','editor-dlpage-ver1','editor-dlpage-size1','editor-dlpage-btn1','editor-dlpage-name2','editor-dlpage-ver2','editor-dlpage-size2','editor-dlpage-btn2'];
   fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var iconFile=document.getElementById('editor-icon-file');if(iconFile)iconFile.value='';
+  _gedPreviewIconUrl('');
   var _esc=function(id,val){var e=document.getElementById(id);if(e)e.checked=val;};
   _esc('editor-warning-visible',false);_esc('editor-visible',true);
   _GED_SCREENS=['','','',''];_GED_SCREENS_FILES=[null,null,null,null];_gedRenderScreens();
@@ -1639,6 +1670,7 @@ function openGameEditor(gameId){
     _es('editor-dlpage-name2').value=g.dlPageName2||'';_es('editor-dlpage-ver2').value=g.dlPageVer2||'';
     _es('editor-dlpage-size2').value=g.dlPageSize2||'';_es('editor-dlpage-btn2').value=g.dlPageBtn2||'';
     _es('editor-icon-url').value=g.thumb||'';
+    _gedPreviewIconUrl(g.thumb||'');
     _es('editor-play-rating').value=g.playRating||'';_es('editor-play-count').value=g.playRatingCount||'';
     var _gss=Array.isArray(g.screenshots)?g.screenshots.slice(0,4):[];
     _GED_SCREENS=['','','',''];for(var _si=0;_si<_gss.length;_si++)_GED_SCREENS[_si]=_gss[_si]||'';
@@ -1836,7 +1868,7 @@ function saveGame(){
       dlPageBtn2:(document.getElementById('editor-dlpage-btn2')||{value:''}).value||''
     };
   };
-  if(fileInput.files.length>0){
+  if(fileInput&&fileInput.files&&fileInput.files.length>0){
     var file=fileInput.files[0];
     var preview=document.getElementById('ged-icon-preview');
     if(preview){ preview.src=URL.createObjectURL(file); preview.className='ged-icon-preview show'; }
@@ -1844,7 +1876,8 @@ function saveGame(){
     
     _uploadIconFile(file, editId||Date.now())
       .then(function(url){
-        document.getElementById('editor-icon-url').value=url;
+        var iconUrlInput=document.getElementById('editor-icon-url');if(iconUrlInput)iconUrlInput.value=url;
+        _gedPreviewIconUrl(url);
         return _gedResolveScreens(editId||Date.now()).then(function(scr){
           processSaveGameData(editId,Object.assign({},collectData(),{thumb:url,screenshots:scr}));
         });
