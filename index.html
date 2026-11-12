@@ -316,6 +316,7 @@ var SYNC_CONFIG = { pollMs:3000,
 </script>
 
 
+<script defer src="jd-i18n.js?v=2026.11.10-adfirst-1"></script>
 <link rel="stylesheet" href="joeldroid.css?v=2026.11.10-adfirst-1">
 <link rel="stylesheet" href="jd-tailwind.css?v=2026.11.10-adfirst-1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Sora:wght@600;700;800&amp;display=swap" media="print" onload="this.media='all'">
@@ -423,7 +424,7 @@ var SYNC_CONFIG = { pollMs:3000,
     'updateBadgeBgColor','updateBadgeBgColorKey','updateBadgeVisible','update','lastUpdate','homeButtonVisible',
     'features','timestamp','order','visits','warningVisible','warningText','youtubeUrl','installYoutubeUrl',
     'category','categoria','type','tipo','slug','nombre_url','playRating','playRatingCount','playUrl',
-    'playPackage','dlPageName1','dlPageVer1','dlPageSize1','dlPageBtn1','dlPageName2','dlPageVer2',
+    'playPackage','playVersion','dlPageName1','dlPageVer1','dlPageSize1','dlPageBtn1','dlPageName2','dlPageVer2',
     'dlPageSize2','dlPageBtn2'];
   var MASK_QS = MASK.map(function(f){ return '&mask.fieldPaths='+encodeURIComponent(f); }).join('');
 
@@ -431,6 +432,15 @@ var SYNC_CONFIG = { pollMs:3000,
   window.__JD_STATIC_GAMES = [];
   window.__JD_STATS = window.__JD_STATS || {};
 
+  /* fecha corta "09 nov 26" */
+  window._jdDateTxt=function(ts){
+    try{
+      if(!ts) return '';
+      if(window.jdFmtDate) return window.jdFmtDate(ts,true);
+      var l=window.__JD_PRELANG||'es', m={'zh-CN':'zh-CN',pt:'pt-BR'};
+      return new Intl.DateTimeFormat(m[l]||l,{day:'numeric',month:'long',year:'numeric'}).format(new Date(ts)).replace(/\./g,'');
+    }catch(e){ return ''; }
+  };
   /* ── utilidades ─────────────────────────────────────────────────── */
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function _val(v){
@@ -485,7 +495,7 @@ var SYNC_CONFIG = { pollMs:3000,
       youtubeUrl:d.youtubeUrl||'', installYoutubeUrl:d.installYoutubeUrl||'',
       category:d.category||d.categoria||'', type:d.type||d.tipo||'', slug:d.slug||d.nombre_url||'',
       playRating:_num(d.playRating), playRatingCount:_num(d.playRatingCount),
-      playUrl:d.playUrl||'', playPackage:d.playPackage||'',
+      playUrl:d.playUrl||'', playPackage:d.playPackage||'', playVersion:d.playVersion||'',
       dlPageName1:d.dlPageName1||'', dlPageVer1:d.dlPageVer1||'', dlPageSize1:d.dlPageSize1||'', dlPageBtn1:d.dlPageBtn1||'',
       dlPageName2:d.dlPageName2||'', dlPageVer2:d.dlPageVer2||'', dlPageSize2:d.dlPageSize2||'', dlPageBtn2:d.dlPageBtn2||''
     };
@@ -506,7 +516,7 @@ var SYNC_CONFIG = { pollMs:3000,
         return [g.id,g.name,g.thumb.length+':'+g.thumb.slice(-24),g.ver,g.size,g.visible===false?0:1,g.order,g.timestamp,
           g.modBadgeText,g.modBadgeBgColor,g.modBadgeVisible===false?0:1,g.updateBadgeVisible?1:0,g.updateBadgeText,
           g.homeButtonVisible===false?0:1,g.downloadButtonLink1,g.downloadButtonLink2,(g.features||[]).join('|'),
-          g.playRating,g.description.length,g.dlPageName1,g.dlPageVer1,g.dlPageSize1,g.dlPageName2].join('~');
+          g.playRating,g.playVersion,g.playUrl,g.description.length,g.dlPageName1,g.dlPageVer1,g.dlPageSize1,g.dlPageName2].join('~');
       }).join('\n');
     }catch(e){ return String((list||[]).length)+':'+Date.now(); }
   }
@@ -571,6 +581,7 @@ var SYNC_CONFIG = { pollMs:3000,
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+esc(g.name)+'</p>'+
           '<p class="jd-mod-label" data-jd-tr="mod">'+esc(suffix)+'</p>'+
+          (g.timestamp>0?'<p class="jd-date" data-ts="'+g.timestamp+'">'+esc(window._jdDateTxt(g.timestamp))+'</p>':'')+
           '<button class="jd-btn"'+(g.homeButtonVisible!==false?'':' style="display:none;"')+' type="button">'+
             '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'+
             '<span class="global-dl-btn-text">Descargar APK</span>'+
@@ -589,7 +600,7 @@ var SYNC_CONFIG = { pollMs:3000,
       return [g.id,g.name,(g.thumb||'').length+':'+(g.thumb||'').slice(-24),(g.ver||g.version||''),
         (g.modBadgeText||''),(g.modBadgeBgColor||''),(g.modBadgeVisible!==false?1:0),
         (g.updateBadgeVisible&&g.updateBadgeText?g.updateBadgeText:''),
-        (g.homeButtonVisible!==false?1:0),f,(g.playRating||0)].join('~');
+        (g.homeButtonVisible!==false?1:0),f,(g.playRating||0),(g.timestamp||0)].join('~');
     }catch(e){ return String(g&&g.id||''); }
   };
 
@@ -711,46 +722,6 @@ var SYNC_CONFIG = { pollMs:3000,
       }).catch(function(){ clearTimeout(to); });
   }
 
-  /* Visitas por juego (para POPULAR) — ligero, en reposo */
-  function loadStats(){
-    var base={};
-    function put(k,v){ base[k]=(base[k]||0)+v; }
-    var p1=fetch(FS_BASE+'/siteConfig/stats?key='+API_KEY,{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
-      if(!d||!d.fields) return;
-      Object.keys(d.fields).forEach(function(k){
-        if(k.indexOf('gameClicks_')===0) put(k,_num(_val(d.fields[k])));
-      });
-    }).catch(function(){});
-    var p2=fetch(FS_BASE+'/gameStats?pageSize=300&key='+API_KEY,{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
-      if(!d||!d.documents) return;
-      d.documents.forEach(function(doc){
-        var o=_doc(doc); put('gameClicks_'+String(o.id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40),_num(o.clicks));
-      });
-    }).catch(function(){});
-    Promise.all([p1,p2]).then(function(){
-      window.__JD_STATS=base;
-      try{
-        (window.__JD_STATIC_GAMES||[]).forEach(function(g){
-          var v=base['gameClicks_'+String(g.id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40)];
-          if(v) g.visits=v;
-        });
-      }catch(e){}
-      try{ if(typeof currentFilter!=='undefined'&&currentFilter==='popular'&&typeof renderGames==='function') renderGames(); }catch(e){}
-    });
-  }
-
-  /* Calificaciones por juego (resumen diminuto) para estrellas de las tarjetas */
-  window.__JD_RATINGS = {};
-  function loadRatingSummaries(){
-    fetch(FS_BASE+'/gameRatings?pageSize=300&key='+API_KEY,{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).then(function(d){
-      if(!d||!d.documents) return;
-      d.documents.forEach(function(doc){
-        var o=_doc(doc); window.__JD_RATINGS[String(o.id)]={ total:_num(o.total), sum:_num(o.sum) };
-      });
-      try{ if(typeof window.__jdRefreshCardStars==='function') window.__jdRefreshCardStars(); }catch(e){}
-    }).catch(function(){});
-  }
-
   /* Hidrata UNA ficha: trae capturas (base64) solo cuando se abre el detalle */
   var hydrating={};
   window.jdHydrateGame=function(id, cb){
@@ -785,7 +756,7 @@ var SYNC_CONFIG = { pollMs:3000,
     gistColdStart();
   }
   sync(false);                                   /* red: 1 petición diminuta (o la lista si hubo cambios) */
-  window.addEventListener('load',function(){ setTimeout(function(){ loadStats(); loadRatingSummaries(); },1500); });
+  window.addEventListener('load',function(){ setTimeout(function(){ if(window.__jdAfterAds) window.__jdAfterAds(function(){ if(window.__jdLoadStats) window.__jdLoadStats(); }); },800); });
 
   /* Re-chequeo barato al volver a la pestaña / recuperar red / cada 90 s visible */
   function recheck(){ if(document.hidden) return; if(Date.now()-state.lastSyncAt<20000) return; sync(false); }
@@ -874,6 +845,7 @@ var SYNC_CONFIG = { pollMs:3000,
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies('terms')">Términos</a>
       </div>
+      <div class="jd-biz"><b data-jd2="contact_title">Contacto para negocios y publicidad</b><span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span><a href="mailto:business.joeldroidmods@gmail.com">business.joeldroidmods@gmail.com</a></div>
     </div>
   </footer>
 </main>
@@ -917,6 +889,7 @@ var SYNC_CONFIG = { pollMs:3000,
         <li>Idioma del navegador y zona horaria.</li>
         <li>Páginas visitadas, tiempo de permanencia y referidos.</li>
         <li>Identificadores anónimos almacenados en cookies publicitarias.</li>
+        <li>Si creas una cuenta para comentar o puntuar: tu correo (privado, nunca se muestra), nombre de usuario y avatar.</li>
       </ul>
       <h3>Marco normativo</h3>
       <p>El tratamiento de datos se realiza siguiendo las directrices aplicables del <strong>RGPD (UE)</strong>, la <strong>ePrivacy</strong>, la <strong>CCPA (California)</strong> y la <strong>LGPD (Brasil)</strong>. El usuario puede limpiar las cookies y datos del sitio en cualquier momento desde la configuración de su navegador.</p>
@@ -949,6 +922,11 @@ var SYNC_CONFIG = { pollMs:3000,
       <p>El sitio se ofrece "tal cual". No garantizamos disponibilidad ininterrumpida, ausencia total de errores ni compatibilidad con todos los dispositivos. El usuario asume el riesgo de la instalación.</p>
       <h3>4. Modificaciones</h3>
       <p>Estos términos pueden actualizarse en cualquier momento. La fecha de última modificación se refleja implícitamente en la versión del sitio publicada en la barra de configuración.</p>
+    </article>
+
+    <article class="jd-policy-card" data-policy-section="contact">
+      <h2 data-jd2="contact_title">Contacto para negocios y publicidad</h2>
+      <p><span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span> <a href="mailto:business.joeldroidmods@gmail.com" style="color:#38bdf8;font-weight:800">business.joeldroidmods@gmail.com</a></p>
     </article>
 
     <article class="jd-policy-card" data-policy-section="dmca">
@@ -992,6 +970,13 @@ var SYNC_CONFIG = { pollMs:3000,
       </div>
     </div>
 
+    <div id="det-newver" class="jd-newver px-6">
+      <div class="jd-newver-row">
+        <div class="jd-newver-date"><small data-jd2="last_update">Última actualización</small><b id="det-lastupd">—</b></div>
+        <button id="det-newver-btn" type="button" class="jd-newver-btn" onclick="jdOpenReqForm()"><i data-lucide="refresh-cw" class="w-4 h-4"></i><span data-jd2="req_btn">Pedir actualización</span></button>
+      </div>
+    </div>
+
     <div class="grid grid-cols-3 gap-0 mt-8 border-y border-[var(--border-color)] py-4 text-center">
       <div class="border-r border-[var(--border-color)]">
         <span class="text-[8px] opacity-40 font-bold uppercase block" data-i18n="label_version">Versión</span>
@@ -1003,7 +988,7 @@ var SYNC_CONFIG = { pollMs:3000,
       </div>
       <div>
         <span class="text-[8px] opacity-40 font-bold uppercase block" data-i18n="label_security">Seguridad</span>
-        <span class="text-[11px] font-black text-green-500" data-i18n="label_safe">100% SEGURO</span>
+        <span class="text-[10px] font-black jd-safe" data-i18n="label_safe">100% SEGURO</span>
       </div>
     </div>
 
@@ -1235,31 +1220,39 @@ var SYNC_CONFIG = { pollMs:3000,
     <!-- ══ RATING + LIKES + COMENTARIOS — rediseño v3 desde cero ══ -->
 <div id="det-rating-comments" class="jd-rc jd-rc-locked" aria-live="polite">
       <div class="jd-rc-shell">
-        <div class="jd-rc-top">
-          <div class="jd-rc-score"><b id="jd-rc-avg">—</b><small id="jd-rc-count">0 votos</small></div>
-          <div class="jd-rc-title">
-            <div class="jd-rc-kicker">★ Comunidad real</div>
-            <h4>Valoración y comentarios</h4>
+        <div class="jd-rc-top" style="margin-bottom:10px">
+          <div class="jd-rc-title" style="width:100%">
+            <div class="jd-rc-kicker">★ <span data-jd2="rate_title">Valoración</span></div>
             <p id="jd-rc-sub">Entra con tu cuenta para puntuar, dar like y comentar este mod.</p>
             <span class="jd-rc-auth-pill" id="jd-rc-auth-pill">🔐 Sesión requerida</span>
           </div>
         </div>
-        <div class="jd-rc-actions">
-          <div>
-            <div class="jd-rc-stars" id="jd-rc-stars">
-              <button class="jd-rc-star" data-v="1" onclick="jdRcRate(1)" aria-label="1 estrella">★</button>
-              <button class="jd-rc-star" data-v="2" onclick="jdRcRate(2)" aria-label="2 estrellas">★</button>
-              <button class="jd-rc-star" data-v="3" onclick="jdRcRate(3)" aria-label="3 estrellas">★</button>
-              <button class="jd-rc-star" data-v="4" onclick="jdRcRate(4)" aria-label="4 estrellas">★</button>
-              <button class="jd-rc-star" data-v="5" onclick="jdRcRate(5)" aria-label="5 estrellas">★</button>
-            </div>
-            <div class="jd-rc-your" id="jd-rc-your">Toca para puntuar</div>
-          </div>
-          <div class="jd-rc-likes">
-            <button class="jd-rc-like" id="jd-rc-like-btn" onclick="jdRcLike()" aria-label="Me gusta"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H7"/></svg><span id="jd-rc-likes-count">0</span></button>
-            <button class="jd-rc-dislike" id="jd-rc-dislike-btn" onclick="jdRcDislike()" aria-label="No me gusta"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H17"/></svg><span id="jd-rc-dislikes-count">0</span></button>
-          </div>
-        </div>
+        <div class="jd-rate">
+  <div class="jd-rate-head">
+    <div class="jd-rate-big">
+      <b id="jd-rc-avg">—</b>
+      <div class="jd-rate-avgstars" id="jd-rc-avgstars"></div>
+      <small id="jd-rc-count">0</small>
+    </div>
+    <div class="jd-rate-dist" id="jd-rc-dist"></div>
+  </div>
+  <div class="jd-rate-src" id="jd-rc-src"></div>
+  <div class="jd-rate-vote">
+    <span class="jd-rate-vote-t" id="jd-rc-your" data-jd2="rate_tap">Toca una estrella para puntuar</span>
+    <div class="jd-rate-stars" id="jd-rc-stars" role="group" aria-label="Puntuar">
+      <button type="button" class="jd-rc-star" data-v="1" onclick="jdRcRate(1)" aria-label="1">★</button>
+      <button type="button" class="jd-rc-star" data-v="2" onclick="jdRcRate(2)" aria-label="2">★</button>
+      <button type="button" class="jd-rc-star" data-v="3" onclick="jdRcRate(3)" aria-label="3">★</button>
+      <button type="button" class="jd-rc-star" data-v="4" onclick="jdRcRate(4)" aria-label="4">★</button>
+      <button type="button" class="jd-rc-star" data-v="5" onclick="jdRcRate(5)" aria-label="5">★</button>
+    </div>
+    <div class="jd-rate-likes">
+      <button type="button" id="jd-rc-like-btn" class="jd-rate-chip" onclick="jdRcLike()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><span id="jd-rc-likes-count">0</span></button>
+      <button type="button" id="jd-rc-dislike-btn" class="jd-rate-chip" onclick="jdRcDislike()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><span id="jd-rc-dislikes-count">0</span></button>
+    </div>
+  </div>
+</div>
+
         <div class="jd-rc-auth-call" id="jd-rc-auth-call" onclick="_jdRcRequireLogin()">🔐 Inicia sesión o crea una cuenta para activar comentarios, likes y puntuaciones.</div>
         <div class="jd-rc-composer">
           <div class="jd-rc-avatar" id="jd-rc-avatar">JD</div>
@@ -1287,6 +1280,7 @@ var SYNC_CONFIG = { pollMs:3000,
         <span class="jd-cr-divider"></span>
         <a class="jd-cr-link" href="javascript:void(0)" onclick="jdOpenPolicies()">Privacidad &amp; Cookies</a>
       </div>
+      <div class="jd-biz"><b data-jd2="contact_title">Contacto para negocios y publicidad</b><span data-jd2="contact_text">¿Tienes una propuesta comercial o quieres anunciarte? Escríbenos:</span><a href="mailto:business.joeldroidmods@gmail.com">business.joeldroidmods@gmail.com</a></div>
     </div>
   </div>
 </div>
@@ -2154,6 +2148,7 @@ function t(key){
 function _ck(lang,txt){return lang+'|'+txt.slice(0,110);}
 function trAPI(text,cb){
   if(!text||!text.trim()||currentLang==='es'){cb(text);return;}
+  if(window.JDI18N){ JDI18N.tr(text,cb); return; }
   // Diccionario local de terminos clave — funciona sin API
   var _localDict={
     en:{'Descargar':'Download','Descarga':'Download','Versión':'Version',
@@ -3119,6 +3114,7 @@ function _renderGamesBatch(list, start, count, replace){
         '<p class="jd-name notranslate">'+g.name+'</p>'+
         /* Mod label: translatable */
         '<p class="jd-mod-label" data-jd-tr="mod">'+modSuffix+'</p>'+
+        (g.timestamp>0?'<p class="jd-date" data-ts="'+g.timestamp+'">'+_jdDateTxt(g.timestamp)+'</p>':'')+
         /* Button */
         '<button class="jd-btn"'+
                 ' style="'+(g.homeButtonVisible!==false?'':'display:none;')+
@@ -3274,7 +3270,6 @@ function initLazyLoading(){}
 function observeLazyImages(){}
 
 /* compat: función eliminada pero aún invocada en 4 sitios */
-function updateBannerBasedOnFilter(){}
 
 function scrollToDownloads(){
   var el=document.getElementById('download-section');
@@ -3511,6 +3506,7 @@ function showDetail(id){
   if(featCont)featCont.innerHTML=(game.features||[]).map(function(f){return'<span class="mod-tag">'+f+'</span>';}).join('');
 
   try{ _jdRenderScreens(game); }catch(_sc){}
+  try{ jdDetailExtras(game); }catch(_dx){}
 
   // Botones de descarga — MIGRADO A HTML ESTÁTICO (ver div#det-download-buttons en el HTML)
   // Los botones #btn-descarga-1 y #btn-descarga-2 son ahora elementos estáticos.
@@ -4096,13 +4092,16 @@ function applyUIChanges(){
     annTxt.innerText=siteState.announcement.text;
     if(currentLang!=='es'){trAPI(siteState.announcement.text,function(tr){var e=document.getElementById('ann-text-ui');if(e)e.innerText=tr;});}
     annTxt.dataset.adminCustom='1';
+    var _au=(siteState.announcement.url||'').trim();
+    ann.style.cursor=/^https?:\/\//i.test(_au)?'pointer':'';
+    ann.onclick=/^https?:\/\//i.test(_au)?function(){ window.open(_au,'_blank','noopener'); }:null;
   }
   var main=document.getElementById('home-view');
   if(main){if(!siteState.announcement.visible)main.classList.add('announcement-hidden');else main.classList.remove('announcement-hidden');}
   updateBannerBasedOnFilter();
   // COPYRIGHT
   var yr=new Date().getFullYear();
-  var yearTxt=siteState.copyright.text.replace('{year}',yr);
+  var yearTxt=siteState.copyright.text.replace('{year}','2018\u2013'+yr);
   setTxt('copyright-text-ui',yearTxt);setTxt('copyright-text-det',yearTxt);
   applyYoutubeVideo();
   applyInstallVideo();
@@ -4337,45 +4336,9 @@ function _jdFbReady(){
   });
 }
 
-function _jdHookAuth(){
-  if(_jdAuthHooked||typeof _fbAuth==='undefined'||!_fbAuth) return;
-  _jdAuthHooked=true;
-  _fbAuth.onAuthStateChanged(function(user){
-    if(user&&!user.isAnonymous){
-      _jdLoadProfile(user,function(){
-        _jdAuthResolved=true; _updateFAB(); _updateDetCommentUI();
-        if(_currentGameId) initDetRatingsComments(_currentGameId);
-      });
-    }else{
-      _jdAuthResolved=true;
-      if(_jdProfile){ _jdProfile=null; _jdSaveHint(null); }
-      _updateFAB(); _updateDetCommentUI();
-      if(_currentGameId) initDetRatingsComments(_currentGameId);
-    }
-  });
-}
 (function _jdWaitHook(){ var t=0;(function w(){ if(typeof _fbAuth!=='undefined'&&_fbAuth){_jdHookAuth();return;} if(++t<600) setTimeout(w,100); })(); })();
 
 /* Lee (o crea) el perfil público: usuarios/{uid} = {username, avatar}. SIN correo. */
-function _jdLoadProfile(user,done){
-  var finish=function(p){ _jdProfile=p; _jdSaveHint(p); done&&done(p); };
-  if(!_db){ finish({uid:user.uid,username:_jdCleanName(user.displayName),avatar:jdAvatarFor(user.uid)}); return; }
-  _db.collection('usuarios').doc(user.uid).get().then(function(doc){
-    if(doc.exists&&doc.data().username){
-      var d=doc.data();
-      finish({uid:user.uid,username:d.username,avatar:d.avatar||jdAvatarFor(user.uid)});
-    }else{
-      /* cuenta anterior sin perfil → se crea con el nombre que ya tenía (nunca el correo) */
-      var uname=_jdCleanName(user.displayName||(user.email||'').split('@')[0]);
-      var av=jdAvatarFor(user.uid);
-      _db.collection('usuarios').doc(user.uid).set({username:uname,avatar:av,createdAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});
-      finish({uid:user.uid,username:uname,avatar:av});
-    }
-  }).catch(function(){
-    finish((_jdProfile&&_jdProfile.uid===user.uid)?_jdProfile:{uid:user.uid,username:_jdCleanName(user.displayName),avatar:jdAvatarFor(user.uid)});
-  });
-}
-
 // ── UI del modal de cuenta ───────────────────────────────────────────────
 var _jdPickedAvatar = 'r1';
 function openAuthModal(tab){
@@ -4443,14 +4406,6 @@ function _renderProfile(){
     jn.textContent=ct?('Miembro desde '+new Date(ct).toLocaleDateString('es')):''; }
   _jdRenderAvatarPicker('profile-avatar-picker',u.avatar,function(id){ jdChangeAvatar(id); });
 }
-function jdChangeAvatar(id){
-  var u=_jdRcUser(); if(!u||!u.real||!_db) return;
-  _db.collection('usuarios').doc(u.uid).set({avatar:id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).then(function(){
-    _jdProfile={uid:u.uid,username:u.name,avatar:id}; _jdSaveHint(_jdProfile);
-    _updateFAB(); _renderProfile(); _updateDetCommentUI(); showToast('🤖 Avatar actualizado');
-  }).catch(function(e){ _showMsg('auth-err-profile','No se pudo cambiar el avatar ('+(e&&e.code||'error')+')'); });
-}
-
 // ── Mensajes de error legibles ───────────────────────────────────────────
 function _jdAuthErr(e){
   var c=(e&&e.code)||'';
@@ -4468,6 +4423,87 @@ function _jdValidUser(u){ return /^[A-Za-z0-9_.\-]{3,20}$/.test(u); }
 function _jdBusyBtn(id,on,txt){ var b=document.getElementById(id); if(!b) return; b.disabled=!!on; if(txt) b.textContent=txt; }
 
 // ── Registro ─────────────────────────────────────────────────────────────
+// ── Inicio de sesión (+ migración automática de cuentas locales antiguas) ──
+function _jdLegacyHash(s){ var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(36); }
+function _jdLegacyFind(email,pass){
+  try{
+    var users=JSON.parse(localStorage.getItem('jd_users')||'[]');
+    return users.filter(function(u){ return u.email===email && u.pass===_jdLegacyHash(pass); })[0]||null;
+  }catch(e){ return null; }
+}
+/* ── Registro de usuarios dentro de la colección `ratings` (permitida por tus reglas) ──
+   ratings/u_<uid> → {k:'u', username, avatar, enc(correo CIFRADO), createdAt, lastLogin}
+   ratings/n_<usuario> → {k:'n', uid}   (reserva el nombre de usuario)
+   El correo se cifra con la clave pública del admin: nadie más puede leerlo. */
+function _jdUDoc(uid){ return _db.collection('ratings').doc('u_'+uid); }
+var _jdPubKeyP=null;
+function _jdPubKey(){
+  if(_jdPubKeyP) return _jdPubKeyP;
+  _jdPubKeyP=fetch('https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/siteConfig/usersKey?key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M',{cache:'no-store'})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(d){ var p=d&&d.fields&&d.fields.pub&&d.fields.pub.stringValue; return p?JSON.parse(p):null; })
+    .catch(function(){ return null; })
+    .then(function(k){ if(!k) _jdPubKeyP=null; return k; });
+  return _jdPubKeyP;
+}
+function _jdB64(buf){ var b=new Uint8Array(buf),s=''; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+function _jdEncEmail(email){
+  if(!window.crypto||!crypto.subtle||!email) return Promise.resolve('');
+  return _jdPubKey().then(function(jwk){
+    if(!jwk) return '';
+    return crypto.subtle.importKey('jwk',jwk,{name:'RSA-OAEP',hash:'SHA-256'},false,['encrypt'])
+      .then(function(k){ return crypto.subtle.encrypt({name:'RSA-OAEP'},k,new TextEncoder().encode(String(email).toLowerCase())); })
+      .then(_jdB64);
+  }).catch(function(){ return ''; });
+}
+/* Guarda/actualiza el registro del usuario (sin romper nada si falla) */
+function _jdSaveUser(user,p,isNew){
+  return _jdEncEmail(user.email).then(function(enc){
+    var ts=firebase.firestore.FieldValue.serverTimestamp();
+    var d={k:'u',username:p.username,avatar:p.avatar,lastLogin:ts};
+    if(enc) d.enc=enc;
+    if(isNew) d.createdAt=ts;
+    return _jdUDoc(user.uid).set(d,{merge:true});
+  }).catch(function(e){ try{console.warn('[JD user]',e&&e.code||e);}catch(_){} });
+}
+function _jdLoadProfile(user,done){
+  var finish=function(p){ _jdProfile=p; _jdSaveHint(p); done&&done(p); };
+  var fallback={uid:user.uid,username:_jdCleanName(user.displayName||(user.email||'').split('@')[0]),avatar:jdAvatarFor(user.uid)};
+  if(!_db){ finish(fallback); return; }
+  _jdUDoc(user.uid).get().then(function(doc){
+    var d=doc.exists?doc.data():null;
+    if(d&&d.username){
+      var p={uid:user.uid,username:d.username,avatar:d.avatar||jdAvatarFor(user.uid)};
+      finish(p);
+      _jdSaveUser(user,p,false);                 /* actualiza último ingreso y rellena el correo cifrado si faltaba */
+    }else{
+      finish(fallback);
+      _jdSaveUser(user,fallback,true);
+    }
+  }).catch(function(){ finish((_jdProfile&&_jdProfile.uid===user.uid)?_jdProfile:fallback); });
+}
+function jdChangeAvatar(id){
+  var u=_jdRcUser(); if(!u||!u.real||!_db) return;
+  _jdUDoc(u.uid).set({k:'u',avatar:id,username:u.name},{merge:true}).then(function(){
+    _jdProfile={uid:u.uid,username:u.name,avatar:id}; _jdSaveHint(_jdProfile);
+    _updateFAB(); _renderProfile(); _updateDetCommentUI(); showToast('🤖 Avatar actualizado');
+  }).catch(function(e){ _showMsg('auth-err-profile','No se pudo cambiar el avatar ('+(e&&e.code||'error')+')'); });
+}
+var _jdLastAuthKey='';
+function _jdHookAuth(){
+  if(_jdAuthHooked||typeof _fbAuth==='undefined'||!_fbAuth) return;
+  _jdAuthHooked=true;
+  _fbAuth.onAuthStateChanged(function(user){
+    var real=!!(user&&!user.isAnonymous), key=real?user.uid:(user?'anon':'none');
+    var after=function(){
+      _jdAuthResolved=true; _updateFAB(); _updateDetCommentUI();
+      if(_currentGameId&&key!==_jdLastAuthKey) initDetRatingsComments(_currentGameId);
+      _jdLastAuthKey=key;
+    };
+    if(real){ _jdLoadProfile(user,after); }
+    else{ if(_jdProfile){ _jdProfile=null; _jdSaveHint(null); } after(); }
+  });
+}
 function doRegister(){
   var username=(document.getElementById('auth-user-reg').value||'').trim();
   var email=(document.getElementById('auth-email-reg').value||'').trim().toLowerCase();
@@ -4480,27 +4516,28 @@ function doRegister(){
   if(pass!==pass2){_showMsg('auth-err-reg','Las contraseñas no coinciden');return;}
   _jdBusyBtn('auth-btn-register',true,'Creando…');
   var key=username.toLowerCase(), avatar=_jdPickedAvatar||jdAvatarFor(username);
-  _jdFbReady().then(function(){
+  _jdEnsureSession().then(function(){
     if(!_fbAuth||!_db) throw {code:'auth/network-request-failed'};
-    return _db.collection('usernames').doc(key).get().then(function(d){
+    return _db.collection('ratings').doc('n_'+key).get().catch(function(){ return {exists:false}; }).then(function(d){
       if(d.exists) throw {code:'jd/username-taken'};
       return _fbAuth.createUserWithEmailAndPassword(email,pass);
     });
   }).then(function(cred){
     var user=cred.user;
-    var batch=_db.batch();
-    batch.set(_db.collection('usernames').doc(key),{uid:user.uid});
-    batch.set(_db.collection('usuarios').doc(user.uid),{username:username,avatar:avatar,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    return batch.commit().then(function(){
-      try{ user.updateProfile({displayName:username}).catch(function(){}); }catch(e){}
+    return user.updateProfile({displayName:username}).catch(function(){}).then(function(){
+      return _jdEncEmail(email);
+    }).then(function(enc){
+      var ts=firebase.firestore.FieldValue.serverTimestamp(), b=_db.batch();
+      b.set(_db.collection('ratings').doc('n_'+key),{k:'n',uid:user.uid,name:username});
+      var ud={k:'u',username:username,avatar:avatar,createdAt:ts,lastLogin:ts}; if(enc) ud.enc=enc;
+      b.set(_jdUDoc(user.uid),ud);
+      return b.commit().catch(function(e){ try{console.warn('[JD reg]',e&&e.code||e);}catch(_){} });
+    }).then(function(){
       _jdProfile={uid:user.uid,username:username,avatar:avatar}; _jdSaveHint(_jdProfile);
       _jdAuthResolved=true;
       _showMsg('auth-ok-reg','¡Cuenta creada! Bienvenido, '+username+' ✓','ok');
       _updateFAB(); _updateDetCommentUI(); if(_currentGameId) initDetRatingsComments(_currentGameId);
       setTimeout(function(){closeAuthModal();showToast('🤖 ¡Cuenta creada! Bienvenido, '+username+'!');},900);
-    },function(err){
-      /* nombre ocupado por una carrera: se deshace la cuenta para no dejarla a medias */
-      return user.delete().catch(function(){}).then(function(){ throw (err&&err.code==='permission-denied'?{code:'jd/username-taken'}:err); });
     });
   }).catch(function(e){
     if(e&&e.code==='jd/username-taken') _showMsg('auth-err-reg','Ese nombre de usuario ya está en uso. Elige otro.');
@@ -4508,14 +4545,74 @@ function doRegister(){
   }).then(function(){ _jdBusyBtn('auth-btn-register',false,'Crear Cuenta'); });
 }
 
-// ── Inicio de sesión (+ migración automática de cuentas locales antiguas) ──
-function _jdLegacyHash(s){ var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(36); }
-function _jdLegacyFind(email,pass){
-  try{
-    var users=JSON.parse(localStorage.getItem('jd_users')||'[]');
-    return users.filter(function(u){ return u.email===email && u.pass===_jdLegacyHash(pass); })[0]||null;
-  }catch(e){ return null; }
+function _jdRcTx(u,mutator){
+  var gid=String(_currentGameId);
+  var aggRef=_db.collection('ratings').doc('r_'+gid);
+  var voteRef=_db.collection('ratings').doc('v_'+gid+'_'+u.uid);
+  return _db.runTransaction(function(t){
+    return Promise.all([t.get(aggRef),t.get(voteRef)]).then(function(rs){
+      var agg=_jdRcNewAgg(rs[0].exists?rs[0].data():{});
+      var vote={stars:(rs[1].exists&&rs[1].data().stars)||0,react:(rs[1].exists&&rs[1].data().react)||0};
+      mutator(agg,vote);
+      t.set(aggRef,{k:'r',gid:gid,total:agg.total,sum:agg.sum,dist:agg.dist,likes:agg.likes,dislikes:agg.dislikes});
+      t.set(voteRef,{k:'v',gid:gid,uid:u.uid,stars:vote.stars,react:vote.react,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    });
+  });
 }
+function _jdRcStarsHtml(avg){
+  var pct=Math.max(0,Math.min(100,avg/5*100));
+  return '★★★★★<i style="width:'+pct+'%">★★★★★</i>';
+}
+function _jdRcRenderRating(){
+  var agg=_rcAgg||{}, total=agg.total||0, sum=agg.sum||0;
+  var g=_jdRcGame(), play=(g&&g.playRating>0)?g.playRating:0;
+  var comm=total>0?sum/total:0, avg=0;
+  if(total>0&&play>0) avg=(sum+play*10)/(total+10);     /* la nota de la Play Store pesa como 10 votos y se va ajustando con los votos reales */
+  else if(total>0) avg=comm;
+  else if(play>0) avg=play;
+  var u=_jdRcUser(), mine=(u&&u.real)?_rcMine:{stars:0,react:0};
+  var set=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  set('jd-rc-avg',avg>0?avg.toFixed(1):'—');
+  var st=document.getElementById('jd-rc-avgstars'); if(st) st.innerHTML=_jdRcStarsHtml(avg);
+  set('jd-rc-count',total+' '+jdT(total===1?'votes_one':'votes_many'));
+  var dist=(agg.dist&&agg.dist.length===5)?agg.dist:[0,0,0,0,0], mx=Math.max.apply(null,dist.concat([1]));
+  var db=document.getElementById('jd-rc-dist');
+  if(db) db.innerHTML=[5,4,3,2,1].map(function(n){ var c=dist[n-1]||0;
+    return '<div class="jd-rate-row"><span>'+n+'★</span><div class="jd-rate-bar"><i style="width:'+Math.round(c/mx*100)+'%"></i></div><span>'+c+'</span></div>'; }).join('');
+  var src=document.getElementById('jd-rc-src');
+  if(src){ var h=''; if(play>0) h+='<span>▶ '+jdT('src_play')+' '+play.toFixed(1)+'</span>'; if(total>0) h+='<span>👥 '+jdT('src_comm')+' '+comm.toFixed(1)+'</span>'; src.innerHTML=h; }
+  set('jd-rc-your',mine.stars>0?(jdT('rate_yours')+': '+mine.stars+'/5'):jdT('rate_tap'));
+  document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=mine.stars);});
+  set('jd-rc-likes-count',agg.likes||0); set('jd-rc-dislikes-count',agg.dislikes||0);
+  var lb=document.getElementById('jd-rc-like-btn'); if(lb) lb.classList.toggle('on',mine.react===1);
+  var db2=document.getElementById('jd-rc-dislike-btn'); if(db2) db2.classList.toggle('on',mine.react===-1);
+}
+function initDetRatingsComments(gameId){
+  _currentGameId=String(gameId);
+  [_jdRcUnsubR,_jdRcUnsubV,_jdRcUnsubC].forEach(function(f){ if(f){ try{f();}catch(e){} } });
+  _jdRcUnsubR=_jdRcUnsubV=_jdRcUnsubC=null;
+  _rcAgg={}; _rcMine={stars:0,react:0};
+  _updateDetCommentUI(); _jdRcRenderRating(); _jdRcRenderComments([]);
+  _jdEnsureSession().then(function(){
+    if(!_db||_currentGameId!==String(gameId)) return;
+    var gid=String(gameId);
+    _jdRcUnsubR=_db.collection('ratings').doc('r_'+gid).onSnapshot(function(doc){
+      _rcAgg=doc.exists?doc.data():{}; _jdRcRenderRating();
+    },function(){});
+    var u=_jdRcUser();
+    if(u&&u.real){
+      _jdRcUnsubV=_db.collection('ratings').doc('v_'+gid+'_'+u.uid).onSnapshot(function(doc){
+        _rcMine=doc.exists?{stars:doc.data().stars||0,react:doc.data().react||0}:{stars:0,react:0}; _jdRcRenderRating();
+      },function(){});
+    }
+    _jdRcUnsubC=_db.collection('comments').where('gameId','==',gid).limit(100).onSnapshot(function(snap){
+      var arr=[]; snap.forEach(function(d){ var o=d.data(); o._id=d.id; if(!o.ts) o.tsLocal=Date.now(); arr.push(o); });
+      arr.sort(function(a,b){ var ta=(a.ts&&a.ts.toMillis)?a.ts.toMillis():(a.tsLocal||Date.now()); var tb=(b.ts&&b.ts.toMillis)?b.ts.toMillis():(b.tsLocal||Date.now()); return tb-ta; });
+      _jdRcRenderComments(arr.slice(0,50));
+    },function(){ _jdRcRenderComments([]); });
+  });
+}
+
 function doLogin(){
   var email=(document.getElementById('auth-email-login').value||'').trim().toLowerCase();
   var pass=document.getElementById('auth-pass-login').value||'';
@@ -4527,15 +4624,13 @@ function doLogin(){
       var c=(e&&e.code)||'';
       var legacy=(c==='auth/user-not-found'||c==='auth/invalid-credential'||c==='auth/invalid-login-credentials'||c==='auth/wrong-password')?_jdLegacyFind(email,pass):null;
       if(!legacy) throw e;
-      /* Cuenta creada con el sistema antiguo (solo en este navegador): se sube al servidor */
+      /* Cuenta del sistema antiguo (solo en este navegador): se sube al servidor */
       var uname=_jdCleanName(legacy.username);
       return _fbAuth.createUserWithEmailAndPassword(email,pass).then(function(cred){
-        var user=cred.user, key=uname.toLowerCase(), av=jdAvatarFor(uname);
-        var b=_db.batch();
-        b.set(_db.collection('usuarios').doc(user.uid),{username:uname,avatar:av,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        if(_jdValidUser(uname)) b.set(_db.collection('usernames').doc(key),{uid:user.uid});
-        return b.commit().catch(function(){ return _db.collection('usuarios').doc(user.uid).set({username:uname,avatar:av,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){}); })
-          .then(function(){ try{user.updateProfile({displayName:uname});}catch(_){} return cred; });
+        var user=cred.user;
+        try{ user.updateProfile({displayName:uname}); }catch(_){}
+        if(_jdValidUser(uname)) _db.collection('ratings').doc('n_'+uname.toLowerCase()).set({k:'n',uid:user.uid,name:uname}).catch(function(){});
+        return _jdSaveUser(user,{username:uname,avatar:jdAvatarFor(uname)},true).then(function(){ return cred; });
       });
     });
   }).then(function(cred){
@@ -4617,8 +4712,8 @@ function doFirebaseLogin(){
 
 // ════════════════════════════════════════════════════════════════════════
 // VALORACIONES + LIKES + COMENTARIOS (Firestore, tiempo real)
-//   gameRatings/{gameId}              → resumen público {total,sum,dist,likes,dislikes}
-//   gameRatings/{gameId}/votes/{uid}  → voto privado del usuario {stars,react}
+//   ratings/r_<juego>                 → resumen público {total,sum,dist,likes,dislikes}
+//   ratings/v_<juego>_<uid>           → voto del usuario {stars,react}
 //   comments/{id}                     → {gameId,uid,name,avatar,text,ts}  (SIN correo)
 // ════════════════════════════════════════════════════════════════════════
 var _currentGameId=null;
@@ -4653,20 +4748,6 @@ function _jdRcNewAgg(a){
   return {total:a.total||0,sum:a.sum||0,dist:(a.dist&&a.dist.length===5)?a.dist.slice():[0,0,0,0,0],likes:a.likes||0,dislikes:a.dislikes||0};
 }
 /* Transacción: ajusta el resumen y el voto del usuario de forma atómica */
-function _jdRcTx(u,mutator){
-  var gid=String(_currentGameId);
-  var aggRef=_db.collection('gameRatings').doc(gid);
-  var voteRef=aggRef.collection('votes').doc(u.uid);
-  return _db.runTransaction(function(t){
-    return Promise.all([t.get(aggRef),t.get(voteRef)]).then(function(rs){
-      var agg=_jdRcNewAgg(rs[0].exists?rs[0].data():{});
-      var vote={stars:(rs[1].exists&&rs[1].data().stars)||0,react:(rs[1].exists&&rs[1].data().react)||0};
-      mutator(agg,vote);
-      t.set(aggRef,agg);
-      t.set(voteRef,{stars:vote.stars,react:vote.react,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    });
-  });
-}
 function jdRcRate(stars){
   if(!_jdRcGameReady()){showToast('Abre un juego primero');return;}
   stars=Math.max(1,Math.min(5,parseInt(stars,10)||0));
@@ -4718,24 +4799,6 @@ function jdRcDelete(id){
   });
 }
 
-function _jdRcRenderRating(){
-  var agg=_rcAgg||{}, total=agg.total||0, sum=agg.sum||0;
-  var g=_jdRcGame(), play=(g&&g.playRating>0)?g.playRating:0, playN=(g&&g.playRatingCount)||0;
-  var avg=0;
-  if(total>0&&play>0) avg=(sum+play*10)/(total+10);   /* mezcla: la nota de Google Play pesa como 10 votos */
-  else if(total>0) avg=sum/total;
-  else if(play>0) avg=play;
-  var u=_jdRcUser(), mine=(u&&u.real)?_rcMine:{stars:0,react:0};
-  var e1=document.getElementById('jd-rc-avg'); if(e1) e1.textContent=avg>0?avg.toFixed(1):'—';
-  var e2=document.getElementById('jd-rc-count');
-  if(e2) e2.textContent=total+' '+(total===1?'voto':'votos')+(play>0?' · Play '+play.toFixed(1):'');
-  var e3=document.getElementById('jd-rc-your'); if(e3) e3.textContent=mine.stars>0?('Tu voto: '+mine.stars+'/5'):'Toca para puntuar';
-  document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=mine.stars);});
-  var lc=document.getElementById('jd-rc-likes-count'); if(lc) lc.textContent=agg.likes||0;
-  var dc=document.getElementById('jd-rc-dislikes-count'); if(dc) dc.textContent=agg.dislikes||0;
-  var lb=document.getElementById('jd-rc-like-btn'); if(lb) lb.classList.toggle('on',mine.react===1);
-  var db2=document.getElementById('jd-rc-dislike-btn'); if(db2) db2.classList.toggle('on',mine.react===-1);
-}
 function _jdRcAgo(ts){
   var d=Date.now()-ts;
   return d<60000?'ahora':d<3600000?Math.floor(d/60000)+'m':d<86400000?Math.floor(d/3600000)+'h':Math.floor(d/86400000)+'d';
@@ -4767,34 +4830,6 @@ function _updateDetCommentUI(){
   if(av){ if(ok){ av.innerHTML=jdAvatarSvg(u.avatar); av.classList.add('jd-rc-avatar-robot'); } else { av.classList.remove('jd-rc-avatar-robot'); av.textContent='JD'; } }
   if(sub) sub.textContent=ok?'Tu cuenta está lista para participar en este mod.':'Entra con tu cuenta para puntuar, dar like y comentar este mod.';
 }
-function initDetRatingsComments(gameId){
-  _currentGameId=String(gameId);
-  [_jdRcUnsubR,_jdRcUnsubV,_jdRcUnsubC].forEach(function(f){ if(f){ try{f();}catch(e){} } });
-  _jdRcUnsubR=_jdRcUnsubV=_jdRcUnsubC=null;
-  var cached=(window.__JD_RATINGS||{})[String(gameId)];
-  _rcAgg=cached?{total:cached.total,sum:cached.sum,likes:0,dislikes:0}:{}; _rcMine={stars:0,react:0};
-  _updateDetCommentUI(); _jdRcRenderRating(); _jdRcRenderComments([]);
-  _jdFbReady().then(function(){
-    if(!_db||_currentGameId!==String(gameId)) return;
-    var gid=String(gameId);
-    var aggRef=_db.collection('gameRatings').doc(gid);
-    _jdRcUnsubR=aggRef.onSnapshot(function(doc){
-      _rcAgg=doc.exists?doc.data():{}; _jdRcRenderRating();
-    },function(){});
-    var u=_jdRcUser();
-    if(u&&u.real){
-      _jdRcUnsubV=aggRef.collection('votes').doc(u.uid).onSnapshot(function(doc){
-        _rcMine=doc.exists?{stars:doc.data().stars||0,react:doc.data().react||0}:{stars:0,react:0}; _jdRcRenderRating();
-      },function(){});
-    }
-    _jdRcUnsubC=_db.collection('comments').where('gameId','==',gid).limit(100).onSnapshot(function(snap){
-      var arr=[]; snap.forEach(function(d){ var o=d.data(); o._id=d.id; if(!o.ts) o.tsLocal=Date.now(); arr.push(o); });
-      arr.sort(function(a,b){ var ta=(a.ts&&a.ts.toMillis)?a.ts.toMillis():(a.tsLocal||Date.now()); var tb=(b.ts&&b.ts.toMillis)?b.ts.toMillis():(b.tsLocal||Date.now()); return tb-ta; });
-      _jdRcRenderComments(arr.slice(0,50));
-    },function(){ _jdRcRenderComments([]); });
-  });
-}
-
 /* Estrellas de las tarjetas de la home: resumen de la comunidad + nota de Google Play */
 function _loadGameRatings(id){
   try{
@@ -5324,97 +5359,119 @@ function _shareExecCopy(url){
 
 function list_hasCards(){ var l=document.getElementById('game-list'); return !!(l && l.querySelector('.jd-card')); }
 /* ════════════════════════════════════════════════════════════════
-   ESTADÍSTICAS v2 — registro por REST (sin SDK, sin login anónimo)
+   ESTADÍSTICAS v3 — compatibles con tus reglas actuales de Firestore
 
-   Antes: se escribía en siteConfig/stats, que según las reglas solo el
-   admin puede modificar → TODAS las escrituras de visitantes fallaban en
-   silencio y el panel mostraba ceros. Además era un único documento
-   "caliente" (límite ~1 escritura/seg).
-
-   Ahora:
-     siteStats/{AAAA-MM-DD}  → {day, visits, clicks}   (1 documento por día)
-     gameStats/{gameId}      → {name, clicks}          (1 documento por juego)
-   Se incrementan con la API REST (Firestore :commit + increment), así
-   funciona desde el milisegundo cero y no depende de cargar el SDK.
-   Las reglas (firestore.rules) solo aceptan "+1" por escritura.
+   Tus reglas solo permiten escribir a visitantes en las colecciones
+   `ratings` y `comments` (con sesión, anónima o de usuario). Por eso TODO
+   lo que cuenta el sitio se guarda ahí, en documentos con prefijo:
+     ratings/s_d_AAAA-MM-DD → {k:'sd', day, visits, clicks}   (por día)
+     ratings/s_g_<juego>    → {k:'sg', name, clicks}           (por juego)
+   No hace falta editar reglas. Solo debe estar activado el inicio de sesión
+   anónimo (Firebase → Authentication → Sign-in method → Anonymous).
    ════════════════════════════════════════════════════════════════ */
-var _JD_FS_NAME = 'projects/joeldroid-mods/databases/(default)/documents/';
-var _JD_FS_COMMIT = 'https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents:commit?key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
 function _jdToday(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function _jdIncWrite(path, strFields, incFields){
-  var fields={}, mask=[];
-  Object.keys(strFields).forEach(function(k){ fields[k]={stringValue:String(strFields[k])}; mask.push(k); });
-  return { update:{ name:_JD_FS_NAME+path, fields:fields }, updateMask:{ fieldPaths:mask },
-           updateTransforms:incFields.map(function(f){ return { fieldPath:f, increment:{ integerValue:'1' } }; }) };
-}
-function _jdCommit(writes, what){
-  try{
-    fetch(_JD_FS_COMMIT,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({writes:writes}), keepalive:true })
-      .then(function(r){ if(!r.ok) return r.json().then(function(j){ _jdStatsWarn(what,(j&&j.error&&j.error.status)||r.status); },function(){ _jdStatsWarn(what,r.status); }); })
-      .catch(function(e){ _jdStatsWarn(what,(e&&e.message)||'red'); });
-  }catch(e){}
+function _jdStatsSafeId(id){ return String(id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); }
+var _jdAnonP=null;
+/* Garantiza una sesión (anónima si no hay usuario) para poder leer/escribir */
+function _jdEnsureSession(){
+  return _jdFbReady().then(function(){
+    if(!_fbAuth||!_db) return null;
+    if(_fbAuth.currentUser) return _fbAuth.currentUser;
+    if(!_jdAnonP) _jdAnonP=_fbAuth.signInAnonymously().then(function(c){ return c.user; }).catch(function(e){
+      try{ localStorage.setItem('jd_diag_anon',(e&&e.code)||'error'); }catch(_){}
+      return null;
+    }).then(function(u){ _jdAnonP=null; return u; });
+    return _jdAnonP;
+  });
 }
 var _jdStatsWarned=false;
-function _jdStatsWarn(what,code){
+function _jdStatsWarn(what,e){
   if(_jdStatsWarned) return; _jdStatsWarned=true;
-  try{ console.warn('[JD stats] No se pudo registrar '+what+' ('+code+'). '+
-    (String(code).indexOf('PERMISSION')>=0||String(code)==='403'?'Publica las reglas de firestore.rules en Firebase (siteStats y gameStats deben permitir el incremento).':'')); }catch(_){}
+  try{ console.warn('[JD stats] No se pudo registrar '+what+': '+((e&&e.code)||e)+'. Revisa que el inicio de sesión anónimo esté activado en Firebase.'); }catch(_){}
 }
-function _jdStatsSafeId(id){ return String(id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); }
-
-/* Una visita por sesión del navegador (no se infla al navegar dentro del sitio) */
+function _jdStatInc(batch,docId,fields,incs){
+  var d={}; Object.keys(fields).forEach(function(k){ d[k]=fields[k]; });
+  incs.forEach(function(k){ d[k]=firebase.firestore.FieldValue.increment(1); });
+  batch.set(_db.collection('ratings').doc(docId),d,{merge:true});
+}
+/* Una visita por sesión del navegador */
 function _trackVisit(){
-  try{
-    if(sessionStorage.getItem('jd_visit_counted')==='1') return;
-    sessionStorage.setItem('jd_visit_counted','1');
-  }catch(e){}
-  var day=_jdToday();
-  _jdCommit([ _jdIncWrite('siteStats/'+day,{day:day},['visits']) ],'visita');
+  try{ if(sessionStorage.getItem('jd_visit_counted')==='1') return; }catch(e){}
+  _jdEnsureSession().then(function(u){
+    if(!u) return;
+    var day=_jdToday(), b=_db.batch();
+    _jdStatInc(b,'s_d_'+day,{k:'sd',day:day},['visits']);
+    return b.commit().then(function(){ try{sessionStorage.setItem('jd_visit_counted','1');}catch(e){} });
+  }).catch(function(e){ _jdStatsWarn('visita',e); });
 }
 var _jdLastClickKey='', _jdLastClickAt=0;
 function _trackClick(gameId, gameName){
   try{
     if(!gameId) return;
     var k=String(gameId), now=Date.now();
-    if(k===_jdLastClickKey && (now-_jdLastClickAt)<1500) return;   /* anti doble conteo */
+    if(k===_jdLastClickKey && (now-_jdLastClickAt)<1500) return;
     _jdLastClickKey=k; _jdLastClickAt=now;
-    var sid=_jdStatsSafeId(gameId), day=_jdToday();
-    _jdCommit([
-      _jdIncWrite('gameStats/'+sid,{name:String(gameName||'').slice(0,80)},['clicks']),
-      _jdIncWrite('siteStats/'+day,{day:day},['clicks'])
-    ],'click');
+    var sid=_jdStatsSafeId(gameId), day=_jdToday(), nm=String(gameName||'').slice(0,80);
     try{
       var g=(siteState.gamesList||[]).find(function(x){return String(x.id)===String(gameId);});
       if(g) g.visits=(Number(g.visits)||0)+1;
       window.__JD_STATS=window.__JD_STATS||{};
       window.__JD_STATS['gameClicks_'+sid]=(Number(window.__JD_STATS['gameClicks_'+sid])||0)+1;
     }catch(_e){}
+    _jdEnsureSession().then(function(u){
+      if(!u) return;
+      var b=_db.batch();
+      _jdStatInc(b,'s_g_'+sid,{k:'sg',name:nm,gid:String(gameId)},['clicks']);
+      _jdStatInc(b,'s_d_'+day,{k:'sd',day:day},['clicks']);
+      return b.commit();
+    }).catch(function(e){ _jdStatsWarn('click',e); });
   }catch(e){}
 }
-function _ensureStatsAuth(cb){ if(cb) cb(); }          /* ya no hace falta sesión anónima */
-function _fbListenStatsPublic(){}                      /* las visitas por juego se cargan por REST en la home */
+function _ensureStatsAuth(cb){ if(cb) cb(); }
+function _fbListenStatsPublic(){}
+
+/* Lee los clics por juego (para POPULAR). 1) Firestore con sesión; 2) respaldo público siteConfig/popular */
+window.__JD_VISITS_TOTAL=0;
+function _jdLoadPopularStats(force){
+  var FS='https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/';
+  var KEY='AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M';
+  function iv(f){ return f?Number(f.integerValue||f.doubleValue||0):0; }
+  var base={}, total=0;
+  /* histórico antiguo (público) */
+  var legacy=fetch(FS+'siteConfig/stats?key='+KEY,{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d||!d.fields) return; total+=iv(d.fields.visits);
+    Object.keys(d.fields).forEach(function(k){ if(k.indexOf('gameClicks_')===0) base[k]=(base[k]||0)+iv(d.fields[k]); });
+  }).catch(function(){});
+  var live=_jdEnsureSession().then(function(u){
+    if(!u) throw new Error('sin sesión');
+    return Promise.all([ _db.collection('ratings').where('k','==','sg').get(), _db.collection('ratings').where('k','==','sd').get() ]);
+  }).then(function(rs){
+    rs[0].forEach(function(d){ var o=d.data(); base['gameClicks_'+_jdStatsSafeId(o.gid||d.id.replace(/^s_g_/,''))]=(base['gameClicks_'+_jdStatsSafeId(o.gid||d.id.replace(/^s_g_/,''))]||0)+(o.clicks||0); });
+    rs[1].forEach(function(d){ total+=(d.data().visits||0); });
+    return true;
+  }).catch(function(){ return false; });
+  return Promise.all([legacy,live]).then(function(r){
+    if(r[1]) return;
+    /* respaldo: ranking publicado por el panel */
+    return fetch(FS+'siteConfig/popular?key='+KEY,{cache:'no-store'}).then(function(x){return x.ok?x.json():null;}).then(function(d){
+      var m=d&&d.fields&&d.fields.ranks&&d.fields.ranks.mapValue&&d.fields.ranks.mapValue.fields; if(!m) return;
+      Object.keys(m).forEach(function(k){ base['gameClicks_'+k]=Math.max(base['gameClicks_'+k]||0,iv(m[k])); });
+    }).catch(function(){});
+  }).then(function(){
+    window.__JD_STATS=base; window.__JD_VISITS_TOTAL=total;
+    try{ (window.__JD_STATIC_GAMES||[]).forEach(function(g){ var v=base['gameClicks_'+_jdStatsSafeId(g.id)]; if(v) g.visits=v; }); }catch(e){}
+    try{ if(typeof currentFilter!=='undefined'&&currentFilter==='popular'&&typeof renderGames==='function') renderGames(); }catch(e){}
+    return base;
+  });
+}
+window.__jdLoadStats=_jdLoadPopularStats;
 
 /* Panel de estadísticas dentro de Ajustes (admin) */
-var _jdStatsTimer=null;
 function _listenStats(){
-  function get(path){
-    return fetch('https://firestore.googleapis.com/v1/projects/joeldroid-mods/databases/(default)/documents/'+path+(path.indexOf('?')>=0?'&':'?')+'key=AIzaSyD1-2HWci10K1klI7AqS-t1D0LfI_0FV9M',{cache:'no-store'})
-      .then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
-  }
-  function iv(f){ return f? Number(f.integerValue||f.doubleValue||0):0; }
-  Promise.all([ get('siteConfig/stats'), get('siteStats?pageSize=400'), get('gameStats?pageSize=300') ]).then(function(r){
-    var data={ visits:0 };
-    if(r[0]&&r[0].fields){ data.visits=iv(r[0].fields.visits);
-      Object.keys(r[0].fields).forEach(function(k){
-        if(k.indexOf('gameClicks_')===0) data[k]=iv(r[0].fields[k]);
-        if(k.indexOf('gameName_')===0) data[k]=(r[0].fields[k]||{}).stringValue||'';
-      }); }
-    ((r[1]&&r[1].documents)||[]).forEach(function(d){ data.visits+=iv((d.fields||{}).visits); });
-    ((r[2]&&r[2].documents)||[]).forEach(function(d){
-      var id=(d.name||'').split('/').pop(), f=d.fields||{};
-      data['gameClicks_'+id]=(data['gameClicks_'+id]||0)+iv(f.clicks);
-      if(f.name&&f.name.stringValue) data['gameName_'+id]=f.name.stringValue;
-    });
+  _jdLoadPopularStats(true).then(function(base){
+    var data={visits:window.__JD_VISITS_TOTAL||0};
+    Object.keys(base||{}).forEach(function(k){ data[k]=base[k]; });
+    (siteState.gamesList||[]).forEach(function(g){ data['gameName_'+_jdStatsSafeId(g.id)]=g.name; });
     _renderStatsPanel(data);
   });
 }
@@ -6130,9 +6187,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── Elementos seguros: ya existen porque DOMContentLoaded garantiza DOM listo
   var cy = document.getElementById('current-year');
-  if(cy) cy.textContent = new Date().getFullYear();
+  if(cy) cy.textContent='2018\u2013'+new Date().getFullYear();
   var cyd = document.getElementById('current-year-det');
-  if(cyd) cyd.textContent = new Date().getFullYear();
+  if(cyd) cyd.textContent='2018\u2013'+new Date().getFullYear();
 
   // ── Fondo animado, escena, FABs
   setTimeout(function(){ applyBgTheme(siteState.bgTheme||'neon'); }, 0);
@@ -6230,8 +6287,8 @@ window.onload=function(){
   if(!_wlCacheHit) renderGames();
   applyUIChanges();applyTranslations(sl);checkDeepLink();
   if(location.hash==='#policies') setTimeout(function(){ try{jdOpenPolicies();}catch(e){} },0);
-  var cy=document.getElementById("current-year");if(cy)cy.textContent=new Date().getFullYear();
-  var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent=new Date().getFullYear();
+  var cy=document.getElementById("current-year");if(cy)cy.textContent='2018\u2013'+new Date().getFullYear();
+  var cyd=document.getElementById("current-year-det");if(cyd)cyd.textContent='2018\u2013'+new Date().getFullYear();
   setTimeout(function(){applyBgTheme(siteState.bgTheme||"neon");},0);
   _updateFAB();_restoreScene();setTimeout(_fillGHInputs,500);_initShareBtn();
   setTimeout(_initFirebase,0);
@@ -6257,6 +6314,24 @@ window.onload=function(){
 </button>
 
 <!-- ══ MODAL AUTH — Login / Registro / Reset ════════════════════ -->
+<!-- Formulario: Pedir actualización -->
+<div id="jd-req-modal" class="auth-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="auth-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3 class="jd-req-title" data-jd2="req_form_title">Pedir actualización</h3>
+      <button onclick="jdCloseReqForm()" data-jd2-title="close" aria-label="Cerrar" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border-color);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <label class="jd-auth-label" data-jd2="req_f_game">Nombre del juego</label>
+    <input id="jd-req-game" type="text" class="auth-input" maxlength="80" autocomplete="off">
+    <label class="jd-auth-label" data-jd2="req_f_ver">¿Qué versión pides?</label>
+    <input id="jd-req-ver" type="text" class="auth-input" maxlength="30" placeholder="1.5.4" autocomplete="off">
+    <label class="jd-auth-label" data-jd2="req_f_url">URL de la Play Store (opcional)</label>
+    <input id="jd-req-url" type="url" class="auth-input" maxlength="300" placeholder="https://play.google.com/store/apps/details?id=..." autocomplete="off">
+    <div id="jd-req-status" class="jd-req-st"></div>
+    <button id="jd-req-send" class="auth-btn" onclick="jdSendReq()" data-jd2="req_send">Enviar reporte</button>
+  </div>
+</div>
+
 <div id="auth-modal" class="auth-modal" style="display:none">
   <div class="auth-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
@@ -6598,6 +6673,7 @@ function jdTab(key){
     try{ if(typeof resetPage==='function') resetPage(); else setFilter('all'); }catch(e){ try{setFilter('all');}catch(_){} }
   }else{
     try{ setFilter(key); }catch(e){}
+    if(key==='popular'&&window.__jdLoadStats) window.__jdLoadStats(true);
   }
   ['home','all','updated','popular'].forEach(function(k){
     var b=document.getElementById('jd-tab-'+k);
@@ -6661,6 +6737,75 @@ window.addEventListener('load', function(){
   if(document.readyState==='complete') setTimeout(clean,1200);
   else window.addEventListener('load', function(){ setTimeout(clean,1200); });
 })();
+</script>
+<script>
+/* ═══════════ v2026.11.11 — fechas, formulario "Pedir actualización", idiomas ═══════════ */
+var JD_BIZ_MAIL='business.joeldroidmods@gmail.com';
+function _jdEsc2(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function updateBannerBasedOnFilter(){}      /* el inicio queda libre: sin banners */
+function jdUpdateSummary(){}
+
+/* Fecha completa en tarjetas: "11 de noviembre de 2026" */
+function jdRefreshDates(){
+  Array.prototype.forEach.call(document.querySelectorAll('.jd-date[data-ts]'),function(e){ e.textContent=window._jdDateTxt(Number(e.getAttribute('data-ts'))); });
+  var d=document.getElementById('det-lastupd'); if(d&&d.dataset.ts) d.textContent=jdFmtDate(Number(d.dataset.ts),true);
+}
+function jdDetailExtras(game){
+  try{
+    var d=document.getElementById('det-lastupd');
+    if(d){ if(game.timestamp>0){ d.dataset.ts=game.timestamp; d.textContent=jdFmtDate(game.timestamp,true);} else { d.dataset.ts=''; d.textContent='—'; } }
+    JDI18N.apply(document.getElementById('det-newver'));
+  }catch(e){}
+}
+
+/* ── Formulario: el usuario escribe qué juego/versión pide ── */
+function jdOpenReqForm(){
+  var g=(siteState.gamesList||[]).filter(function(x){return String(x.id)===String(currentDetailId);})[0]||{};
+  var m=document.getElementById('jd-req-modal'); if(!m) return;
+  document.getElementById('jd-req-game').value=g.name||'';
+  document.getElementById('jd-req-ver').value='';
+  document.getElementById('jd-req-url').value='';
+  var st=document.getElementById('jd-req-status'); st.textContent=''; st.className='jd-req-st';
+  document.getElementById('jd-req-send').disabled=false;
+  m.style.display='flex'; document.body.style.overflow='hidden';
+  try{ JDI18N.apply(m); }catch(e){}
+}
+function jdCloseReqForm(){ var m=document.getElementById('jd-req-modal'); if(m) m.style.display='none'; document.body.style.overflow=''; }
+document.addEventListener('click',function(e){ var m=document.getElementById('jd-req-modal'); if(m&&e.target===m) jdCloseReqForm(); });
+function jdSendReq(){
+  var $=function(id){ return document.getElementById(id); };
+  var name=$('jd-req-game').value.trim(), ver=$('jd-req-ver').value.trim(), url=$('jd-req-url').value.trim(), st=$('jd-req-status');
+  var say=function(k,cls){ st.textContent=jdT(k); st.className='jd-req-st '+cls; };
+  if(name.length<2||!ver){ say('req_need','err'); return; }
+  if(url&&!/^https?:\/\/\S+$/i.test(url)){ say('req_bad_url','err'); return; }
+  var last=0; try{ last=Number(localStorage.getItem('jd_req_last')||0); }catch(e){}
+  if(Date.now()-last<60000){ say('req_wait','err'); return; }
+  var btn=$('jd-req-send'); btn.disabled=true;
+  var g=(siteState.gamesList||[]).filter(function(x){return String(x.id)===String(currentDetailId);})[0]||{};
+  _jdEnsureSession().then(function(u){
+    if(!u) throw {code:'no-session'};
+    return _db.collection('comments').add({
+      gameId:'__req__', kind:'req', gameName:name.slice(0,80), version:ver.slice(0,30), url:url.slice(0,300),
+      fromGame:String(currentDetailId||''), siteVersion:String(g.ver||'').slice(0,30), name:'reporte', text:'reporte de actualización',
+      uid:u.uid, ts:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }).then(function(){
+    try{ localStorage.setItem('jd_req_last',String(Date.now())); }catch(e){}
+    say('req_sent','ok'); setTimeout(jdCloseReqForm,1700);
+  }).catch(function(e){ btn.disabled=false; say('req_err','err'); try{console.warn('[JD req]',e);}catch(_){} });
+}
+
+/* Idioma: textos nuevos + fechas se actualizan al cambiar de idioma */
+(function(){
+  var o=applyTranslations;
+  applyTranslations=function(){
+    var r=o.apply(this,arguments);
+    try{ JDI18N.apply(); jdRefreshDates(); }catch(e){}
+    return r;
+  };
+})();
+document.addEventListener('DOMContentLoaded',function(){ try{ JDI18N.apply(); }catch(e){} });
+
 </script>
 </body>
 

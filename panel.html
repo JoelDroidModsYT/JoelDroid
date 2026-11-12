@@ -190,6 +190,21 @@ body{
 
 /* ── LOGIN SCREEN ──────────────────────────────── */
 #login-screen{position:fixed;inset:0;z-index:200;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;padding:24px;}
+.usr-note{font-size:10px;line-height:1.55;opacity:.85;padding:12px;border-radius:12px;background:rgba(148,163,184,.1);margin-bottom:10px}
+.usr-btn{width:100%;padding:11px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-weight:900;font-size:11px;cursor:pointer}
+.usr-msg{font-size:10px;font-weight:800;margin-top:8px;min-height:14px}
+.usr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.usr-total b{font-size:30px;font-weight:900;color:#60a5fa;line-height:1;margin-right:8px}.usr-total span{font-size:10px;opacity:.6;font-weight:700}
+.usr-mini{width:34px;height:34px;border:none;border-radius:10px;background:rgba(148,163,184,.15);color:inherit;cursor:pointer;font-size:16px}
+#upd-modal{position:fixed;inset:0;z-index:9999;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;padding:14px}
+.upd-box{width:100%;max-width:520px;max-height:88vh;overflow:auto;background:#0f172a;color:#e2e8f0;border:1px solid rgba(148,163,184,.25);border-radius:20px;padding:16px}
+.upd-h{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#facc15;margin:0 0 8px}
+.upd-top{display:flex;justify-content:space-between;font-size:11px;font-weight:800;padding:6px 10px;border-radius:10px;background:rgba(250,204,21,.08);margin-bottom:5px}
+.upd-card{padding:10px 12px;border:1px solid rgba(148,163,184,.22);border-radius:14px;background:rgba(148,163,184,.07);margin-bottom:8px;font-size:11px}
+.upd-row{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px;flex-wrap:wrap}
+.upd-row span{opacity:.7;font-size:10px}.upd-row a{color:#38bdf8;word-break:break-all;font-size:10px}
+.upd-row button{border:none;background:rgba(239,68,68,.18);color:#f87171;border-radius:8px;padding:3px 8px;cursor:pointer}
+.upd-badge{display:none;margin-left:5px;background:#facc15;color:#000;border-radius:99px;padding:0 6px;font-size:10px}
 </style>
 </head>
 <body>
@@ -233,6 +248,7 @@ body{
     <div class="flex justify-between items-center">
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
       <div class="flex gap-2">
+        <button onclick="jdOpenUpdReports()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#f59e0b,#d97706);">📩 Actualizaciones<span id="upd-badge" class="upd-badge">0</span></button>
         <button onclick="openEmailPanel()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 0 10px rgba(220,38,38,.4)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail
         </button>
@@ -274,7 +290,13 @@ body{
         </div>
         <!-- Top juegos clickeados -->
         <div id="stats-panel-content" style="margin-top:8px"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0"><button onclick="jdRateAllMissing()" style="padding:9px;border:none;border-radius:10px;background:rgba(250,204,21,.15);color:#facc15;font-size:9px;font-weight:900;cursor:pointer">⭐ Calificar juegos sin nota</button><button onclick="jdCleanCommentEmails()" style="padding:9px;border:none;border-radius:10px;background:rgba(239,68,68,.15);color:#f87171;font-size:9px;font-weight:900;cursor:pointer">🧹 Limpiar correos en comentarios</button></div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
+          <button onclick="jdDiagnostico()" style="padding:9px;border:none;border-radius:10px;background:rgba(56,189,248,.15);color:#38bdf8;font-size:9px;font-weight:900;cursor:pointer">🩺 Diagnóstico</button>
+          <button onclick="jdMarkAllToday()" style="padding:9px;border:none;border-radius:10px;background:rgba(34,197,94,.15);color:#4ade80;font-size:9px;font-weight:900;cursor:pointer">📅 Marcar todos actualizados hoy</button>
+          <button onclick="jdCleanCommentEmails()" style="grid-column:1/3;padding:9px;border:none;border-radius:10px;background:rgba(239,68,68,.15);color:#f87171;font-size:9px;font-weight:900;cursor:pointer">🧹 Limpiar correos en comentarios</button>
+        </div>
+        <div id="diag-out" style="font-size:10px;line-height:1.7;margin-bottom:8px"></div>
         <button onclick="refreshStats()" style="width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:10px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 14px rgba(37,99,235,.4);margin-top:6px">📊 Actualizar Analytics</button>
       </div>
 
@@ -616,33 +638,12 @@ body{
         <textarea id="editor-features" class="ged-input ged-textarea" placeholder="Monedas Infinitas, Sin Anuncios, Todo Desbloqueado, Sin Virus"></textarea>
       </div>
       <div class="ged-section">
-        <div class="ged-section-title">⭐ Calificación inicial (Google Play)</div>
-        <label class="ged-label">Enlace de Google Play o nombre del paquete (opcional)</label>
-        <input type="text" id="editor-play-hint" class="ged-input" placeholder="https://play.google.com/store/apps/details?id=..." style="margin-bottom:8px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <div><label class="ged-label">Nota (0-5)</label><input type="number" step="0.1" min="0" max="5" id="editor-play-rating" class="ged-input" placeholder="4.5"></div>
-          <div><label class="ged-label">Votos</label><input type="number" min="0" id="editor-play-count" class="ged-input" placeholder="120000"></div>
+        <div class="ged-section-title">⭐ Puntuación en la Play Store</div>
+        <p style="font-size:9px;opacity:.6;margin:0 0 8px;line-height:1.5">Entra a la Play Store del juego, mira su nota y escríbela aquí. Se muestra de inicio; cuando los usuarios puntúen, la nota se va ajustando sola. Si nadie puntúa, se queda esta.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label class="ged-label">Nota (0 a 5)</label><input type="number" step="0.1" min="0" max="5" id="editor-play-rating" class="ged-input" placeholder="4.5"></div>
+          <div><label class="ged-label">Cantidad de votos (opcional)</label><input type="number" min="0" id="editor-play-count" class="ged-input" placeholder="120000"></div>
         </div>
-        <button type="button" onclick="jdEditorFindRating()" style="width:100%;padding:9px;font-size:10px;font-weight:900;border:none;border-radius:10px;background:rgba(250,204,21,.15);color:#facc15;cursor:pointer">🔎 Buscar nota en Google Play</button>
-        <p style="font-size:9px;opacity:.5;margin-top:6px">Si lo dejas vacío, al guardar el bot intenta buscarla solo con el nombre.</p>
-      </div>
-      <div class="ged-section">
-        <div class="ged-section-title">Icono del Juego</div>
-        <img id="ged-icon-preview" class="ged-icon-preview" src="" alt="preview">
-        <label class="ged-label">URL de la imagen</label>
-        <input type="url" id="editor-icon-url" class="ged-input" placeholder="https://play-lh.googleusercontent.com/..." style="margin-bottom:10px"
-          oninput="(function(v){var p=document.getElementById('ged-icon-preview');if(v){p.src=v;p.className='ged-icon-preview show';}else{p.className='ged-icon-preview';}})(this.value)">
-        <label class="ged-label">— o sube desde tu dispositivo —</label>
-        <input type="file" id="editor-icon-file" accept="image/*" style="display:none" onchange="(function(f){if(f.files&&f.files[0]){var p=document.getElementById('ged-icon-preview');p.src=URL.createObjectURL(f.files[0]);p.className='ged-icon-preview show';}})(this)">
-        <div class="ged-file-btn" onclick="document.getElementById('editor-icon-file').click()">📂 Seleccionar imagen local</div>
-        <p style="font-size:8px;color:rgba(16,185,129,.75);font-weight:800;margin-top:8px;line-height:1.4">Las imágenes nuevas se optimizan y se guardan en base64 dentro de Firebase/Firestore. No se usa Firebase Storage.</p>
-      </div>
-            <div class="ged-section">
-        <div class="ged-section-title">📸 Capturas de Pantalla (máx. 4)</div>
-        <div style="font-size:8px;color:rgba(56,189,248,.6);margin-bottom:10px;padding:6px 8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.15);border-radius:8px;line-height:1.5">
-          Hasta 4 imágenes (estilo Play Store). Sube desde tu dispositivo (se comprimen a Base64 liviano para Firestore, sin Storage) o pega una URL. Se muestran con scroll horizontal en el sitio.
-        </div>
-        <div id="ged-screens-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
       </div>
       <div class="ged-section">
         <div class="ged-section-title">Advertencia al Usuario</div>
@@ -752,7 +753,7 @@ body{
       </div>
       <div style="flex:1;min-width:0">
         <p style="font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;line-height:1">Gmail Panel</p>
-        <p id="ep-sub-text" style="font-size:9px;opacity:.45;font-weight:600;margin-top:1px">serviciosjoeldroidmods@gmail.com</p>
+        <p id="ep-sub-text" style="font-size:9px;opacity:.45;font-weight:600;margin-top:1px">business.joeldroidmods@gmail.com</p>
       </div>
       <button onclick="closeEmailPanel()" style="width:36px;height:36px;border-radius:50%;background:var(--search-bg);border:1px solid var(--border-color);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-secondary)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -782,7 +783,7 @@ body{
       <div class="ep-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <p class="ep-card-title" style="margin-bottom:0">👥 Usuarios vinculados</p>
-          <span id="ep-user-count" style="font-size:10px;font-weight:900;color:var(--brand-color);background:rgba(37,99,235,.12);padding:3px 10px;border-radius:20px">0</span>
+          <button onclick="epExportUsers()" style="font-size:9px;font-weight:900;padding:4px 8px;border:none;border-radius:8px;background:rgba(16,185,129,.15);color:#34d399;cursor:pointer;margin-right:6px">⬇ CSV</button><span id="ep-user-count" style="font-size:10px;font-weight:900;color:var(--brand-color);background:rgba(37,99,235,.12);padding:3px 10px;border-radius:20px">0</span>
         </div>
         <div class="ep-users" id="ep-users-list"><div style="text-align:center;padding:24px;opacity:.35;font-size:10px">No hay usuarios</div></div>
       </div>
@@ -1566,7 +1567,7 @@ function openGameEditor(gameId){
     _es('editor-dlpage-name2').value=g.dlPageName2||'';_es('editor-dlpage-ver2').value=g.dlPageVer2||'';
     _es('editor-dlpage-size2').value=g.dlPageSize2||'';_es('editor-dlpage-btn2').value=g.dlPageBtn2||'';
     _es('editor-icon-url').value=g.thumb||'';
-    _es('editor-play-hint').value=g.playUrl||'';_es('editor-play-rating').value=g.playRating||'';_es('editor-play-count').value=g.playRatingCount||'';
+    _es('editor-play-rating').value=g.playRating||'';_es('editor-play-count').value=g.playRatingCount||'';
     var _gss=Array.isArray(g.screenshots)?g.screenshots.slice(0,4):[];
     _GED_SCREENS=['','','',''];for(var _si=0;_si<_gss.length;_si++)_GED_SCREENS[_si]=_gss[_si]||'';
     _GED_SCREENS_FILES=[null,null,null,null];_gedRenderScreens();
@@ -1811,16 +1812,10 @@ function processSaveGameData(editId,data){
 }
 
 function _processSaveGameDataReady(editId,data){
-  var _pr=parseFloat((document.getElementById('editor-play-rating')||{}).value)||0;
-  data.playRating=_pr; data.playRatingCount=parseInt((document.getElementById('editor-play-count')||{}).value,10)||0;
-  data.playUrl=((document.getElementById('editor-play-hint')||{}).value||'').trim();
-  if(!(_pr>0)&&data.name){
-    showToast('🔎 Buscando calificación en Google Play…');
-    return jdFindPlayRating(data.name,data.playUrl).then(function(r){
-      data.playRating=r.rating;data.playRatingCount=r.count;data.playUrl=r.url;data.playPackage=r.pkg;
-      _processSaveGameDataReady2(editId,data);
-    }).catch(function(){ showToast('ℹ️ Sin nota de Google Play (puedes ponerla a mano)'); _processSaveGameDataReady2(editId,data); });
-  }
+  /* La puntuación de la Play Store la escribes tú a mano (la ves en la tienda). */
+  var pr=parseFloat((document.getElementById('editor-play-rating')||{}).value)||0;
+  data.playRating=Math.max(0,Math.min(5,pr));
+  data.playRatingCount=parseInt((document.getElementById('editor-play-count')||{}).value,10)||0;
   _processSaveGameDataReady2(editId,data);
 }
 function _processSaveGameDataReady2(editId,data){
@@ -1967,7 +1962,9 @@ function _buildGamesPayload(list){
       dlPageSize2:          g.dlPageSize2 || '',
       dlPageBtn2:           g.dlPageBtn2 || '',
       playRating:           g.playRating || 0,
-      playRatingCount:      g.playRatingCount || 0
+      playRatingCount:      g.playRatingCount || 0,
+      playUrl:              g.playUrl || '',
+      playVersion:          g.playVersion || ''
     };
   });
   return JSON.stringify({
@@ -2244,108 +2241,9 @@ function _jdPublishAll(changed, deletedId){
 
 /* 3) Estadísticas: lee siteStats (por día) + gameStats (por juego) + histórico siteConfig/stats */
 var _jdStatsUnsubs=[];
-function _listenStats(){
-  if(!_db) return;
-  _jdStatsUnsubs.forEach(function(u){ try{u();}catch(e){} }); _jdStatsUnsubs=[];
-  var S={legacy:{},days:{},games:{}};
-  var draw=function(){ _renderDashboard(S); };
-  _db.collection('siteConfig').doc('stats').get().then(function(d){ S.legacy=d.exists?d.data():{}; draw(); }).catch(function(){});
-  _jdStatsUnsubs.push(_db.collection('siteStats').onSnapshot(function(snap){
-    S.days={}; snap.forEach(function(d){ S.days[d.id]=d.data(); }); draw();
-  },function(e){ showToast('⚠️ Estadísticas: '+(e&&e.code)+' — publica firestore.rules'); }));
-  _jdStatsUnsubs.push(_db.collection('gameStats').onSnapshot(function(snap){
-    S.games={}; snap.forEach(function(d){ S.games[d.id]=d.data(); }); draw();
-  },function(){}));
-}
-function _renderDashboard(S){
-  var hoy=_hoy(), mes=hoy.slice(0,7), days=S.days||{}, legacy=S.legacy||{};
-  var legDaily=legacy.daily||{}, legMonthly=legacy.monthly||{};
-  function dayVisits(d){ return ((days[d]||{}).visits||0)+(legDaily[d]||0); }
-  var mesTotal=legMonthly[mes]||0, total=legacy.visits||0, newMes=0;
-  Object.keys(days).forEach(function(d){ total+=days[d].visits||0; if(d.indexOf(mes)===0) newMes+=days[d].visits||0; });
-  mesTotal=mesTotal+newMes;
-  var set=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=Number(v).toLocaleString(); };
-  set('stat-today',dayVisits(hoy)); set('stat-month',mesTotal); set('stat-total',total);
-  var chart=document.getElementById('stats-chart'), labels=document.getElementById('stats-chart-labels');
-  var dias=_diasAnteriores(7), vals=dias.map(dayVisits), maxVal=Math.max.apply(null,vals.concat([1]));
-  var lab=['Do','Lu','Ma','Mi','Ju','Vi','Sa'], cols=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ec4899','#60a5fa'];
-  if(chart) chart.innerHTML=vals.map(function(v,i){
-    var pct=Math.max(4,Math.round(v/maxVal*100)), isHoy=dias[i]===hoy, col=isHoy?'#38bdf8':cols[i%cols.length];
-    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><span style="font-size:7px;font-weight:900;color:'+col+';opacity:'+(v>0?1:.3)+'">'+v+'</span><div style="width:100%;height:'+pct+'%;min-height:3px;background:'+col+';border-radius:4px 4px 0 0"></div></div>';
-  }).join('');
-  if(labels) labels.innerHTML=dias.map(function(d){
-    var l=lab[new Date(d+'T12:00:00').getDay()], h=d===hoy;
-    return '<span style="flex:1;font-size:7px;font-weight:900;text-align:center;color:'+(h?'#38bdf8':'rgba(255,255,255,.35)')+'">'+l+(h?' ●':'')+'</span>';
-  }).join('');
-  var panel=document.getElementById('stats-panel-content'); if(!panel) return;
-  var map={};
-  Object.keys(legacy).forEach(function(k){ if(k.indexOf('gameClicks_')===0){ var id=k.slice(11); map[id]={name:legacy['gameName_'+id]||id,count:legacy[k]||0}; } });
-  Object.keys(S.games||{}).forEach(function(id){ var g=S.games[id]; map[id]=map[id]||{name:g.name||id,count:0}; map[id].count+=g.clicks||0; if(g.name) map[id].name=g.name; });
-  var top=Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return b.count-a.count;}).slice(0,8);
-  if(!top.length){ panel.innerHTML='<p style="font-size:9px;opacity:.3;text-align:center;padding:10px">Sin clicks registrados aún.</p>'; return; }
-  var mx=top[0].count||1, bc=['#60a5fa','#a78bfa','#34d399','#f59e0b','#f472b6','#06b6d4','#fb923c','#818cf8'];
-  var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');};
-  panel.innerHTML='<p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(167,139,250,.7);margin-bottom:8px">🔥 Juegos más clickeados</p>'+top.map(function(c,i){
-    var pct=Math.round(c.count/mx*100), col=bc[i%bc.length];
-    return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px;color:rgba(255,255,255,.8)">'+esc(c.name)+'</span><span style="font-size:9px;font-weight:900;color:'+col+'">'+c.count+'</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px"></div></div></div>';
-  }).join('');
-}
-
 /* 4) BOT DE CALIFICACIÓN — busca la nota REAL en Google Play (por nombre o por enlace) */
-var _JD_PROXIES=[
-  function(u){return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u);},
-  function(u){return 'https://corsproxy.io/?'+encodeURIComponent(u);}
-];
-function _jdProxyFetch(url){
-  var i=0;
-  return new Promise(function(res,rej){
-    (function next(){
-      if(i>=_JD_PROXIES.length) return rej(new Error('proxy'));
-      var ctl=new AbortController(), t=setTimeout(function(){ctl.abort();},9000);
-      fetch(_JD_PROXIES[i++](url),{signal:ctl.signal}).then(function(r){ clearTimeout(t); if(!r.ok) throw 0; return r.text(); })
-        .then(function(h){ if(!h||h.length<500) throw 0; res(h); }).catch(function(){ clearTimeout(t); next(); });
-    })();
-  });
-}
-function jdFindPlayRating(name, hint){
-  var pkg=(String(hint||'').match(/[?&]id=([\w.]+)/)||String(hint||'').match(/^([a-z][\w]*(?:\.[\w]+)+)$/i)||[])[1];
-  var getPkg=pkg?Promise.resolve(pkg):_jdProxyFetch('https://play.google.com/store/search?q='+encodeURIComponent(name)+'&c=apps&hl=en&gl=US').then(function(h){
-    var m=h.match(/\/store\/apps\/details\?id=([\w.]+)/); if(!m) throw new Error('sin resultados'); return m[1];
-  });
-  return getPkg.then(function(p){
-    return _jdProxyFetch('https://play.google.com/store/apps/details?id='+p+'&hl=en&gl=US').then(function(h){
-      var r=h.match(/"ratingValue"\s*:\s*"?([\d.]+)"?/), c=h.match(/"ratingCount"\s*:\s*"?(\d+)"?/);
-      if(!r) throw new Error('sin calificación');
-      return {rating:Math.round(parseFloat(r[1])*10)/10, count:c?parseInt(c[1],10):0, pkg:p, url:'https://play.google.com/store/apps/details?id='+p};
-    });
-  });
-}
 /* Botón del editor */
-function jdEditorFindRating(){
-  var name=(document.getElementById('editor-name')||{}).value||'', hint=(document.getElementById('editor-play-hint')||{}).value||'';
-  if(!name.trim()&&!hint.trim()){ showToast('Escribe primero el nombre del juego'); return; }
-  showToast('🔎 Buscando en Google Play…');
-  jdFindPlayRating(name.trim(),hint.trim()).then(function(r){
-    document.getElementById('editor-play-rating').value=r.rating;
-    document.getElementById('editor-play-count').value=r.count;
-    document.getElementById('editor-play-hint').value=r.url;
-    showToast('⭐ Google Play: '+r.rating+' ('+r.count.toLocaleString()+' votos)');
-  }).catch(function(e){ showToast('⚠️ No se pudo leer Google Play ('+(e&&e.message||'error')+'). Escribe la nota a mano.'); });
-}
 /* Calificar juegos que aún no tienen nota (todos de una vez) */
-function jdRateAllMissing(){
-  if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
-  var todo=(siteState.gamesList||[]).filter(function(g){ return !(g.playRating>0); });
-  if(!todo.length){ showToast('✅ Todos los juegos ya tienen calificación'); return; }
-  var done=0;
-  (function next(i){
-    if(i>=todo.length){ _jdBumpCatalog(siteState.gamesList.length); showToast('⭐ Listo: '+done+' de '+todo.length+' calificados'); return; }
-    var g=todo[i]; showToast('🔎 '+g.name+' ('+(i+1)+'/'+todo.length+')');
-    jdFindPlayRating(g.name,g.playUrl||'').then(function(r){
-      done++; return _db.collection('mods').doc(String(g.id)).set({playRating:r.rating,playRatingCount:r.count,playUrl:r.url,playPackage:r.pkg},{merge:true});
-    }).catch(function(){}).then(function(){ next(i+1); });
-  })(0);
-}
 /* 5) Limpieza de correos ya publicados en comentarios (deja solo la parte anterior a @) */
 function jdCleanCommentEmails(){
   if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
@@ -2362,6 +2260,215 @@ function jdCleanCommentEmails(){
     return b.commit().then(function(){ showToast('✅ '+n+' comentarios limpiados'); });
   }).catch(function(e){ showToast('❌ '+(e&&e.message||e)); });
 }
+
+
+/* ════════════════════════════════════════════════════════════════
+   PANEL v3 — todo funciona con tus reglas actuales (sin editarlas)
+   Datos de visitantes: colecciones `ratings` y `comments` (con sesión).
+   ════════════════════════════════════════════════════════════════ */
+var JD_BIZ_MAIL='business.joeldroidmods@gmail.com';
+function _jdEscP(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── Estadísticas (visitas por día + clics por juego) ── */
+var _jdStatsUnsubs=[], _jdPopPublishedAt=0;
+function _listenStats(){
+  if(!_db) return;
+  _jdStatsUnsubs.forEach(function(u){ try{u();}catch(e){} }); _jdStatsUnsubs=[];
+  var S={legacy:{},days:{},games:{}};
+  var draw=function(){ _renderDashboard(S); };
+  _db.collection('siteConfig').doc('stats').get().then(function(d){ S.legacy=d.exists?d.data():{}; draw(); }).catch(function(){});
+  _jdStatsUnsubs.push(_db.collection('ratings').where('k','==','sd').onSnapshot(function(snap){
+    S.days={}; snap.forEach(function(d){ var o=d.data(); S.days[o.day||d.id.replace('s_d_','')]=o; }); draw();
+  },function(e){ showToast('⚠️ Estadísticas: '+(e&&e.code)+'. Pulsa "Diagnóstico".'); }));
+  _jdStatsUnsubs.push(_db.collection('ratings').where('k','==','sg').onSnapshot(function(snap){
+    S.games={}; snap.forEach(function(d){ var o=d.data(); S.games[o.gid||d.id.replace('s_g_','')]=o; }); draw();
+    _jdPublishPopular(S.games);
+  },function(){}));
+}
+/* El panel publica el ranking en siteConfig/popular (lectura pública) como respaldo para la pestaña POPULAR */
+function _jdPublishPopular(games){
+  if(!_db||!_isAdmin()||Date.now()-_jdPopPublishedAt<45000) return;
+  _jdPopPublishedAt=Date.now();
+  var ranks={}; Object.keys(games).forEach(function(id){ ranks[String(id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40)]=games[id].clicks||0; });
+  _db.collection('siteConfig').doc('popular').set({ranks:ranks,updated:Date.now()}).catch(function(){});
+}
+function _renderDashboard(S){
+  var hoy=_hoy(), mes=hoy.slice(0,7), days=S.days||{}, legacy=S.legacy||{};
+  var legDaily=legacy.daily||{}, legMonthly=legacy.monthly||{};
+  function dayVisits(d){ return ((days[d]||{}).visits||0)+(legDaily[d]||0); }
+  var mesTotal=legMonthly[mes]||0, total=legacy.visits||0;
+  Object.keys(days).forEach(function(d){ total+=days[d].visits||0; if(d.indexOf(mes)===0) mesTotal+=days[d].visits||0; });
+  var set=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=Number(v).toLocaleString(); };
+  set('stat-today',dayVisits(hoy)); set('stat-month',mesTotal); set('stat-total',total);
+  var chart=document.getElementById('stats-chart'), labels=document.getElementById('stats-chart-labels');
+  var dias=_diasAnteriores(7), vals=dias.map(dayVisits), maxVal=Math.max.apply(null,vals.concat([1]));
+  var lab=['Do','Lu','Ma','Mi','Ju','Vi','Sa'], cols=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ec4899','#60a5fa'];
+  if(chart) chart.innerHTML=vals.map(function(v,i){
+    var pct=Math.max(4,Math.round(v/maxVal*100)), isHoy=dias[i]===hoy, col=isHoy?'#38bdf8':cols[i%cols.length];
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><span style="font-size:7px;font-weight:900;color:'+col+';opacity:'+(v>0?1:.3)+'">'+v+'</span><div style="width:100%;height:'+pct+'%;min-height:3px;background:'+col+';border-radius:4px 4px 0 0"></div></div>';
+  }).join('');
+  if(labels) labels.innerHTML=dias.map(function(d){
+    var l=lab[new Date(d+'T12:00:00').getDay()], h=d===hoy;
+    return '<span style="flex:1;font-size:7px;font-weight:900;text-align:center;color:'+(h?'#38bdf8':'rgba(255,255,255,.35)')+'">'+l+(h?' ●':'')+'</span>';
+  }).join('');
+  var panel=document.getElementById('stats-panel-content'); if(!panel) return;
+  var map={};
+  Object.keys(legacy).forEach(function(k){ if(k.indexOf('gameClicks_')===0){ var id=k.slice(11); map[id]={name:legacy['gameName_'+id]||id,count:legacy[k]||0}; } });
+  Object.keys(S.games||{}).forEach(function(id){ var g=S.games[id]; var sid=String(id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40); map[sid]=map[sid]||{name:g.name||id,count:0}; map[sid].count+=g.clicks||0; if(g.name) map[sid].name=g.name; });
+  var top=Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return b.count-a.count;}).slice(0,10);
+  if(!top.length){ panel.innerHTML='<p style="font-size:9px;opacity:.3;text-align:center;padding:10px">Sin clics registrados aún.</p>'; return; }
+  var mx=top[0].count||1, bc=['#fbbf24','#cbd5e1','#fb923c','#60a5fa','#a78bfa','#34d399','#f472b6','#06b6d4','#818cf8','#f59e0b'];
+  panel.innerHTML='<p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:rgba(167,139,250,.7);margin-bottom:8px">🏆 Ranking de juegos (POPULAR)</p>'+top.map(function(c,i){
+    var pct=Math.round(c.count/mx*100), col=bc[i%bc.length];
+    return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;padding-right:8px;color:rgba(255,255,255,.85)">'+(i+1)+'. '+_jdEscP(c.name)+'</span><span style="font-size:9px;font-weight:900;color:'+col+'">'+c.count+'</span></div><div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px"></div></div></div>';
+  }).join('');
+}
+/* Diagnóstico: prueba el mismo camino que usa un visitante (sesión anónima + escritura en `ratings`) */
+function jdDiagnostico(){
+  var box=document.getElementById('diag-out'); if(!box) return;
+  var out=[]; var P=function(ok,t){ out.push((ok?'✅ ':'❌ ')+t); box.innerHTML=out.join('<br>'); };
+  box.innerHTML='Probando…';
+  var app; try{ app=firebase.apps.filter(function(a){return a.name==='diag';})[0]||firebase.initializeApp(FIREBASE_CONFIG,'diag'); }catch(e){ P(false,'No se pudo crear la app de prueba'); return; }
+  var au=app.auth(), db=app.firestore();
+  au.signInAnonymously().then(function(){ P(true,'Inicio de sesión anónimo activado');
+    return db.collection('ratings').doc('_diag').set({k:'diag',t:Date.now()}).then(function(){ P(true,'Los visitantes pueden escribir en "ratings" (estadísticas, votos, usuarios)'); });
+  }).then(function(){
+    return db.collection('ratings').doc('_diag').get().then(function(d){ P(d.exists,'Los visitantes pueden leer "ratings"'); });
+  }).then(function(){
+    return db.collection('comments').add({gameId:'__diag__',kind:'diag',ts:Date.now()}).then(function(r){ P(true,'Los visitantes pueden escribir en "comments" (comentarios y reportes)'); return r.delete().catch(function(){}); });
+  }).catch(function(e){
+    var c=(e&&e.code)||'';
+    if(c==='auth/operation-not-allowed'||c==='auth/admin-restricted-operation') P(false,'El inicio de sesión ANÓNIMO está desactivado. Actívalo en Firebase → Authentication → Sign-in method → Anonymous. (No es una regla: es un interruptor).');
+    else if(c==='permission-denied') P(false,'Tus reglas no dejan escribir/leer aquí ('+(e.message||c)+'). Se necesita que "ratings" y "comments" acepten usuarios con sesión.');
+    else P(false,'Error: '+(c||e&&e.message));
+  });
+}
+
+/* ── Marcar todos los juegos como actualizados HOY ── */
+function jdMarkAllToday(){
+  if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
+  var list=siteState.gamesList||[]; if(!list.length){ showToast('No hay juegos'); return; }
+  if(!confirm('¿Poner la fecha de HOY como "última actualización" en los '+list.length+' juegos?')) return;
+  var now=Date.now(), iso=new Date().toISOString().slice(0,10), b=_db.batch();
+  list.forEach(function(g){ b.set(_db.collection('mods').doc(String(g.id)),{timestamp:now,lastUpdate:iso},{merge:true}); });
+  b.commit().then(function(){
+    list.forEach(function(g){ g.timestamp=now; g.lastUpdate=iso; });
+    showToast('📅 Listo: '+list.length+' juegos con la fecha de hoy'); _jdPublishAll();
+  }).catch(function(e){ showToast('❌ '+(e&&e.code||e)); });
+}
+
+/* ── Actualizaciones pedidas por usuarios ── */
+function jdOpenUpdReports(){
+  var m=document.getElementById('upd-modal'); if(!m) return; m.style.display='flex'; jdLoadUpdReports();
+}
+function jdCloseUpdReports(){ var m=document.getElementById('upd-modal'); if(m) m.style.display='none'; }
+function jdLoadUpdReports(){
+  var box=document.getElementById('upd-list'); if(!box||!_db) return;
+  box.innerHTML='<p style="opacity:.5;font-size:11px;padding:12px">Cargando…</p>';
+  _db.collection('comments').where('gameId','==','__req__').get().then(function(snap){
+    var arr=[]; snap.forEach(function(d){ var o=d.data(); o._id=d.id; arr.push(o); });
+    arr.sort(function(a,b){ return ((b.ts&&b.ts.toMillis)?b.ts.toMillis():0)-((a.ts&&a.ts.toMillis)?a.ts.toMillis():0); });
+    var b=document.getElementById('upd-badge'); if(b){ b.textContent=arr.length; b.style.display=arr.length?'inline-block':'none'; }
+    if(!arr.length){ box.innerHTML='<p style="opacity:.5;font-size:11px;padding:16px;text-align:center">Aún no hay reportes de actualización.</p>'; return; }
+    var cnt={}; arr.forEach(function(o){ var k=String(o.gameName||'').trim().toLowerCase(); cnt[k]=cnt[k]||{n:0,name:o.gameName}; cnt[k].n++; });
+    var top=Object.keys(cnt).map(function(k){return cnt[k];}).sort(function(a,b){return b.n-a.n;}).slice(0,8);
+    var h='<p class="upd-h">🔥 Más pedidos</p>'+top.map(function(t,i){ return '<div class="upd-top"><span>'+(i+1)+'. '+_jdEscP(t.name)+'</span><b>'+t.n+'</b></div>'; }).join('');
+    h+='<p class="upd-h" style="margin-top:14px">📩 Reportes ('+arr.length+')</p>';
+    h+=arr.map(function(o){
+      var dt=(o.ts&&o.ts.toMillis)?new Date(o.ts.toMillis()).toLocaleString('es'):'—';
+      var url=/^https?:\/\//i.test(o.url||'')?'<a href="'+_jdEscP(o.url)+'" target="_blank" rel="noopener noreferrer">'+_jdEscP(o.url.slice(0,60))+'</a>':'<i style="opacity:.4">sin URL</i>';
+      return '<div class="upd-card"><div class="upd-row"><b>'+_jdEscP(o.gameName||'?')+'</b><span>'+dt+'</span></div>'+
+        '<div class="upd-row"><span>Pide versión: <b style="color:#4ade80">'+_jdEscP(o.version||'?')+'</b></span><span>En el sitio: '+_jdEscP(o.siteVersion||'—')+'</span></div>'+
+        '<div class="upd-row">'+url+'<button onclick="jdDelUpdReport(\''+_jdEscP(o._id)+'\')">🗑</button></div></div>';
+    }).join('');
+    box.innerHTML=h;
+  }).catch(function(e){ box.innerHTML='<p style="color:#f87171;font-size:11px;padding:12px">No se pudo leer ('+(e&&e.code)+'). Pulsa Diagnóstico en Estadísticas.</p>'; });
+}
+function jdDelUpdReport(id){ if(!confirm('¿Borrar este reporte?')) return; _db.collection('comments').doc(id).delete().then(jdLoadUpdReports).catch(function(e){ showToast('❌ '+(e&&e.code)); }); }
+
+/* ── Usuarios vinculados (registro permanente, correos cifrados) ── */
+var _jdUsersPriv=null, _jdUsersRows=[];
+function _b64d(s){ var b=atob(s),a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+function _b64e(buf){ var b=new Uint8Array(buf),s=''; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+function _jdDeriveAes(pass,salt){
+  return crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']).then(function(k){
+    return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:250000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  });
+}
+function jdUsersSetup(){
+  var p1=document.getElementById('usr-pass1').value, p2=document.getElementById('usr-pass2').value, msg=document.getElementById('usr-msg');
+  if(p1.length<8){ msg.textContent='Mínimo 8 caracteres.'; return; } if(p1!==p2){ msg.textContent='Las contraseñas no coinciden.'; return; }
+  if(!_db||!_isAdmin()){ msg.textContent='Inicia sesión como admin.'; return; }
+  msg.textContent='Creando clave…';
+  var salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12)), kp;
+  crypto.subtle.generateKey({name:'RSA-OAEP',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['encrypt','decrypt']).then(function(k){
+    kp=k; return Promise.all([crypto.subtle.exportKey('jwk',k.publicKey),crypto.subtle.exportKey('jwk',k.privateKey),_jdDeriveAes(p1,salt)]);
+  }).then(function(r){
+    return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},r[2],new TextEncoder().encode(JSON.stringify(r[1]))).then(function(w){
+      return _db.collection('siteConfig').doc('usersKey').set({pub:JSON.stringify(r[0]),wrapped:_b64e(w),salt:_b64e(salt),iv:_b64e(iv),created:Date.now()});
+    });
+  }).then(function(){ msg.textContent='✅ Clave creada. Ahora desbloquea con tu contraseña.'; jdRenderUsersTab(); })
+    .catch(function(e){ msg.textContent='Error: '+(e&&e.message||e); });
+}
+function jdUsersUnlock(){
+  var pass=document.getElementById('usr-pass1').value, msg=document.getElementById('usr-msg'); msg.textContent='Desbloqueando…';
+  _db.collection('siteConfig').doc('usersKey').get().then(function(d){
+    var x=d.data(); return _jdDeriveAes(pass,_b64d(x.salt)).then(function(aes){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:_b64d(x.iv)},aes,_b64d(x.wrapped));
+    });
+  }).then(function(buf){
+    var jwk=JSON.parse(new TextDecoder().decode(buf));
+    return crypto.subtle.importKey('jwk',jwk,{name:'RSA-OAEP',hash:'SHA-256'},false,['decrypt']).then(function(k){ _jdUsersPriv=k; try{sessionStorage.setItem('jd_usr_jwk',JSON.stringify(jwk));}catch(e){} });
+  }).then(function(){ jdRenderUsersTab(); }).catch(function(){ msg.textContent='❌ Contraseña incorrecta.'; });
+}
+function jdRenderUsersTab(){
+  var box=document.getElementById('ep-users-list'); if(!box) return;
+  if(!_db||!_isAdmin()){ box.innerHTML='<div class="usr-note">Inicia sesión como admin para ver los usuarios.</div>'; return; }
+  var restore=Promise.resolve();
+  if(!_jdUsersPriv){ try{ var j=sessionStorage.getItem('jd_usr_jwk'); if(j) restore=crypto.subtle.importKey('jwk',JSON.parse(j),{name:'RSA-OAEP',hash:'SHA-256'},false,['decrypt']).then(function(k){_jdUsersPriv=k;}).catch(function(){}); }catch(e){} }
+  restore.then(function(){ return _db.collection('siteConfig').doc('usersKey').get(); }).then(function(kd){
+    if(!kd.exists){
+      box.innerHTML='<div class="usr-note"><b>Primera vez:</b> crea una contraseña para proteger los correos. Se guardan <b>cifrados</b>: ni el público ni Firebase los ven; solo tú con esta contraseña.<br><br>⚠️ No la pierdas. (Además, todos los correos quedan siempre en Firebase → Authentication.)</div>'+
+        '<input id="usr-pass1" type="password" class="ged-input" placeholder="Contraseña (mín. 8)" style="margin-bottom:6px"><input id="usr-pass2" type="password" class="ged-input" placeholder="Repetir contraseña" style="margin-bottom:8px"><button class="usr-btn" onclick="jdUsersSetup()">🔐 Crear clave de usuarios</button><p id="usr-msg" class="usr-msg"></p>';
+      return;
+    }
+    if(!_jdUsersPriv){
+      box.innerHTML='<div class="usr-note">Escribe tu contraseña para ver los correos de tus usuarios.</div><input id="usr-pass1" type="password" class="ged-input" placeholder="Contraseña" style="margin-bottom:8px" onkeydown="if(event.key===\'Enter\')jdUsersUnlock()"><button class="usr-btn" onclick="jdUsersUnlock()">🔓 Desbloquear</button><p id="usr-msg" class="usr-msg"></p>';
+      return;
+    }
+    box.innerHTML='<div class="usr-note">Cargando usuarios…</div>';
+    return _db.collection('ratings').where('k','==','u').get().then(function(snap){
+      var rows=[], jobs=[];
+      snap.forEach(function(d){ var o=d.data(); var r={uid:d.id.replace(/^u_/,''),username:o.username||'?',email:'',has:!!o.enc,created:(o.createdAt&&o.createdAt.toMillis)?o.createdAt.toMillis():0,last:(o.lastLogin&&o.lastLogin.toMillis)?o.lastLogin.toMillis():0}; rows.push(r);
+        if(o.enc) jobs.push(crypto.subtle.decrypt({name:'RSA-OAEP'},_jdUsersPriv,_b64d(o.enc)).then(function(b){ r.email=new TextDecoder().decode(b); }).catch(function(){ r.email='(no se pudo descifrar)'; })); });
+      return Promise.all(jobs).then(function(){ _jdUsersRows=rows.sort(function(a,b){return (b.created||b.last)-(a.created||a.last);}); jdDrawUsers(''); });
+    });
+  }).catch(function(e){ box.innerHTML='<div class="usr-note" style="color:#f87171">No se pudo leer ('+(e&&e.code||e&&e.message)+'). Pulsa Diagnóstico en Estadísticas.</div>'; });
+}
+function jdDrawUsers(q){
+  var box=document.getElementById('ep-users-list'); if(!box) return; q=(q||'').toLowerCase();
+  var rows=_jdUsersRows.filter(function(r){ return !q||r.username.toLowerCase().indexOf(q)>=0||r.email.toLowerCase().indexOf(q)>=0; });
+  var cnt=document.getElementById('ep-user-count'); if(cnt) cnt.textContent=_jdUsersRows.length+' '+(_jdUsersRows.length===1?'usuario':'usuarios');
+  var COLORS=['#3b82f6','#8b5cf6','#06b6d4','#ec4899','#10b981','#f59e0b'];
+  box.innerHTML='<div class="usr-top"><div class="usr-total"><b>'+_jdUsersRows.length+'</b><span>usuarios vinculados con Gmail</span></div><button class="usr-mini" onclick="jdRenderUsersTab()">↻</button></div>'+
+    '<input class="ged-input" placeholder="Buscar usuario o correo…" value="'+_jdEscP(q)+'" oninput="jdDrawUsers(this.value)" style="margin-bottom:10px">'+
+    (rows.length?rows.map(function(u,i){ var bg=COLORS[i%COLORS.length];
+      return '<div class="ep-user-row"><div class="ep-uav" style="background:linear-gradient(135deg,'+bg+','+bg+'88)">'+_jdEscP(u.username.slice(0,2).toUpperCase())+'</div><div style="flex:1;min-width:0"><p class="ep-uname">'+_jdEscP(u.username)+'</p><p class="ep-uemail">'+(u.email?_jdEscP(u.email):'<i style="opacity:.5">correo aún no guardado (se completa cuando vuelva a entrar)</i>')+'</p></div><span class="ep-badge">'+(u.created?new Date(u.created).toLocaleDateString('es'):'—')+'</span></div>'; }).join(''):'<div class="usr-note">Sin resultados.</div>');
+}
+function epRefreshUsers(){ jdRenderUsersTab(); }
+function epExportUsers(){
+  if(!_jdUsersRows.length){ showToast('Primero desbloquea la lista'); return; }
+  var rows=['usuario,correo'].concat(_jdUsersRows.map(function(u){return '"'+u.username+'","'+u.email+'"';}));
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'})); a.download='usuarios-joeldroid.csv'; a.click();
+}
+function _getAuthUsers(){ return _jdUsersRows.filter(function(u){return u.email&&u.email.indexOf('@')>0;}); }
+
+function jdRefreshUpdBadge(){
+  if(!_db||!_isAdmin()) return;
+  _db.collection('comments').where('gameId','==','__req__').get().then(function(sn){ var b=document.getElementById('upd-badge'); if(b){ b.textContent=sn.size; b.style.display=sn.size?'inline-block':'none'; } }).catch(function(){});
+}
+setInterval(function(){ try{ jdRefreshUpdBadge(); }catch(e){} },60000);
+setTimeout(function(){ try{ jdRefreshUpdBadge(); }catch(e){} },6000);
 
 function refreshStats(){
   if(!_db){showToast('⚠️ Firebase no conectado');return;}
@@ -2387,7 +2494,7 @@ function epShowTab(tab){
 }
 function epUpdateSubText(){
   var el=document.getElementById('ep-sub-text');var cfg=_getEmailJSConfig();
-  if(el){el.textContent=cfg&&cfg.key?'✅ serviciosjoeldroidmods@gmail.com — Conectado':'serviciosjoeldroidmods@gmail.com';el.style.color=cfg&&cfg.key?'#10b981':'';}
+  if(el){el.textContent=cfg&&cfg.key?'✅ business.joeldroidmods@gmail.com — Conectado':'business.joeldroidmods@gmail.com';el.style.color=cfg&&cfg.key?'#10b981':'';}
   var conn=document.getElementById('ep-conn-status');
   if(conn){conn.innerHTML=cfg&&cfg.key?'<span style="color:#10b981">✅ EmailJS configurado — Listo para enviar</span>':'<span style="color:#f59e0b">⚠️ Sin configurar</span>';}
 }
@@ -2399,15 +2506,6 @@ function epSaveConfig(){
   if(window.emailjs){try{emailjs.init(key);}catch(e){}}
   epShowStatus('ep-status-config','ok','✅ Configuración guardada');epUpdateSubText();
 }
-function epRefreshUsers(){
-  var users=_getAuthUsers();
-  var countEl=document.getElementById('ep-user-count');if(countEl)countEl.textContent=users.length+' '+(users.length===1?'usuario':'usuarios');
-  var list=document.getElementById('ep-users-list');if(!list)return;
-  if(!users.length){list.innerHTML='<div style="text-align:center;padding:20px;opacity:.35;font-size:10px">No hay usuarios registrados aún</div>';return;}
-  var COLORS=['#3b82f6','#8b5cf6','#06b6d4','#ec4899','#10b981','#f59e0b'];
-  list.innerHTML=users.map(function(u,i){var bg=COLORS[i%COLORS.length];var init=(u.username||'?').slice(0,2).toUpperCase();return'<div class="ep-user-row"><div class="ep-uav" style="background:linear-gradient(135deg,'+bg+','+bg+'88)">'+init+'</div><div style="flex:1;min-width:0"><p class="ep-uname">'+u.username+'</p><p class="ep-uemail">'+u.email+'</p></div><span class="ep-badge">Gmail</span></div>';}).join('');
-}
-function _getAuthUsers(){try{return JSON.parse(localStorage.getItem('jd_users')||'[]');}catch(e){return[];}}
 function _getEmailJSConfig(){try{return JSON.parse(localStorage.getItem('jd_emailjs')||'null');}catch(e){return null;}}
 function epSendAll(){
   var subj=(document.getElementById('ep-subj')||{}).value||'';var body=(document.getElementById('ep-body')||{}).value||'';
@@ -2437,10 +2535,10 @@ function _epDoSend(subj,body,cfg,statusId,progId,pbarId){
   var prog=progId?document.getElementById(progId):null;var pbar=pbarId?document.getElementById(pbarId):null;
   if(prog)prog.style.display='block';
   var ok=0,fail=0,n=users.length;
-  var footer='\n\n— JoelDroid Mods YT\nserviciosjoeldroidmods@gmail.com';
+  var footer='\n\n— JoelDroid Mods YT\nbusiness.joeldroidmods@gmail.com';
   _loadEmailJS(cfg,function(){
     users.forEach(function(u){
-      emailjs.send(cfg.svc,cfg.tpl,{to_email:u.email,to_name:u.username,subject:subj,message:body+footer,app_name:'JoelDroid Mods YT',reply_to:'serviciosjoeldroidmods@gmail.com'})
+      emailjs.send(cfg.svc,cfg.tpl,{to_email:u.email,to_name:u.username,subject:subj,message:body+footer,app_name:'JoelDroid Mods YT',reply_to:'business.joeldroidmods@gmail.com'})
         .then(function(){ok++;if(pbar)pbar.style.width=Math.round((ok+fail)/n*100)+'%';if(ok+fail===n){epShowStatus(statusId,'ok','✅ Enviado a '+ok+'/'+n);if(prog)setTimeout(function(){if(prog)prog.style.display='none';},3000);}})
         .catch(function(){fail++;if(ok+fail===n)epShowStatus(statusId,fail===n?'err':'ok','✅ '+ok+'/'+n+(fail?' ('+fail+' errores)':''));});
     });
@@ -2496,5 +2594,6 @@ window.addEventListener('DOMContentLoaded',function(){
   },1500);
 });
 </script>
+<div id="upd-modal" role="dialog" aria-modal="true"><div class="upd-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:14px;font-weight:900;margin:0">📩 Actualizaciones pedidas</h3><div style="display:flex;gap:6px"><button onclick="jdLoadUpdReports()" class="usr-mini">↻</button><button onclick="jdCloseUpdReports()" class="usr-mini">✕</button></div></div><div id="upd-list"></div></div></div>
 </body>
 </html>
