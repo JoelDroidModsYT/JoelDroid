@@ -436,9 +436,9 @@ var SYNC_CONFIG = { pollMs:3000,
   window._jdDateTxt=function(ts){
     try{
       if(!ts) return '';
-      if(window.jdFmtDate) return window.jdFmtDate(ts,true);
+      if(window.jdFmtDate) return window.jdFmtDate(ts,'card');
       var l=window.__JD_PRELANG||'es', m={'zh-CN':'zh-CN',pt:'pt-BR'};
-      return new Intl.DateTimeFormat(m[l]||l,{day:'numeric',month:'long',year:'numeric'}).format(new Date(ts)).replace(/\./g,'');
+      return new Intl.DateTimeFormat(m[l]||l,{day:'numeric',month:'short',year:'numeric'}).format(new Date(ts)).replace(/\./g,'');
     }catch(e){ return ''; }
   };
   /* ── utilidades ─────────────────────────────────────────────────── */
@@ -501,6 +501,13 @@ var SYNC_CONFIG = { pollMs:3000,
     };
     if(Array.isArray(d.screenshots)) g.screenshots=d.screenshots;
     return g;
+  }
+  /* Juegos de prueba/vacíos (p. ej. "Mi primer mod") nunca se muestran */
+  function isPlaceholder(g){
+    var n=String(g.name||'').trim().toLowerCase();
+    if(!n) return true;
+    if(/^mi primer mod/.test(n)||/^my first mod/.test(n)) return true;
+    return !g.thumb && !g.downloadButtonLink1 && !g.downloadButtonLink2;
   }
   function sortGames(list){
     return (list||[]).slice().sort(function(a,b){
@@ -574,9 +581,9 @@ var SYNC_CONFIG = { pollMs:3000,
       card.innerHTML=
         '<div class="jd-img-box">'+
           '<img src="'+esc(window._jdFastImg(g.thumb||''))+'" class="jd-img icon-img-loaded loaded" width="120" height="120" loading="eager" decoding="async" fetchpriority="'+(i<6?'high':'auto')+'" referrerpolicy="no-referrer" alt="'+esc(g.name)+'" onload="this.classList.add(\'loaded\')" onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">'+
-          '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+esc(mc)+','+esc(mc)+'cc);">'+esc(modLabel)+'</span>'+
-          ((g.updateBadgeVisible&&g.updateBadgeText)?'<span class="jd-upd-badge">'+esc(g.updateBadgeText)+'</span>':'')+
-          (ver?'<span class="jd-ver-pill">'+esc(ver)+'</span>':'')+
+          '<span translate="no" class="notranslate jd-mod-badge" style="background:linear-gradient(135deg,'+esc(mc)+','+esc(mc)+'cc);">'+esc(modLabel)+'</span>'+
+          ((g.updateBadgeVisible&&g.updateBadgeText)?'<span translate="no" class="notranslate jd-upd-badge">'+esc(g.updateBadgeText)+'</span>':'')+
+          (ver?'<span translate="no" class="notranslate jd-ver-pill">'+esc(ver)+'</span>':'')+
         '</div>'+
         '<div class="jd-info">'+
           '<p class="jd-name notranslate">'+esc(g.name)+'</p>'+
@@ -643,6 +650,8 @@ var SYNC_CONFIG = { pollMs:3000,
       if(!list||!list.length) return;                       /* nunca vaciar la home por una respuesta vacía */
       if(src==='gist'&&(state.serverDone||state.applied)) return;   /* Gist solo en frío */
       if(src==='cache'&&state.applied) return;
+      list=list.filter(function(g){ return !isPlaceholder(g); });
+      if(!list.length) return;
       var sorted=sortGames(list);
       /* conservar contadores en memoria (no deben provocar repintados) */
       try{
@@ -746,7 +755,7 @@ var SYNC_CONFIG = { pollMs:3000,
   var cached=readCache();
   if(cached){
     state.rev=cached.rev||0; state.savedAt=cached.ts||0;
-    var cg=sortGames(cached.games.map(function(g){ return norm(g); }));
+    var cg=sortGames(cached.games.map(function(g){ return norm(g); }).filter(function(g){ return !isPlaceholder(g); }));
     window.__JD_STATIC_GAMES=cg;
     state.applied=true;
     state.lastFp=fingerprint(cg);
@@ -2409,6 +2418,12 @@ function _jdTranslateNewCards(){
   });
 }
 
+/* El texto del botón lleva el NOMBRE del juego + versión: jamás se traduce */
+function _jdHasGameName(t){
+  try{ var g=(siteState.gamesList||[]).filter(function(x){return String(x.id)===String(currentDetailId);})[0];
+    var nm=g&&g.name?String(g.name).toLowerCase():''; return !!(nm&&String(t).toLowerCase().indexOf(nm.slice(0,8))>=0) || /\.apk\b/i.test(t) || /v?\d+\.\d+/.test(t);
+  }catch(e){ return true; }
+}
 /* Translate detail-view dynamic content injected by Firebase/showDetail */
 function _jdTranslateDetailView(){
   if(currentLang === 'es') return;
@@ -2419,20 +2434,7 @@ function _jdTranslateDetailView(){
       var e = document.getElementById('det-desc'); if(e) e.innerText = tr;
     });
   }
-  /* Download button 1 */
-  var btn1txt = document.getElementById('btn-descarga-1-texto');
-  if(btn1txt){
-    var orig1 = btn1txt.dataset.orig || btn1txt.textContent.trim();
-    if(!btn1txt.dataset.orig) btn1txt.dataset.orig = orig1;
-    if(orig1) trAPI(orig1, function(tr){ var e=document.getElementById('btn-descarga-1-texto'); if(e) e.textContent=tr; });
-  }
-  /* Download button 2 */
-  var btn2txt = document.getElementById('btn-descarga-2-texto');
-  if(btn2txt){
-    var orig2 = btn2txt.dataset.orig || btn2txt.textContent.trim();
-    if(!btn2txt.dataset.orig) btn2txt.dataset.orig = orig2;
-    if(orig2) trAPI(orig2, function(tr){ var e=document.getElementById('btn-descarga-2-texto'); if(e) e.textContent=tr; });
-  }
+  /* Botones de descarga 1 y 2: su título es NOMBRE + versión (.APK) y NUNCA se traduce (antes se reemplazaba por un texto genérico y el nombre desaparecía). */
   /* Mod features tags */
   document.querySelectorAll('#det-mod-features .mod-tag').forEach(function(el){ _jdTranslateEl(el); });
   /* Warning text in download section */
@@ -3055,7 +3057,7 @@ function _renderGamesBatch(list, start, count, replace){
     var modLabel = (g.modBadgeVisible !== false && g.modBadgeText) ? g.modBadgeText : 'MOD';
     var modColor = g.modBadgeBgColor || '#ef4444';
     var updateTag = (g.updateBadgeVisible && g.updateBadgeText)
-      ? '<span class="jd-upd-badge">'+g.updateBadgeText+'</span>' : '';
+      ? '<span translate="no" class="notranslate jd-upd-badge">'+g.updateBadgeText+'</span>' : '';
 
     /* ── Stars: read real rating, always show 5 ────────────────── */
     var miniR   = _loadGameRatings(g.id);
@@ -3081,8 +3083,8 @@ function _renderGamesBatch(list, start, count, replace){
     if(currentFilter === 'popular' && !(siteState.popularBanner && siteState.popularBanner.visible === false)){
       // Llama en SVG (texto/vector, NO emoji del sistema) — trazo blanco, misma forma que el icono Lucide "flame"
       var _flameSvg = '<svg class="jd-flame" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
-      _popularBadgesHtml += '<span class="jd-mod-badge jd-pop-mod" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>';
-      _popularBadgesHtml += '<span class="jd-upd-badge jd-pop-top">'+_flameSvg+'TOP!</span>';
+      _popularBadgesHtml += '<span translate="no" class="notranslate jd-mod-badge jd-pop-mod" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>';
+      _popularBadgesHtml += '<span translate="no" class="notranslate jd-upd-badge jd-pop-top">'+_flameSvg+'TOP!</span>';
     }
 
     /* Carga instantánea: eager + alta prioridad + onload marca .loaded para apagar skeleton */
@@ -3100,11 +3102,11 @@ function _renderGamesBatch(list, start, count, replace){
       ' onerror="this.classList.add(\'loaded\');this.style.opacity=\'.35\'">';
     /* ── VERSION PILL — bajo el ícono, mismo tamaño que mod label ── */
     var _verTxt = (g.ver || g.version || '').toString().trim();
-    var _verHtml = _verTxt ? '<span class="jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
+    var _verHtml = _verTxt ? '<span translate="no" class="notranslate jd-ver-pill">'+_verTxt.replace(/[<>]/g,'')+'</span>' : '';
     card.innerHTML =
       '<div class="jd-img-box">'+
         _imgHtml+
-        (currentFilter==='popular' ? '' : '<span class="jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>')+
+        (currentFilter==='popular' ? '' : '<span translate="no" class="notranslate jd-mod-badge" style="background:linear-gradient(135deg,'+modColor+','+modColor+'cc);">'+modLabel+'</span>')+
         (currentFilter==='popular' ? '' : updateTag)+
         _popularBadgesHtml+
         _verHtml+
@@ -4021,7 +4023,21 @@ function changeBrandColor(color, _save){
 // ════════════════════════════════════════════════════════════════
 
 function applyUIChanges(){
-  var setTxt=function(id,v){var el=document.getElementById(id);if(el)el.innerText=v;};
+  var _jdTrIds={'ann-text-ui':1,'copyright-text-ui':1,'copyright-text-det':1};
+  var setTxt=function(id,v){
+    var el=document.getElementById(id); if(!el) return;
+    if(_jdTrIds[id]){
+      /* texto del panel: se guarda el original y NO se reescribe en español si ya está traducido (evita parpadeo/bucle) */
+      var same=(el.dataset.orig===v);
+      el.dataset.orig=v;
+      if(currentLang==='es'){ if(el.innerText!==v) el.innerText=v; }
+      else if(!same||!el.dataset.trLang||el.dataset.trLang!==currentLang){
+        trAPI(v,function(tr){ var e=document.getElementById(id); if(e&&e.innerText!==tr){ e.innerText=tr; } if(e) e.dataset.trLang=currentLang; });
+      }
+      return;
+    }
+    if(el.innerText!==v) el.innerText=v;
+  };
   setTxt('site-title-ui',siteState.ui.title);
   setTxt('detail-site-title-ui',siteState.ui.title);
   setTxt('site-subtitle-ui',siteState.ui.subtitle);
@@ -4499,6 +4515,7 @@ function _jdHookAuth(){
       _jdAuthResolved=true; _updateFAB(); _updateDetCommentUI();
       if(_currentGameId&&key!==_jdLastAuthKey) initDetRatingsComments(_currentGameId);
       _jdLastAuthKey=key;
+      if(real) setTimeout(_jdFlushPending,1200);
     };
     if(real){ _jdLoadProfile(user,after); }
     else{ if(_jdProfile){ _jdProfile=null; _jdSaveHint(null); } after(); }
@@ -4545,47 +4562,9 @@ function doRegister(){
   }).then(function(){ _jdBusyBtn('auth-btn-register',false,'Crear Cuenta'); });
 }
 
-function _jdRcTx(u,mutator){
-  var gid=String(_currentGameId);
-  var aggRef=_db.collection('ratings').doc('r_'+gid);
-  var voteRef=_db.collection('ratings').doc('v_'+gid+'_'+u.uid);
-  return _db.runTransaction(function(t){
-    return Promise.all([t.get(aggRef),t.get(voteRef)]).then(function(rs){
-      var agg=_jdRcNewAgg(rs[0].exists?rs[0].data():{});
-      var vote={stars:(rs[1].exists&&rs[1].data().stars)||0,react:(rs[1].exists&&rs[1].data().react)||0};
-      mutator(agg,vote);
-      t.set(aggRef,{k:'r',gid:gid,total:agg.total,sum:agg.sum,dist:agg.dist,likes:agg.likes,dislikes:agg.dislikes});
-      t.set(voteRef,{k:'v',gid:gid,uid:u.uid,stars:vote.stars,react:vote.react,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    });
-  });
-}
 function _jdRcStarsHtml(avg){
   var pct=Math.max(0,Math.min(100,avg/5*100));
   return '★★★★★<i style="width:'+pct+'%">★★★★★</i>';
-}
-function _jdRcRenderRating(){
-  var agg=_rcAgg||{}, total=agg.total||0, sum=agg.sum||0;
-  var g=_jdRcGame(), play=(g&&g.playRating>0)?g.playRating:0;
-  var comm=total>0?sum/total:0, avg=0;
-  if(total>0&&play>0) avg=(sum+play*10)/(total+10);     /* la nota de la Play Store pesa como 10 votos y se va ajustando con los votos reales */
-  else if(total>0) avg=comm;
-  else if(play>0) avg=play;
-  var u=_jdRcUser(), mine=(u&&u.real)?_rcMine:{stars:0,react:0};
-  var set=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
-  set('jd-rc-avg',avg>0?avg.toFixed(1):'—');
-  var st=document.getElementById('jd-rc-avgstars'); if(st) st.innerHTML=_jdRcStarsHtml(avg);
-  set('jd-rc-count',total+' '+jdT(total===1?'votes_one':'votes_many'));
-  var dist=(agg.dist&&agg.dist.length===5)?agg.dist:[0,0,0,0,0], mx=Math.max.apply(null,dist.concat([1]));
-  var db=document.getElementById('jd-rc-dist');
-  if(db) db.innerHTML=[5,4,3,2,1].map(function(n){ var c=dist[n-1]||0;
-    return '<div class="jd-rate-row"><span>'+n+'★</span><div class="jd-rate-bar"><i style="width:'+Math.round(c/mx*100)+'%"></i></div><span>'+c+'</span></div>'; }).join('');
-  var src=document.getElementById('jd-rc-src');
-  if(src){ var h=''; if(play>0) h+='<span>▶ '+jdT('src_play')+' '+play.toFixed(1)+'</span>'; if(total>0) h+='<span>👥 '+jdT('src_comm')+' '+comm.toFixed(1)+'</span>'; src.innerHTML=h; }
-  set('jd-rc-your',mine.stars>0?(jdT('rate_yours')+': '+mine.stars+'/5'):jdT('rate_tap'));
-  document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=mine.stars);});
-  set('jd-rc-likes-count',agg.likes||0); set('jd-rc-dislikes-count',agg.dislikes||0);
-  var lb=document.getElementById('jd-rc-like-btn'); if(lb) lb.classList.toggle('on',mine.react===1);
-  var db2=document.getElementById('jd-rc-dislike-btn'); if(db2) db2.classList.toggle('on',mine.react===-1);
 }
 function initDetRatingsComments(gameId){
   _currentGameId=String(gameId);
@@ -4748,32 +4727,107 @@ function _jdRcNewAgg(a){
   return {total:a.total||0,sum:a.sum||0,dist:(a.dist&&a.dist.length===5)?a.dist.slice():[0,0,0,0,0],likes:a.likes||0,dislikes:a.dislikes||0};
 }
 /* Transacción: ajusta el resumen y el voto del usuario de forma atómica */
+/* ── Votos: SIN transacción (no depende de ida y vuelta al servidor) ─────────
+   Se calcula la diferencia contra el voto guardado del usuario y se aplica con
+   incrementos atómicos. Es idempotente: si el envío se repite, no duplica.
+   Si la conexión es lenta, el voto queda pendiente y se reenvía solo. */
+var _JD_PEND_KEY='jd_pend_votes';
+function _jdPendLoad(){ try{ return JSON.parse(localStorage.getItem(_JD_PEND_KEY)||'{}'); }catch(e){ return {}; } }
+function _jdPendSave(o){ try{ if(Object.keys(o).length) localStorage.setItem(_JD_PEND_KEY,JSON.stringify(o)); else localStorage.removeItem(_JD_PEND_KEY); }catch(e){} }
+function _jdTimeout(p,ms){ return new Promise(function(res,rej){ var t=setTimeout(function(){ rej({code:'jd/timeout'}); },ms); p.then(function(v){clearTimeout(t);res(v);},function(e){clearTimeout(t);rej(e);}); }); }
+function _jdRcCommit(uid,gid,want){
+  var voteRef=_db.collection('ratings').doc('v_'+gid+'_'+uid), aggRef=_db.collection('ratings').doc('r_'+gid);
+  return _jdTimeout(voteRef.get(),7000).then(function(d){
+    return d.exists?{stars:d.data().stars||0,react:d.data().react||0}:{stars:0,react:0};
+  }).catch(function(){ return {stars:0,react:0,_unknown:true}; }).then(function(prev){
+    var FV=firebase.firestore.FieldValue, inc=function(n){ return FV.increment(n); };
+    var d={k:'r',gid:gid,
+      total:inc((want.stars>0?1:0)-(prev.stars>0?1:0)), sum:inc(want.stars-prev.stars),
+      likes:inc((want.react===1?1:0)-(prev.react===1?1:0)), dislikes:inc((want.react===-1?1:0)-(prev.react===-1?1:0))};
+    var dm={}; for(var n=1;n<=5;n++){ var dl=(want.stars===n?1:0)-(prev.stars===n?1:0); if(dl) dm['d'+n]=inc(dl); }
+    if(Object.keys(dm).length) d.dm=dm;
+    var b=_db.batch();
+    b.set(aggRef,d,{merge:true});
+    b.set(voteRef,{k:'v',gid:gid,uid:uid,stars:want.stars,react:want.react,updatedAt:FV.serverTimestamp()});
+    return _jdTimeout(b.commit(),15000);
+  });
+}
+function _jdRcSend(u,patch){
+  var gid=String(_currentGameId), cur=_rcMine||{stars:0,react:0};
+  var want={stars:patch.stars!==undefined?patch.stars:(cur.stars||0), react:patch.react!==undefined?patch.react:(cur.react||0)};
+  _rcMine={stars:want.stars,react:want.react}; _jdRcRenderRating();     /* se ve al instante */
+  var pend=_jdPendLoad(); pend[gid+'|'+u.uid]={gid:gid,uid:u.uid,stars:want.stars,react:want.react}; _jdPendSave(pend);
+  return _jdRcCommit(u.uid,gid,want).then(function(){
+    var p=_jdPendLoad(); delete p[gid+'|'+u.uid]; _jdPendSave(p); return true;
+  }).catch(function(e){
+    var c=(e&&e.code)||'';
+    if(c==='jd/timeout'||c==='unavailable'||c==='deadline-exceeded'){ showToast('📡 Conexión lenta: tu voto se enviará solo en cuanto vuelva la señal'); return false; }
+    var p=_jdPendLoad(); delete p[gid+'|'+u.uid]; _jdPendSave(p);
+    if(c==='permission-denied') showToast('❌ Firebase rechazó el voto (permisos). Revisa el panel → Diagnóstico.');
+    else showToast('❌ No se pudo guardar el voto ('+(c||'error')+')');
+    return false;
+  });
+}
+/* Reenvía votos pendientes (otra visita, recuperar señal, iniciar sesión) */
+var _jdFlushing=false;
+function _jdFlushPending(){
+  if(_jdFlushing) return; var pend=_jdPendLoad(), keys=Object.keys(pend); if(!keys.length) return;
+  var u=_jdRcUser(); if(!u||!u.real||!_db) return;
+  _jdFlushing=true;
+  (function next(i){
+    if(i>=keys.length){ _jdFlushing=false; return; }
+    var v=pend[keys[i]]; if(v.uid!==u.uid){ next(i+1); return; }
+    _jdRcCommit(v.uid,v.gid,{stars:v.stars,react:v.react}).then(function(){ var p=_jdPendLoad(); delete p[keys[i]]; _jdPendSave(p); }).catch(function(){}).then(function(){ next(i+1); });
+  })(0);
+}
+window.addEventListener('online',function(){ setTimeout(_jdFlushPending,1500); });
 function jdRcRate(stars){
   if(!_jdRcGameReady()){showToast('Abre un juego primero');return;}
   stars=Math.max(1,Math.min(5,parseInt(stars,10)||0));
   _jdRcRequireLogin(function(u){
-    document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=stars);});
-    _jdRcTx(u,function(agg,vote){
-      var prev=vote.stars||0;
-      if(prev>0){ agg.dist[prev-1]=Math.max(0,agg.dist[prev-1]-1); agg.sum=Math.max(0,agg.sum-prev); agg.total=Math.max(0,agg.total-1); }
-      agg.dist[stars-1]++; agg.sum+=stars; agg.total++; vote.stars=stars;
-    }).then(function(){ showToast('⭐ ¡Valoración guardada!'); })
-      .catch(function(e){ _jdRcFail(e); _jdRcRenderRating(); });
+    _jdRcSend(u,{stars:stars}).then(function(ok){ if(ok) showToast('⭐ ¡Valoración guardada!'); });
   });
 }
-function jdRcLike(){_jdRcReact(1);} function jdRcDislike(){_jdRcReact(-1);}
 function _jdRcReact(val){
   if(!_jdRcGameReady()){showToast('Abre un juego primero');return;}
   _jdRcRequireLogin(function(u){
-    _jdRcTx(u,function(agg,vote){
-      var prev=vote.react||0;
-      if(prev===1) agg.likes=Math.max(0,agg.likes-1);
-      if(prev===-1) agg.dislikes=Math.max(0,agg.dislikes-1);
-      if(prev===val){ vote.react=0; }
-      else{ if(val===1) agg.likes++; else agg.dislikes++; vote.react=val; }
-    }).catch(_jdRcFail);
+    var cur=(_rcMine&&_rcMine.react)||0;
+    _jdRcSend(u,{react:(cur===val)?0:val});
   });
 }
+
+function _jdCompact(n){ n=Number(n)||0; if(n>=1e6) return (n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,'')+'M'; if(n>=1e3) return (n/1e3).toFixed(n>=1e4?0:1).replace(/\.0$/,'')+'K'; return String(n); }
+function _jdRcRenderRating(){
+  var agg=_rcAgg||{}, total=agg.total||0, sum=agg.sum||0;
+  var g=_jdRcGame(), play=(g&&Number(g.playRating)>0)?Number(g.playRating):0, playN=(g&&Number(g.playRatingCount))||0;
+  var comm=total>0?sum/total:0, avg=0;
+  if(total>0&&play>0) avg=(sum+play*10)/(total+10);     /* la nota de la Play Store pesa como 10 votos y se ajusta con los votos reales */
+  else if(total>0) avg=comm;
+  else if(play>0) avg=play;
+  var u=_jdRcUser(), mine=(u&&u.real)?_rcMine:{stars:0,react:0};
+  var set=function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  set('jd-rc-avg',avg>0?avg.toFixed(1):'—');
+  var st=document.getElementById('jd-rc-avgstars'); if(st) st.innerHTML=_jdRcStarsHtml(avg);
+  var shownVotes=total+(play>0?playN:0);
+  set('jd-rc-count',_jdCompact(shownVotes)+' '+jdT(shownVotes===1?'votes_one':'votes_many'));
+  var dist=[0,0,0,0,0];
+  if(agg.dist&&agg.dist.length===5) dist=agg.dist.slice();
+  if(agg.dm) for(var i=1;i<=5;i++) dist[i-1]=(dist[i-1]||0)+(agg.dm['d'+i]||0);
+  dist=dist.map(function(x){ return Math.max(0,x||0); });
+  var mx=Math.max.apply(null,dist.concat([1]));
+  var db=document.getElementById('jd-rc-dist');
+  if(db) db.innerHTML=[5,4,3,2,1].map(function(n){ var c=dist[n-1]||0;
+    return '<div class="jd-rate-row"><span>'+n+'★</span><div class="jd-rate-bar"><i style="width:'+Math.round(c/mx*100)+'%"></i></div><span>'+c+'</span></div>'; }).join('');
+  var src=document.getElementById('jd-rc-src');
+  if(src){ var h=''; if(play>0) h+='<span>▶ '+jdT('src_play')+' '+play.toFixed(1)+(playN>0?' ('+_jdCompact(playN)+')':'')+'</span>'; if(total>0) h+='<span>👥 '+jdT('src_comm')+' '+comm.toFixed(1)+' ('+total+')</span>'; src.innerHTML=h; }
+  set('jd-rc-your',mine.stars>0?(jdT('rate_yours')+': '+mine.stars+'/5'):jdT('rate_tap'));
+  document.querySelectorAll('.jd-rc-star').forEach(function(b){b.classList.toggle('lit',parseInt(b.dataset.v)<=mine.stars);});
+  set('jd-rc-likes-count',Math.max(0,agg.likes||0)); set('jd-rc-dislikes-count',Math.max(0,agg.dislikes||0));
+  var lb=document.getElementById('jd-rc-like-btn'); if(lb) lb.classList.toggle('on',mine.react===1);
+  var db2=document.getElementById('jd-rc-dislike-btn'); if(db2) db2.classList.toggle('on',mine.react===-1);
+}
+
+function jdRcLike(){_jdRcReact(1);} function jdRcDislike(){_jdRcReact(-1);}
 function jdRcSend(){
   if(!_jdRcGameReady()){showToast('Abre un juego primero');return;}
   var inp=document.getElementById('jd-rc-input'); if(!inp) return;
@@ -5596,6 +5650,7 @@ function _initFirebase(){
   try{
     if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     _db     = firebase.firestore();
+    try{ _db.settings({ experimentalAutoDetectLongPolling:true, merge:true }); }catch(_lp){}
     _fbAuth = firebase.auth();
     // ── Persistencia offline — UNA sola llamada ──
     // Sesión persistente — el admin no se desloguea al cerrar
@@ -6805,6 +6860,65 @@ function jdSendReq(){
   };
 })();
 document.addEventListener('DOMContentLoaded',function(){ try{ JDI18N.apply(); }catch(e){} });
+
+/* ═══════════ GUARDIÁN DE IDIOMA v1 — sin bucles, con respaldo automático a Español ═══════════
+   Causas corregidas:
+   · Traducciones lentas de un idioma anterior llegaban tarde y pisaban el idioma nuevo (pt↔en).
+     Ahora cada cambio de idioma tiene una "época": las respuestas viejas se descartan.
+   · Los textos del panel (copyright, comunicado) se reescribían en español antes de traducir.
+   Si aun así algo entra en bucle, el sitio vuelve solo a Español (idioma oficial). */
+window.__JD_EP=window.__JD_EP||0;
+(function(){
+  var rawTr=trAPI;
+  trAPI=function(text,cb){
+    var ep=window.__JD_EP, lg=currentLang;
+    return rawTr(text,function(out){ if(ep!==window.__JD_EP||lg!==currentLang) return; cb(out); });
+  };
+  var calls=[], tripped=false;
+  function trip(why){
+    if(tripped) return; tripped=true;
+    try{ console.warn('[JD idioma] Bucle detectado ('+why+'). Se vuelve a Español.'); }catch(e){}
+    try{ sessionStorage.setItem('jd_lang_lock','1'); localStorage.setItem('selectedLang','es'); }catch(e){}
+    window.__JD_EP++;
+    try{ _jdStopObserver(); }catch(e){}
+    try{ guardObs.forEach(function(o){ o.disconnect(); }); }catch(e){}
+    currentLang='es';
+    try{ document.documentElement.lang='es'; }catch(e){}
+    try{ applyUIChanges(); }catch(e){}
+    try{ applyTranslations('es'); }catch(e){}
+    try{ if(typeof renderGames==='function') renderGames(); }catch(e){}
+    try{ if(currentDetailId){ var d=currentDetailId; currentDetailId=null; showDetail(d); } }catch(e){}
+    try{ showToast('🌐 Idioma restablecido a Español'); }catch(e){}
+    setTimeout(function(){ tripped=false; },15000);
+  }
+  var guardObs=[];
+  var prev=applyTranslations;
+  applyTranslations=function(l){
+    if(tripped&&l!=='es') return;                       /* bloqueado mientras dura el respaldo a Español */
+    if(l==='es'){ window.__JD_EP++; return prev.apply(this,arguments); }
+    var now=Date.now(); calls.push(now); calls=calls.filter(function(t){return now-t<3000;});
+    if(calls.length>14){ trip('demasiados cambios de idioma'); return; }
+    window.__JD_EP++;
+    return prev.apply(this,arguments);
+  };
+  /* Vigila los textos que antes parpadeaban */
+  function watchEl(id){
+    var el=document.getElementById(id); if(!el||typeof MutationObserver==='undefined') return;
+    var hits=[];
+    var o=new MutationObserver(function(){
+      var n=Date.now(); hits.push(n); hits=hits.filter(function(t){return n-t<4000;});
+      if(hits.length>16) trip('parpadeo en #'+id);
+    });
+    o.observe(el,{childList:true,characterData:true,subtree:true}); guardObs.push(o);
+  }
+  document.addEventListener('DOMContentLoaded',function(){ ['copyright-text-ui','copyright-text-det','ann-text-ui'].forEach(watchEl); });
+  /* Elegir un idioma a mano levanta el bloqueo */
+  var rawSel=selectLanguage;
+  selectLanguage=function(){ try{ sessionStorage.removeItem('jd_lang_lock'); }catch(e){} tripped=false; return rawSel.apply(this,arguments); };
+})();
+/* Si el guardián ya actuó en esta sesión, la detección automática se omite */
+try{ if(sessionStorage.getItem('jd_lang_lock')==='1'&&!localStorage.getItem('selectedLang')) localStorage.setItem('selectedLang','es'); }catch(e){}
+
 
 </script>
 </body>
