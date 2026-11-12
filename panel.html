@@ -248,7 +248,6 @@ body{
     <div class="flex justify-between items-center">
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
       <div class="flex gap-2">
-        <button onclick="jdOpenComments()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">💬 Comentarios</button>
         <button onclick="jdOpenUpdReports()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#f59e0b,#d97706);">📩 Actualizaciones<span id="upd-badge" class="upd-badge">0</span></button>
         <button onclick="openEmailPanel()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 0 10px rgba(220,38,38,.4)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail
@@ -295,7 +294,6 @@ body{
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
           <button onclick="jdDiagnostico()" style="padding:9px;border:none;border-radius:10px;background:rgba(56,189,248,.15);color:#38bdf8;font-size:9px;font-weight:900;cursor:pointer">🩺 Diagnóstico</button>
           <button onclick="jdMarkAllToday()" style="padding:9px;border:none;border-radius:10px;background:rgba(34,197,94,.15);color:#4ade80;font-size:9px;font-weight:900;cursor:pointer">📅 Marcar todos actualizados hoy</button>
-          <button onclick="jdCleanPlaceholderGames()" style="grid-column:1/3;padding:9px;border:none;border-radius:10px;background:rgba(249,115,22,.15);color:#fb923c;font-size:9px;font-weight:900;cursor:pointer">🧹 Eliminar juegos de prueba / vacíos</button>
           <button onclick="jdCleanCommentEmails()" style="grid-column:1/3;padding:9px;border:none;border-radius:10px;background:rgba(239,68,68,.15);color:#f87171;font-size:9px;font-weight:900;cursor:pointer">🧹 Limpiar correos en comentarios</button>
         </div>
         <div id="diag-out" style="font-size:10px;line-height:1.7;margin-bottom:8px"></div>
@@ -986,7 +984,6 @@ function _initFirebase(){
   try{
     if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
     _db=firebase.firestore();
-    try{ _db.settings({ experimentalAutoDetectLongPolling:true, merge:true }); }catch(_lp){}
     _fbAuth=firebase.auth();
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady=true;
@@ -1069,18 +1066,13 @@ function _fbSaveGame(gameData,editId){
   var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
   var order=(editId&&idx>=0)?idx:siteState.gamesList.length;
   var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc();
-  var write=ref.set(Object.assign({},gameData,{
+  return ref.set(Object.assign({},gameData,{
     order:order,timestamp:Date.now(),
     updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
     createdAt:(editId&&gameData.createdAt)?gameData.createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }),{merge:true});
-  /* Firestore ya aplicó el cambio localmente; si la red está lenta no dejamos el panel esperando */
-  var slow=new Promise(function(res){ setTimeout(function(){ res('slow'); },9000); });
-  write.catch(function(e){ showToast('❌ Error al guardar: '+(e&&e.message||e)); });
-  return Promise.race([write.then(function(){return 'ok';}),slow]).then(function(r){
-    if(r==='slow') showToast('⏳ Red lenta: ya quedó guardado y se enviará a todos apenas haya conexión');
-    else showToast('✅ Guardado — visible para todos 🌍');
-  });
+  }),{merge:true})
+  .then(function(){showToast('✅ Guardado — visible para todos 🌍');})
+  .catch(function(e){showToast('❌ Error al guardar: '+e.message);throw e;});
 }
 
 function _fbDeleteGame(gameId){
@@ -2471,38 +2463,6 @@ function epExportUsers(){
 }
 function _getAuthUsers(){ return _jdUsersRows.filter(function(u){return u.email&&u.email.indexOf('@')>0;}); }
 
-
-/* ── Moderar comentarios ── */
-function jdOpenComments(){ var m=document.getElementById('cm-modal'); if(!m) return; m.style.display='flex'; jdLoadComments(); }
-function jdCloseComments(){ var m=document.getElementById('cm-modal'); if(m) m.style.display='none'; }
-function jdLoadComments(){
-  var box=document.getElementById('cm-list'); if(!box||!_db) return; box.innerHTML='<p style="opacity:.5;font-size:11px;padding:12px">Cargando…</p>';
-  _db.collection('comments').limit(300).get().then(function(snap){
-    var arr=[]; snap.forEach(function(d){ var o=d.data(); if(o.gameId==='__req__'||o.kind==='diag') return; o._id=d.id; arr.push(o); });
-    arr.sort(function(a,b){ return ((b.ts&&b.ts.toMillis)?b.ts.toMillis():0)-((a.ts&&a.ts.toMillis)?a.ts.toMillis():0); });
-    if(!arr.length){ box.innerHTML='<p style="opacity:.5;font-size:11px;padding:16px;text-align:center">No hay comentarios.</p>'; return; }
-    var games={}; (siteState.gamesList||[]).forEach(function(g){ games[String(g.id)]=g.name; });
-    box.innerHTML=arr.map(function(o){
-      var dt=(o.ts&&o.ts.toMillis)?new Date(o.ts.toMillis()).toLocaleString('es'):'—';
-      return '<div class="upd-card"><div class="upd-row"><b>'+_jdEscP(String(o.name||'?').split('@')[0])+'</b><span>'+dt+'</span></div><div class="upd-row"><span>Juego: '+_jdEscP(games[String(o.gameId)]||o.gameId)+'</span><button onclick="jdDelComment(\''+_jdEscP(o._id)+'\')">🗑</button></div><div style="font-size:11px;line-height:1.5;word-break:break-word">'+_jdEscP(o.text||'')+'</div></div>';
-    }).join('');
-  }).catch(function(e){ box.innerHTML='<p style="color:#f87171;font-size:11px;padding:12px">No se pudo leer ('+(e&&e.code)+')</p>'; });
-}
-function jdDelComment(id){ if(!confirm('¿Borrar este comentario?')) return; _db.collection('comments').doc(id).delete().then(jdLoadComments).catch(function(e){ showToast('❌ '+(e&&e.code)); }); }
-
-/* ── Limpiar juegos de prueba / vacíos (p. ej. "Mi primer mod") ── */
-function jdCleanPlaceholderGames(){
-  if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
-  var bad=(siteState.gamesList||[]).filter(function(g){
-    var n=String(g.name||'').trim().toLowerCase();
-    return !n||/^mi primer mod/.test(n)||/^my first mod/.test(n)||(!g.thumb&&!g.downloadButtonLink1&&!g.downloadButtonLink2);
-  });
-  if(!bad.length){ showToast('✅ No hay juegos de prueba ni vacíos'); return; }
-  if(!confirm('Se eliminarán '+bad.length+' juegos de prueba/vacíos:\n\n'+bad.map(function(g){return '• '+(g.name||'(sin nombre)');}).join('\n'))) return;
-  var b=_db.batch(); bad.forEach(function(g){ b.delete(_db.collection('mods').doc(String(g.id))); });
-  b.commit().then(function(){ showToast('🧹 '+bad.length+' eliminados'); _jdPublishAll(null,null); }).catch(function(e){ showToast('❌ '+(e&&e.code||e)); });
-}
-
 function jdRefreshUpdBadge(){
   if(!_db||!_isAdmin()) return;
   _db.collection('comments').where('gameId','==','__req__').get().then(function(sn){ var b=document.getElementById('upd-badge'); if(b){ b.textContent=sn.size; b.style.display=sn.size?'inline-block':'none'; } }).catch(function(){});
@@ -2635,6 +2595,5 @@ window.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <div id="upd-modal" role="dialog" aria-modal="true"><div class="upd-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:14px;font-weight:900;margin:0">📩 Actualizaciones pedidas</h3><div style="display:flex;gap:6px"><button onclick="jdLoadUpdReports()" class="usr-mini">↻</button><button onclick="jdCloseUpdReports()" class="usr-mini">✕</button></div></div><div id="upd-list"></div></div></div>
-<div id="cm-modal" style="position:fixed;inset:0;z-index:9999;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;padding:14px"><div class="upd-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:14px;font-weight:900;margin:0">💬 Comentarios</h3><div style="display:flex;gap:6px"><button onclick="jdLoadComments()" class="usr-mini">↻</button><button onclick="jdCloseComments()" class="usr-mini">✕</button></div></div><div id="cm-list"></div></div></div>
 </body>
 </html>
