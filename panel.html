@@ -248,6 +248,7 @@ body{
     <div class="flex justify-between items-center">
       <h2 class="text-xl font-black uppercase text-white">Admin Panel</h2>
       <div class="flex gap-2">
+        <button onclick="jdOpenComments()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">💬 Comentarios</button>
         <button onclick="jdOpenUpdReports()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#f59e0b,#d97706);">📩 Actualizaciones<span id="upd-badge" class="upd-badge">0</span></button>
         <button onclick="openEmailPanel()" class="flex items-center gap-1.5 text-white px-3 py-2 rounded-xl text-xs font-black uppercase" style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 0 10px rgba(220,38,38,.4)">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Gmail
@@ -294,6 +295,7 @@ body{
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0">
           <button onclick="jdDiagnostico()" style="padding:9px;border:none;border-radius:10px;background:rgba(56,189,248,.15);color:#38bdf8;font-size:9px;font-weight:900;cursor:pointer">🩺 Diagnóstico</button>
           <button onclick="jdMarkAllToday()" style="padding:9px;border:none;border-radius:10px;background:rgba(34,197,94,.15);color:#4ade80;font-size:9px;font-weight:900;cursor:pointer">📅 Marcar todos actualizados hoy</button>
+          <button onclick="jdCleanPlaceholderGames()" style="grid-column:1/3;padding:9px;border:none;border-radius:10px;background:rgba(249,115,22,.15);color:#fb923c;font-size:9px;font-weight:900;cursor:pointer">🧹 Eliminar juegos de prueba / vacíos</button>
           <button onclick="jdCleanCommentEmails()" style="grid-column:1/3;padding:9px;border:none;border-radius:10px;background:rgba(239,68,68,.15);color:#f87171;font-size:9px;font-weight:900;cursor:pointer">🧹 Limpiar correos en comentarios</button>
         </div>
         <div id="diag-out" style="font-size:10px;line-height:1.7;margin-bottom:8px"></div>
@@ -984,6 +986,7 @@ function _initFirebase(){
   try{
     if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
     _db=firebase.firestore();
+    try{ _db.settings({ experimentalAutoDetectLongPolling:true, merge:true }); }catch(_lp){}
     _fbAuth=firebase.auth();
     _fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
     _fbReady=true;
@@ -1062,17 +1065,29 @@ function _isAdmin(){
 }
 
 function _fbSaveGame(gameData,editId){
-  if(!_db||!_isAdmin()){showToast('🔒 Inicia sesión como admin');return Promise.reject('not-admin');}
-  var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
-  var order=(editId&&idx>=0)?idx:siteState.gamesList.length;
-  var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc();
-  return ref.set(Object.assign({},gameData,{
-    order:order,timestamp:Date.now(),
-    updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
-    createdAt:(editId&&gameData.createdAt)?gameData.createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }),{merge:true})
-  .then(function(){showToast('✅ Guardado — visible para todos 🌍');})
-  .catch(function(e){showToast('❌ Error al guardar: '+e.message);throw e;});
+  if(!_db){var e0=new Error('Firebase todavía no está listo. Espera unos segundos y vuelve a intentar.');e0.code='not-admin';return Promise.reject(e0);}
+  return _ensureAdmin().then(function(isAdm){
+    if(!isAdm){var e1=new Error('Tu sesión de administrador venció o no está activa. Cierra sesión y vuelve a entrar con tu email y contraseña.');e1.code='not-admin';throw e1;}
+    var clean=_cleanForFirestore(gameData); /* quita undefined (ej. juegos viejos sin "visits") */
+    var idx=siteState.gamesList.findIndex(function(g){return String(g.id)===String(editId);});
+    var order=(editId&&idx>=0)?idx:siteState.gamesList.length;
+    var ref=editId?_db.collection('mods').doc(String(editId)):_db.collection('mods').doc();
+    var payload=Object.assign({},clean,{
+      order:order,timestamp:Date.now(),
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt:(editId&&clean.createdAt)?clean.createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return new Promise(function(resolve,reject){
+      var done=false;
+      var t=setTimeout(function(){
+        if(done)return;done=true;
+        showToast('⏳ Red lenta: tu cambio quedó en cola y se enviará apenas haya conexión');resolve('slow');
+      },12000);
+      var w;try{w=ref.set(payload,{merge:true});}catch(ex){clearTimeout(t);done=true;reject(ex);return;}
+      w.then(function(){if(done)return;done=true;clearTimeout(t);showToast('✅ Guardado — visible para todos 🌍');resolve('ok');},
+        function(ex){if(done){showToast('❌ El envío falló después: '+_fbErrMsg(ex));return;}done=true;clearTimeout(t);reject(ex);});
+    });
+  });
 }
 
 function _fbDeleteGame(gameId){
@@ -1084,12 +1099,16 @@ function _fbDeleteGame(gameId){
 
 function _fbSaveSiteConfig(_silent){
   if(!_db||!_isAdmin())return;
-  var cfg=Object.assign({},siteState);
-  delete cfg.gamesList;
+  var cfg;
+  try{cfg=_cleanForFirestore(Object.assign({},siteState,{gamesList:undefined}));}
+  catch(e){showToast('❌ Config: '+(e&&e.message||e));return;}
+  delete cfg.gamesList;delete cfg.updatedAt;
   cfg.updatedAt=firebase.firestore.FieldValue.serverTimestamp();
-  _db.collection('siteConfig').doc('main').set(cfg,{merge:true})
-    .then(function(){if(!_silent)showToast('✅ Config guardada globalmente 🌍');_updateSyncUI(true,'✅ Guardado — todos los usuarios lo ven');})
-    .catch(function(e){showToast('❌ Error: '+e.message);_updateSyncUI(false,'❌ '+e.message);});
+  try{
+    _db.collection('siteConfig').doc('main').set(cfg,{merge:true})
+      .then(function(){if(!_silent)showToast('✅ Config guardada globalmente 🌍');_updateSyncUI(true,'✅ Guardado — todos los usuarios lo ven');})
+      .catch(function(e){showToast('❌ Error: '+_fbErrMsg(e));_updateSyncUI(false,'❌ '+_fbErrMsg(e));});
+  }catch(e){showToast('❌ Error: '+_fbErrMsg(e));_updateSyncUI(false,'❌ '+_fbErrMsg(e));}
 }
 
 function _autoMigrateToFirestore(){
@@ -1180,6 +1199,8 @@ function fbDiagnostico(){
   lines.push('Admin activo: '+(_isAdmin()?'✅':'❌'));
   lines.push('_fbUser UID: '+((_fbUser&&_fbUser.uid)||'ninguno'));
   lines.push('ADMIN_UID: '+(ADMIN_UID||'no configurado'));
+  lines.push('Sesión Firebase activa: '+((_fbAuth&&_fbAuth.currentUser)?'✅':'❌ (cierra sesión y entra de nuevo)'));
+  try{lines.push('Memoria local usada: '+Math.round(JSON.stringify(localStorage).length/1024)+' KB de ~5000');}catch(e){}
   lines.push('UIDs coinciden: '+((_fbUser&&_fbUser.uid===ADMIN_UID)?'✅':'❌'));
   alert(lines.join('\n'));
 }
@@ -1187,12 +1208,63 @@ function fbDiagnostico(){
 // ════════════════════════════════════════════════════════════════
 // SETTINGS
 // ════════════════════════════════════════════════════════════════
+
+/* ═══ JD-FIX: guardado robusto ═══ */
+function _liteGames(list){return (list||[]).map(function(g){var c=Object.assign({},g);
+  if(typeof c.thumb==='string'&&c.thumb.indexOf('data:')===0)c.thumb='';
+  if(Array.isArray(c.screenshots))c.screenshots=c.screenshots.filter(function(u){return typeof u==='string'&&u.indexOf('data:')!==0;});
+  return c;});}
+function _liteState(){var c=Object.assign({},siteState);c.gamesList=_liteGames(siteState.gamesList);return c;}
+/* localStorage tiene ~5 MB: las imágenes base64 de los juegos lo llenaban y saveSettings() lanzaba
+   QuotaExceededError ANTES de programar el envío a Firebase, por eso "no dejaba guardar". */
+function _persistLocal(){
+  try{localStorage.setItem('siteState',JSON.stringify(_liteState()));return true;}
+  catch(e){try{localStorage.removeItem('siteState');}catch(e2){}return false;}
+}
+function _cleanForFirestore(o){return JSON.parse(JSON.stringify(o));} /* quita los undefined que Firestore rechaza */
+function _fbErrMsg(e){
+  var c=(e&&e.code)||'',m=(e&&e.message)||(typeof e==='string'?e:'')||'error desconocido';
+  if(c==='permission-denied'||/permission|insufficient/i.test(m))return 'Firebase rechazó el permiso. Tu sesión de admin venció o las reglas no te permiten escribir. Cierra sesión y vuelve a entrar.';
+  if(c==='not-admin')return m;
+  if(c==='unavailable'||/network|offline/i.test(m))return 'Sin conexión con Firebase. Revisa tu internet.';
+  if(c==='invalid-argument'||/longer than|exceeds|too large|1048576|invalid data|undefined/i.test(m))return 'Los datos del juego no son válidos o pesan más de 1 MB (imágenes muy grandes). Detalle: '+m;
+  if(c==='resource-exhausted')return 'Se alcanzó la cuota de Firebase (límite diario). Detalle: '+m;
+  return m;
+}
+function _ensureAdmin(){
+  return new Promise(function(resolve){
+    var ok=function(u){return !!(u&&ADMIN_UID&&u.uid===ADMIN_UID);};
+    if(!_fbAuth){resolve(false);return;}
+    if(ok(_fbAuth.currentUser)){resolve(true);return;}
+    var settled=false,unsub=null;
+    var finish=function(v){if(settled)return;settled=true;clearTimeout(t);try{if(unsub)unsub();}catch(e){}resolve(v);};
+    var t=setTimeout(function(){finish(ok(_fbAuth.currentUser));},4000);
+    try{unsub=_fbAuth.onAuthStateChanged(function(u){finish(ok(u));});}catch(e){finish(false);}
+  });
+}
+var _savingGame=false,_savingTimer=null;
+function _setSaveBusy(on){
+  _savingGame=!!on;clearTimeout(_savingTimer);
+  var btns=document.querySelectorAll('button[onclick="saveGame()"]');
+  for(var i=0;i<btns.length;i++){var b=btns[i];
+    if(on){if(!b.dataset.jdTxt)b.dataset.jdTxt=b.innerHTML;b.disabled=true;b.style.opacity='.6';b.innerHTML='⏳ Guardando...';}
+    else{b.disabled=false;b.style.opacity='';if(b.dataset.jdTxt){b.innerHTML=b.dataset.jdTxt;delete b.dataset.jdTxt;}}}
+  if(on)_savingTimer=setTimeout(function(){_setSaveBusy(false);},60000); /* seguro anti-bloqueo */
+}
+window.addEventListener('error',function(ev){
+  if(!ev||!ev.message||ev.message==='Script error.'||!ev.filename&&!ev.lineno)return;
+  try{showToast('⚠️ Error del panel: '+ev.message);}catch(e){}
+});
+window.addEventListener('unhandledrejection',function(ev){
+  var r=ev&&ev.reason;if(r==='not-admin'||(r&&r.code==='not-admin'))return;
+  try{showToast('⚠️ '+_fbErrMsg(r));}catch(e){}
+});
 var _saveSettingsTimer=null;
 var _ghCfg=null;
 var _syncPending=false;
 
 function saveSettings(){
-  localStorage.setItem('siteState',JSON.stringify(siteState));
+  _persistLocal();
   clearTimeout(_saveSettingsTimer);
   _saveSettingsTimer=setTimeout(function(){
     if(_fbReady&&_db&&_isAdmin())_fbSaveSiteConfig();
@@ -1723,6 +1795,8 @@ function _prepareGameMediaForFirestore(data){
 }
 
 function saveGame(){
+  if(_savingGame){showToast('⏳ Ya se está guardando...');return;}
+  _setSaveBusy(true);
   var editId=(document.getElementById('editor-game-id')||{value:''}).value||'';
   var fileInput=document.getElementById('editor-icon-file');
   var collectData=function(){
@@ -1833,28 +1907,25 @@ function _processSaveGameDataReady2(editId,data){
     downloadButtonColor1:colorPalette[data.downloadButtonColorKey1]?colorPalette[data.downloadButtonColorKey1].hex:'#3b82f6',
     downloadButtonColor2:colorPalette[data.downloadButtonColorKey2]?colorPalette[data.downloadButtonColorKey2].hex:'#3b82f6'
   });
-  if(_fbReady&&_db&&_isAdmin()){
-    _fbSaveGame(newGame,editId?String(editId):null)
-      .then(function(){
-        renderGameEditorList();closeGameEditor();
-        try{_syncToGitHub();}catch(e){}
-        _jdPublishAll(newGame);
-      })
-      .catch(function(err){showToast('❌ Error Firebase: '+(err.message||err));_saveGameLocal(editId,newGame);});
-  }else{
-    showToast('⏳ Conectando a Firebase...');
-    setTimeout(function(){
-      if(_fbReady&&_db&&_isAdmin()){
-        _fbSaveGame(newGame,editId?String(editId):null)
-          .then(function(){
-            renderGameEditorList();closeGameEditor();
-            try{_syncToGitHub();}catch(e){}
-            _jdPublishAll(newGame);
-          })
-          .catch(function(err){showToast('❌ Error: '+(err.message||err));_saveGameLocal(editId,newGame);});
-      }else{showToast('❌ Sin conexión Firebase.');_saveGameLocal(editId,newGame);}
-    },2000);
-  }
+  _saveGameCommit(editId,newGame);
+}
+
+function _saveGameCommit(editId,newGame){
+  _setSaveBusy(true);
+  _fbSaveGame(newGame,editId?String(editId):null)
+    .then(function(){
+      _setSaveBusy(false);
+      renderGameEditorList();closeGameEditor();
+      try{_syncToGitHub();}catch(e){}
+      try{_jdPublishAll(newGame);}catch(e){}
+    })
+    .catch(function(err){
+      _setSaveBusy(false);
+      var m=_fbErrMsg(err);
+      showToast('❌ NO se guardó: '+m);
+      _updateSyncUI(false,'❌ '+m);
+      alert('❌ No se pudo guardar "'+(newGame.name||'juego')+'"\n\n'+m+'\n\nEl formulario sigue abierto: no perdiste nada. Corrige y pulsa Guardar otra vez.');
+    });
 }
 
 function _saveGameLocal(editId,newGame){
@@ -1883,7 +1954,7 @@ function deleteGameGlobal(gameId){
   if(_isAdmin()){_fbDeleteGame(String(gameId)).then(function(){
     renderGameEditorList();
     _jdPublishAll(null,gameId);
-  });}
+  }).catch(function(){});}
   else{siteState.gamesList=siteState.gamesList.filter(function(g){return String(g.id)!==String(gameId);});saveSettings();renderGameEditorList();showToast('🗑️ Eliminado localmente');}
 }
 
@@ -2024,7 +2095,7 @@ function _syncToGitHub(){
   var cfg=_ghCfg||_loadGHConfig();
   if(!cfg||!cfg.gistId||!cfg.token)return;
   if(_syncPending)return;_syncPending=true;
-  var payload=JSON.stringify({files:{'joeldroid_state.json':{content:JSON.stringify(siteState)}}});
+  var payload=JSON.stringify({files:{'joeldroid_state.json':{content:JSON.stringify(_liteState())}}});
   fetch('https://api.github.com/gists/'+cfg.gistId,{method:'PATCH',headers:{'Authorization':'token '+cfg.token,'Content-Type':'application/json'},body:payload})
     .then(function(r){_syncPending=false;if(r.ok)_showGHStatus('✅ Cambios guardados globalmente','#10b981');else _showGHStatus('⚠️ Error al sincronizar ('+r.status+')','#f59e0b');})
     .catch(function(){_syncPending=false;_showGHStatus('⚠️ Sin conexión','#f59e0b');});
@@ -2037,7 +2108,7 @@ function _loadFromGitHub(cb){
     .then(function(data){
       var file=data&&data.files&&data.files['joeldroid_state.json'];
       if(file&&file.content){
-        try{var remote=JSON.parse(file.content);siteState=_mergeState(remote);localStorage.setItem('siteState',JSON.stringify(siteState));if(cb)cb(true);}
+        try{var remote=JSON.parse(file.content);siteState=_mergeState(remote);_persistLocal();if(cb)cb(true);}
         catch(e){if(cb)cb(false);}
       }else{if(cb)cb(false);}
     }).catch(function(){if(cb)cb(false);});
@@ -2463,6 +2534,38 @@ function epExportUsers(){
 }
 function _getAuthUsers(){ return _jdUsersRows.filter(function(u){return u.email&&u.email.indexOf('@')>0;}); }
 
+
+/* ── Moderar comentarios ── */
+function jdOpenComments(){ var m=document.getElementById('cm-modal'); if(!m) return; m.style.display='flex'; jdLoadComments(); }
+function jdCloseComments(){ var m=document.getElementById('cm-modal'); if(m) m.style.display='none'; }
+function jdLoadComments(){
+  var box=document.getElementById('cm-list'); if(!box||!_db) return; box.innerHTML='<p style="opacity:.5;font-size:11px;padding:12px">Cargando…</p>';
+  _db.collection('comments').limit(300).get().then(function(snap){
+    var arr=[]; snap.forEach(function(d){ var o=d.data(); if(o.gameId==='__req__'||o.kind==='diag') return; o._id=d.id; arr.push(o); });
+    arr.sort(function(a,b){ return ((b.ts&&b.ts.toMillis)?b.ts.toMillis():0)-((a.ts&&a.ts.toMillis)?a.ts.toMillis():0); });
+    if(!arr.length){ box.innerHTML='<p style="opacity:.5;font-size:11px;padding:16px;text-align:center">No hay comentarios.</p>'; return; }
+    var games={}; (siteState.gamesList||[]).forEach(function(g){ games[String(g.id)]=g.name; });
+    box.innerHTML=arr.map(function(o){
+      var dt=(o.ts&&o.ts.toMillis)?new Date(o.ts.toMillis()).toLocaleString('es'):'—';
+      return '<div class="upd-card"><div class="upd-row"><b>'+_jdEscP(String(o.name||'?').split('@')[0])+'</b><span>'+dt+'</span></div><div class="upd-row"><span>Juego: '+_jdEscP(games[String(o.gameId)]||o.gameId)+'</span><button onclick="jdDelComment(\''+_jdEscP(o._id)+'\')">🗑</button></div><div style="font-size:11px;line-height:1.5;word-break:break-word">'+_jdEscP(o.text||'')+'</div></div>';
+    }).join('');
+  }).catch(function(e){ box.innerHTML='<p style="color:#f87171;font-size:11px;padding:12px">No se pudo leer ('+(e&&e.code)+')</p>'; });
+}
+function jdDelComment(id){ if(!confirm('¿Borrar este comentario?')) return; _db.collection('comments').doc(id).delete().then(jdLoadComments).catch(function(e){ showToast('❌ '+(e&&e.code)); }); }
+
+/* ── Limpiar juegos de prueba / vacíos (p. ej. "Mi primer mod") ── */
+function jdCleanPlaceholderGames(){
+  if(!_db||!_isAdmin()){ showToast('🔒 Inicia sesión como admin'); return; }
+  var bad=(siteState.gamesList||[]).filter(function(g){
+    var n=String(g.name||'').trim().toLowerCase();
+    return !n||/^mi primer mod/.test(n)||/^my first mod/.test(n)||(!g.thumb&&!g.downloadButtonLink1&&!g.downloadButtonLink2);
+  });
+  if(!bad.length){ showToast('✅ No hay juegos de prueba ni vacíos'); return; }
+  if(!confirm('Se eliminarán '+bad.length+' juegos de prueba/vacíos:\n\n'+bad.map(function(g){return '• '+(g.name||'(sin nombre)');}).join('\n'))) return;
+  var b=_db.batch(); bad.forEach(function(g){ b.delete(_db.collection('mods').doc(String(g.id))); });
+  b.commit().then(function(){ showToast('🧹 '+bad.length+' eliminados'); _jdPublishAll(null,null); }).catch(function(e){ showToast('❌ '+(e&&e.code||e)); });
+}
+
 function jdRefreshUpdBadge(){
   if(!_db||!_isAdmin()) return;
   _db.collection('comments').where('gameId','==','__req__').get().then(function(sn){ var b=document.getElementById('upd-badge'); if(b){ b.textContent=sn.size; b.style.display=sn.size?'inline-block':'none'; } }).catch(function(){});
@@ -2553,7 +2656,7 @@ var _pendingChanges=false;
 function _markPendingChange(label){_pendingChanges=true;saveSettings();}
 function _flushPendingChanges(){
   _pendingChanges=false;
-  localStorage.setItem('siteState',JSON.stringify(siteState));
+  _persistLocal();
   if(_fbReady&&_db&&_isAdmin())_fbSaveSiteConfig();
   if(_ghCfg&&_ghCfg.token&&_ghCfg.gistId){_syncToGitHub();showToast('✅ Guardando cambios: Visualización global activa 🌍');}
   else showToast('✅ Guardado en Firebase');
@@ -2595,5 +2698,6 @@ window.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <div id="upd-modal" role="dialog" aria-modal="true"><div class="upd-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:14px;font-weight:900;margin:0">📩 Actualizaciones pedidas</h3><div style="display:flex;gap:6px"><button onclick="jdLoadUpdReports()" class="usr-mini">↻</button><button onclick="jdCloseUpdReports()" class="usr-mini">✕</button></div></div><div id="upd-list"></div></div></div>
+<div id="cm-modal" style="position:fixed;inset:0;z-index:9999;background:rgba(2,6,23,.78);display:none;align-items:center;justify-content:center;padding:14px"><div class="upd-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:14px;font-weight:900;margin:0">💬 Comentarios</h3><div style="display:flex;gap:6px"><button onclick="jdLoadComments()" class="usr-mini">↻</button><button onclick="jdCloseComments()" class="usr-mini">✕</button></div></div><div id="cm-list"></div></div></div>
 </body>
 </html>
